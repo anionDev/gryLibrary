@@ -1,0 +1,18 @@
+﻿using System;
+
+namespace GRLibrary.Property
+{
+    public class PropertyChangedEvengArgument<T>
+    {
+        public PropertyChangedEvengArgument(T oldValue, T newValue, DateTime changeMoment)
+        {
+            this.OldValue = oldValue;
+            this.NewValue = newValue;
+            this.ChangeMoment = changeMoment;
+        }
+        public T OldValue { get; }
+        public T NewValue { get; }
+        public DateTime ChangeMoment { get; }
+    }
+
+}
