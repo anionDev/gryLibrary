@@ -106,5 +106,13 @@ namespace GRLibrary
                 }
             }
         }
+
+        public static void CreateFileIfNotExist(string file)
+        {
+            if (!File.Exists(file))
+            {
+                File.Create(file).Close();
+            }
+        }
     }
 }
