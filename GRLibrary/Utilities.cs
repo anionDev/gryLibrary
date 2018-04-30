@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
+using System.Text;
+using System.Text.RegularExpressions;
 
 namespace GRLibrary
 {
@@ -104,6 +107,17 @@ namespace GRLibrary
                         throw;
                     }
                 }
+            }
+        }
+
+        public static DateTime GetDateTakenFromImage(string file)
+        {
+            using (FileStream fileStream = new FileStream(file, FileMode.Open, FileAccess.Read))
+            using (Image image = Image.FromStream(fileStream, false, false))
+            {
+                PropertyItem propItem = image.GetPropertyItem(36867);
+                string dateTaken = new Regex(":").Replace(Encoding.UTF8.GetString(propItem.Value), "-", 2);
+                return DateTime.Parse(dateTaken);
             }
         }
 
