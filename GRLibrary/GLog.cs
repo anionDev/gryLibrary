@@ -75,11 +75,11 @@ namespace GRLibrary
                     this._WriteToLogFile = value;
                     if (!value)
                     {
-                        LogWarning("GLog is going to be disabled.");
+                        LogWarning("GLog.WriteToLogFile is now disabled.");
                     }
                     if (value)
                     {
-                        LogInformation("GLog was enabled.");
+                        //LogInformation("GLog.WriteToLogFile is now enabled.");
                     }
                 }
             }
