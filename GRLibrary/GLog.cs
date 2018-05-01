@@ -39,6 +39,7 @@ namespace GRLibrary
         public bool ConvertTimeToUTCFormat { get; set; }
         private int _AmountOfErrors = 0;
         private int _AmountOfWarnings = 0;
+        bool _IsInConstruction = true;
         public string LogFile
         {
             get
@@ -76,7 +77,10 @@ namespace GRLibrary
                     }
                     if (value)
                     {
-                        //LogInformation("GLog.WriteToLogFile is now enabled.");
+                        if (!_IsInConstruction)
+                        {
+                            LogInformation("GLog.WriteToLogFile is now enabled.");
+                        }
                     }
                 }
             }
@@ -127,6 +131,7 @@ namespace GRLibrary
             this.LoggedMessageTypesInLogFile.Add(LogLevel.Warning);
             this.LoggedMessageTypesInLogFile.Add(LogLevel.Information);
             this.IgnoreErrorsWhileWriteLogItem = false;
+            this._IsInConstruction = false;
         }
         public void LogInformation(string message, string logLineId = "")
         {
