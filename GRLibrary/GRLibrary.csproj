@@ -30,6 +30,9 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="PresentationCore" />
     <Reference Include="System" />
@@ -46,23 +49,26 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ColorGradient.cs" />
+    <Compile Include="Miscellaneous\ColorGradient.cs" />
     <Compile Include="Event\Argument.cs" />
     <Compile Include="Event\EventSender.cs" />
     <Compile Include="Event\IObserver.cs" />
-    <Compile Include="ExtendedColor.cs" />
-    <Compile Include="ExternalProgramExecutor.cs" />
-    <Compile Include="GLog.cs" />
-    <Compile Include="NonPersistentInputHistoryList.cs" />
-    <Compile Include="PercentValue.cs" />
+    <Compile Include="Miscellaneous\ExtendedColor.cs" />
+    <Compile Include="Miscellaneous\ExternalProgramExecutor.cs" />
+    <Compile Include="Miscellaneous\GLog.cs" />
+    <Compile Include="Miscellaneous\NonPersistentInputHistoryList.cs" />
+    <Compile Include="Miscellaneous\PercentValue.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Property\SetNotAllowedException.cs" />
     <Compile Include="Property\InvalidArgumentException.cs" />
     <Compile Include="Property\Property.cs" />
     <Compile Include="Property\PropertyChangedEvengArgument.cs" />
-    <Compile Include="SupervisedThread.cs" />
-    <Compile Include="Utilities.cs" />
-    <Compile Include="SimpleGenericXMLSerializer.cs" />
+    <Compile Include="Miscellaneous\SupervisedThread.cs" />
+    <Compile Include="Miscellaneous\Utilities.cs" />
+    <Compile Include="Miscellaneous\SimpleGenericXMLSerializer.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.manifest" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
