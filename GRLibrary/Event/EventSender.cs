@@ -57,7 +57,7 @@ namespace GRLibrary.Event
                         LogObject.LogError("Error occurred in observer.Update", e,"b586472c");
                     }
 #if DEBUG
-            System.Diagnostics.Debugger.Break();
+          Debugger.Break();
 #endif
                 }
             }

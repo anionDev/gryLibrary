@@ -21,7 +21,7 @@ namespace GRLibrary
                 DataContractSerializer serializer = new DataContractSerializer(typeof(T));
                 using (XmlWriter xmlWriter = XmlWriter.Create(stream, settings))
                 {
-                    serializer.WriteObject(xmlWriter, Encoding);
+                    serializer.WriteObject(xmlWriter, obj);
                 }
                 stream.Seek(0, SeekOrigin.Begin);
                 var streamReader = new StreamReader(stream);
