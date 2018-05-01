@@ -10,7 +10,6 @@ namespace GRLibrary.Event
     {
         public EventSender() : this(null)
         {
-
         }
         public EventSender(GLog logObject)
         {
@@ -56,9 +55,6 @@ namespace GRLibrary.Event
                     {
                         LogObject.LogError("Error occurred in observer.Update", e,"b586472c");
                     }
-#if DEBUG
-          Debugger.Break();
-#endif
                 }
             }
         }
