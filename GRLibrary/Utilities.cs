@@ -128,5 +128,17 @@ namespace GRLibrary
                 File.Create(file).Close();
             }
         }
+        public static void RemoveContentOfFolder(string folder)
+        {
+            DirectoryInfo directoryInfo = new DirectoryInfo(folder);
+            foreach (FileInfo fileInfo in directoryInfo.GetFiles())
+            {
+                fileInfo.Delete();
+            }
+            foreach (DirectoryInfo subDirectoryInfo in directoryInfo.GetDirectories())
+            {
+                subDirectoryInfo.Delete(true);
+            }
+        }
     }
 }
