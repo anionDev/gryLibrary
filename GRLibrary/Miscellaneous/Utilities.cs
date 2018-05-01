@@ -45,7 +45,7 @@ namespace GRLibrary
         }
         public static string TypeArrayToString(Type[] types)
         {
-            return "{" + string.Join(", ", types.Select((type) => type.Name)) + "}";
+            return string.Format("{{{0}}}", string.Join(", ", types.Select((type) => type.Name)));
         }
         public static string GetCommandLineArgumentWithoutProgramPath()
         {
