@@ -52,8 +52,8 @@ namespace GRLibrary
                         RedirectStandardError = true
                     }
                 };
-                process.OutputDataReceived += (object sender, DataReceivedEventArgs e) => this.LogObject.LogInformation(e.Data);
-                process.ErrorDataReceived += (object sender, DataReceivedEventArgs e) =>
+                process.OutputDataReceived += (object sender, DataReceivedEventArgs e) => this.LogObject.LogInformation(e.Data);//TODO execute in another thread
+                process.ErrorDataReceived += (object sender, DataReceivedEventArgs e) =>//TODO execute in another thread
                 {
                     if (this.PrintErrorsAsInformation)
                     {
