@@ -30,7 +30,7 @@ namespace GRLibrary
         public bool AddIdToEveryLogEntry { get; set; }
 
         public ConsoleColor ColorForInfo { get; set; }
-        
+
         public ConsoleColor ColorForWarning { get; set; }
         public ConsoleColor ColorForError { get; set; }
         public ConsoleColor ColorForDebug { get; set; }
@@ -50,14 +50,11 @@ namespace GRLibrary
                 if (!File.Exists(value))
                 {
                     string directoryOfLogFile = Path.GetDirectoryName(value);
-                    if ((!string.IsNullOrEmpty(directoryOfLogFile)) && Directory.Exists(directoryOfLogFile))
+                    if (!(string.IsNullOrWhiteSpace(directoryOfLogFile) || Directory.Exists(directoryOfLogFile)))
                     {
-                        File.Create(value).Dispose();
+                        Directory.CreateDirectory(directoryOfLogFile);
                     }
-                    else
-                    {
-                        throw new Exception("Directory '" + directoryOfLogFile + "' not found");
-                    }
+                    File.Create(value).Dispose();
                 }
                 this._LogFile = value;
             }
