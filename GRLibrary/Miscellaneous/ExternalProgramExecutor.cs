@@ -2,6 +2,8 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Threading;
+
 namespace GRLibrary
 {
     public class ExternalProgrammExecutor
@@ -32,6 +34,12 @@ namespace GRLibrary
         public bool PrintErrorsAsInformation { get; set; }
         private bool _Running = false;
         private readonly ConcurrentQueue<Tuple<GLog.LogLevel, string>> _NotLoggedOutputLines = new ConcurrentQueue<Tuple<GLog.LogLevel, string>>();
+        /// <summary>
+        /// Starts the program which was set in the properties.
+        /// </summary>
+        /// <returns>
+        /// Returns the exit-code of the executed program.
+        /// </returns>
         public int StartConsoleApplicationInCurrentConsoleWindow()
         {
             string originalConsoleTitle = Console.Title;
@@ -56,8 +64,8 @@ namespace GRLibrary
                         RedirectStandardError = true
                     }
                 };
-                process.OutputDataReceived += (object sender, DataReceivedEventArgs e) => EnqueueInformation(e.Data);//TODO execute in another thread
-                process.ErrorDataReceived += (object sender, DataReceivedEventArgs e) =>//TODO execute in another thread
+                process.OutputDataReceived += (object sender, DataReceivedEventArgs e) => EnqueueInformation(e.Data);
+                process.ErrorDataReceived += (object sender, DataReceivedEventArgs e) =>
                 {
                     if (this.PrintErrorsAsInformation)
                     {
@@ -69,6 +77,7 @@ namespace GRLibrary
                     }
                 };
                 _Running = true;
+                new Thread(LogOutput).Start();
                 process.Start();
                 process.BeginOutputReadLine();
                 process.BeginErrorReadLine();
