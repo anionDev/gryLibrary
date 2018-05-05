@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Diagnostics;
 namespace GRLibrary
 {
@@ -28,6 +30,8 @@ namespace GRLibrary
         public string Title { get; set; }
         public string WorkingDirectory { get; set; }
         public bool PrintErrorsAsInformation { get; set; }
+        private bool _Running = false;
+        private readonly ConcurrentQueue<Tuple<GLog.LogLevel, string>> _NotLoggedOutputLines = new ConcurrentQueue<Tuple<GLog.LogLevel, string>>();
         public int StartConsoleApplicationInCurrentConsoleWindow()
         {
             string originalConsoleTitle = Console.Title;
@@ -52,18 +56,19 @@ namespace GRLibrary
                         RedirectStandardError = true
                     }
                 };
-                process.OutputDataReceived += (object sender, DataReceivedEventArgs e) => this.LogObject.LogInformation(e.Data);//TODO execute in another thread
+                process.OutputDataReceived += (object sender, DataReceivedEventArgs e) => EnqueueInformation(e.Data);//TODO execute in another thread
                 process.ErrorDataReceived += (object sender, DataReceivedEventArgs e) =>//TODO execute in another thread
                 {
                     if (this.PrintErrorsAsInformation)
                     {
-                        this.LogObject.LogInformation(e.Data);
+                        EnqueueInformation(e.Data);
                     }
                     else
                     {
-                        this.LogObject.LogError(e.Data);
+                        EnqueueError(e.Data);
                     }
                 };
+                _Running = true;
                 process.Start();
                 process.BeginOutputReadLine();
                 process.BeginErrorReadLine();
@@ -74,10 +79,38 @@ namespace GRLibrary
             {
                 try
                 {
+                    _Running = false;
                     Console.Title = originalConsoleTitle;
                 }
                 finally
                 {
+                    Utilities.NoOperation();
+                }
+            }
+        }
+        private void EnqueueError(string data)
+        {
+            _NotLoggedOutputLines.Enqueue(new Tuple<GLog.LogLevel, string>(GLog.LogLevel.Exception, data));
+        }
+
+        private void EnqueueInformation(string data)
+        {
+            _NotLoggedOutputLines.Enqueue(new Tuple<GLog.LogLevel, string>(GLog.LogLevel.Information, data));
+        }
+        private void LogOutput()
+        {
+            while (_Running)
+            {
+                if (_NotLoggedOutputLines.TryDequeue(out Tuple<GLog.LogLevel, string> logItem))
+                {
+                    if (logItem.Item1.Equals(GLog.LogLevel.Exception))
+                    {
+                        this.LogObject.LogError(logItem.Item2);
+                    }
+                    if (logItem.Item1.Equals(GLog.LogLevel.Information))
+                    {
+                        this.LogObject.LogInformation(logItem.Item2);
+                    }
                 }
             }
         }

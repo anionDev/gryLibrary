@@ -28,6 +28,7 @@ namespace GRLibrary
         public bool WriteExceptionMessageOfExceptionInLogEntry { get; set; }
         public bool WriteExceptionStackTraceOfExceptionInLogEntry { get; set; }
         public bool AddIdToEveryLogEntry { get; set; }
+        public bool WriteLogEntryWhenGLogWIllBeEnabledOrDisabled { get; set; }
 
         public ConsoleColor ColorForInfo { get; set; }
 
@@ -39,7 +40,6 @@ namespace GRLibrary
         public bool ConvertTimeToUTCFormat { get; set; }
         private int _AmountOfErrors = 0;
         private int _AmountOfWarnings = 0;
-        bool _IsInConstruction = true;
         public string LogFile
         {
             get
@@ -71,15 +71,16 @@ namespace GRLibrary
                 if (value != WriteToLogFile)
                 {
                     this._WriteToLogFile = value;
-                    if (!value)
+                    if (WriteLogEntryWhenGLogWIllBeEnabledOrDisabled)
                     {
-                        LogWarning("GLog.WriteToLogFile is now disabled.");
-                    }
-                    if (value)
-                    {
-                        if (!_IsInConstruction)
+
+                        if (value)
                         {
                             LogInformation("GLog.WriteToLogFile is now enabled.");
+                        }
+                        else
+                        {
+                            LogInformation("GLog.WriteToLogFile is now disabled.");
                         }
                     }
                 }
@@ -98,14 +99,9 @@ namespace GRLibrary
             LogInformation("Amount of occurred Errors: " + GetAmountOfErrors().ToString());
             LogInformation("Amount of occurred Warnings: " + GetAmountOfWarnings().ToString());
         }
-        public GLog(string logFile) : this()
+        public GLog(string logFile)
         {
-            this.LogFile = logFile;
-            this.WriteToLogFile = true;
-            this._Initialized = true;
-        }
-        public GLog()
-        {
+            WriteLogEntryWhenGLogWIllBeEnabledOrDisabled = false;
             this.InformationPrefix = "Info";
             this.ErrorPrefix = "Error";
             this.DebugPrefix = "Debug";
@@ -116,14 +112,12 @@ namespace GRLibrary
             this.WriteExceptionStackTraceOfExceptionInLogEntry = true;
             this.AddIdToEveryLogEntry = false;
             this.PrintOutputInConsole = true;
-            this.WriteToLogFile = false;
             this.ColorForDebug = ConsoleColor.DarkBlue;
             this.ColorForError = ConsoleColor.DarkRed;
             this.ColorForInfo = ConsoleColor.Green;
             this.ColorForWarning = ConsoleColor.DarkYellow;
             this.ColorForVerbose = ConsoleColor.Blue;
             this.LogItemIdLength = 8;
-            this._Initialized = true;
             this.LoggedMessageTypesInConsole.Add(LogLevel.Exception);
             this.LoggedMessageTypesInConsole.Add(LogLevel.Warning);
             this.LoggedMessageTypesInConsole.Add(LogLevel.Information);
@@ -131,7 +125,21 @@ namespace GRLibrary
             this.LoggedMessageTypesInLogFile.Add(LogLevel.Warning);
             this.LoggedMessageTypesInLogFile.Add(LogLevel.Information);
             this.IgnoreErrorsWhileWriteLogItem = false;
-            this._IsInConstruction = false;
+
+            if (string.IsNullOrWhiteSpace(logFile))
+            {
+                this.WriteToLogFile = false;
+                this._LogFile = logFile;
+            }
+            else
+            {
+                this.LogFile = logFile;
+                this.WriteToLogFile = true;
+            }
+            this._Initialized = true;
+        }
+        public GLog() : this(string.Empty)
+        {
         }
         public void LogInformation(string message, string logLineId = "")
         {
@@ -221,11 +229,11 @@ namespace GRLibrary
         }
         private void LogIt(string message, LogLevel logLevel, string logLineId)
         {
-            var momentOfLogEntry = DateTime.Now;
             if (!this._Initialized)
             {
                 return;
             }
+            DateTime momentOfLogEntry = DateTime.Now;
             message = message.Trim();
             string originalMessage = message;
             logLineId = logLineId.Trim();
