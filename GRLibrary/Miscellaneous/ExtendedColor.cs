@@ -6,16 +6,16 @@
         public static readonly ExtendedColor White = new ExtendedColor(255, 255, 255, 255);
         public static readonly ExtendedColor Transparency = new ExtendedColor(0, 0, 0, 0);
 
-        private int _EncodingValue;
-        private int _A;
-        private int _R;
-        private int _G;
-        private int _B;
-        private System.Drawing.Color _ColorValue;
+        private readonly int _EncodingValue;
+        private readonly int _A;
+        private readonly int _R;
+        private readonly int _G;
+        private readonly int _B;
+        private readonly System.Drawing.Color _ColorValue;
         private System.Windows.Media.Color _MediaColorValue;
-        private string _ARGBStringValue;
-        private string _RGBStringValue;
-        private System.Windows.Media.Brush _BrushValue;
+        private readonly string _ARGBStringValue;
+        private readonly string _RGBStringValue;
+        private readonly System.Windows.Media.Brush _BrushValue;
         public int Encoding
         {
             get { return this._EncodingValue; }

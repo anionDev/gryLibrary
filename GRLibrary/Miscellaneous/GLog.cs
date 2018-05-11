@@ -16,8 +16,8 @@ namespace GRLibrary
         public string VerbosePrefix { get; set; }
         private string _LogFile;
         private bool _WriteToLogFile;
-        private static object _LockObject = new object();
-        private bool _Initialized = false;
+        private static readonly object _LockObject = new object();
+        private readonly bool _Initialized = false;
         public IList<LogLevel> LoggedMessageTypesInConsole = new List<LogLevel>();
         public IList<LogLevel> LoggedMessageTypesInLogFile = new List<LogLevel>();
         public bool IgnoreErrorsWhileWriteLogItem { get; set; }

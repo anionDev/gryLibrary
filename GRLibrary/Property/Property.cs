@@ -23,11 +23,11 @@ namespace GRLibrary.Property
         [DataMember]
         public bool NotifyAboutChanges = true;
         [DataMember]
-        private T _InitialValue;
+        private readonly T _InitialValue;
         [DataMember]
         private T _Value;
         [DataMember]
-        private Stack<KeyValuePair<DateTime, T>> _History;
+        private readonly Stack<KeyValuePair<DateTime, T>> _History;
         public T InitialValue
         {
             get

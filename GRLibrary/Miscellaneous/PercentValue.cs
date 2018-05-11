@@ -21,7 +21,7 @@ namespace GRLibrary
                 return this._Value;
             }
         }
-        private decimal _Value;
+        private readonly decimal _Value;
         public PercentValue(decimal value)
         {
             if (value < 0)
