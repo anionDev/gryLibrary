@@ -11,11 +11,17 @@ namespace GRLibrary
             Id = Guid.NewGuid();
             Name = Id.ToString();
             LogObject = new GLog();
+            _Thread = new System.Threading.Thread(Execute)
+            {
+                Name = this.Name
+            };
         }
         public string Name { get; set; }
         public Guid Id { get; }
         public Action Action { get; }
-        private void Execute()
+        private bool _Running = false;
+        private System.Threading.Thread _Thread = null;
+private void Execute()
         {
             _Running = true;
             try
@@ -36,9 +42,7 @@ namespace GRLibrary
             }
             LogObject.LogInformation(string.Format("Execution of Action of thread with id {0} and name \"{1}\" finished", Id.ToString(), Name.ToString()));
         }
-        private bool _Running = false;
-        private System.Threading.Thread _Thread = null;
-
+        
         public void Start()
         {
             if (!_Running)
@@ -46,10 +50,6 @@ namespace GRLibrary
                 try
                 {
                     LogObject.LogInformation(string.Format("Start startprocess of thread with id {0} and name \"{1}\"", Id.ToString(), Name.ToString()));
-                    _Thread = new System.Threading.Thread(Execute)
-                    {
-                        Name = this.Name
-                    };
                     _Thread.Start();
                 }
                 catch (Exception exception)
