@@ -11,7 +11,12 @@ namespace GRLibrary
 {
     public static class Utilities
     {
-
+        public static bool EqualsForLists<T>(IList<T> list1, IList<T> list2)
+        {
+            IList<T> firstNotSecond = list1.Except(list2).ToList();
+            IList<T> secondNotFirst = list2.Except(list1).ToList();
+            return !firstNotSecond.Any() && !secondNotFirst.Any();
+        }
         public static IEnumerable<string> GetFilesOfFolderRecursively(string folder)
         {
             List<string> result = new List<string>();

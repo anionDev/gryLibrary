@@ -7,9 +7,9 @@ namespace GRLibrary
         public GLog LogObject { get; set; }
         public SupervisedThread(Action action)
         {
-            this.Action = action;
+            Action = action;
             Id = Guid.NewGuid();
-            Name =Id.ToString();
+            Name = Id.ToString();
             LogObject = new GLog();
         }
         public string Name { get; set; }
@@ -23,7 +23,7 @@ namespace GRLibrary
                 LogObject.LogInformation(string.Format("Start execution of Action of thread with id {0} and name \"{1}\"", Id.ToString(), Name.ToString()));
                 Action();
             }
-            catch (System.Exception exception)
+            catch (Exception exception)
             {
                 LogObject.LogError(string.Format("Error occurred while executing Action of thread with id {0} and name \"{1}\"", Id.ToString(), Name.ToString()), exception);
 #if DEBUG
