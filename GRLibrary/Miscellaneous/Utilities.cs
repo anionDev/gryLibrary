@@ -11,6 +11,19 @@ namespace GRLibrary
 {
     public static class Utilities
     {
+        public static void Shuffle<T>(this IList<T> list)
+        {
+            Random random = new Random();
+            int n = list.Count;
+            while (n > 1)
+            {
+                n--;
+                int k = random.Next(n + 1);
+                T value = list[k];
+                list[k] = list[n];
+                list[n] = value;
+            }
+        }
         public static bool EqualsForLists<T>(IList<T> list1, IList<T> list2)
         {
             IList<T> firstNotSecond = list1.Except(list2).ToList();
