@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace GRLibrary//test
+namespace GRLibrary
 {
     public class SupervisedThread
     {
