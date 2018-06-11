@@ -94,8 +94,8 @@ namespace GRLibrary.Property
             this._InitialValue = initialValue;
             this.PropertyName = propertyName;
             ResetToInitialValue();
-            AddValuesToHistory=addValuesToHistory;
-            if (!AddValuesToHistory)
+            this.AddValuesToHistory =addValuesToHistory;
+            if (!this.AddValuesToHistory)
             {
                 ResetHistory();
             }
@@ -120,7 +120,7 @@ namespace GRLibrary.Property
         }
         public T GetValueByTimestamp(DateTime dateTime)
         {
-            var history = History;
+            var history = this.History;
             while (history.Count > 0)
             {
                 KeyValuePair<DateTime, T> current = history.Pop();

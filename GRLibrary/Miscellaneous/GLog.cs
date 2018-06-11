@@ -68,10 +68,10 @@ namespace GRLibrary
             }
             set
             {
-                if (value != WriteToLogFile)
+                if (value != this.WriteToLogFile)
                 {
                     this._WriteToLogFile = value;
-                    if (WriteLogEntryWhenGLogWIllBeEnabledOrDisabled)
+                    if (this.WriteLogEntryWhenGLogWIllBeEnabledOrDisabled)
                     {
 
                         if (value)
@@ -101,7 +101,7 @@ namespace GRLibrary
         }
         public GLog(string logFile)
         {
-            WriteLogEntryWhenGLogWIllBeEnabledOrDisabled = false;
+            this.WriteLogEntryWhenGLogWIllBeEnabledOrDisabled = false;
             this.InformationPrefix = "Info";
             this.ErrorPrefix = "Error";
             this.DebugPrefix = "Debug";
@@ -241,7 +241,7 @@ namespace GRLibrary
             {
                 message = "[" + logLineId + "] " + message;
             }
-            if (AddIdToEveryLogEntry)
+            if (this.AddIdToEveryLogEntry)
             {
                 message = "[" + GetLogItemId() + "] " + message;
             }
@@ -250,7 +250,7 @@ namespace GRLibrary
             string part3 = "] " + message;
             lock (_LockObject)
             {
-                if (this.PrintOutputInConsole && LoggedMessageTypesInConsole.Contains(logLevel))
+                if (this.PrintOutputInConsole && this.LoggedMessageTypesInConsole.Contains(logLevel))
                 {
                     if (this.LogOverhead)
                     {
@@ -263,7 +263,7 @@ namespace GRLibrary
                         Console.WriteLine(originalMessage);
                     }
                 }
-                if (this.WriteToLogFile && LoggedMessageTypesInLogFile.Contains(logLevel))
+                if (this.WriteToLogFile && this.LoggedMessageTypesInLogFile.Contains(logLevel))
                 {
                     try
                     {
@@ -285,7 +285,7 @@ namespace GRLibrary
                     }
                     catch
                     {
-                        if (!IgnoreErrorsWhileWriteLogItem)
+                        if (!this.IgnoreErrorsWhileWriteLogItem)
                         {
                             throw;
                         }
