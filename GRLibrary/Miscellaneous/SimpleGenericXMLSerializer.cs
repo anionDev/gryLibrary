@@ -24,7 +24,7 @@ namespace GRLibrary
                     serializer.WriteObject(xmlWriter, obj);
                 }
                 stream.Seek(0, SeekOrigin.Begin);
-                var streamReader = new StreamReader(stream);
+                StreamReader streamReader = new StreamReader(stream);
                 return streamReader.ReadToEnd();
             }
         }

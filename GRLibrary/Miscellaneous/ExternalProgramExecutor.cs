@@ -75,8 +75,8 @@ namespace GRLibrary
                         EnqueueError(e.Data);
                     }
                 };
-                _Running = true;
-                new Thread(LogOutput).Start();
+                this._Running = true;
+                new Thread(this.LogOutput).Start();
                 process.Start();
                 process.BeginOutputReadLine();
                 process.BeginErrorReadLine();
@@ -87,7 +87,7 @@ namespace GRLibrary
             {
                 try
                 {
-                    _Running = false;
+                    this._Running = false;
                     Console.Title = originalConsoleTitle;
                 }
                 finally
@@ -98,18 +98,18 @@ namespace GRLibrary
         }
         private void EnqueueError(string data)
         {
-            _NotLoggedOutputLines.Enqueue(new Tuple<GLog.LogLevel, string>(GLog.LogLevel.Exception, data));
+            this._NotLoggedOutputLines.Enqueue(new Tuple<GLog.LogLevel, string>(GLog.LogLevel.Exception, data));
         }
 
         private void EnqueueInformation(string data)
         {
-            _NotLoggedOutputLines.Enqueue(new Tuple<GLog.LogLevel, string>(GLog.LogLevel.Information, data));
+            this._NotLoggedOutputLines.Enqueue(new Tuple<GLog.LogLevel, string>(GLog.LogLevel.Information, data));
         }
         private void LogOutput()
         {
-            while (_Running)
+            while (this._Running)
             {
-                if (_NotLoggedOutputLines.TryDequeue(out Tuple<GLog.LogLevel, string> logItem))
+                if (this._NotLoggedOutputLines.TryDequeue(out Tuple<GLog.LogLevel, string> logItem))
                 {
                     if (logItem.Item1.Equals(GLog.LogLevel.Exception))
                     {

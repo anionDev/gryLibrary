@@ -50,9 +50,9 @@ namespace GRLibrary.Event
                 }
                 catch(Exception e)
                 {
-                    if (LogObject != null)
+                    if (this.LogObject != null)
                     {
-                        LogObject.LogError("Error occurred in observer.Update", e,"b586472c");
+                        this.LogObject.LogError("Error occurred in observer.Update", e,"b586472c");
                     }
                 }
             }

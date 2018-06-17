@@ -7,11 +7,11 @@ namespace GRLibrary
         public GLog LogObject { get; set; }
         public SupervisedThread(Action action)
         {
-            Action = action;
-            Id = Guid.NewGuid();
-            Name = Id.ToString();
-            LogObject = new GLog();
-            _Thread = new System.Threading.Thread(Execute)
+            this.Action = action;
+            this.Id = Guid.NewGuid();
+            this.Name = this.Id.ToString();
+            this.LogObject = new GLog();
+            this._Thread = new System.Threading.Thread(this.Execute)
             {
                 Name = this.Name
             };
@@ -23,50 +23,50 @@ namespace GRLibrary
         private System.Threading.Thread _Thread = null;
 private void Execute()
         {
-            _Running = true;
+            this._Running = true;
             try
             {
-                LogObject.LogInformation(string.Format("Start execution of Action of thread with id {0} and name \"{1}\"", Id.ToString(), Name.ToString()));
-                Action();
+                this.LogObject.LogInformation(string.Format("Start execution of Action of thread with id {0} and name \"{1}\"", this.Id.ToString(), this.Name.ToString()));
+                this.Action();
             }
             catch (Exception exception)
             {
-                LogObject.LogError(string.Format("Error occurred while executing Action of thread with id {0} and name \"{1}\"", Id.ToString(), Name.ToString()), exception);
+                this.LogObject.LogError(string.Format("Error occurred while executing Action of thread with id {0} and name \"{1}\"", this.Id.ToString(), this.Name.ToString()), exception);
 #if DEBUG
                 System.Diagnostics.Debugger.Break();
 #endif
             }
             finally
             {
-                _Running = false;
+                this._Running = false;
             }
-            LogObject.LogInformation(string.Format("Execution of Action of thread with id {0} and name \"{1}\" finished", Id.ToString(), Name.ToString()));
+            this.LogObject.LogInformation(string.Format("Execution of Action of thread with id {0} and name \"{1}\" finished", this.Id.ToString(), this.Name.ToString()));
         }
         
         public void Start()
         {
-            if (!_Running)
+            if (!this._Running)
             {
                 try
                 {
-                    LogObject.LogInformation(string.Format("Start startprocess of thread with id {0} and name \"{1}\"", Id.ToString(), Name.ToString()));
-                    _Thread.Start();
+                    this.LogObject.LogInformation(string.Format("Start startprocess of thread with id {0} and name \"{1}\"", this.Id.ToString(), this.Name.ToString()));
+                    this._Thread.Start();
                 }
                 catch (Exception exception)
                 {
-                    LogObject.LogError(string.Format("Error occurred while startprocess of thread with id {0} and name \"{1}\"", Id.ToString(), Name.ToString()), exception);
+                    this.LogObject.LogError(string.Format("Error occurred while startprocess of thread with id {0} and name \"{1}\"", this.Id.ToString(), this.Name.ToString()), exception);
 #if DEBUG
                     System.Diagnostics.Debugger.Break();
 #endif
                 }
-                LogObject.LogInformation(string.Format("Startprocess of thread with id {0} and name \"{1}\" started", Id.ToString(), Name.ToString()));
+                this.LogObject.LogInformation(string.Format("Startprocess of thread with id {0} and name \"{1}\" started", this.Id.ToString(), this.Name.ToString()));
             }
         }
         public void Abort()
         {
-            if (_Running)
+            if (this._Running)
             {
-                _Thread.Abort();
+                this._Thread.Abort();
             }
         }
     }
