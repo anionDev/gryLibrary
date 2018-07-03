@@ -20,7 +20,7 @@ namespace GRLibrary
         public Guid Id { get; }
         public Action Action { get; }
         private bool _Running = false;
-        private System.Threading.Thread _Thread = null;
+        private readonly System.Threading.Thread _Thread = null;
 private void Execute()
         {
             this._Running = true;
