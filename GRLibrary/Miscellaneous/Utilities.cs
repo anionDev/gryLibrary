@@ -184,18 +184,27 @@ namespace GRLibrary
         //see https://stackoverflow.com/a/17190236/3905529
         public static bool IsList(this object o)
         {
-            if (o == null) return false;
-            return o is IList &&
-                   o.GetType().IsGenericType &&
-                   o.GetType().GetGenericTypeDefinition().IsAssignableFrom(typeof(List<>));
+            if (o == null) { return false; }
+            else
+            {
+                return o is IList &&
+                       o.GetType().IsGenericType &&
+                       o.GetType().GetGenericTypeDefinition().IsAssignableFrom(typeof(List<>));
+            }
         }
 
         public static bool IsDictionary(this object o)
         {
-            if (o == null) return false;
-            return o is IDictionary &&
+            if (o == null)
+            {
+                return false;
+            }
+            else
+            {
+                return o is IDictionary &&
                    o.GetType().IsGenericType &&
                    o.GetType().GetGenericTypeDefinition().IsAssignableFrom(typeof(Dictionary<,>));
+            }
         }
         #endregion
         public static bool IsSet(this object o)
