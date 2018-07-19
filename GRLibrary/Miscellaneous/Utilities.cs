@@ -96,6 +96,12 @@ namespace GRLibrary
             CopyFolderAcrossVolumes(sourceFolder, destinationFolder);
             Directory.Delete(sourceFolder, true);
         }
+
+        public static bool IsHexDigit(this char @char)
+        {
+            return (@char >= '0' && @char <= '9') || (@char >= 'a' && @char <= 'f') || (@char >= 'A' && @char <= 'F');
+        }
+
         public static void ForEachFileAndDirectoryTransitively(string directory, Action<string, object> directoryAction, Action<string, object> fileAction, bool ignoreErrors = false, object argumentForFileAction = null, object argumentForDirectoryAction = null)
         {
             foreach (string file in Directory.GetFiles(directory))
