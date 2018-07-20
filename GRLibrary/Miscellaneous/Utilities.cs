@@ -5,8 +5,11 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 
 namespace GRLibrary
 {
@@ -165,6 +168,21 @@ namespace GRLibrary
                 subDirectoryInfo.Delete(true);
             }
         }
+        /// <summary>
+        /// Starts all <see cref="ThreadStart"/>-objects in <paramref name="threadStarts"/> concurrent and return the result of the first execution which does not throw an exception.
+        /// </summary>
+        /// <returns>The result of the first finished <paramref name="threadStarts"/>-method.</returns>
+        /// <exception cref="ArgumentException">If <paramref name="threadStarts"/> is empty.</exception>
+        /// <exception cref="Exception">If every <paramref name="threadStarts"/>-method throws an exception.</exception>
+        public static object RunAllConcurrentAndReturnFirstResult(ISet<ThreadStart> threadStarts)
+        {
+            if (threadStarts.Count == 0)
+            {
+                throw new ArgumentException();
+            }
+            throw new NotImplementedException();
+        }
+
         public static ISet<string> ToCaseInsensitiveSet(ISet<string> input)
         {
             ISet<TupleWithSpecialEquals> tupleList = new HashSet<TupleWithSpecialEquals>(input.Select((item) => new TupleWithSpecialEquals(item, item.ToLower())));
@@ -216,6 +234,18 @@ namespace GRLibrary
         public static bool IsSet(this object o)
         {
             throw new NotImplementedException();
+        }
+
+        //see https://stackoverflow.com/a/129395/3905529
+        public static T DeepClone<T>(this T @object)
+        {
+            using (Stream memoryStream = new MemoryStream())
+            {
+                IFormatter formatter = new BinaryFormatter();
+                formatter.Serialize(memoryStream, @object);
+                memoryStream.Position = 0;
+                return (T)formatter.Deserialize(memoryStream);
+            }
         }
     }
 }
