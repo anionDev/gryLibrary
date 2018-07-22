@@ -120,7 +120,7 @@ namespace GRLibrary.Property
         }
         public T GetValueByTimestamp(DateTime dateTime)
         {
-            var history = this.History;
+            Stack<KeyValuePair<DateTime, T>> history = this.History;
             while (history.Count > 0)
             {
                 KeyValuePair<DateTime, T> current = history.Pop();
