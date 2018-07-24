@@ -168,6 +168,21 @@ namespace GRLibrary
                 subDirectoryInfo.Delete(true);
             }
         }
+
+        /// <summary>
+        /// Starts all <see cref="ThreadStart"/>-objects in <paramref name="threadStarts"/> concurrent and return all results which did not throw an exception.
+        /// </summary>
+        /// <returns>The results of the first finished <paramref name="threadStarts"/>-methods.</returns>
+        /// <exception cref="ArgumentException">If <paramref name="threadStarts"/> is empty.</exception>
+        public static ISet<Tuple<ThreadStart, object>> RunAllConcurrentAndReturnAllResults(ISet<ThreadStart> threadStarts)
+        {
+            if (threadStarts.Count == 0)
+            {
+                throw new ArgumentException();
+            }
+            throw new NotImplementedException();
+        }
+
         /// <summary>
         /// Starts all <see cref="ThreadStart"/>-objects in <paramref name="threadStarts"/> concurrent and return the result of the first execution which does not throw an exception.
         /// </summary>
@@ -246,6 +261,10 @@ namespace GRLibrary
                 memoryStream.Position = 0;
                 return (T)formatter.Deserialize(memoryStream);
             }
+        }
+        public static ISet<T> ToSet<T>(this IEnumerable<T> source, IEqualityComparer<T> comparer = null)
+        {
+            return new HashSet<T>(source, comparer);
         }
     }
 }
