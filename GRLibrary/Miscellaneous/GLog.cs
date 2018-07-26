@@ -48,16 +48,17 @@ namespace GRLibrary
             }
             set
             {
-                if (!File.Exists(value))
+                string newValue = value;
+                if (!File.Exists(newValue))
                 {
-                    string directoryOfLogFile = Path.GetDirectoryName(value);
+                    string directoryOfLogFile = Path.GetDirectoryName(newValue);
                     if (!(string.IsNullOrWhiteSpace(directoryOfLogFile) || Directory.Exists(directoryOfLogFile)))
                     {
                         Directory.CreateDirectory(directoryOfLogFile);
                     }
-                    File.Create(value).Dispose();
+                    File.Create(newValue).Dispose();
                 }
-                this._LogFile = value;
+                this._LogFile = newValue;
             }
         }
         public bool WriteToLogFile
