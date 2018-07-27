@@ -32,7 +32,8 @@ namespace GRLibrary
         {
             IList<T> firstNotSecond = list1.Except(list2).ToList();
             IList<T> secondNotFirst = list2.Except(list1).ToList();
-            return !firstNotSecond.Any() && !secondNotFirst.Any();
+            bool result = !firstNotSecond.Any() && !secondNotFirst.Any();
+            return result;
         }
         public static IEnumerable<string> GetFilesOfFolderRecursively(string folder)
         {
