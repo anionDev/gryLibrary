@@ -267,5 +267,13 @@ namespace GRLibrary
         {
             return new HashSet<T>(source, comparer);
         }
+        public static void AddAll<T>(this ISet<T> set, IEnumerable<T> newItems)
+        {
+            foreach (T newItem in newItems)
+            {
+                set.Add(newItem);
+            }
+        }
+
     }
 }
