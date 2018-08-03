@@ -21,7 +21,7 @@ namespace GRLibrary
         public Action Action { get; }
         private bool _Running = false;
         private readonly System.Threading.Thread _Thread = null;
-private void Execute()
+        private void Execute()
         {
             this._Running = true;
             try
@@ -32,9 +32,6 @@ private void Execute()
             catch (Exception exception)
             {
                 this.LogObject.LogError(string.Format("Error occurred while executing Action of thread with id {0} and name \"{1}\"", this.Id.ToString(), this.Name.ToString()), exception);
-#if DEBUG
-                System.Diagnostics.Debugger.Break();
-#endif
             }
             finally
             {
@@ -42,7 +39,7 @@ private void Execute()
             }
             this.LogObject.LogInformation(string.Format("Execution of Action of thread with id {0} and name \"{1}\" finished", this.Id.ToString(), this.Name.ToString()));
         }
-        
+
         public void Start()
         {
             if (!this._Running)
@@ -55,9 +52,6 @@ private void Execute()
                 catch (Exception exception)
                 {
                     this.LogObject.LogError(string.Format("Error occurred while startprocess of thread with id {0} and name \"{1}\"", this.Id.ToString(), this.Name.ToString()), exception);
-#if DEBUG
-                    System.Diagnostics.Debugger.Break();
-#endif
                 }
                 this.LogObject.LogInformation(string.Format("Startprocess of thread with id {0} and name \"{1}\" started", this.Id.ToString(), this.Name.ToString()));
             }
