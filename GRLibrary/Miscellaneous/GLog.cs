@@ -203,6 +203,10 @@ namespace GRLibrary
             }
             LogError(GetExceptionMessage(message, exception), logLineId);
         }
+        public void LogError(Exception exception, string logLineId = "")
+        {
+            LogError(GetExceptionMessage("An exception occurred", exception), logLineId);
+        }
         public void LogError(string message, string logLineId = "")
         {
             if (!LineShouldBePrinted(message))
