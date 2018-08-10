@@ -14,14 +14,14 @@ namespace GRLibrary
         {
             return Serialize(@object, new XmlWriterSettings { Indent = true, Encoding = SimpleGenericXMLSerializer.Encoding });
         }
-        public static string Serialize<T>(T obj, XmlWriterSettings settings)
+        public static string Serialize<T>(T @object, XmlWriterSettings settings)
         {
             using (Stream stream = new MemoryStream())
             {
                 DataContractSerializer serializer = new DataContractSerializer(typeof(T));
                 using (XmlWriter xmlWriter = XmlWriter.Create(stream, settings))
                 {
-                    serializer.WriteObject(xmlWriter, obj);
+                    serializer.WriteObject(xmlWriter, @object);
                 }
                 stream.Seek(0, SeekOrigin.Begin);
                 StreamReader streamReader = new StreamReader(stream);
