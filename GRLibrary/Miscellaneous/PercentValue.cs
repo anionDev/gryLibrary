@@ -11,45 +11,39 @@ namespace GRLibrary
         {
             get
             {
-                return (int)Math.Round(this._Value * 100);
+                return (int)Math.Round(this.Value * 100);
             }
         }
-        public decimal Value
-        {
-            get
-            {
-                return this._Value;
-            }
-        }
-        private readonly decimal _Value;
+        public decimal Value { get; }
+
         public PercentValue(decimal value)
         {
             if (value < 0)
             {
-                this._Value = 0;
+                this.Value = 0;
             }
             else if (value > 1)
             {
-                this._Value = 1;
+                this.Value = 1;
             }
             else
             {
-                this._Value = value;
+                this.Value = value;
             }
         }
         public PercentValue(int percentValue)
         {
             if (percentValue < 0)
             {
-                this._Value = 0;
+                this.Value = 0;
             }
             else if (percentValue > 100)
             {
-                this._Value = 1;
+                this.Value = 1;
             }
             else
             {
-                this._Value = (decimal)percentValue / 100;
+                this.Value = (decimal)percentValue / 100;
             }
         }
 
