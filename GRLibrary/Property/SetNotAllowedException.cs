@@ -2,10 +2,10 @@
 {
     public class SetNotAllowedException : System.Exception
     {
-        public SetNotAllowedException(string message) : base(message)
+        internal SetNotAllowedException(string message) : base(message)
         {
         }
-        public SetNotAllowedException() : base()
+        internal SetNotAllowedException() : base()
         {
         }
     }
