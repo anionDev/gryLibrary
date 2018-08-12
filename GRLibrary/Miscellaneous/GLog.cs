@@ -29,9 +29,8 @@ namespace GRLibrary
         public bool WriteExceptionStackTraceOfExceptionInLogEntry { get; set; }
         public bool AddIdToEveryLogEntry { get; set; }
         public bool WriteLogEntryWhenGLogWIllBeEnabledOrDisabled { get; set; }
-
+        public string DateFormat { get; set; } = "yyyy/MM/dd HH:mm:ss";
         public ConsoleColor ColorForInfo { get; set; }
-
         public ConsoleColor ColorForWarning { get; set; }
         public ConsoleColor ColorForError { get; set; }
         public ConsoleColor ColorForDebug { get; set; }
@@ -250,7 +249,7 @@ namespace GRLibrary
             {
                 message = "[" + GetLogItemId() + "] " + message;
             }
-            string part1 = "[" + momentOfLogEntry.ToString("yyyy/MM/dd HH:mm:ss") + "] [";
+            string part1 = "[" + momentOfLogEntry.ToString(DateFormat) + "] [";
             string part2 = GetPrefixInStringFormat(logLevel);
             string part3 = "] " + message;
             lock (_LockObject)
@@ -274,10 +273,9 @@ namespace GRLibrary
                     {
                         if (!File.Exists(this.LogFile))
                         {
-                            FileStream fs = File.Create(this.LogFile);
-                            byte[] info = new UTF8Encoding(true).GetBytes(string.Empty);
-                            fs.Write(info, 0, info.Length);
-                            fs.Close();
+                            using (File.Create(this.LogFile))
+                            {
+                            }
                         }
                         if (this.LogOverhead)
                         {
