@@ -46,6 +46,5 @@ namespace GRLibrary
                 this.Value = (decimal)percentValue / 100;
             }
         }
-
     }
 }

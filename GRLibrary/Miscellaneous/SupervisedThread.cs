@@ -11,16 +11,12 @@ namespace GRLibrary
             this.Id = Guid.NewGuid();
             this.Name = this.Id.ToString();
             this.LogObject = new GLog();
-            this._Thread = new System.Threading.Thread(this.Execute)
-            {
-                Name = this.Name
-            };
         }
         public string Name { get; set; }
         public Guid Id { get; }
         public Action Action { get; }
         private bool _Running = false;
-        private readonly System.Threading.Thread _Thread = null;
+        private System.Threading.Thread _Thread = null;
         private void Execute()
         {
             this._Running = true;
@@ -44,6 +40,10 @@ namespace GRLibrary
         {
             if (!this._Running)
             {
+                this._Thread = new System.Threading.Thread(this.Execute)
+                {
+                    Name = this.Name
+                };
                 try
                 {
                     this.LogObject.LogInformation(string.Format("Start startprocess of thread with id {0} and name \"{1}\"", this.Id.ToString(), this.Name.ToString()));

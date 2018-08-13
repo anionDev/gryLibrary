@@ -210,9 +210,9 @@ namespace GRLibrary
             {
             }
 
-            public override bool Equals(object obj)
+            public override bool Equals(object @object)
             {
-                return this.Item2.Equals(((TupleWithSpecialEquals)obj).Item2);
+                return this.Item2.Equals(((TupleWithSpecialEquals)@object).Item2);
             }
 
             public override int GetHashCode()
@@ -222,32 +222,35 @@ namespace GRLibrary
         }
         #region IsList and IsDictionary
         //see https://stackoverflow.com/a/17190236/3905529
-        public static bool IsList(this object o)
+        public static bool IsList(this object @object)
         {
-            if (o == null) { return false; }
-            else
-            {
-                return o is IList &&
-                       o.GetType().IsGenericType &&
-                       o.GetType().GetGenericTypeDefinition().IsAssignableFrom(typeof(List<>));
-            }
-        }
-
-        public static bool IsDictionary(this object o)
-        {
-            if (o == null)
+            if (@object == null)
             {
                 return false;
             }
             else
             {
-                return o is IDictionary &&
-                   o.GetType().IsGenericType &&
-                   o.GetType().GetGenericTypeDefinition().IsAssignableFrom(typeof(Dictionary<,>));
+                return @object is IList &&
+                       @object.GetType().IsGenericType &&
+                       @object.GetType().GetGenericTypeDefinition().IsAssignableFrom(typeof(List<>));
+            }
+        }
+
+        public static bool IsDictionary(this object @object)
+        {
+            if (@object == null)
+            {
+                return false;
+            }
+            else
+            {
+                return @object is IDictionary &&
+                   @object.GetType().IsGenericType &&
+                   @object.GetType().GetGenericTypeDefinition().IsAssignableFrom(typeof(Dictionary<,>));
             }
         }
         #endregion
-        public static bool IsSet(this object o)
+        public static bool IsSet(this object @object)
         {
             throw new NotImplementedException();
         }
@@ -269,11 +272,7 @@ namespace GRLibrary
         }
         public static void AddAll<T>(this ISet<T> set, IEnumerable<T> newItems)
         {
-            foreach (T newItem in newItems)
-            {
-                set.Add(newItem);
-            }
+            set.UnionWith(newItems);
         }
-
     }
 }

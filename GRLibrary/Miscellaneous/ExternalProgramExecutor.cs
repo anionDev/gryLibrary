@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Diagnostics;
-using System.Threading;
 
 namespace GRLibrary
 {
@@ -76,7 +75,9 @@ namespace GRLibrary
                     }
                 };
                 this._Running = true;
-                new Thread(this.LogOutput).Start();
+                SupervisedThread thread = new SupervisedThread(this.LogOutput);
+                thread.Name = $"Logger-Thread for '{this.Title}' ({nameof(ExternalProgrammExecutor)}({this.ProgramPathAndFile} {this.Arguments}))";
+                thread.Start();
                 process.Start();
                 process.BeginOutputReadLine();
                 process.BeginErrorReadLine();

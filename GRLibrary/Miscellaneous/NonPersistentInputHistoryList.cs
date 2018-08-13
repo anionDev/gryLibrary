@@ -3,7 +3,7 @@ namespace GRLibrary
 {
     public class NonPersistentInputHistoryList
     {
-        private readonly List<string> UserInputs = new List<string>();
+        private readonly IList<string> UserInputs = new List<string>();
         private int CurrentuserInputIndex = 0;
         public void EnterPressed(string input)
         {
