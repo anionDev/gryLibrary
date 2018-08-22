@@ -58,6 +58,7 @@
     <Compile Include="Miscellaneous\GLog.cs" />
     <Compile Include="Miscellaneous\NonPersistentInputHistoryList.cs" />
     <Compile Include="Miscellaneous\PercentValue.cs" />
+    <Compile Include="Miscellaneous\WriteableTuple.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Property\SetNotAllowedException.cs" />
     <Compile Include="Property\InvalidArgumentException.cs" />
