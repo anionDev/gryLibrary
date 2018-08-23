@@ -11,9 +11,13 @@ namespace GRLibrary.Miscellaneous.Playlists
         protected abstract IEnumerable<string> GetSongsFromPlaylistImplementation(string playlistFile);
         protected abstract void AddSongsToPlaylistImplementation(string playlistFile, IEnumerable<string> newSongs);
         protected abstract void DeleteSongsFromPlaylistImplementation(string playlistFile, IEnumerable<string> songsToDelete);
-
+        public abstract string GetExtension();
         public IEnumerable<string> GetSongsFromPlaylist(string playlistFile, bool removeDuplicatedItems = true, bool loadTransitively = true)
         {
+            if (!playlistFile.ToLower().EndsWith(GetExtension().ToLower()))
+            {
+                return Enumerable.Empty<string>();
+            }
             IEnumerable<string> result = GetSongsFromPlaylistImplementation(playlistFile).Where(item => IsAllowedAsPlaylistItem(item));
             if (loadTransitively)
             {
@@ -21,7 +25,7 @@ namespace GRLibrary.Miscellaneous.Playlists
                 List<string> newList = new List<string>();
                 foreach (string item in result)
                 {
-                    if (item.ToLower().EndsWith(".m3u"))
+                    if (item.ToLower().EndsWith("." + GetExtension().ToLower()))//TODO maybe allow also a playlist to be contained in a playlist with another extension.
                     {
                         newList.AddRange(GetSongsFromPlaylist(playlistFile, removeDuplicatedItems, true));
                     }
