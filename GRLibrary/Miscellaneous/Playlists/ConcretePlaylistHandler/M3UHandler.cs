@@ -40,7 +40,11 @@ namespace GRLibrary.Miscellaneous.Playlists.ConcretePlaylistHandler
                     result.Add(item);
                 }
             }
-
+            string m3uConfigurationFile = new FileInfo(playlistFile).Directory.FullName+"\\.M3UConfiguration";
+            if (File.Exists(m3uConfigurationFile))
+            {
+                throw new System.NotImplementedException();
+            }
             return result;
         }
     }
