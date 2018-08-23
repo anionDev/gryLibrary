@@ -12,7 +12,7 @@ namespace GRLibrary.Miscellaneous.Playlists
         protected abstract void AddSongsToPlaylistImplementation(string playlistFile, IEnumerable<string> newSongs);
         protected abstract void DeleteSongsFromPlaylistImplementation(string playlistFile, IEnumerable<string> songsToDelete);
 
-        public IEnumerable<string> GetSongsFromPlaylist(string playlistFile, bool loadTransitively = true)
+        public IEnumerable<string> GetSongsFromPlaylist(string playlistFile, bool removeDuplicatedItems = true, bool loadTransitively = true)
         {
             IEnumerable<string> result = GetSongsFromPlaylistImplementation(playlistFile).Where(item => IsAllowedAsPlaylistItem(item));
             if (loadTransitively)
@@ -23,7 +23,7 @@ namespace GRLibrary.Miscellaneous.Playlists
                 {
                     if (item.ToLower().EndsWith(".m3u"))
                     {
-                        newList.AddRange(GetSongsFromPlaylist(playlistFile, true));
+                        newList.AddRange(GetSongsFromPlaylist(playlistFile, removeDuplicatedItems, true));
                     }
                     else
                     {
@@ -31,6 +31,10 @@ namespace GRLibrary.Miscellaneous.Playlists
                     }
                 }
                 result = newList;
+            }
+            if (removeDuplicatedItems)
+            {
+                result = new HashSet<string>(result);
             }
             return result;
         }
