@@ -59,6 +59,10 @@ namespace GRLibrary.Miscellaneous.Playlists
             return referencedFiles;
 
         }
+        public static AbstractPlaylistHandler GetConcretePlaylistHandler(string file)
+        {
+            return ExtensionsOfReadablePlaylists[Path.GetExtension(file.ToLower()).Substring(1)];
+        }
         public IEnumerable<string> GetSongsFromPlaylist(string playlistFile, bool removeDuplicatedItems = true, bool loadTransitively = true)
         {
             return GetSongsFromPlaylist(playlistFile, removeDuplicatedItems, loadTransitively, new HashSet<string>());
