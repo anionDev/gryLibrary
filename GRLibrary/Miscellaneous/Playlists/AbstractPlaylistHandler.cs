@@ -1,5 +1,4 @@
 ﻿using GRLibrary.Miscellaneous.Playlists.ConcretePlaylistHandler;
-using System;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
@@ -14,7 +13,7 @@ namespace GRLibrary.Miscellaneous.Playlists
         protected abstract IEnumerable<string> GetSongsFromPlaylistImplementation(string playlistFile);
         protected abstract void AddSongsToPlaylistImplementation(string playlistFile, IEnumerable<string> newSongs);
         protected abstract void DeleteSongsFromPlaylistImplementation(string playlistFile, IEnumerable<string> songsToDelete);
-        public IEnumerable<string> GetSongsFromPlaylist(string playlistFile, bool removeDuplicatedItems = true, bool loadTransitively = true)
+        private IEnumerable<string> GetSongsFromPlaylist(string playlistFile, bool removeDuplicatedItems, bool loadTransitively, ISet<string> excludedPlaylistFiles)
         {
             string locationOfFile = Path.GetDirectoryName(playlistFile);
             IEnumerable<string> referencedFiles = GetSongsFromPlaylistImplementation(playlistFile).Where(item => IsAllowedAsPlaylistItem(item));
@@ -32,12 +31,13 @@ namespace GRLibrary.Miscellaneous.Playlists
                     {
                         playlistItem = Path.GetFullPath(Path.Combine(locationOfFile, item));
                     }
-                    //TODO: here is a bug: if the file "a.m3u" contains the line "a.m3u" (transitively) this operation may cause an endless-loop
-                    if (IsReadablePlaylist(playlistItem.ToLower()))
+                    string playlistItemToLower = playlistItem.ToLower();
+                    if (IsReadablePlaylist(playlistItemToLower))
                     {
-                        if (loadTransitively)
+                        if (loadTransitively && (!excludedPlaylistFiles.Contains(playlistItemToLower)))
                         {
-                            newList.AddRange(ExtensionsOfReadablePlaylists[Path.GetExtension(playlistItem.ToLower()).Substring(1)].GetSongsFromPlaylist(playlistItem, removeDuplicatedItems, loadTransitively));
+                            excludedPlaylistFiles.Add(playlistItemToLower);
+                            newList.AddRange(ExtensionsOfReadablePlaylists[Path.GetExtension(playlistItemToLower).Substring(1)].GetSongsFromPlaylist(playlistItem, removeDuplicatedItems, loadTransitively, excludedPlaylistFiles));
                         }
                     }
                     else
@@ -56,6 +56,11 @@ namespace GRLibrary.Miscellaneous.Playlists
                 referencedFiles = new HashSet<string>(referencedFiles);
             }
             return referencedFiles;
+
+        }
+        public IEnumerable<string> GetSongsFromPlaylist(string playlistFile, bool removeDuplicatedItems = true, bool loadTransitively = true)
+        {
+            return GetSongsFromPlaylist(playlistFile, removeDuplicatedItems, loadTransitively, new HashSet<string>());
         }
 
         public static bool IsReadablePlaylist(string file)
