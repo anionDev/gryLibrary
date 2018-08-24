@@ -4,11 +4,6 @@ namespace GRLibrary.Miscellaneous.Playlists.ConcretePlaylistHandler
 {
     public class PLSHandler : AbstractPlaylistHandler
     {
-
-        public override string GetExtension()
-        {
-            return "pls";
-        }
         protected override void AddSongsToPlaylistImplementation(string playlistFile, IEnumerable<string> newSongs)
         {
             throw new NotImplementedException();

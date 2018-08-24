@@ -13,7 +13,7 @@ namespace GRLibraryTest
             object object2 = new object();
             object object3 = new object();
             string name = "propertyName";
-            Property<object> property = new Property<object>(object1, name,true);
+            Property<object> property = new Property<object>(object1, name, true);
             Assert.AreEqual(1, property.History.Count);
             Assert.AreEqual(object1, property.History.Pop().Value);
             Assert.AreEqual(name, property.PropertyName);
@@ -30,7 +30,7 @@ namespace GRLibraryTest
                 //expected
             }
             Assert.AreEqual(object2, property.Value);
-            var currentHistoy = property.History;
+            System.Collections.Generic.Stack<System.Collections.Generic.KeyValuePair<System.DateTime, object>> currentHistoy = property.History;
             Assert.AreEqual(2, currentHistoy.Count);
             Assert.AreEqual(object2, currentHistoy.Pop().Value);
             Assert.AreEqual(object1, currentHistoy.Pop().Value);

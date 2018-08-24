@@ -7,10 +7,6 @@ namespace GRLibrary.Miscellaneous.Playlists.ConcretePlaylistHandler
 {
     public class M3UHandler : AbstractPlaylistHandler
     {
-        public override string GetExtension()
-        {
-            return "m3u";
-        }
 
         protected override void AddSongsToPlaylistImplementation(string playlistFile, IEnumerable<string> newSongs)
         {
