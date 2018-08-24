@@ -9,7 +9,8 @@ namespace GRLibrary.Miscellaneous.Playlists
 {
     public abstract class AbstractPlaylistHandler
     {
-        public Encoding Encoding { get; set; } = Encoding.UTF8;
+        public static Dictionary<string, AbstractPlaylistHandler> ExtensionsOfReadablePlaylists { get; } = new Dictionary<string, AbstractPlaylistHandler>() { { "m3u", M3UHandler.Instance }, { "pls", PLSHandler.Instance }, { "wpl", WPLHandler.Instance } };
+        public static Encoding Encoding { get; set; } = Encoding.UTF8;
         protected abstract IEnumerable<string> GetSongsFromPlaylistImplementation(string playlistFile);
         protected abstract void AddSongsToPlaylistImplementation(string playlistFile, IEnumerable<string> newSongs);
         protected abstract void DeleteSongsFromPlaylistImplementation(string playlistFile, IEnumerable<string> songsToDelete);
@@ -63,11 +64,6 @@ namespace GRLibrary.Miscellaneous.Playlists
             return GetSongsFromPlaylist(playlistFile, removeDuplicatedItems, loadTransitively, new HashSet<string>());
         }
 
-        public static bool IsReadablePlaylist(string file)
-        {
-            return ExtensionsOfReadablePlaylists.ContainsKey(Path.GetExtension(file.ToLower()).Substring(1));
-        }
-        public static Dictionary<string, AbstractPlaylistHandler> ExtensionsOfReadablePlaylists = new Dictionary<string, AbstractPlaylistHandler>() { { "m3u", new M3UHandler() }, { "pls", new PLSHandler() }, { "wpl", new WPLHandler() } };
         public void AddSongsToPlaylist(string playlistFile, IEnumerable<string> newSongs)
         {
             AddSongsToPlaylistImplementation(playlistFile, newSongs.Where(item => IsAllowedAsPlaylistItem(item)));
@@ -75,6 +71,10 @@ namespace GRLibrary.Miscellaneous.Playlists
         public void DeleteSongsFromPlaylist(string playlistFile, IEnumerable<string> songsToDelete)
         {
             DeleteSongsFromPlaylistImplementation(playlistFile, songsToDelete.Where(item => IsAllowedAsPlaylistItem(item)));
+        }
+        public static bool IsReadablePlaylist(string file)
+        {
+            return ExtensionsOfReadablePlaylists.ContainsKey(Path.GetExtension(file.ToLower()).Substring(1));
         }
         public static bool IsAllowedAsPlaylistItem(string item)
         {

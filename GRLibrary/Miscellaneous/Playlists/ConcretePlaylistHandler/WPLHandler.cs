@@ -4,6 +4,8 @@ namespace GRLibrary.Miscellaneous.Playlists.ConcretePlaylistHandler
 {
     public class WPLHandler : AbstractPlaylistHandler
     {
+        public static WPLHandler Instance { get; } = new WPLHandler();
+        private WPLHandler() { }
         protected override void AddSongsToPlaylistImplementation(string playlistFile, IEnumerable<string> newSongs)
         {
             throw new NotImplementedException();

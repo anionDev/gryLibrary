@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
@@ -7,28 +6,29 @@ namespace GRLibrary.Miscellaneous.Playlists.ConcretePlaylistHandler
 {
     public class M3UHandler : AbstractPlaylistHandler
     {
-
+        public static M3UHandler Instance { get; } = new M3UHandler();
+        private M3UHandler() { }
         protected override void AddSongsToPlaylistImplementation(string playlistFile, IEnumerable<string> newSongs)
         {
-            File.AppendAllLines(playlistFile, newSongs, this.Encoding);
+            File.AppendAllLines(playlistFile, newSongs, Encoding);
         }
 
         protected override void DeleteSongsFromPlaylistImplementation(string playlistFile, IEnumerable<string> songsToDelete)
         {
             List<string> files = new List<string>();
-            foreach (string item in File.ReadAllLines(playlistFile, this.Encoding))
+            foreach (string item in File.ReadAllLines(playlistFile, Encoding))
             {
                 if (!songsToDelete.Contains(item))
                 {
                     files.Add(item);
                 }
             }
-            File.WriteAllLines(playlistFile, songsToDelete, this.Encoding);
+            File.WriteAllLines(playlistFile, songsToDelete, Encoding);
         }
 
         protected override IEnumerable<string> GetSongsFromPlaylistImplementation(string playlistFile)
         {
-            List<string> items = File.ReadAllLines(playlistFile, this.Encoding).Select(line => line.Replace("\"", string.Empty).Trim()).Where(line => !(string.IsNullOrWhiteSpace(line) || line.StartsWith("#"))).ToList();
+            List<string> items = File.ReadAllLines(playlistFile, Encoding).Select(line => line.Replace("\"", string.Empty).Trim()).Where(line => !(string.IsNullOrWhiteSpace(line) || line.StartsWith("#"))).ToList();
             List<string> result = new List<string>();
             foreach (string item in items)
             {
