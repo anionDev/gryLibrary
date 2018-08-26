@@ -110,13 +110,13 @@ namespace GRLibrary.Property
             this._History.Clear();
         }
 
-        public bool EqualsValue(Property<T> obj)
+        public bool EqualsValue(Property<T> @object)
         {
-            return EqualsValue(obj.Value);
+            return EqualsValue(@object.Value);
         }
-        public bool EqualsValue(T obj)
+        public bool EqualsValue(T @object)
         {
-            return this.Value.Equals(obj);
+            return this.Value.Equals(@object);
         }
         public T GetValueByTimestamp(DateTime dateTime)
         {

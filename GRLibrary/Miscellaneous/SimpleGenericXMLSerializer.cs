@@ -28,7 +28,7 @@ namespace GRLibrary
                 return streamReader.ReadToEnd();
             }
         }
-        public static System.Text.Encoding Encoding = System.Text.Encoding.UTF8;
+        public static System.Text.Encoding Encoding { get; set; } = System.Text.Encoding.UTF8;
         public static T Deserialize<T>(string xml)
         {
             using (Stream stream = new MemoryStream())
@@ -41,7 +41,6 @@ namespace GRLibrary
             }
         }
     }
-
 }
 
 

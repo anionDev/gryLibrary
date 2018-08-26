@@ -16,10 +16,8 @@ namespace GRLibrary
         public string VerbosePrefix { get; set; }
         private string _LogFile;
         private bool _WriteToLogFile;
-        private static readonly object _LockObject = new object();
+        private readonly object _LockObject = new object();
         private readonly bool _Initialized = false;
-        public IList<LogLevel> LoggedMessageTypesInConsole = new List<LogLevel>();
-        public IList<LogLevel> LoggedMessageTypesInLogFile = new List<LogLevel>();
         public bool IgnoreErrorsWhileWriteLogItem { get; set; }
         public int LogItemIdLength { get; set; }
         public bool PrintEmptyLines { get; set; }
@@ -29,9 +27,10 @@ namespace GRLibrary
         public bool WriteExceptionStackTraceOfExceptionInLogEntry { get; set; }
         public bool AddIdToEveryLogEntry { get; set; }
         public bool WriteLogEntryWhenGLogWIllBeEnabledOrDisabled { get; set; }
-
+        public string DateFormat { get; set; }
+        public IList<LogLevel> LoggedMessageTypesInConsole { get; set; }
+        public IList<LogLevel> LoggedMessageTypesInLogFile { get; set; }
         public ConsoleColor ColorForInfo { get; set; }
-
         public ConsoleColor ColorForWarning { get; set; }
         public ConsoleColor ColorForError { get; set; }
         public ConsoleColor ColorForDebug { get; set; }
@@ -102,6 +101,9 @@ namespace GRLibrary
         }
         public GLog(string logFile)
         {
+            this.DateFormat = "yyyy/MM/dd HH:mm:ss";
+            this.LoggedMessageTypesInConsole = new List<LogLevel>();
+            this.LoggedMessageTypesInLogFile = new List<LogLevel>();
             this.WriteLogEntryWhenGLogWIllBeEnabledOrDisabled = false;
             this.InformationPrefix = "Info";
             this.ErrorPrefix = "Error";
@@ -203,6 +205,10 @@ namespace GRLibrary
             }
             LogError(GetExceptionMessage(message, exception), logLineId);
         }
+        public void LogError(Exception exception, string logLineId = "")
+        {
+            LogError(GetExceptionMessage("An exception occurred", exception), logLineId);
+        }
         public void LogError(string message, string logLineId = "")
         {
             if (!LineShouldBePrinted(message))
@@ -246,10 +252,10 @@ namespace GRLibrary
             {
                 message = "[" + GetLogItemId() + "] " + message;
             }
-            string part1 = "[" + momentOfLogEntry.ToString("yyyy/MM/dd HH:mm:ss") + "] [";
+            string part1 = "[" + momentOfLogEntry.ToString(this.DateFormat) + "] [";
             string part2 = GetPrefixInStringFormat(logLevel);
             string part3 = "] " + message;
-            lock (_LockObject)
+            lock (this._LockObject)
             {
                 if (this.PrintOutputInConsole && this.LoggedMessageTypesInConsole.Contains(logLevel))
                 {
@@ -270,10 +276,9 @@ namespace GRLibrary
                     {
                         if (!File.Exists(this.LogFile))
                         {
-                            FileStream fs = File.Create(this.LogFile);
-                            byte[] info = new UTF8Encoding(true).GetBytes(string.Empty);
-                            fs.Write(info, 0, info.Length);
-                            fs.Close();
+                            using (File.Create(this.LogFile))
+                            {
+                            }
                         }
                         if (this.LogOverhead)
                         {
@@ -350,9 +355,10 @@ namespace GRLibrary
 
         private void WriteWithColor(string part2, LogLevel type)
         {
+            ConsoleColor consoleForegroundColorBeforeCHanging = Console.ForegroundColor;
             Console.ForegroundColor = GetColorByType(type);
             Console.Write(part2);
-            Console.ResetColor();
+            Console.ForegroundColor = consoleForegroundColorBeforeCHanging;
         }
 
         private ConsoleColor GetColorByType(LogLevel type)

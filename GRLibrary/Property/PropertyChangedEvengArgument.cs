@@ -4,7 +4,7 @@ namespace GRLibrary.Property
 {
     public class PropertyChangedEvengArgument<T>
     {
-        public PropertyChangedEvengArgument(T oldValue, T newValue, DateTime changeMoment)
+        internal PropertyChangedEvengArgument(T oldValue, T newValue, DateTime changeMoment)
         {
             this.OldValue = oldValue;
             this.NewValue = newValue;
