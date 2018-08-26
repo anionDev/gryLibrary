@@ -39,6 +39,8 @@ namespace GRLibrary
         public bool ConvertTimeToUTCFormat { get; set; }
         private int _AmountOfErrors = 0;
         private int _AmountOfWarnings = 0;
+
+        private readonly ConsoleColor _ConsoleDefaultColor;
         public string LogFile
         {
             get
@@ -101,6 +103,7 @@ namespace GRLibrary
         }
         public GLog(string logFile)
         {
+            this._ConsoleDefaultColor = Console.ForegroundColor;
             this.DateFormat = "yyyy/MM/dd HH:mm:ss";
             this.LoggedMessageTypesInConsole = new List<LogLevel>();
             this.LoggedMessageTypesInLogFile = new List<LogLevel>();
@@ -355,10 +358,9 @@ namespace GRLibrary
 
         private void WriteWithColor(string part2, LogLevel type)
         {
-            ConsoleColor consoleForegroundColorBeforeCHanging = Console.ForegroundColor;
             Console.ForegroundColor = GetColorByType(type);
             Console.Write(part2);
-            Console.ForegroundColor = consoleForegroundColorBeforeCHanging;
+            Console.ForegroundColor = this._ConsoleDefaultColor;
         }
 
         private ConsoleColor GetColorByType(LogLevel type)
