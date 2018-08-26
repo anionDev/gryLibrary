@@ -16,7 +16,7 @@ namespace GRLibrary
         public string VerbosePrefix { get; set; }
         private string _LogFile;
         private bool _WriteToLogFile;
-        private readonly object _LockObject = new object();
+        private readonly static object _LockObject = new object();
         private readonly bool _Initialized = false;
         public bool IgnoreErrorsWhileWriteLogItem { get; set; }
         public int LogItemIdLength { get; set; }
@@ -255,7 +255,7 @@ namespace GRLibrary
             string part1 = "[" + momentOfLogEntry.ToString(this.DateFormat) + "] [";
             string part2 = GetPrefixInStringFormat(logLevel);
             string part3 = "] " + message;
-            lock (this._LockObject)
+            lock (_LockObject)
             {
                 if (this.PrintOutputInConsole && this.LoggedMessageTypesInConsole.Contains(logLevel))
                 {
