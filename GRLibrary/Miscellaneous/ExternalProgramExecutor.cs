@@ -4,9 +4,9 @@ using System.Diagnostics;
 
 namespace GRLibrary
 {
-    public class ExternalProgrammExecutor
+    public class ExternalProgramExecutor
     {
-        public ExternalProgrammExecutor(string programPathAndFile, string arguments, string title, string workingDirectory, bool printErrorsAsInformation = false, string LogFile = null)
+        public ExternalProgramExecutor(string programPathAndFile, string arguments, string title, string workingDirectory, bool printErrorsAsInformation = false, string LogFile = null)
         {
             this.LogObject = new GLog();
             if (LogFile == null)
@@ -76,7 +76,7 @@ namespace GRLibrary
                 };
                 this._Running = true;
                 SupervisedThread thread = new SupervisedThread(this.LogOutput);
-                thread.Name = $"Logger-Thread for '{this.Title}' ({nameof(ExternalProgrammExecutor)}({this.ProgramPathAndFile} {this.Arguments}))";
+                thread.Name = $"Logger-Thread for '{this.Title}' ({nameof(ExternalProgramExecutor)}({this.ProgramPathAndFile} {this.Arguments}))";
                 thread.Start();
                 process.Start();
                 process.BeginOutputReadLine();
