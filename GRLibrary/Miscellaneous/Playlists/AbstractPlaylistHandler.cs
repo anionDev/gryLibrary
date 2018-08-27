@@ -68,9 +68,20 @@ namespace GRLibrary.Miscellaneous.Playlists
             return GetSongsFromPlaylist(playlistFile, removeDuplicatedItems, loadTransitively, new HashSet<string>());
         }
 
-        public void AddSongsToPlaylist(string playlistFile, IEnumerable<string> newSongs)
+        public void AddSongsToPlaylist(string playlistFile, IEnumerable<string> newSongs, bool addOnlyNotExistingSongs = false)
         {
-            AddSongsToPlaylistImplementation(playlistFile, newSongs.Where(item => IsAllowedAsPlaylistItem(item)));
+            newSongs = newSongs.Where(item => IsAllowedAsPlaylistItem(item));
+            if (addOnlyNotExistingSongs)
+            {
+                HashSet<string> newSongsAsSet = new HashSet<string>(newSongs);
+                IEnumerable<string> alreadyExistingItems = GetSongsFromPlaylist(playlistFile, true, false);
+                foreach (string alreadyExistingItem in alreadyExistingItems)
+                {
+                    newSongsAsSet.Remove(alreadyExistingItem);
+                }
+                newSongs = newSongsAsSet;
+            }
+            AddSongsToPlaylistImplementation(playlistFile, newSongs);
         }
         public void DeleteSongsFromPlaylist(string playlistFile, IEnumerable<string> songsToDelete)
         {
