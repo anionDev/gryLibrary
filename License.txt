@@ -1,1 +1,1 @@
-ConcreteLicenseTexts/GNU Lesser General Public License version 3.txt applies to: The sourcecode of the GRLibrary-project in this repository.
+ConcreteLicenseTexts/GNU Lesser General Public License version 3.txt applies to: The sourcecode of the GRYLibrary-project in this repository.
