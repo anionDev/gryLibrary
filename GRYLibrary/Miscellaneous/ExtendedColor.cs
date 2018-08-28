@@ -8,7 +8,7 @@
         private readonly string _ARGBStringValue;
         private readonly string _RGBStringValue;
 
-        public int Encoding { get; }
+        public int ColorCode { get; }
         public ExtendedColor() : this(0)
         {
         }
@@ -18,13 +18,13 @@
         public ExtendedColor(int r, int g, int b) : this(System.Drawing.Color.FromArgb(r, g, b).ToArgb())
         {
         }
-        public ExtendedColor(int colorEncodingValue)
+        public ExtendedColor(int colorCode)
         {
             //TODO: add variants without transparency
-            this.Encoding = colorEncodingValue;
-            this.DrawingColor = System.Drawing.Color.FromArgb(this.Encoding);
+            this.ColorCode = colorCode;
+            this.DrawingColor = System.Drawing.Color.FromArgb(this.ColorCode);
             this.MediaColor = System.Windows.Media.Color.FromArgb(this.DrawingColor.A, this.DrawingColor.R, this.DrawingColor.G, this.DrawingColor.B);
-            this._ARGBStringValue = this.Encoding.ToString("X8");
+            this._ARGBStringValue = this.ColorCode.ToString("X8");
             this._RGBStringValue = this.DrawingColor.R.ToString("X2") + this.DrawingColor.G.ToString("X2") + this.DrawingColor.B.ToString("X2");
             this.Brush = new System.Windows.Media.SolidColorBrush(this.MediaColor);
             this.A = this.DrawingColor.A;
@@ -57,11 +57,11 @@
                 return this._RGBStringValue;
             }
         }
-        public override bool Equals(object obj)
+        public override bool Equals(object @object)
         {
-            if (obj is ExtendedColor)
+            if (@object is ExtendedColor)
             {
-                return this.Encoding == ((ExtendedColor)obj).Encoding;
+                return this.ColorCode == ((ExtendedColor)@object).ColorCode;
             }
             else
             {
@@ -70,7 +70,7 @@
         }
         public override int GetHashCode()
         {
-            return this.Encoding;
+            return this.ColorCode;
         }
         public int A { get; }
         public int R { get; }
