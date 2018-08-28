@@ -6,16 +6,24 @@ namespace GRLibrary.Miscellaneous.Playlists.ConcretePlaylistHandler
     {
         public static PLSHandler Instance { get; } = new PLSHandler();
         private PLSHandler() { }
+        /// <summary>
+        /// Warning: This function is not implemented yet.
+        /// </summary>
         protected override void AddSongsToPlaylistImplementation(string playlistFile, IEnumerable<string> newSongs)
         {
             throw new NotImplementedException();
         }
-
+        /// <summary>
+        /// Warning: This function is not implemented yet.
+        /// </summary>
         protected override void DeleteSongsFromPlaylistImplementation(string playlistFile, IEnumerable<string> songsToDelete)
         {
             throw new NotImplementedException();
         }
 
+        /// <summary>
+        /// Warning: This function is not implemented yet.
+        /// </summary>
         protected override IEnumerable<string> GetSongsFromPlaylistImplementation(string playlistFile)
         {
             throw new NotImplementedException();

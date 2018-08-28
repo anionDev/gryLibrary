@@ -172,6 +172,7 @@ namespace GRLibrary
 
         /// <summary>
         /// Starts all <see cref="ThreadStart"/>-objects in <paramref name="threadStarts"/> concurrent and return all results which did not throw an exception.
+        /// Warning: This function is not implemented yet.
         /// </summary>
         /// <returns>The results of the first finished <paramref name="threadStarts"/>-methods.</returns>
         /// <exception cref="ArgumentException">If <paramref name="threadStarts"/> is empty.</exception>
@@ -186,6 +187,7 @@ namespace GRLibrary
 
         /// <summary>
         /// Starts all <see cref="ThreadStart"/>-objects in <paramref name="threadStarts"/> concurrent and return the result of the first execution which does not throw an exception.
+        /// Warning: This function is not implemented yet.
         /// </summary>
         /// <returns>The result of the first finished <paramref name="threadStarts"/>-method.</returns>
         /// <exception cref="ArgumentException">If <paramref name="threadStarts"/> is empty.</exception>
@@ -250,6 +252,9 @@ namespace GRLibrary
             }
         }
         #endregion
+        /// <summary>
+        /// Warning: This function is not implemented yet.
+        /// </summary>
         public static bool IsSet(this object @object)
         {
             throw new NotImplementedException();
