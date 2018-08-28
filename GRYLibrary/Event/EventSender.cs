@@ -13,18 +13,11 @@ namespace GRYLibrary.Event
         public EventSender(GRYLog logObject)
         {
             this.LogObject = logObject;
+            this._Observer = new List<IObserver<SenderType, EventArgumentType>>();
         }
-        private List<IObserver<SenderType, EventArgumentType>> _Observer = null;
-        private void InitializeIfRequired()
-        {
-            if (this._Observer == null)
-            {
-                this._Observer = new List<IObserver<SenderType, EventArgumentType>>();
-            }
-        }
+        private readonly IList<IObserver<SenderType, EventArgumentType>> _Observer = null;
         public void Register(IObserver<SenderType, EventArgumentType> observer)
         {
-            InitializeIfRequired();
             if (!this._Observer.Contains(observer))
             {
                 this._Observer.Add(observer);
@@ -32,7 +25,6 @@ namespace GRYLibrary.Event
         }
         public void Deregister(IObserver<SenderType, EventArgumentType> observer)
         {
-            InitializeIfRequired();
             if (this._Observer.Contains(observer))
             {
                 this._Observer.Remove(observer);
@@ -41,18 +33,17 @@ namespace GRYLibrary.Event
         public GRYLog LogObject { get; set; }
         protected void Notify(Argument<SenderType, EventArgumentType> argument)
         {
-            InitializeIfRequired();
             foreach (IObserver<SenderType, EventArgumentType> observer in this._Observer)
             {
                 try
                 {
                     observer.Update(this, argument);
                 }
-                catch(Exception exception)
+                catch (Exception exception)
                 {
                     if (this.LogObject != null)
                     {
-                        this.LogObject.LogError("Error occurred in observer.Update", exception,"b586472c");
+                        this.LogObject.LogError("Error occurred in observer.Update", exception, "b586472c");
                     }
                 }
             }
