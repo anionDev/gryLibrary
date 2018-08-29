@@ -1,14 +1,16 @@
 ﻿using GRYLibrary.Event;
+using GRYLibrary.GRYObjectSystem.Exceptions;
+using GRYLibrary.GRYObjectSystem.Other;
 using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 
-namespace GRYLibrary.Property
+namespace GRYLibrary.GRYObjectSystem.Meta
 {
     public interface IProperty
     {
         string PropertyName { get; set; }
-        Type PropertyValueType { get; }
+        System.Type PropertyValueType { get; }
 
     }
     [DataContract]
@@ -48,7 +50,7 @@ namespace GRYLibrary.Property
 
         public string PropertyName { get { return this._PropertyName; } set { this._PropertyName = value; } }
 
-        public Type PropertyValueType
+        public System.Type PropertyValueType
         {
             get
             {

@@ -50,6 +50,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="GRYObjectSystem\Meta\Attribute.cs" />
+    <Compile Include="GRYObjectSystem\Meta\Operation.cs" />
+    <Compile Include="GRYObjectSystem\Meta\Type.cs" />
     <Compile Include="Miscellaneous\ColorGradient.cs" />
     <Compile Include="Event\Argument.cs" />
     <Compile Include="Event\EventSender.cs" />
@@ -65,10 +68,11 @@
     <Compile Include="Miscellaneous\Playlists\ConcretePlaylistHandler\WPLHandler.cs" />
     <Compile Include="Miscellaneous\WriteableTuple.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Property\SetNotAllowedException.cs" />
-    <Compile Include="Property\InvalidArgumentException.cs" />
-    <Compile Include="Property\Property.cs" />
-    <Compile Include="Property\PropertyChangedEvengArgument.cs" />
+    <Compile Include="GRYObjectSystem\Meta\Object.cs" />
+    <Compile Include="GRYObjectSystem\Exceptions\SetNotAllowedException.cs" />
+    <Compile Include="GRYObjectSystem\Exceptions\InvalidArgumentException.cs" />
+    <Compile Include="GRYObjectSystem\Meta\Property.cs" />
+    <Compile Include="GRYObjectSystem\Other\PropertyChangedEvengArgument.cs" />
     <Compile Include="Miscellaneous\SupervisedThread.cs" />
     <Compile Include="Miscellaneous\Utilities.cs" />
     <Compile Include="Miscellaneous\SimpleGenericXMLSerializer.cs" />
