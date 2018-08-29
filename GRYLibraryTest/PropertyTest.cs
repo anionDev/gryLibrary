@@ -1,5 +1,7 @@
-﻿using GRYLibrary.Property;
+﻿using GRYLibrary.Miscellaneous.Playlists.ConcretePlaylistHandler;
+using GRYLibrary.Property;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Diagnostics;
 
 namespace GRYLibraryTest
 {
@@ -35,5 +37,5 @@ namespace GRYLibraryTest
             Assert.AreEqual(object2, currentHistoy.Pop().Value);
             Assert.AreEqual(object1, currentHistoy.Pop().Value);
         }
+        }
     }
-}
