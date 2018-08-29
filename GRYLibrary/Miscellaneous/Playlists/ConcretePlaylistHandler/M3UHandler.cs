@@ -10,7 +10,7 @@ namespace GRYLibrary.Miscellaneous.Playlists.ConcretePlaylistHandler
         private M3UHandler() { }
         protected override void AddSongsToPlaylistImplementation(string playlistFile, IEnumerable<string> newSongs)
         {
-            File.AppendAllText(playlistFile, System.Environment.NewLine);
+            File.AppendAllText(playlistFile, System.Environment.NewLine, Encoding);
             File.AppendAllLines(playlistFile, newSongs, Encoding);
         }
 
