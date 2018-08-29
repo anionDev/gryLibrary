@@ -50,6 +50,12 @@ namespace GRYLibrary.Miscellaneous.Playlists.ConcretePlaylistHandler
             }
             return result;
         }
+
+        public override void CreatePlaylist(string file)
+        {
+            Utilities.EnsureFileExists(file);
+        }
+
         private class M3UConfiguration
         {
             private readonly Dictionary<string, string> _Replace = new Dictionary<string, string>();

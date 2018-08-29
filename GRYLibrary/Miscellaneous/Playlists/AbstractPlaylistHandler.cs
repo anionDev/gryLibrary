@@ -1,4 +1,5 @@
 ﻿using GRYLibrary.Miscellaneous.Playlists.ConcretePlaylistHandler;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
@@ -9,8 +10,23 @@ namespace GRYLibrary.Miscellaneous.Playlists
 {
     public abstract class AbstractPlaylistHandler
     {
-        public static Dictionary<string, AbstractPlaylistHandler> ExtensionsOfReadablePlaylists { get; } = new Dictionary<string, AbstractPlaylistHandler>() { { "m3u", M3UHandler.Instance }, { "pls", PLSHandler.Instance }, { "wpl", WPLHandler.Instance } };
+        private static Dictionary<string, AbstractPlaylistHandler> _ExtensionsOfReadablePlaylists = null;
+        public static Dictionary<string, AbstractPlaylistHandler> ExtensionsOfReadablePlaylists
+        {
+            get
+            {
+                if (_ExtensionsOfReadablePlaylists == null)
+                {
+                    _ExtensionsOfReadablePlaylists = new Dictionary<string, AbstractPlaylistHandler>();
+                    _ExtensionsOfReadablePlaylists.Add("m3u", M3UHandler.Instance);
+                    _ExtensionsOfReadablePlaylists.Add("pls", PLSHandler.Instance);
+                    _ExtensionsOfReadablePlaylists.Add("wpl", WPLHandler.Instance);
+                }
+                return _ExtensionsOfReadablePlaylists;
+            }
+        }
         public static Encoding Encoding { get; set; } = Encoding.UTF8;
+        public abstract void CreatePlaylist(string file);
         protected abstract IEnumerable<string> GetSongsFromPlaylistImplementation(string playlistFile);
         protected abstract void AddSongsToPlaylistImplementation(string playlistFile, IEnumerable<string> newSongs);
         protected abstract void DeleteSongsFromPlaylistImplementation(string playlistFile, IEnumerable<string> songsToDelete);
@@ -24,13 +40,20 @@ namespace GRYLibrary.Miscellaneous.Playlists
                 try
                 {
                     string playlistItem;
-                    if (Path.IsPathRooted(item))
+                    if (new Uri(item).IsFile)
                     {
-                        playlistItem = item;
+                        if (Path.IsPathRooted(item))
+                        {
+                            playlistItem = item;
+                        }
+                        else
+                        {
+                            playlistItem = Path.GetFullPath(Path.Combine(locationOfFile, item));
+                        }
                     }
                     else
                     {
-                        playlistItem = Path.GetFullPath(Path.Combine(locationOfFile, item));
+                        playlistItem = item;
                     }
                     string playlistItemToLower = playlistItem.ToLower();
                     if (IsReadablePlaylist(playlistItemToLower))

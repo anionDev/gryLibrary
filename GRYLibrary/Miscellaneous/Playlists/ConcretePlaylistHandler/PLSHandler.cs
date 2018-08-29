@@ -28,5 +28,13 @@ namespace GRYLibrary.Miscellaneous.Playlists.ConcretePlaylistHandler
         {
             throw new NotImplementedException();
         }
+
+        /// <summary>
+        /// Warning: This function is not implemented yet.
+        /// </summary>
+        public override void CreatePlaylist(string file)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
