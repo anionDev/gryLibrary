@@ -63,22 +63,22 @@ namespace GRYLibrary.Miscellaneous.Playlists.ConcretePlaylistHandler
         /// </summary>
         protected override void DeleteSongsFromPlaylistImplementation(string playlistFile, IEnumerable<string> songsToDelete)
         {
-            int amountOfItems = GetAmountOfItems(playlistFile);
             string[] lines = File.ReadLines(playlistFile, Encoding).ToArray();
             List<string> result = new List<string>();
             foreach (string line in lines)
             {
-                foreach (string itemToDelete in songsToDelete)
+                if (line.ToLower().StartsWith("file") && line.Contains("="))
                 {
-                    if (line.ToLower().StartsWith("file") && line.Contains("=") && !line.Split('=')[1].Trim().Equals(itemToDelete))
+                    string item = line.Split('=')[1].Trim();
+                    if (!songsToDelete.Contains(item))
                     {
-                        amountOfItems = amountOfItems - 1;
-                        result.Add(line);
+                        result.Add(item);
                     }
                 }
             }
-            File.WriteAllLines(playlistFile, lines, Encoding);
-            SetAmountOfItems(playlistFile, amountOfItems);
+            File.WriteAllText(playlistFile, string.Empty, Encoding);
+            InitializePLSFile(playlistFile);
+            AddSongsToPlaylistImplementation(playlistFile, result);
         }
 
         /// <summary>
@@ -109,8 +109,13 @@ namespace GRYLibrary.Miscellaneous.Playlists.ConcretePlaylistHandler
             if (!File.Exists(file))
             {
                 File.Create(file).Close();
-                File.AppendAllLines(file, new string[] { "[playlist]", string.Empty, "NumberOfEntries=0" });
+                InitializePLSFile(file);
             }
+        }
+
+        private void InitializePLSFile(string file)
+        {
+            File.AppendAllLines(file, new string[] { "[playlist]", string.Empty, "NumberOfEntries=0" });
         }
     }
 }

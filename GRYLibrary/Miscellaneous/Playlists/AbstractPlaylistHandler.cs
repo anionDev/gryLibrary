@@ -91,20 +91,23 @@ namespace GRYLibrary.Miscellaneous.Playlists
             return GetSongsFromPlaylist(playlistFile, removeDuplicatedItems, loadTransitively, new HashSet<string>());
         }
 
-        public void AddSongsToPlaylist(string playlistFile, IEnumerable<string> newSongs, bool addOnlyNotExistingSongs = false)
+        public void AddSongsToPlaylist(string playlistFile, IEnumerable<string> newSongs, bool addOnlyNotExistingSongs = true)
         {
             newSongs = newSongs.Where(item => IsAllowedAsPlaylistItem(item));
-            if (addOnlyNotExistingSongs)
+            if (newSongs.Count() > 0)
             {
-                HashSet<string> newSongsAsSet = new HashSet<string>(newSongs);
-                IEnumerable<string> alreadyExistingItems = GetSongsFromPlaylist(playlistFile, true, false);
-                foreach (string alreadyExistingItem in alreadyExistingItems)
+                if (addOnlyNotExistingSongs)
                 {
-                    newSongsAsSet.Remove(alreadyExistingItem);
+                    HashSet<string> newSongsAsSet = new HashSet<string>(newSongs);
+                    IEnumerable<string> alreadyExistingItems = GetSongsFromPlaylist(playlistFile, true, false);
+                    foreach (string alreadyExistingItem in alreadyExistingItems)
+                    {
+                        newSongsAsSet.Remove(alreadyExistingItem);
+                    }
+                    newSongs = newSongsAsSet;
                 }
-                newSongs = newSongsAsSet;
+                AddSongsToPlaylistImplementation(playlistFile, newSongs);
             }
-            AddSongsToPlaylistImplementation(playlistFile, newSongs);
         }
         public void DeleteSongsFromPlaylist(string playlistFile, IEnumerable<string> songsToDelete)
         {
