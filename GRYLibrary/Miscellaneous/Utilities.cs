@@ -28,12 +28,9 @@ namespace GRYLibrary
                 list[n] = value;
             }
         }
-        public static bool EqualsForLists<T>(IList<T> list1, IList<T> list2)
+        public static bool EqualsIgnoringOrder<T>(this IEnumerable<T> list1, IEnumerable<T> list2)
         {
-            IList<T> firstNotSecond = list1.Except(list2).ToList();
-            IList<T> secondNotFirst = list2.Except(list1).ToList();
-            bool result = !firstNotSecond.Any() && !secondNotFirst.Any();
-            return result;
+            return Enumerable.SequenceEqual(list1.OrderBy(item => item), list2.OrderBy(item => item));
         }
         public static IEnumerable<string> GetFilesOfFolderRecursively(string folder)
         {

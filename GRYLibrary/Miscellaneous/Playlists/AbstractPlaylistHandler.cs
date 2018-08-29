@@ -112,7 +112,15 @@ namespace GRYLibrary.Miscellaneous.Playlists
         }
         public static bool IsReadablePlaylist(string file)
         {
-            return ExtensionsOfReadablePlaylists.ContainsKey(Path.GetExtension(file.ToLower()).Substring(1));
+            file = file.ToLower();
+            foreach (KeyValuePair<string, AbstractPlaylistHandler> keyValuePair in ExtensionsOfReadablePlaylists)
+            {
+                if (file.EndsWith("." + keyValuePair.Key))
+                {
+                    return true;
+                }
+            }
+            return false;
         }
         public static bool IsAllowedAsPlaylistItem(string item)
         {

@@ -24,7 +24,7 @@ namespace GRYLibrary.Miscellaneous.Playlists.ConcretePlaylistHandler
                     files.Add(item);
                 }
             }
-            File.WriteAllLines(playlistFile, songsToDelete, Encoding);
+            File.WriteAllLines(playlistFile, files, Encoding);
         }
 
         protected override IEnumerable<string> GetSongsFromPlaylistImplementation(string playlistFile)
