@@ -20,9 +20,9 @@ namespace GRYLibrary.Miscellaneous
             result._Files = new string[] { file };
             return result;
         }
-        public static FileSelector FilesInFolder(string folder)
+        public static FileSelector FilesInFolder(string folder, bool deepSearch = true)
         {
-            return FilesInFolder(folder, (string file) => true);
+            return FilesInFolder(folder, (string file) => true, deepSearch);
         }
         public static FileSelector FilesInFolder(string folder, Func<string, bool> filter, bool deepSearch = true)
         {
