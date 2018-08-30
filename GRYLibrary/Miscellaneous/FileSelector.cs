@@ -8,8 +8,6 @@ namespace GRYLibrary.Miscellaneous
 {
     public class FileSelector
     {
-        private IEnumerable<string> _Files;
-
         private FileSelector()
         {
 
@@ -17,7 +15,7 @@ namespace GRYLibrary.Miscellaneous
         public static FileSelector SingleFile(string file)
         {
             FileSelector result = new FileSelector();
-            result._Files = new string[] { file };
+            result.Files = new string[] { file };
             return result;
         }
         public static FileSelector FilesInFolder(string folder, bool deepSearch = true)
@@ -42,15 +40,9 @@ namespace GRYLibrary.Miscellaneous
                     }
                 }
             }
-            result._Files = list;
+            result.Files = list;
             return result;
         }
-        public IEnumerable<string> Files
-        {
-            get
-            {
-                return this._Files;
-            }
-        }
+        public IEnumerable<string> Files { get; private set; }
     }
 }
