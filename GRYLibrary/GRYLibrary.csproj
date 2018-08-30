@@ -59,6 +59,7 @@
     <Compile Include="Event\IObserver.cs" />
     <Compile Include="Miscellaneous\ExtendedColor.cs" />
     <Compile Include="Miscellaneous\ExternalProgramExecutor.cs" />
+    <Compile Include="Miscellaneous\FileSelector.cs" />
     <Compile Include="Miscellaneous\GRYLog.cs" />
     <Compile Include="Miscellaneous\NonPersistentInputHistoryList.cs" />
     <Compile Include="Miscellaneous\PercentValue.cs" />
