@@ -24,11 +24,24 @@ namespace GRYLibrary.Miscellaneous
         {
             return FilesInFolder(folder, (string file) => true);
         }
-        public static FileSelector FilesInFolder(string folder, Func<string, bool> filter)
+        public static FileSelector FilesInFolder(string folder, Func<string, bool> filter, bool deepSearch = true)
         {
             FileSelector result = new FileSelector();
             List<string> list = new List<string>();
-            Utilities.ForEachFileAndDirectoryTransitively(folder, null, (string file, object argument) => { if (filter(file)) { list.Add(file); } }, false, null, null);
+            if (deepSearch)
+            {
+                Utilities.ForEachFileAndDirectoryTransitively(folder, null, (string file, object argument) => { if (filter(file)) { list.Add(file); } }, false, null, null);
+            }
+            else
+            {
+                foreach (string file in System.IO.Directory.GetFiles(folder))
+                {
+                    if (filter(file))
+                    {
+                        list.Add(file);
+                    }
+                }
+            }
             result._Files = list;
             return result;
         }
