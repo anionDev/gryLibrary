@@ -9,9 +9,7 @@ namespace GRYLibrary.Miscellaneous.Playlists.ConcretePlaylistHandler
     {
         public static PLSHandler Instance { get; } = new PLSHandler();
         private PLSHandler() { }
-        /// <summary>
-        /// Warning: This function is not implemented yet.
-        /// </summary>
+
         protected override void AddSongsToPlaylistImplementation(string playlistFile, IEnumerable<string> newSongs)
         {
             int amountOfItems = GetAmountOfItems(playlistFile);
@@ -24,9 +22,6 @@ namespace GRYLibrary.Miscellaneous.Playlists.ConcretePlaylistHandler
             SetAmountOfItems(playlistFile, amountOfItems);
         }
 
-        /// <summary>
-        /// Warning: This function is not implemented yet.
-        /// </summary>
         public int GetAmountOfItems(string playlistFile)
         {
             foreach (string line in File.ReadLines(playlistFile))
@@ -58,9 +53,6 @@ namespace GRYLibrary.Miscellaneous.Playlists.ConcretePlaylistHandler
             File.WriteAllLines(playlistFile, lines, Encoding);
         }
 
-        /// <summary>
-        /// Warning: This function is not implemented yet.
-        /// </summary>
         protected override void DeleteSongsFromPlaylistImplementation(string playlistFile, IEnumerable<string> songsToDelete)
         {
             string[] lines = File.ReadLines(playlistFile, Encoding).ToArray();
@@ -81,9 +73,6 @@ namespace GRYLibrary.Miscellaneous.Playlists.ConcretePlaylistHandler
             AddSongsToPlaylistImplementation(playlistFile, result);
         }
 
-        /// <summary>
-        /// Warning: This function is not implemented yet.
-        /// </summary>
         protected override IEnumerable<string> GetSongsFromPlaylistImplementation(string playlistFile)
         {
             List<string> result = new List<string>();
