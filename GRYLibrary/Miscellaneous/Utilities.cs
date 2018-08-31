@@ -191,15 +191,15 @@ namespace GRYLibrary
         }
 
         /// <summary>
-        /// Starts all <see cref="ThreadStart"/>-objects in <paramref name="threadStarts"/> concurrent and return the result of the first execution which does not throw an exception.
+        /// Starts all <see cref="ThreadStart"/>-objects in <paramref name="function"/> concurrent and return the result of the first execution which does not throw an exception.
         /// Warning: This function is not implemented yet.
         /// </summary>
-        /// <returns>The result of the first finished <paramref name="threadStarts"/>-method.</returns>
-        /// <exception cref="ArgumentException">If <paramref name="threadStarts"/> is empty.</exception>
-        /// <exception cref="Exception">If every <paramref name="threadStarts"/>-method throws an exception.</exception>
-        public static object RunAllConcurrentAndReturnFirstResult(ISet<Func<object>> threadStarts)
+        /// <returns>The result of the first finished <paramref name="function"/>-method.</returns>
+        /// <exception cref="ArgumentException">If <paramref name="function"/> is empty.</exception>
+        /// <exception cref="Exception">If every <paramref name="function"/>-method throws an exception.</exception>
+        public static object RunAllConcurrentAndReturnFirstResult(ISet<Func<object>> function)
         {
-            if (threadStarts.Count == 0)
+            if (function.Count == 0)
             {
                 throw new ArgumentException();
             }
