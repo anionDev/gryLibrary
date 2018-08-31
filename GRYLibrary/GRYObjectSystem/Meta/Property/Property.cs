@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 
-namespace GRYLibrary.GRYObjectSystem.Meta
+namespace GRYLibrary.GRYObjectSystem.Meta.Property
 {
     public interface IProperty
     {

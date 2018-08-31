@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using GRYLibrary.GRYObjectSystem.Meta.Property;
+using System.Collections.Generic;
 
 namespace GRYLibrary.GRYObjectSystem.Meta
 {
