@@ -284,5 +284,13 @@ namespace GRYLibrary
         {
             return new SimpleObjectPersistence<T>(file, encoding, @object);
         }
+        public static SimpleObjectPersistence<T> Load<T>(this string file) where T : new()
+        {
+            return new SimpleObjectPersistence<T>(file);
+        }
+        public static SimpleObjectPersistence<T> Load<T>(this string file, Encoding encoding) where T : new()
+        {
+            return new SimpleObjectPersistence<T>(file, encoding);
+        }
     }
 }
