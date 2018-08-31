@@ -197,7 +197,7 @@ namespace GRYLibrary
         /// <returns>The result of the first finished <paramref name="function"/>-method.</returns>
         /// <exception cref="ArgumentException">If <paramref name="function"/> is empty.</exception>
         /// <exception cref="Exception">If every <paramref name="function"/>-method throws an exception.</exception>
-        public static object RunAllConcurrentAndReturnFirstResult(ISet<Func<object>> function)
+        public static T RunAllConcurrentAndReturnFirstResult<T>(ISet<Func<T>> function)
         {
             if (function.Count == 0)
             {
