@@ -12,15 +12,7 @@
             this.Encoding = encoding;
             this._Serializer = new SimpleGenericXMLSerializer<T>();
             this._Serializer.Encoding = this.Encoding;
-            if (System.IO.File.Exists(this.File))
-            {
-                this.LoadObject();
-            }
-            else
-            {
-                this.Object = new T();
-                this.SaveObject();
-            }
+            this.LoadObject();
         }
         public SimpleObjectPersistence(string file, System.Text.Encoding encoding, T @object) : this(file, encoding)
         {
