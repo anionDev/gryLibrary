@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ConcurrentCollections;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
@@ -10,6 +11,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace GRYLibrary
 {
@@ -168,18 +170,24 @@ namespace GRYLibrary
         }
 
         /// <summary>
-        /// Starts all <see cref="ThreadStart"/>-objects in <paramref name="threadStarts"/> concurrent and return all results which did not throw an exception.
-        /// Warning: This function is not implemented yet.
+        /// Starts all <see cref="Func{object}"/>-objects in <paramref name="functions"/> concurrent and return all results which did not throw an exception.
         /// </summary>
-        /// <returns>The results of the first finished <paramref name="threadStarts"/>-methods.</returns>
-        /// <exception cref="ArgumentException">If <paramref name="threadStarts"/> is empty.</exception>
-        public static ISet<Tuple<ThreadStart, object>> RunAllConcurrentAndReturnAllResults(ISet<ThreadStart> threadStarts)
+        /// <returns>The results of all finished <paramref name="functions"/>-methods with their results.</returns>
+        public static ISet<Tuple<Func<object>, object, bool>> RunAllConcurrentAndReturnAllResults(ISet<Func<object>> functions)
         {
-            if (threadStarts.Count == 0)
+            ConcurrentHashSet<Tuple<Func<object>, object, bool>> result = new ConcurrentHashSet<Tuple<Func<object>, object, bool>>();
+            Parallel.ForEach(functions, (function) =>
             {
-                throw new ArgumentException();
-            }
-            throw new NotImplementedException();
+                try
+                {
+                    result.Add(new Tuple<Func<object>, object, bool>(function, function(), true));
+                }
+                catch (Exception exception)
+                {
+                    result.Add(new Tuple<Func<object>, object, bool>(function, exception, false));
+                }
+            });
+            return new HashSet<Tuple<Func<object>, object, bool>>(result);
         }
 
         /// <summary>
@@ -189,7 +197,7 @@ namespace GRYLibrary
         /// <returns>The result of the first finished <paramref name="threadStarts"/>-method.</returns>
         /// <exception cref="ArgumentException">If <paramref name="threadStarts"/> is empty.</exception>
         /// <exception cref="Exception">If every <paramref name="threadStarts"/>-method throws an exception.</exception>
-        public static object RunAllConcurrentAndReturnFirstResult(ISet<ThreadStart> threadStarts)
+        public static object RunAllConcurrentAndReturnFirstResult(ISet<Func<object>> threadStarts)
         {
             if (threadStarts.Count == 0)
             {
