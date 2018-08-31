@@ -276,5 +276,13 @@ namespace GRYLibrary
         {
             set.UnionWith(newItems);
         }
+        public static SimpleObjectPersistence<T> Persist<T>(this T @object, string file) where T : new()
+        {
+            return @object.Persist(file, Encoding.UTF8);
+        }
+        public static SimpleObjectPersistence<T> Persist<T>(this T @object, string file, Encoding encoding) where T : new()
+        {
+            return new SimpleObjectPersistence<T>(file, encoding, @object);
+        }
     }
 }
