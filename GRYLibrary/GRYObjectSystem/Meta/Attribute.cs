@@ -1,6 +1,6 @@
 ﻿namespace GRYLibrary.GRYObjectSystem.Meta
 {
-    public sealed class Attribute
+    internal sealed class Attribute
     {
         public Type TargetObjectType { get; }
         public string Name { get; }

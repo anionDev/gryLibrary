@@ -2,7 +2,7 @@
 
 namespace GRYLibrary.GRYObjectSystem.Meta
 {
-    public sealed class Object
+    internal sealed class Object
     {
         public IList<IProperty> Properties { get; } = new List<IProperty>();
         public IList<Object> ParentTypeObjects { get; } = new List<Object>();
