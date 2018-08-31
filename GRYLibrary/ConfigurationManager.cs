@@ -1,8 +1,10 @@
 ﻿
 namespace GRYLibrary
 {
-    public sealed class ConfigurationManager<T> where T: new()
+    public sealed class ConfigurationManager<T> where T : new()
     {
+        public T Configuration { get; private set; }
+
         public string ConfigurationFile = null;
         public ConfigurationManager(string configurationFile)
         {
@@ -16,5 +18,6 @@ namespace GRYLibrary
         {
             throw new System.NotImplementedException();
         }
+
     }
 }
