@@ -173,21 +173,21 @@ namespace GRYLibrary
         /// Starts all <see cref="Func{object}"/>-objects in <paramref name="functions"/> concurrent and return all results which did not throw an exception.
         /// </summary>
         /// <returns>The results of all finished <paramref name="functions"/>-methods with their results.</returns>
-        public static ISet<Tuple<Func<object>, object, bool>> RunAllConcurrentAndReturnAllResults(ISet<Func<object>> functions)
+        public static ISet<Tuple<Func<T>, T, Exception>> RunAllConcurrentAndReturnAllResults<T>(ISet<Func<T>> functions)
         {
-            ConcurrentHashSet<Tuple<Func<object>, object, bool>> result = new ConcurrentHashSet<Tuple<Func<object>, object, bool>>();
+            ConcurrentHashSet<Tuple<Func<T>, T, Exception>> result = new ConcurrentHashSet<Tuple<Func<T>, T, Exception>>();
             Parallel.ForEach(functions, (function) =>
             {
                 try
                 {
-                    result.Add(new Tuple<Func<object>, object, bool>(function, function(), true));
+                    result.Add(new Tuple<Func<T>, T, Exception>(function, function(), null));
                 }
                 catch (Exception exception)
                 {
-                    result.Add(new Tuple<Func<object>, object, bool>(function, exception, false));
+                    result.Add(new Tuple<Func<T>, T, Exception>(function, default(T), exception));
                 }
             });
-            return new HashSet<Tuple<Func<object>, object, bool>>(result);
+            return new HashSet<Tuple<Func<T>, T, Exception>>(result);
         }
 
         /// <summary>
