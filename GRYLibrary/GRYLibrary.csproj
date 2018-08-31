@@ -50,7 +50,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ConfigurationManager.cs" />
+    <Compile Include="Miscellaneous\SimpleObjectPersistence.cs" />
     <Compile Include="GRYObjectSystem\Meta\Attribute.cs" />
     <Compile Include="GRYObjectSystem\Meta\Operation.cs" />
     <Compile Include="GRYObjectSystem\Meta\Type.cs" />
