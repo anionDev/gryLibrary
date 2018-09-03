@@ -300,5 +300,12 @@ namespace GRYLibrary
         {
             return new SimpleObjectPersistence<T>(file, encoding);
         }
+        public static string GetCommandLineArguments()
+        {
+            //see https://stackoverflow.com/a/51284316/3905529
+            var exe = Environment.GetCommandLineArgs()[0];
+            var rawCmd = Environment.CommandLine;
+            return rawCmd.Remove(rawCmd.IndexOf(exe), exe.Length).TrimStart('"').Substring(1);
+        }
     }
 }
