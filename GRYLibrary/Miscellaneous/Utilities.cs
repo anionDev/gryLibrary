@@ -1,4 +1,5 @@
 ﻿using ConcurrentCollections;
+using GRYLibrary.Miscellaneous;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -208,10 +209,10 @@ namespace GRYLibrary
 
         public static ISet<string> ToCaseInsensitiveSet(ISet<string> input)
         {
-            ISet<TupleWithSpecialEquals> tupleList = new HashSet<TupleWithSpecialEquals>(input.Select((item) => new TupleWithSpecialEquals(item, item.ToLower())));
+            ISet<TupleWithValueComparisonEquals<string, string>> tupleList = new HashSet<TupleWithValueComparisonEquals<string, string>>(input.Select((item) => new TupleWithValueComparisonEquals<string, string>(item, item.ToLower())));
             return new HashSet<string>((tupleList.Select((item) => item.Item1)));
         }
-             #region IsList and IsDictionary
+        #region IsList and IsDictionary
         //see https://stackoverflow.com/a/17190236/3905529
         public static bool IsList(this object @object)
         {
