@@ -211,23 +211,7 @@ namespace GRYLibrary
             ISet<TupleWithSpecialEquals> tupleList = new HashSet<TupleWithSpecialEquals>(input.Select((item) => new TupleWithSpecialEquals(item, item.ToLower())));
             return new HashSet<string>((tupleList.Select((item) => item.Item1)));
         }
-        private class TupleWithSpecialEquals : Tuple<string, string>
-        {
-            public TupleWithSpecialEquals(string item1, string item2) : base(item1, item2)
-            {
-            }
-
-            public override bool Equals(object @object)
-            {
-                return this.Item2.Equals(((TupleWithSpecialEquals)@object).Item2);
-            }
-
-            public override int GetHashCode()
-            {
-                return this.Item2.GetHashCode();
-            }
-        }
-        #region IsList and IsDictionary
+             #region IsList and IsDictionary
         //see https://stackoverflow.com/a/17190236/3905529
         public static bool IsList(this object @object)
         {
