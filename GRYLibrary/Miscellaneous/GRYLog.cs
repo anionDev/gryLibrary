@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Text;
 
@@ -39,7 +40,8 @@ namespace GRYLibrary
         public bool ConvertTimeToUTCFormat { get; set; }
         private int _AmountOfErrors = 0;
         private int _AmountOfWarnings = 0;
-
+        public bool DebugBreakMode { get; set; }
+        public IList<LogLevel> DebugBreakLevel { get; set; }
         private readonly ConsoleColor _ConsoleDefaultColor;
         public string LogFile
         {
@@ -103,6 +105,8 @@ namespace GRYLibrary
         }
         public GRYLog(string logFile)
         {
+            this.DebugBreakMode = false;
+            this.DebugBreakLevel = new List<LogLevel>() { LogLevel.Exception };
             this._ConsoleDefaultColor = Console.ForegroundColor;
             this.DateFormat = "yyyy/MM/dd HH:mm:ss";
             this.LoggedMessageTypesInConsole = new List<LogLevel>();
@@ -300,6 +304,10 @@ namespace GRYLibrary
                         }
                     }
                 }
+            }
+            if (this.DebugBreakMode && this.DebugBreakLevel.Contains(logLevel) && Debugger.IsAttached)
+            {
+                Debugger.Break();
             }
             if (this.LogOverhead)
             {
