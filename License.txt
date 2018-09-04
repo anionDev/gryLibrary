@@ -1,3 +1,1 @@
 ConcreteLicenseTexts/GNU Lesser General Public License version 3.txt applies to: The sourcecode of the GRYLibrary-project in this repository.
-The GRYLibrary-project uses third party software libraries that are distributed under their own terms:
-ConcreteLicenseTexts/MIT License.txt applies to: ConcurrentHashSet
