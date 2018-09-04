@@ -1,6 +1,6 @@
-﻿using ConcurrentCollections;
-using System;
+﻿using System;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
@@ -175,7 +175,7 @@ namespace GRYLibrary
         /// <returns>The results of all finished <paramref name="functions"/>-methods with their results.</returns>
         public static ISet<Tuple<Func<T>, T, Exception>> RunAllConcurrentAndReturnAllResults<T>(ISet<Func<T>> functions)
         {
-            ConcurrentHashSet<Tuple<Func<T>, T, Exception>> result = new ConcurrentHashSet<Tuple<Func<T>, T, Exception>>();
+            ConcurrentBag<Tuple<Func<T>, T, Exception>> result = new ConcurrentBag<Tuple<Func<T>, T, Exception>>();
             Parallel.ForEach(functions, (function) =>
             {
                 try
