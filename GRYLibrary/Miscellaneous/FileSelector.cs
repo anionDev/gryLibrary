@@ -11,8 +11,10 @@ namespace GRYLibrary.Miscellaneous
         }
         public static FileSelector SingleFile(string file)
         {
-            FileSelector result = new FileSelector();
-            result.Files = new string[] { file };
+            FileSelector result = new FileSelector
+            {
+                Files = new string[] { file }
+            };
             return result;
         }
         public static FileSelector FilesInFolder(string folder, bool deepSearch = true)

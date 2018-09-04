@@ -75,8 +75,10 @@ namespace GRYLibrary
                     }
                 };
                 this._Running = true;
-                SupervisedThread thread = new SupervisedThread(this.LogOutput);
-                thread.Name = $"Logger-Thread for '{this.Title}' ({nameof(ExternalProgramExecutor)}({this.ProgramPathAndFile} {this.Arguments}))";
+                SupervisedThread thread = new SupervisedThread(this.LogOutput)
+                {
+                    Name = $"Logger-Thread for '{this.Title}' ({nameof(ExternalProgramExecutor)}({this.ProgramPathAndFile} {this.Arguments}))"
+                };
                 thread.Start();
                 process.Start();
                 process.BeginOutputReadLine();
