@@ -66,6 +66,13 @@ namespace GRYLibrary
                 File.Create(path).Close();
             }
         }
+        public static void EnsureDirectoryExists(string path)
+        {
+            if (!Directory.Exists(path))
+            {
+                Directory.Create(path).Close();
+            }
+        }
         public static string TypeArrayToString(Type[] types)
         {
             return string.Format("{{{0}}}", string.Join(", ", types.Select((type) => type.Name)));
