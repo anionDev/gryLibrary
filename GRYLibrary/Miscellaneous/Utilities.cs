@@ -70,7 +70,7 @@ namespace GRYLibrary
         {
             if (!Directory.Exists(path))
             {
-                Directory.Create(path).Close();
+                Directory.CreateDirectory(path);
             }
         }
         public static string TypeArrayToString(Type[] types)
