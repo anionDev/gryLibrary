@@ -6,7 +6,7 @@ using System.Collections.Generic;
 namespace GRYLibraryTest
 {
     [TestClass]
-    public class ConcurrentText
+    public class ConcurrentTest
     {
         [TestMethod]
         public void TestConcurrentFunctions1()

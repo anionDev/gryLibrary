@@ -49,7 +49,7 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ConcurrentText.cs" />
+    <Compile Include="ConcurrentTest.cs" />
     <Compile Include="GLogTest.cs" />
     <Compile Include="PlaylistTest.cs" />
     <Compile Include="PropertyTest.cs" />
