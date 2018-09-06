@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace GRYLibrary.Property
+namespace GRYLibrary.GRYObjectSystem.Exceptions
 {
     public class InvalidArgumentException : Exception
     {

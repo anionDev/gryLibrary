@@ -1,14 +1,16 @@
 ﻿using GRYLibrary.Event;
+using GRYLibrary.GRYObjectSystem.Exceptions;
+using GRYLibrary.GRYObjectSystem.Other;
 using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 
-namespace GRYLibrary.Property
+namespace GRYLibrary.GRYObjectSystem.Meta.Property
 {
     public interface IProperty
     {
         string PropertyName { get; set; }
-        Type PropertyValueType { get; }
+        System.Type PropertyValueType { get; }
 
     }
     [DataContract]
@@ -36,7 +38,7 @@ namespace GRYLibrary.Property
             }
         }
         /// <summary>
-        /// The History contains all <see cref="T"/>-values which where set as value for <see cref="Property{T}.Value"/> with the <see cref="DateTime"/> when they were set.
+        /// The history contains all <see cref="T"/>-values which where set as value for <see cref="Property{T}.Value"/> with the <see cref="DateTime"/> when they were set.
         /// </summary>
         public Stack<KeyValuePair<DateTime, T>> History
         {
@@ -48,7 +50,7 @@ namespace GRYLibrary.Property
 
         public string PropertyName { get { return this._PropertyName; } set { this._PropertyName = value; } }
 
-        public Type PropertyValueType
+        public System.Type PropertyValueType
         {
             get
             {
