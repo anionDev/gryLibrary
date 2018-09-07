@@ -307,6 +307,11 @@ namespace GRYLibrary
             string result = string.Concat(words);
             return result;
         }
+        public static string ToCamelCase(this string input)
+        {
+            string pascalCase = input.ToPascalCase();
+            return char.ToLowerInvariant(pascalCase[0]) + pascalCase.Substring(1);
+        }
 
         //see https://stackoverflow.com/a/448225/3905529
         public static bool IsAllUpper(this string input)
