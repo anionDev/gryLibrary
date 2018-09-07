@@ -242,13 +242,6 @@ namespace GRYLibrary
             }
         }
         #endregion
-        /// <summary>
-        /// Warning: This function is not implemented yet.
-        /// </summary>
-        public static bool IsSet(this object @object)
-        {
-            throw new NotImplementedException();
-        }
 
         //see https://stackoverflow.com/a/129395/3905529
         public static T DeepClone<T>(this T @object)
