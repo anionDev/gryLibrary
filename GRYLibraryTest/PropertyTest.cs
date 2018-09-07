@@ -1,6 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using GRYLibrary.GRYObjectSystem.Exceptions;
-using GRYLibrary.GRYObjectSystem.Meta;
 using GRYLibrary.GRYObjectSystem.Meta.Property;
 
 namespace GRYLibraryTest
