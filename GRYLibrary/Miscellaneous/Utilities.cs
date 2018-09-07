@@ -292,5 +292,44 @@ namespace GRYLibrary
             string rawCmd = Environment.CommandLine;
             return rawCmd.Remove(rawCmd.IndexOf(exe), exe.Length).TrimStart('"').Substring(1);
         }
+
+        //see https://codereview.stackexchange.com/a/112844
+        public static string ToPascalCase(this string input)
+        {
+            if (input == null)
+            {
+                return string.Empty;
+            }
+            IEnumerable<string> words = input.Split(new[] { '-', '_' }, StringSplitOptions.RemoveEmptyEntries)
+                         .Select(word => word.Substring(0, 1).ToUpper() +
+                                         word.Substring(1).ToLower());
+
+            string result = string.Concat(words);
+            return result;
+        }
+
+        //see https://stackoverflow.com/a/448225/3905529
+        public static bool IsAllUpper(this string input)
+        {
+            for (int i = 0; i < input.Length; i++)
+            {
+                if (char.IsLetter(input[i]) && !char.IsUpper(input[i]))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+        public static bool IsAllLower(this string input)
+        {
+            for (int i = 0; i < input.Length; i++)
+            {
+                if (char.IsLetter(input[i]) && !char.IsLower(input[i]))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
     }
 }
