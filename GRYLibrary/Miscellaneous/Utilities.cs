@@ -285,9 +285,10 @@ namespace GRYLibrary
         {
             return new SimpleObjectPersistence<T>(file, encoding);
         }
+
+        //see https://stackoverflow.com/a/51284316/3905529
         public static string GetCommandLineArguments()
         {
-            //see https://stackoverflow.com/a/51284316/3905529
             string exe = Environment.GetCommandLineArgs()[0];
             string rawCmd = Environment.CommandLine;
             return rawCmd.Remove(rawCmd.IndexOf(exe), exe.Length).TrimStart('"').Substring(1);
