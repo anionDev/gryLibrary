@@ -13,9 +13,9 @@ namespace GRYLibrary.Event
         public EventSender(GRYLog logObject)
         {
             this.LogObject = logObject;
-            this._Observer = new List<IObserver<SenderType, EventArgumentType>>();
+            this.Initialize(default(StreamingContext));
         }
-        private readonly IList<IObserver<SenderType, EventArgumentType>> _Observer = null;
+        private IList<IObserver<SenderType, EventArgumentType>> _Observer = null;
         public void Register(IObserver<SenderType, EventArgumentType> observer)
         {
             if (!this._Observer.Contains(observer))
@@ -30,6 +30,15 @@ namespace GRYLibrary.Event
                 this._Observer.Remove(observer);
             }
         }
+        [OnDeserializing()]
+        public void Initialize(StreamingContext context)
+        {
+            if (this._Observer == null)
+            {
+                this._Observer = new List<IObserver<SenderType, EventArgumentType>>();
+            }
+        }
+
         public GRYLog LogObject { get; set; }
         protected void Notify(Argument<SenderType, EventArgumentType> argument)
         {
