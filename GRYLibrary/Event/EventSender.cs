@@ -13,7 +13,7 @@ namespace GRYLibrary.Event
         public EventSender(GRYLog logObject)
         {
             this.LogObject = logObject;
-            this.Initialize(default(StreamingContext));
+            this.Initialize(default);
         }
         private IList<IObserver<SenderType, EventArgumentType>> _Observer = null;
         public void Register(IObserver<SenderType, EventArgumentType> observer)

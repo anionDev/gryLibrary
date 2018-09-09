@@ -184,7 +184,7 @@ namespace GRYLibrary
                 }
                 catch (Exception exception)
                 {
-                    result.Add(new Tuple<Func<T>, T, Exception>(function, default(T), exception));
+                    result.Add(new Tuple<Func<T>, T, Exception>(function, default, exception));
                 }
             });
             return new HashSet<Tuple<Func<T>, T, Exception>>(result);
