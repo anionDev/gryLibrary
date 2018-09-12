@@ -12,6 +12,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Threading;
 
 namespace GRYLibrary
 {
@@ -218,13 +219,28 @@ namespace GRYLibrary
                 }
                 Parallel.ForEach(functions, new Action<Func<T>, ParallelLoopState>((Func<T> function, ParallelLoopState state) =>
                 {
-                    T result = function();
-                    state.Break();
-                    this.Result = result;
+                    try
+                    {
+                        Interlocked.Increment(ref this._AmountOfRunningFunctions);
+                        this.Result = function();
+                        state.Break();
+                    }
+                    finally
+                    {
+                        Interlocked.Decrement(ref this._AmountOfRunningFunctions);
+                    }
                 }));
-                System.Threading.SpinWait.SpinUntil(() => this.ResultSet);
-                return this.Result;
+                SpinWait.SpinUntil(() => this.ResultSet || this._AmountOfRunningFunctions == 0);
+                if (this._AmountOfRunningFunctions == 0 && !this.ResultSet)
+                {
+                    throw new Exception("No result was calculated");
+                }
+                else
+                {
+                    return this.Result;
+                }
             }
+            private int _AmountOfRunningFunctions = 0;
             private T Result { get { lock (this._LockObject) { return this._Result; } } set { lock (this._LockObject) { if (!this.ResultSet) { this._Result = value; this.ResultSet = true; } } } }
             private bool ResultSet { get { lock (this._LockObject) { return this._ResultSet; } } set { lock (this._LockObject) { this._ResultSet = value; } } }
             private T _Result = default;
