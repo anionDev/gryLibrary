@@ -277,8 +277,8 @@ namespace GRYLibrary
             else
             {
                 return @object is IDictionary &&
-                   @object.GetType().IsGenericType &&
-                   @object.GetType().GetGenericTypeDefinition().IsAssignableFrom(typeof(Dictionary<,>));
+                       @object.GetType().IsGenericType &&
+                       @object.GetType().GetGenericTypeDefinition().IsAssignableFrom(typeof(Dictionary<,>));
             }
         }
         #endregion
