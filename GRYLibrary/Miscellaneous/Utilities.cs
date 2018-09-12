@@ -206,13 +206,29 @@ namespace GRYLibrary
         /// <exception cref="Exception">If every <paramref name="functions"/>-method throws an exception.</exception>
         public static T RunAllConcurrentAndReturnFirstResult<T>(ISet<Func<T>> functions)
         {
-            if (functions.Count == 0)
-            {
-                throw new ArgumentException();
-            }
-            throw new NotImplementedException();
+            return new RunAllConcurrentAndReturnFirstResultHelper<T>().RunAllConcurrentAndReturnFirstResult(functions);
         }
-
+        private class RunAllConcurrentAndReturnFirstResultHelper<T>
+        {
+            public T RunAllConcurrentAndReturnFirstResult(ISet<Func<T>> functions)
+            {
+                if (functions.Count == 0)
+                {
+                    throw new ArgumentException();
+                }
+                Parallel.ForEach(functions, new Action<Func<T>>((Func<T> function) =>
+                {
+                    throw new NotImplementedException();
+                }));
+                System.Threading.SpinWait.SpinUntil(() => ResultSet);
+                return Result;
+            }
+            private T Result { get { lock (_LockObject) { return _Result; } } set { lock (_LockObject) { if (!ResultSet) { _Result = value; ResultSet = true; } } } }
+            private bool ResultSet { get { lock (_LockObject) { return _ResultSet; } } set { lock (_LockObject) { _ResultSet = value; } } }
+            private T _Result = default;
+            private bool _ResultSet = false;
+            public object _LockObject = new object();
+        }
         public static ISet<string> ToCaseInsensitiveSet(ISet<string> input)
         {
             ISet<TupleWithValueComparisonEquals<string, string>> tupleList = new HashSet<TupleWithValueComparisonEquals<string, string>>(input.Select((item) => new TupleWithValueComparisonEquals<string, string>(item, item.ToLower())));
