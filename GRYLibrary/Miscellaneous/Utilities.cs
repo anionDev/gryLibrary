@@ -216,15 +216,17 @@ namespace GRYLibrary
                 {
                     throw new ArgumentException();
                 }
-                Parallel.ForEach(functions, new Action<Func<T>>((Func<T> function) =>
+                Parallel.ForEach(functions, new Action<Func<T>, ParallelLoopState>((Func<T> function, ParallelLoopState state) =>
                 {
-                    throw new NotImplementedException();
+                    T result = function();
+                    state.Break();
+                    this.Result = result;
                 }));
-                System.Threading.SpinWait.SpinUntil(() => ResultSet);
-                return Result;
+                System.Threading.SpinWait.SpinUntil(() => this.ResultSet);
+                return this.Result;
             }
-            private T Result { get { lock (_LockObject) { return _Result; } } set { lock (_LockObject) { if (!ResultSet) { _Result = value; ResultSet = true; } } } }
-            private bool ResultSet { get { lock (_LockObject) { return _ResultSet; } } set { lock (_LockObject) { _ResultSet = value; } } }
+            private T Result { get { lock (this._LockObject) { return this._Result; } } set { lock (this._LockObject) { if (!this.ResultSet) { this._Result = value; this.ResultSet = true; } } } }
+            private bool ResultSet { get { lock (this._LockObject) { return this._ResultSet; } } set { lock (this._LockObject) { this._ResultSet = value; } } }
             private T _Result = default;
             private bool _ResultSet = false;
             public object _LockObject = new object();
