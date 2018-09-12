@@ -53,7 +53,7 @@ namespace GRYLibrary
         {
             //nothing to do
         }
-        public static Icon BitmapToIcon(Bitmap bitmap)
+        public static Icon ToIcon(this Bitmap bitmap)
         {
             bitmap.MakeTransparent(Color.White);
             IntPtr intPtr = bitmap.GetHicon();
@@ -181,7 +181,7 @@ namespace GRYLibrary
         /// Starts all <see cref="Func{object}"/>-objects in <paramref name="functions"/> concurrent and return all results which did not throw an exception.
         /// </summary>
         /// <returns>The results of all finished <paramref name="functions"/>-methods with their results.</returns>
-        public static ISet<Tuple<Func<T>, T, Exception>> RunAllConcurrentAndReturnAllResults<T>(ISet<Func<T>> functions)
+        public static ISet<Tuple<Func<T>, T, Exception>> RunAllConcurrentAndReturnAllResults<T>(this ISet<Func<T>> functions)
         {
             ConcurrentBag<Tuple<Func<T>, T, Exception>> result = new ConcurrentBag<Tuple<Func<T>, T, Exception>>();
             Parallel.ForEach(functions, (function) =>
@@ -205,7 +205,7 @@ namespace GRYLibrary
         /// <returns>The result of the first finished <paramref name="functions"/>-method.</returns>
         /// <exception cref="ArgumentException">If <paramref name="functions"/> is empty.</exception>
         /// <exception cref="Exception">If every <paramref name="functions"/>-method throws an exception.</exception>
-        public static T RunAllConcurrentAndReturnFirstResult<T>(ISet<Func<T>> functions)
+        public static T RunAllConcurrentAndReturnFirstResult<T>(this ISet<Func<T>> functions)
         {
             return new RunAllConcurrentAndReturnFirstResultHelper<T>().RunAllConcurrentAndReturnFirstResult(functions);
         }
@@ -247,7 +247,7 @@ namespace GRYLibrary
             private bool _ResultSet = false;
             public readonly object _LockObject = new object();
         }
-        public static ISet<string> ToCaseInsensitiveSet(ISet<string> input)
+        public static ISet<string> ToCaseInsensitiveSet(this ISet<string> input)
         {
             ISet<TupleWithValueComparisonEquals<string, string>> tupleList = new HashSet<TupleWithValueComparisonEquals<string, string>>(input.Select((item) => new TupleWithValueComparisonEquals<string, string>(item, item.ToLower())));
             return new HashSet<string>((tupleList.Select((item) => item.Item1)));
