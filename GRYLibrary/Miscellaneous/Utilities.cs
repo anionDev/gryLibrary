@@ -229,7 +229,7 @@ namespace GRYLibrary
             private bool ResultSet { get { lock (this._LockObject) { return this._ResultSet; } } set { lock (this._LockObject) { this._ResultSet = value; } } }
             private T _Result = default;
             private bool _ResultSet = false;
-            public object _LockObject = new object();
+            public readonly object _LockObject = new object();
         }
         public static ISet<string> ToCaseInsensitiveSet(ISet<string> input)
         {
