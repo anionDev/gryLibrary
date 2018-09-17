@@ -6,16 +6,16 @@ namespace GRYLibrary
 {
     public class ExternalProgramExecutor
     {
-        public ExternalProgramExecutor(string programPathAndFile, string arguments, string title, string workingDirectory, bool printErrorsAsInformation = false, string LogFile = null)
+        public ExternalProgramExecutor(string programPathAndFile, string arguments, string title, string workingDirectory, bool printErrorsAsInformation = false, string logFile = null)
         {
             this.LogObject = new GRYLog();
-            if (LogFile == null)
+            if (logFile == null)
             {
                 this.LogObject.WriteToLogFile = false;
             }
             else
             {
-                this.LogObject.LogFile = LogFile;
+                this.LogObject.LogFile = logFile;
                 this.LogObject.WriteToLogFile = true;
             }
             this.ProgramPathAndFile = programPathAndFile;
