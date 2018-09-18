@@ -181,10 +181,10 @@ namespace GRYLibrary
         /// Starts all <see cref="Func{object}"/>-objects in <paramref name="functions"/> concurrent and return all results which did not throw an exception.
         /// </summary>
         /// <returns>The results of all finished <paramref name="functions"/>-methods with their results.</returns>
-        public static ISet<Tuple<Func<T>, T, Exception>> RunAllConcurrentAndReturnAllResults<T>(this ISet<Func<T>> functions)
+        public static ISet<Tuple<Func<T>, T, Exception>> RunAllConcurrentAndReturnAllResults<T>(this ISet<Func<T>> functions, int maxDegreeOfParallelism)
         {
             ConcurrentBag<Tuple<Func<T>, T, Exception>> result = new ConcurrentBag<Tuple<Func<T>, T, Exception>>();
-            Parallel.ForEach(functions, (function) =>
+            Parallel.ForEach(functions, new ParallelOptions { MaxDegreeOfParallelism = maxDegreeOfParallelism }, (function) =>
             {
                 try
                 {
@@ -205,9 +205,9 @@ namespace GRYLibrary
         /// <returns>The result of the first finished <paramref name="functions"/>-method.</returns>
         /// <exception cref="ArgumentException">If <paramref name="functions"/> is empty.</exception>
         /// <exception cref="Exception">If every <paramref name="functions"/>-method throws an exception.</exception>
-        public static T RunAllConcurrentAndReturnFirstResult<T>(this ISet<Func<T>> functions)
+        public static T RunAllConcurrentAndReturnFirstResult<T>(this ISet<Func<T>> functions, int maxDegreeOfParallelism)
         {
-            return new RunAllConcurrentAndReturnFirstResultHelper<T>().RunAllConcurrentAndReturnFirstResult(functions);
+            return new RunAllConcurrentAndReturnFirstResultHelper<T>(maxDegreeOfParallelism).RunAllConcurrentAndReturnFirstResult(functions);
         }
         private class RunAllConcurrentAndReturnFirstResultHelper<T>
         {
@@ -215,6 +215,12 @@ namespace GRYLibrary
             private bool _ResultSet = false;
             public readonly object _LockObject = new object();
             private int _AmountOfRunningFunctions = 0;
+            private int _MaxDegreeOfParallelism { get; }
+
+            public RunAllConcurrentAndReturnFirstResultHelper(int maxDegreeOfParallelism)
+            {
+                this._MaxDegreeOfParallelism = maxDegreeOfParallelism;
+            }
 
             private T Result
             {
@@ -260,7 +266,7 @@ namespace GRYLibrary
                 {
                     throw new ArgumentException();
                 }
-                Parallel.ForEach(functions, new Action<Func<T>, ParallelLoopState>((Func<T> function, ParallelLoopState state) =>
+                Parallel.ForEach(functions, new ParallelOptions { MaxDegreeOfParallelism = _MaxDegreeOfParallelism }, new Action<Func<T>, ParallelLoopState>((Func<T> function, ParallelLoopState state) =>
                 {
                     try
                     {

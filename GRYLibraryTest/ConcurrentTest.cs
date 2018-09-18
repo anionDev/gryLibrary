@@ -25,7 +25,7 @@ namespace GRYLibraryTest
                 testFunctionDetails.Add(new Tuple<int, int>(600, 200 + i));
             }
             ISet<Func<int>> input = GetTestFunction(testFunctionDetails);
-            int result = Utilities.RunAllConcurrentAndReturnFirstResult(input);
+            int result = Utilities.RunAllConcurrentAndReturnFirstResult(input,8);
             Assert.AreEqual(resultValueOfFirstResult, result);
         }
 
