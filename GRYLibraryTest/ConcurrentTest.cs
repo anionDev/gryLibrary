@@ -26,8 +26,7 @@ namespace GRYLibraryTest
             ISet<Func<T>> result = new HashSet<Func<T>>();
             foreach (Tuple<int, T> item in functionDetails)
             {
-                System.Threading.Thread.Sleep(item.Item1 * 1000);
-                result.Add(() => { return item.Item2; });
+                result.Add(() => { System.Threading.Thread.Sleep(item.Item1 * 1000); return item.Item2; });
             }
             return result;
         }
