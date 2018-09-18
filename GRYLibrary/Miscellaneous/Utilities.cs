@@ -211,6 +211,49 @@ namespace GRYLibrary
         }
         private class RunAllConcurrentAndReturnFirstResultHelper<T>
         {
+            private T _Result = default;
+            private bool _ResultSet = false;
+            public readonly object _LockObject = new object();
+            private int _AmountOfRunningFunctions = 0;
+
+            private T Result
+            {
+                get
+                {
+                    lock (this._LockObject)
+                    {
+                        return this._Result;
+                    }
+                }
+                set
+                {
+                    lock (this._LockObject)
+                    {
+                        if (!this.ResultSet)
+                        {
+                            this._Result = value;
+                            this.ResultSet = true;
+                        }
+                    }
+                }
+            }
+            private bool ResultSet
+            {
+                get
+                {
+                    lock (this._LockObject)
+                    {
+                        return this._ResultSet;
+                    }
+                }
+                set
+                {
+                    lock (this._LockObject)
+                    {
+                        this._ResultSet = value;
+                    }
+                }
+            }
             public T RunAllConcurrentAndReturnFirstResult(ISet<Func<T>> functions)
             {
                 if (functions.Count == 0)
@@ -222,7 +265,8 @@ namespace GRYLibrary
                     try
                     {
                         Interlocked.Increment(ref this._AmountOfRunningFunctions);
-                        this.Result = function();
+                        T result = function();
+                        this.Result = result;
                         state.Break();
                     }
                     finally
@@ -240,12 +284,6 @@ namespace GRYLibrary
                     return this.Result;
                 }
             }
-            private int _AmountOfRunningFunctions = 0;
-            private T Result { get { lock (this._LockObject) { return this._Result; } } set { lock (this._LockObject) { if (!this.ResultSet) { this._Result = value; this.ResultSet = true; } } } }
-            private bool ResultSet { get { lock (this._LockObject) { return this._ResultSet; } } set { lock (this._LockObject) { this._ResultSet = value; } } }
-            private T _Result = default;
-            private bool _ResultSet = false;
-            public readonly object _LockObject = new object();
         }
         public static ISet<string> ToCaseInsensitiveSet(this ISet<string> input)
         {
