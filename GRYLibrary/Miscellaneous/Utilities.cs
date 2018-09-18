@@ -267,7 +267,7 @@ namespace GRYLibrary
                         Interlocked.Increment(ref this._AmountOfRunningFunctions);
                         T result = function();
                         this.Result = result;
-                        state.Break();
+                        state.Stop();
                     }
                     finally
                     {

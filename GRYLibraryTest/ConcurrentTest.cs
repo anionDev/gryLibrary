@@ -13,9 +13,17 @@ namespace GRYLibraryTest
         {
             ISet<Tuple<int, int>> testFunctionDetails = new HashSet<Tuple<int, int>>();
             int resultValueOfFirstResult = 42;
-            testFunctionDetails.Add(new Tuple<int, int>(7, 21));
+            testFunctionDetails.Add(new Tuple<int, int>(3, 21));
             testFunctionDetails.Add(new Tuple<int, int>(1, resultValueOfFirstResult));
-            testFunctionDetails.Add(new Tuple<int, int>(2, 973));
+            testFunctionDetails.Add(new Tuple<int, int>(2, 97));
+            for (int i = 0; i < 100; i++)
+            {
+                testFunctionDetails.Add(new Tuple<int, int>(2, 100 + i));
+            }
+            for (int i = 0; i < 100; i++)
+            {
+                testFunctionDetails.Add(new Tuple<int, int>(600, 200 + i));
+            }
             ISet<Func<int>> input = GetTestFunction(testFunctionDetails);
             int result = Utilities.RunAllConcurrentAndReturnFirstResult(input);
             Assert.AreEqual(resultValueOfFirstResult, result);
@@ -26,7 +34,14 @@ namespace GRYLibraryTest
             ISet<Func<T>> result = new HashSet<Func<T>>();
             foreach (Tuple<int, T> item in functionDetails)
             {
-                result.Add(() => { System.Threading.Thread.Sleep(item.Item1 * 1000); return item.Item2; });
+                result.Add(() =>
+                {
+                    for (int i = 0; i < item.Item1; i++)
+                    {
+                        System.Threading.Thread.Sleep(1000);
+                    }
+                    return item.Item2;
+                });
             }
             return result;
         }
