@@ -157,13 +157,6 @@ namespace GRYLibrary
             }
         }
 
-        public static void CreateFileIfNotExist(string file)
-        {
-            if (!File.Exists(file))
-            {
-                File.Create(file).Close();
-            }
-        }
         public static void RemoveContentOfFolder(string folder)
         {
             DirectoryInfo directoryInfo = new DirectoryInfo(folder);
