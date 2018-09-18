@@ -18,7 +18,7 @@ namespace GRYLibraryTest
             testFunctionDetails.Add(new Tuple<int, int>(2, resultValueOfFirstResult - 1));
             ISet<Func<int>> input = GetTestFunction(testFunctionDetails);
             int result = Utilities.RunAllConcurrentAndReturnFirstResult(input);
-            Assert.AreEqual(result, resultValueOfFirstResult);
+            Assert.AreEqual(resultValueOfFirstResult, result);
         }
 
         private ISet<Func<T>> GetTestFunction<T>(ISet<Tuple<int, T>> functionDetails)
