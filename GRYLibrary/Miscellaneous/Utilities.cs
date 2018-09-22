@@ -1,5 +1,7 @@
 ﻿using System;
+using GRYLibrary.Miscellaneous;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
@@ -9,6 +11,7 @@ using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using System.Threading;
 
 namespace GRYLibrary
@@ -28,12 +31,9 @@ namespace GRYLibrary
                 list[n] = value;
             }
         }
-        public static bool EqualsForLists<T>(IList<T> list1, IList<T> list2)
+        public static bool EqualsIgnoringOrder<T>(this IEnumerable<T> list1, IEnumerable<T> list2)
         {
-            IList<T> firstNotSecond = list1.Except(list2).ToList();
-            IList<T> secondNotFirst = list2.Except(list1).ToList();
-            bool result = !firstNotSecond.Any() && !secondNotFirst.Any();
-            return result;
+            return Enumerable.SequenceEqual(list1.OrderBy(item => item), list2.OrderBy(item => item));
         }
         public static IEnumerable<string> GetFilesOfFolderRecursively(string folder)
         {
@@ -53,7 +53,7 @@ namespace GRYLibrary
         {
             //nothing to do
         }
-        public static Icon BitmapToIcon(Bitmap bitmap)
+        public static Icon ToIcon(this Bitmap bitmap)
         {
             bitmap.MakeTransparent(Color.White);
             IntPtr intPtr = bitmap.GetHicon();
@@ -64,6 +64,13 @@ namespace GRYLibrary
             if (!File.Exists(path))
             {
                 File.Create(path).Close();
+            }
+        }
+        public static void EnsureDirectoryExists(string path)
+        {
+            if (!Directory.Exists(path))
+            {
+                Directory.CreateDirectory(path);
             }
         }
         public static string TypeArrayToString(Type[] types)
@@ -150,13 +157,6 @@ namespace GRYLibrary
             }
         }
 
-        public static void CreateFileIfNotExist(string file)
-        {
-            if (!File.Exists(file))
-            {
-                File.Create(file).Close();
-            }
-        }
         public static void RemoveContentOfFolder(string folder)
         {
             DirectoryInfo directoryInfo = new DirectoryInfo(folder);
@@ -171,56 +171,123 @@ namespace GRYLibrary
         }
 
         /// <summary>
-        /// Starts all <see cref="ThreadStart"/>-objects in <paramref name="threadStarts"/> concurrent and return all results which did not throw an exception.
-        /// Warning: This function is not implemented yet.
+        /// Starts all <see cref="Func{object}"/>-objects in <paramref name="functions"/> concurrent and return all results which did not throw an exception.
         /// </summary>
-        /// <returns>The results of the first finished <paramref name="threadStarts"/>-methods.</returns>
-        /// <exception cref="ArgumentException">If <paramref name="threadStarts"/> is empty.</exception>
-        public static ISet<Tuple<ThreadStart, object>> RunAllConcurrentAndReturnAllResults(ISet<ThreadStart> threadStarts)
+        /// <returns>The results of all finished <paramref name="functions"/>-methods with their results.</returns>
+        public static ISet<Tuple<Func<T>, T, Exception>> RunAllConcurrentAndReturnAllResults<T>(this ISet<Func<T>> functions, int maxDegreeOfParallelism)
         {
-            if (threadStarts.Count == 0)
+            ConcurrentBag<Tuple<Func<T>, T, Exception>> result = new ConcurrentBag<Tuple<Func<T>, T, Exception>>();
+            Parallel.ForEach(functions, new ParallelOptions { MaxDegreeOfParallelism = maxDegreeOfParallelism }, (function) =>
             {
-                throw new ArgumentException();
-            }
-            throw new NotImplementedException();
+                try
+                {
+                    result.Add(new Tuple<Func<T>, T, Exception>(function, function(), null));
+                }
+                catch (Exception exception)
+                {
+                    result.Add(new Tuple<Func<T>, T, Exception>(function, default, exception));
+                }
+            });
+            return new HashSet<Tuple<Func<T>, T, Exception>>(result);
         }
 
         /// <summary>
-        /// Starts all <see cref="ThreadStart"/>-objects in <paramref name="threadStarts"/> concurrent and return the result of the first execution which does not throw an exception.
+        /// Starts all <see cref="ThreadStart"/>-objects in <paramref name="functions"/> concurrent and return the result of the first execution which does not throw an exception.
         /// Warning: This function is not implemented yet.
         /// </summary>
-        /// <returns>The result of the first finished <paramref name="threadStarts"/>-method.</returns>
-        /// <exception cref="ArgumentException">If <paramref name="threadStarts"/> is empty.</exception>
-        /// <exception cref="Exception">If every <paramref name="threadStarts"/>-method throws an exception.</exception>
-        public static object RunAllConcurrentAndReturnFirstResult(ISet<ThreadStart> threadStarts)
+        /// <returns>The result of the first finished <paramref name="functions"/>-method.</returns>
+        /// <exception cref="ArgumentException">If <paramref name="functions"/> is empty.</exception>
+        /// <exception cref="Exception">If every <paramref name="functions"/>-method throws an exception.</exception>
+        public static T RunAllConcurrentAndReturnFirstResult<T>(this ISet<Func<T>> functions, int maxDegreeOfParallelism)
         {
-            if (threadStarts.Count == 0)
-            {
-                throw new ArgumentException();
-            }
-            throw new NotImplementedException();
+            return new RunAllConcurrentAndReturnFirstResultHelper<T>(maxDegreeOfParallelism).RunAllConcurrentAndReturnFirstResult(functions);
         }
-
-        public static ISet<string> ToCaseInsensitiveSet(ISet<string> input)
+        private class RunAllConcurrentAndReturnFirstResultHelper<T>
         {
-            ISet<TupleWithSpecialEquals> tupleList = new HashSet<TupleWithSpecialEquals>(input.Select((item) => new TupleWithSpecialEquals(item, item.ToLower())));
+            private T _Result = default;
+            private bool _ResultSet = false;
+            public readonly object _LockObject = new object();
+            private int _AmountOfRunningFunctions = 0;
+            private int _MaxDegreeOfParallelism { get; }
+
+            public RunAllConcurrentAndReturnFirstResultHelper(int maxDegreeOfParallelism)
+            {
+                this._MaxDegreeOfParallelism = maxDegreeOfParallelism;
+            }
+
+            private T Result
+            {
+                get
+                {
+                    lock (this._LockObject)
+                    {
+                        return this._Result;
+                    }
+                }
+                set
+                {
+                    lock (this._LockObject)
+                    {
+                        if (!this.ResultSet)
+                        {
+                            this._Result = value;
+                            this.ResultSet = true;
+                        }
+                    }
+                }
+            }
+            private bool ResultSet
+            {
+                get
+                {
+                    lock (this._LockObject)
+                    {
+                        return this._ResultSet;
+                    }
+                }
+                set
+                {
+                    lock (this._LockObject)
+                    {
+                        this._ResultSet = value;
+                    }
+                }
+            }
+            public T RunAllConcurrentAndReturnFirstResult(ISet<Func<T>> functions)
+            {
+                if (functions.Count == 0)
+                {
+                    throw new ArgumentException();
+                }
+                Parallel.ForEach(functions, new ParallelOptions { MaxDegreeOfParallelism = _MaxDegreeOfParallelism }, new Action<Func<T>, ParallelLoopState>((Func<T> function, ParallelLoopState state) =>
+                {
+                    try
+                    {
+                        Interlocked.Increment(ref this._AmountOfRunningFunctions);
+                        T result = function();
+                        this.Result = result;
+                        state.Stop();
+                    }
+                    finally
+                    {
+                        Interlocked.Decrement(ref this._AmountOfRunningFunctions);
+                    }
+                }));
+                SpinWait.SpinUntil(() => this.ResultSet || this._AmountOfRunningFunctions == 0);
+                if (this._AmountOfRunningFunctions == 0 && !this.ResultSet)
+                {
+                    throw new Exception("No result was calculated");
+                }
+                else
+                {
+                    return this.Result;
+                }
+            }
+        }
+        public static ISet<string> ToCaseInsensitiveSet(this ISet<string> input)
+        {
+            ISet<TupleWithValueComparisonEquals<string, string>> tupleList = new HashSet<TupleWithValueComparisonEquals<string, string>>(input.Select((item) => new TupleWithValueComparisonEquals<string, string>(item, item.ToLower())));
             return new HashSet<string>((tupleList.Select((item) => item.Item1)));
-        }
-        private class TupleWithSpecialEquals : Tuple<string, string>
-        {
-            public TupleWithSpecialEquals(string item1, string item2) : base(item1, item2)
-            {
-            }
-
-            public override bool Equals(object @object)
-            {
-                return this.Item2.Equals(((TupleWithSpecialEquals)@object).Item2);
-            }
-
-            public override int GetHashCode()
-            {
-                return this.Item2.GetHashCode();
-            }
         }
         #region IsList and IsDictionary
         //see https://stackoverflow.com/a/17190236/3905529
@@ -247,18 +314,11 @@ namespace GRYLibrary
             else
             {
                 return @object is IDictionary &&
-                   @object.GetType().IsGenericType &&
-                   @object.GetType().GetGenericTypeDefinition().IsAssignableFrom(typeof(Dictionary<,>));
+                       @object.GetType().IsGenericType &&
+                       @object.GetType().GetGenericTypeDefinition().IsAssignableFrom(typeof(Dictionary<,>));
             }
         }
         #endregion
-        /// <summary>
-        /// Warning: This function is not implemented yet.
-        /// </summary>
-        public static bool IsSet(this object @object)
-        {
-            throw new NotImplementedException();
-        }
 
         //see https://stackoverflow.com/a/129395/3905529
         public static T DeepClone<T>(this T @object)
@@ -278,6 +338,74 @@ namespace GRYLibrary
         public static void AddAll<T>(this ISet<T> set, IEnumerable<T> newItems)
         {
             set.UnionWith(newItems);
+        }
+        public static SimpleObjectPersistence<T> Persist<T>(this T @object, string file) where T : new()
+        {
+            return @object.Persist(file, Encoding.UTF8);
+        }
+        public static SimpleObjectPersistence<T> Persist<T>(this T @object, string file, Encoding encoding) where T : new()
+        {
+            return new SimpleObjectPersistence<T>(file, encoding, @object);
+        }
+        public static SimpleObjectPersistence<T> Load<T>(this string file) where T : new()
+        {
+            return new SimpleObjectPersistence<T>(file);
+        }
+        public static SimpleObjectPersistence<T> Load<T>(this string file, Encoding encoding) where T : new()
+        {
+            return new SimpleObjectPersistence<T>(file, encoding);
+        }
+
+        //see https://stackoverflow.com/a/51284316/3905529
+        public static string GetCommandLineArguments()
+        {
+            string exe = Environment.GetCommandLineArgs()[0];
+            string rawCmd = Environment.CommandLine;
+            return rawCmd.Remove(rawCmd.IndexOf(exe), exe.Length).TrimStart('"').Substring(1);
+        }
+
+        //see https://codereview.stackexchange.com/a/112844
+        public static string ToPascalCase(this string input)
+        {
+            if (input == null)
+            {
+                return string.Empty;
+            }
+            IEnumerable<string> words = input.Split(new[] { '-', '_' }, StringSplitOptions.RemoveEmptyEntries)
+                         .Select(word => word.Substring(0, 1).ToUpper() +
+                                         word.Substring(1).ToLower());
+
+            string result = string.Concat(words);
+            return result;
+        }
+        public static string ToCamelCase(this string input)
+        {
+            string pascalCase = input.ToPascalCase();
+            return char.ToLowerInvariant(pascalCase[0]) + pascalCase.Substring(1);
+        }
+
+        //see https://stackoverflow.com/a/448225/3905529
+        public static bool IsAllUpper(this string input)
+        {
+            for (int i = 0; i < input.Length; i++)
+            {
+                if (char.IsLetter(input[i]) && !char.IsUpper(input[i]))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+        public static bool IsAllLower(this string input)
+        {
+            for (int i = 0; i < input.Length; i++)
+            {
+                if (char.IsLetter(input[i]) && !char.IsLower(input[i]))
+                {
+                    return false;
+                }
+            }
+            return true;
         }
     }
 }

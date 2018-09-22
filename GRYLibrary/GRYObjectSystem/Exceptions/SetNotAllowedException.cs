@@ -1,4 +1,4 @@
-﻿namespace GRYLibrary.Property
+﻿namespace GRYLibrary.GRYObjectSystem.Exceptions
 {
     public class SetNotAllowedException : System.Exception
     {

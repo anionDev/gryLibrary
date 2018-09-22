@@ -6,6 +6,7 @@ namespace GRYLibrary
     {
         public ExtendedColor StartColor { get; private set; }
         public ExtendedColor DestinationColor { get; private set; }
+
         public ColorGradient(ExtendedColor startColor, ExtendedColor destinationColor)
         {
             this.DestinationColor = destinationColor;

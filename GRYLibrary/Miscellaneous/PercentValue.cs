@@ -46,5 +46,14 @@ namespace GRYLibrary
                 this.Value = (decimal)percentValue / 100;
             }
         }
+        public override bool Equals(object obj)
+        {
+            return this.Value == ((PercentValue)obj).Value;
+        }
+        public override int GetHashCode()
+        {
+            return this.Value.GetHashCode();
+        }
+
     }
 }

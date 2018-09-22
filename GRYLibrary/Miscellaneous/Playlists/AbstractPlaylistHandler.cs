@@ -1,4 +1,5 @@
 ﻿using GRYLibrary.Miscellaneous.Playlists.ConcretePlaylistHandler;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
@@ -9,8 +10,23 @@ namespace GRYLibrary.Miscellaneous.Playlists
 {
     public abstract class AbstractPlaylistHandler
     {
-        public static Dictionary<string, AbstractPlaylistHandler> ExtensionsOfReadablePlaylists { get; } = new Dictionary<string, AbstractPlaylistHandler>() { { "m3u", M3UHandler.Instance }, { "pls", PLSHandler.Instance }, { "wpl", WPLHandler.Instance } };
+        private static Dictionary<string, AbstractPlaylistHandler> _ExtensionsOfReadablePlaylists = null;
+        public static Dictionary<string, AbstractPlaylistHandler> ExtensionsOfReadablePlaylists
+        {
+            get
+            {
+                if (_ExtensionsOfReadablePlaylists == null)
+                {
+                    _ExtensionsOfReadablePlaylists = new Dictionary<string, AbstractPlaylistHandler>();
+                    _ExtensionsOfReadablePlaylists.Add("m3u", M3UHandler.Instance);
+                    _ExtensionsOfReadablePlaylists.Add("pls", PLSHandler.Instance);
+                    _ExtensionsOfReadablePlaylists.Add("wpl", WPLHandler.Instance);
+                }
+                return _ExtensionsOfReadablePlaylists;
+            }
+        }
         public static Encoding Encoding { get; set; } = Encoding.UTF8;
+        public abstract void CreatePlaylist(string file);
         protected abstract IEnumerable<string> GetSongsFromPlaylistImplementation(string playlistFile);
         protected abstract void AddSongsToPlaylistImplementation(string playlistFile, IEnumerable<string> newSongs);
         protected abstract void DeleteSongsFromPlaylistImplementation(string playlistFile, IEnumerable<string> songsToDelete);
@@ -24,13 +40,20 @@ namespace GRYLibrary.Miscellaneous.Playlists
                 try
                 {
                     string playlistItem;
-                    if (Path.IsPathRooted(item))
+                    if (new Uri(item).IsFile)
                     {
-                        playlistItem = item;
+                        if (Path.IsPathRooted(item))
+                        {
+                            playlistItem = item;
+                        }
+                        else
+                        {
+                            playlistItem = Path.GetFullPath(Path.Combine(locationOfFile, item));
+                        }
                     }
                     else
                     {
-                        playlistItem = Path.GetFullPath(Path.Combine(locationOfFile, item));
+                        playlistItem = item;
                     }
                     string playlistItemToLower = playlistItem.ToLower();
                     if (IsReadablePlaylist(playlistItemToLower))
@@ -68,20 +91,23 @@ namespace GRYLibrary.Miscellaneous.Playlists
             return GetSongsFromPlaylist(playlistFile, removeDuplicatedItems, loadTransitively, new HashSet<string>());
         }
 
-        public void AddSongsToPlaylist(string playlistFile, IEnumerable<string> newSongs, bool addOnlyNotExistingSongs = false)
+        public void AddSongsToPlaylist(string playlistFile, IEnumerable<string> newSongs, bool addOnlyNotExistingSongs = true)
         {
             newSongs = newSongs.Where(item => IsAllowedAsPlaylistItem(item));
-            if (addOnlyNotExistingSongs)
+            if (newSongs.Count() > 0)
             {
-                HashSet<string> newSongsAsSet = new HashSet<string>(newSongs);
-                IEnumerable<string> alreadyExistingItems = GetSongsFromPlaylist(playlistFile, true, false);
-                foreach (string alreadyExistingItem in alreadyExistingItems)
+                if (addOnlyNotExistingSongs)
                 {
-                    newSongsAsSet.Remove(alreadyExistingItem);
+                    HashSet<string> newSongsAsSet = new HashSet<string>(newSongs);
+                    IEnumerable<string> alreadyExistingItems = GetSongsFromPlaylist(playlistFile, true, false);
+                    foreach (string alreadyExistingItem in alreadyExistingItems)
+                    {
+                        newSongsAsSet.Remove(alreadyExistingItem);
+                    }
+                    newSongs = newSongsAsSet;
                 }
-                newSongs = newSongsAsSet;
+                AddSongsToPlaylistImplementation(playlistFile, newSongs);
             }
-            AddSongsToPlaylistImplementation(playlistFile, newSongs);
         }
         public void DeleteSongsFromPlaylist(string playlistFile, IEnumerable<string> songsToDelete)
         {
@@ -89,7 +115,15 @@ namespace GRYLibrary.Miscellaneous.Playlists
         }
         public static bool IsReadablePlaylist(string file)
         {
-            return ExtensionsOfReadablePlaylists.ContainsKey(Path.GetExtension(file.ToLower()).Substring(1));
+            file = file.ToLower();
+            foreach (KeyValuePair<string, AbstractPlaylistHandler> keyValuePair in ExtensionsOfReadablePlaylists)
+            {
+                if (file.EndsWith("." + keyValuePair.Key))
+                {
+                    return true;
+                }
+            }
+            return false;
         }
         public static bool IsAllowedAsPlaylistItem(string item)
         {
