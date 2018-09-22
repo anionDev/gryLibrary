@@ -174,7 +174,7 @@ namespace GRYLibrary
         /// Starts all <see cref="Func{object}"/>-objects in <paramref name="functions"/> concurrent and return all results which did not throw an exception.
         /// </summary>
         /// <returns>The results of all finished <paramref name="functions"/>-methods with their results.</returns>
-        public static ISet<Tuple<Func<T>, T, Exception>> RunAllConcurrentAndReturnAllResults<T>(this ISet<Func<T>> functions, int maximalDegreeOfParallelism=4)
+        public static ISet<Tuple<Func<T>, T, Exception>> RunAllConcurrentAndReturnAllResults<T>(this ISet<Func<T>> functions, int maximalDegreeOfParallelism = 4)
         {
             ConcurrentBag<Tuple<Func<T>, T, Exception>> result = new ConcurrentBag<Tuple<Func<T>, T, Exception>>();
             Parallel.ForEach(functions, new ParallelOptions { MaxDegreeOfParallelism = maximalDegreeOfParallelism }, (function) =>
