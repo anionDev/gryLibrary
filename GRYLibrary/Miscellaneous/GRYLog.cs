@@ -219,10 +219,10 @@ namespace GRYLibrary
         {
             LogError(GetExceptionMessage("An exception occurred", exception), logLineId);
         }
-        private Queue<Tuple<string, string>> _StoredErrors = new Queue<Tuple<string,string>>();
+        private Queue<Tuple<string, string>> _StoredErrors = new Queue<Tuple<string, string>>();
         public void PrintErrorQueue()
         {
-            while(_StoredErrors.Count!=0)
+            while (_StoredErrors.Count != 0)
             {
                 var dequeuedError = _StoredErrors.Dequeue();
                 LogErrorInternal(dequeuedError.Item1, dequeuedError.Item2);
@@ -236,12 +236,11 @@ namespace GRYLibrary
             }
             if (this.StoreErrorsInErrorQueueInsteadOfLoggingThem)
             {
-                _StoredErrors.Enqueue(new Tuple<string, string>(message,logLineId));
+                _StoredErrors.Enqueue(new Tuple<string, string>(message, logLineId));
             }
             else
-            {                
+            {
                 LogErrorInternal(message, logLineId);
-
             }
         }
 
