@@ -62,16 +62,16 @@ namespace GRYLibrary
                         RedirectStandardError = true
                     }
                 };
-                process.OutputDataReceived += (object sender, DataReceivedEventArgs e) => EnqueueInformation(e.Data);
+                process.OutputDataReceived += (object sender, DataReceivedEventArgs e) => this.EnqueueInformation(e.Data);
                 process.ErrorDataReceived += (object sender, DataReceivedEventArgs e) =>
                 {
                     if (this.PrintErrorsAsInformation)
                     {
-                        EnqueueInformation(e.Data);
+                        this.EnqueueInformation(e.Data);
                     }
                     else
                     {
-                        EnqueueError(e.Data);
+                        this.EnqueueError(e.Data);
                     }
                 };
                 this._Running = true;
