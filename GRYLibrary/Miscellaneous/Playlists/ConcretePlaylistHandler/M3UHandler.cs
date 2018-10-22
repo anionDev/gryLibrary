@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
@@ -42,13 +43,25 @@ namespace GRYLibrary.Miscellaneous.Playlists.ConcretePlaylistHandler
                     result.Add(item);
                 }
             }
-            string m3uConfigurationFile = new FileInfo(playlistFile).Directory.FullName + "\\.M3UConfiguration";
+            string m3uConfigurationFile = new FileInfo(playlistFile).Directory.FullName + ConfigurationFileInCurrentFolder;
+            if (!SetResultAndApplayConfigurationFile(ref result, m3uConfigurationFile))
+            {
+                m3uConfigurationFile = new FileInfo(m3uConfigurationFile).Directory.Parent.FullName + ConfigurationFileInCurrentFolder;
+                SetResultAndApplayConfigurationFile(ref result, m3uConfigurationFile);
+            }
+            return result;
+        }
+        private const string ConfigurationFileName = ".M3UConfiguration";
+        public const string ConfigurationFileInCurrentFolder = "\\" + ConfigurationFileName;
+        private bool SetResultAndApplayConfigurationFile(ref List<string> result, string m3uConfigurationFile)
+        {
             if (File.Exists(m3uConfigurationFile))
             {
                 M3UConfiguration configuration = new M3UConfiguration(m3uConfigurationFile);
                 result = configuration.ApplyTo(result).ToList();
+                return true;
             }
-            return result;
+            return false;
         }
 
         public override void CreatePlaylist(string file)

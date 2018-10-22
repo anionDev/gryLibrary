@@ -407,5 +407,13 @@ namespace GRYLibrary
             }
             return true;
         }
+        public static bool IsNegative(this TimeSpan timeSpan)
+        {
+            return timeSpan.Ticks < 0;
+        }
+        public static bool IsPositive(this TimeSpan timeSpan)
+        {
+            return timeSpan.Ticks > 0;
+        }
     }
 }
