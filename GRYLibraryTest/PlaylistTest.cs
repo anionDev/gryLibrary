@@ -40,22 +40,49 @@ namespace GRYLibraryTest
             handler.DeleteSongsFromPlaylist(file, currentExpectedContent);
             currentExpectedContent.Clear();
             Assert.IsTrue(currentExpectedContent.EqualsIgnoringOrder(handler.GetSongsFromPlaylist(file).ToList()));
+
+
+            System.IO.File.Delete(file);
         }
         [TestMethod]
-        public void TestM3U()
+        public void CommonTestM3U()
         {
             CommonTest("Test.m3u", M3UHandler.Instance);
         }
         [Ignore]
         [TestMethod]
-        public void TestWPL()
+        public void CommonTestWPL()
         {
             CommonTest("Test.wpl", WPLHandler.Instance);
         }
         [TestMethod]
-        public void TestPLS()
+        public void CommonTestPLS()
         {
             CommonTest("Test.pls", PLSHandler.Instance);
+        }
+        [TestMethod]
+        public void CommonTestM3USubfolder()
+        {
+            string directoryName = "test";
+            string configurationFile = ".m3uconfiguration";
+            string m3uFile1 = directoryName + "\\" + "test1.m3u";
+            string nameOfm3ufile2 = "test2.m3u";
+            string m3uFile2 = directoryName + "\\" + nameOfm3ufile2;
+            Utilities.EnsureDirectoryExists("test");
+            Utilities.EnsureFileExists(configurationFile);
+            System.IO.File.WriteAllText(configurationFile, @"replace:{DefaultPath};C:\Data\Music", System.Text.Encoding.UTF8);
+            M3UHandler.Instance.CreatePlaylist(m3uFile1);
+            M3UHandler.Instance.CreatePlaylist(m3uFile2);
+            M3UHandler.Instance.AddSongsToPlaylist(m3uFile1, new string[] { "trackA", nameOfm3ufile2, "{DefaultPath}\\trackB" });
+            M3UHandler.Instance.AddSongsToPlaylist(m3uFile2, new string[] { "trackC", "{DefaultPath}\\trackD" });
+
+            HashSet<string> playlistItems = new HashSet<string>(M3UHandler.Instance.GetSongsFromPlaylist(m3uFile1, true, true));
+            Assert.IsTrue(playlistItems.SetEquals(new string[] { "trackA", @"C:\Data\Music\trackB", "trackC", @"C:\Data\Music\trackD" }));
+
+            System.IO.File.Delete(m3uFile1);
+            System.IO.File.Delete(m3uFile2);
+            System.IO.Directory.Delete(configurationFile);
+            System.IO.File.Delete(directoryName);
         }
     }
 }
