@@ -8,7 +8,7 @@ namespace GRYLibrary
         public void EnterPressed(string input)
         {
             this.UserInputs.Add(input.Trim());
-            ResetCurrentReadPosition();
+            this.ResetCurrentReadPosition();
         }
         public string UpPressed()
         {
@@ -16,7 +16,7 @@ namespace GRYLibrary
             {
                 this.CurrentuserInputIndex = this.CurrentuserInputIndex - 1;
             }
-            return GetCurrentItem();
+            return this.GetCurrentItem();
         }
         public string DownPressed()
         {
@@ -24,7 +24,7 @@ namespace GRYLibrary
             {
                 this.CurrentuserInputIndex = this.CurrentuserInputIndex + 1;
             }
-            return GetCurrentItem();
+            return this.GetCurrentItem();
         }
         public void ResetCurrentReadPosition()
         {

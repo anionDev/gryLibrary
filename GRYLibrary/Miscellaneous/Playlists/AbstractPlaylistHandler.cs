@@ -33,7 +33,7 @@ namespace GRYLibrary.Miscellaneous.Playlists
         private IEnumerable<string> GetSongsFromPlaylist(string playlistFile, bool removeDuplicatedItems, bool loadTransitively, ISet<string> excludedPlaylistFiles)
         {
             string locationOfFile = Path.GetDirectoryName(playlistFile);
-            IEnumerable<string> referencedFiles = GetSongsFromPlaylistImplementation(playlistFile).Where(item => IsAllowedAsPlaylistItem(item));
+            IEnumerable<string> referencedFiles = this.GetSongsFromPlaylistImplementation(playlistFile).Where(item => IsAllowedAsPlaylistItem(item));
             List<string> newList = new List<string>();
             foreach (string item in referencedFiles)
             {
@@ -88,7 +88,7 @@ namespace GRYLibrary.Miscellaneous.Playlists
         }
         public IEnumerable<string> GetSongsFromPlaylist(string playlistFile, bool removeDuplicatedItems = true, bool loadTransitively = true)
         {
-            return GetSongsFromPlaylist(playlistFile, removeDuplicatedItems, loadTransitively, new HashSet<string>());
+            return this.GetSongsFromPlaylist(playlistFile, removeDuplicatedItems, loadTransitively, new HashSet<string>());
         }
 
         public void AddSongsToPlaylist(string playlistFile, IEnumerable<string> newSongs, bool addOnlyNotExistingSongs = true)
@@ -99,19 +99,19 @@ namespace GRYLibrary.Miscellaneous.Playlists
                 if (addOnlyNotExistingSongs)
                 {
                     HashSet<string> newSongsAsSet = new HashSet<string>(newSongs);
-                    IEnumerable<string> alreadyExistingItems = GetSongsFromPlaylist(playlistFile, true, false);
+                    IEnumerable<string> alreadyExistingItems = this.GetSongsFromPlaylist(playlistFile, true, false);
                     foreach (string alreadyExistingItem in alreadyExistingItems)
                     {
                         newSongsAsSet.Remove(alreadyExistingItem);
                     }
                     newSongs = newSongsAsSet;
                 }
-                AddSongsToPlaylistImplementation(playlistFile, newSongs);
+                this.AddSongsToPlaylistImplementation(playlistFile, newSongs);
             }
         }
         public void DeleteSongsFromPlaylist(string playlistFile, IEnumerable<string> songsToDelete)
         {
-            DeleteSongsFromPlaylistImplementation(playlistFile, songsToDelete.Where(item => IsAllowedAsPlaylistItem(item)));
+            this.DeleteSongsFromPlaylistImplementation(playlistFile, songsToDelete.Where(item => IsAllowedAsPlaylistItem(item)));
         }
         public static bool IsReadablePlaylist(string file)
         {

@@ -29,7 +29,7 @@
         {
             if (!System.IO.File.Exists(this.File))
             {
-                ResetObject();
+                this.ResetObject();
             }
             this.Object = this._Serializer.Deserialize(System.IO.File.ReadAllText(this.File, this.Encoding));
         }
@@ -37,7 +37,7 @@
         public void ResetObject()
         {
             this.Object = new T();
-            SaveObject();
+            this.SaveObject();
         }
 
         public void SaveObject()

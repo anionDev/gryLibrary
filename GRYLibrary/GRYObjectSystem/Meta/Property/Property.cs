@@ -82,7 +82,7 @@ namespace GRYLibrary.GRYObjectSystem.Meta.Property
                 {
                     if (this.NotifyAboutChanges)
                     {
-                        Notify(argument);
+                        this.Notify(argument);
                     }
                 }
                 catch
@@ -95,11 +95,11 @@ namespace GRYLibrary.GRYObjectSystem.Meta.Property
             this._History = new Stack<KeyValuePair<DateTime, T>>();
             this._InitialValue = initialValue;
             this.PropertyName = propertyName;
-            ResetToInitialValue();
+            this.ResetToInitialValue();
             this.AddValuesToHistory =addValuesToHistory;
             if (!this.AddValuesToHistory)
             {
-                ResetHistory();
+                this.ResetHistory();
             }
         }
 
@@ -114,7 +114,7 @@ namespace GRYLibrary.GRYObjectSystem.Meta.Property
 
         public bool EqualsValue(Property<T> @object)
         {
-            return EqualsValue(@object.Value);
+            return this.EqualsValue(@object.Value);
         }
         public bool EqualsValue(T @object)
         {

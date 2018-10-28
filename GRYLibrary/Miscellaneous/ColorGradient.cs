@@ -14,14 +14,14 @@ namespace GRYLibrary
         }
         public ExtendedColor GetColorGradientValue(double gradient)
         {
-            return GetColorGradientValue(new PercentValue((decimal)gradient));
+            return this.GetColorGradientValue(new PercentValue((decimal)gradient));
         }
         public ExtendedColor GetColorGradientValue(PercentValue percentValue)
         {
-            byte a = GetGradient(this.StartColor.A, this.DestinationColor.A, percentValue);
-            byte r = GetGradient(this.StartColor.R, this.DestinationColor.R, percentValue);
-            byte g = GetGradient(this.StartColor.G, this.DestinationColor.G, percentValue);
-            byte b = GetGradient(this.StartColor.B, this.DestinationColor.B, percentValue);
+            byte a = this.GetGradient(this.StartColor.A, this.DestinationColor.A, percentValue);
+            byte r = this.GetGradient(this.StartColor.R, this.DestinationColor.R, percentValue);
+            byte g = this.GetGradient(this.StartColor.G, this.DestinationColor.G, percentValue);
+            byte b = this.GetGradient(this.StartColor.B, this.DestinationColor.B, percentValue);
             return new ExtendedColor(a, r, g, b);
         }
 

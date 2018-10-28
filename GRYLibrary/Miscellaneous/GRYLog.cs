@@ -81,11 +81,11 @@ namespace GRYLibrary
 
                         if (value)
                         {
-                            LogInformation("GLog.WriteToLogFile is now enabled.");
+                            this.LogInformation("GLog.WriteToLogFile is now enabled.");
                         }
                         else
                         {
-                            LogInformation("GLog.WriteToLogFile is now disabled.");
+                            this.LogInformation("GLog.WriteToLogFile is now disabled.");
                         }
                     }
                 }
@@ -101,8 +101,8 @@ namespace GRYLibrary
         }
         public void Summarize()
         {
-            LogInformation("Amount of occurred Errors: " + GetAmountOfErrors().ToString());
-            LogInformation("Amount of occurred Warnings: " + GetAmountOfWarnings().ToString());
+            this.LogInformation("Amount of occurred Errors: " + this.GetAmountOfErrors().ToString());
+            this.LogInformation("Amount of occurred Warnings: " + this.GetAmountOfWarnings().ToString());
         }
         public GRYLog(string logFile)
         {
@@ -156,9 +156,9 @@ namespace GRYLibrary
         }
         public void LogInformation(string message, string logLineId = "")
         {
-            if (LineShouldBePrinted(message))
+            if (this.LineShouldBePrinted(message))
             {
-                LogIt(message, LogLevel.Information, logLineId);
+                this.LogIt(message, LogLevel.Information, logLineId);
             }
         }
 
@@ -180,67 +180,67 @@ namespace GRYLibrary
         }
         public void LogDebugInformation(string message, string logLineId = "")
         {
-            if (!LineShouldBePrinted(message))
+            if (!this.LineShouldBePrinted(message))
             {
                 return;
             }
 
-            LogIt(message, LogLevel.Debug, logLineId);
+            this.LogIt(message, LogLevel.Debug, logLineId);
         }
 
         public void LogWarning(string message, string logLineId = "")
         {
-            if (!LineShouldBePrinted(message))
+            if (!this.LineShouldBePrinted(message))
             {
                 return;
             }
 
             this._AmountOfWarnings = this._AmountOfWarnings + 1;
-            LogIt(message, LogLevel.Warning, logLineId);
+            this.LogIt(message, LogLevel.Warning, logLineId);
         }
         public void LogVerboseMessage(string message, string logLineId = "")
         {
-            if (!LineShouldBePrinted(message))
+            if (!this.LineShouldBePrinted(message))
             {
                 return;
             }
 
-            LogIt(message, LogLevel.Verbose, logLineId);
+            this.LogIt(message, LogLevel.Verbose, logLineId);
         }
         public void LogError(string message, Exception exception, string logLineId = "")
         {
-            if (!LineShouldBePrinted(message))
+            if (!this.LineShouldBePrinted(message))
             {
                 return;
             }
-            LogError(GetExceptionMessage(message, exception), logLineId);
+            this.LogError(this.GetExceptionMessage(message, exception), logLineId);
         }
         public void LogError(Exception exception, string logLineId = "")
         {
-            LogError(GetExceptionMessage("An exception occurred", exception), logLineId);
+            this.LogError(this.GetExceptionMessage("An exception occurred", exception), logLineId);
         }
-        private Queue<Tuple<string, string>> _StoredErrors = new Queue<Tuple<string, string>>();
+        private readonly Queue<Tuple<string, string>> _StoredErrors = new Queue<Tuple<string, string>>();
         public void PrintErrorQueue()
         {
-            while (_StoredErrors.Count != 0)
+            while (this._StoredErrors.Count != 0)
             {
-                var dequeuedError = _StoredErrors.Dequeue();
-                LogErrorInternal(dequeuedError.Item1, dequeuedError.Item2);
+                Tuple<string, string> dequeuedError = this._StoredErrors.Dequeue();
+                this.LogErrorInternal(dequeuedError.Item1, dequeuedError.Item2);
             }
         }
         public void LogError(string message, string logLineId = "")
         {
-            if (!LineShouldBePrinted(message))
+            if (!this.LineShouldBePrinted(message))
             {
                 return;
             }
             if (this.StoreErrorsInErrorQueueInsteadOfLoggingThem)
             {
-                _StoredErrors.Enqueue(new Tuple<string, string>(message, logLineId));
+                this._StoredErrors.Enqueue(new Tuple<string, string>(message, logLineId));
             }
             else
             {
-                LogErrorInternal(message, logLineId);
+                this.LogErrorInternal(message, logLineId);
             }
         }
 
@@ -248,12 +248,12 @@ namespace GRYLibrary
         {
             if (this.PrintErrorsAsInformation)
             {
-                LogIt(message, LogLevel.Information, logLineId);
+                this.LogIt(message, LogLevel.Information, logLineId);
             }
             else
             {
                 this._AmountOfErrors = this._AmountOfErrors + 1;
-                LogIt(message, LogLevel.Exception, logLineId);
+                this.LogIt(message, LogLevel.Exception, logLineId);
             }
         }
 
@@ -281,10 +281,10 @@ namespace GRYLibrary
             }
             if (this.AddIdToEveryLogEntry)
             {
-                message = "[" + GetLogItemId() + "] " + message;
+                message = "[" + this.GetLogItemId() + "] " + message;
             }
             string part1 = "[" + momentOfLogEntry.ToString(this.DateFormat) + "] [";
-            string part2 = GetPrefixInStringFormat(logLevel);
+            string part2 = this.GetPrefixInStringFormat(logLevel);
             string part3 = "] " + message;
             lock (_LockObject)
             {
@@ -293,7 +293,7 @@ namespace GRYLibrary
                     if (this.LogOverhead)
                     {
                         Console.Write(part1);
-                        WriteWithColor(part2, logLevel);
+                        this.WriteWithColor(part2, logLevel);
                         Console.Write(part3 + Environment.NewLine);
                     }
                     else
@@ -390,7 +390,7 @@ namespace GRYLibrary
 
         private void WriteWithColor(string part2, LogLevel type)
         {
-            Console.ForegroundColor = GetColorByType(type);
+            Console.ForegroundColor = this.GetColorByType(type);
             Console.Write(part2);
             Console.ForegroundColor = this._ConsoleDefaultColor;
         }

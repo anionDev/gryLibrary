@@ -8,11 +8,11 @@ namespace GRYLibrary
     {
         public string Serialize(T @object)
         {
-            return Serialize(@object, new XmlWriterSettings() { Encoding = this.Encoding });
+            return this.Serialize(@object, new XmlWriterSettings() { Encoding = this.Encoding });
         }
         public string SerializeWithIndent(T @object)
         {
-            return Serialize(@object, new XmlWriterSettings { Indent = true, Encoding = this.Encoding });
+            return this.Serialize(@object, new XmlWriterSettings { Indent = true, Encoding = this.Encoding });
         }
         public string Serialize(T @object, XmlWriterSettings settings)
         {

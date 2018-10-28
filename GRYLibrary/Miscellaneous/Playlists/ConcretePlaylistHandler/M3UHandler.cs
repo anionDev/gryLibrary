@@ -44,10 +44,10 @@ namespace GRYLibrary.Miscellaneous.Playlists.ConcretePlaylistHandler
                 }
             }
             string m3uConfigurationFile = new FileInfo(playlistFile).Directory.FullName + ConfigurationFileInCurrentFolder;
-            if (!SetResultAndApplayConfigurationFile(ref result, m3uConfigurationFile))
+            if (!this.SetResultAndApplayConfigurationFile(ref result, m3uConfigurationFile))
             {
                 m3uConfigurationFile = new FileInfo(m3uConfigurationFile).Directory.Parent.FullName + ConfigurationFileInCurrentFolder;
-                SetResultAndApplayConfigurationFile(ref result, m3uConfigurationFile);
+                this.SetResultAndApplayConfigurationFile(ref result, m3uConfigurationFile);
             }
             return result;
         }
@@ -76,7 +76,7 @@ namespace GRYLibrary.Miscellaneous.Playlists.ConcretePlaylistHandler
             public M3UConfiguration(string configurationFile)
             {
                 this._ConfigurationFile = configurationFile;
-                ReadConfigFile();
+                this.ReadConfigFile();
             }
 
             private void ReadConfigFile()

@@ -12,14 +12,14 @@ namespace GRYLibrary.Miscellaneous.Playlists.ConcretePlaylistHandler
 
         protected override void AddSongsToPlaylistImplementation(string playlistFile, IEnumerable<string> newSongs)
         {
-            int amountOfItems = GetAmountOfItems(playlistFile);
+            int amountOfItems = this.GetAmountOfItems(playlistFile);
             File.AppendAllText(playlistFile, Environment.NewLine, Encoding);
             foreach (string newItem in newSongs)
             {
                 amountOfItems = amountOfItems + 1;
                 File.AppendAllLines(playlistFile, new string[] { string.Empty, $"File{amountOfItems.ToString()}={newItem}" }, Encoding);
             }
-            SetAmountOfItems(playlistFile, amountOfItems);
+            this.SetAmountOfItems(playlistFile, amountOfItems);
         }
 
         public int GetAmountOfItems(string playlistFile)
@@ -31,7 +31,7 @@ namespace GRYLibrary.Miscellaneous.Playlists.ConcretePlaylistHandler
                     return int.Parse(line.Split('=')[1].Trim());
                 }
             }
-            return GetSongsFromPlaylistImplementation(playlistFile).Count();
+            return this.GetSongsFromPlaylistImplementation(playlistFile).Count();
         }
         private void SetAmountOfItems(string playlistFile, int amount)
         {
@@ -69,8 +69,8 @@ namespace GRYLibrary.Miscellaneous.Playlists.ConcretePlaylistHandler
                 }
             }
             File.WriteAllText(playlistFile, string.Empty, Encoding);
-            InitializePLSFile(playlistFile);
-            AddSongsToPlaylistImplementation(playlistFile, result);
+            this.InitializePLSFile(playlistFile);
+            this.AddSongsToPlaylistImplementation(playlistFile, result);
         }
 
         protected override IEnumerable<string> GetSongsFromPlaylistImplementation(string playlistFile)
@@ -98,7 +98,7 @@ namespace GRYLibrary.Miscellaneous.Playlists.ConcretePlaylistHandler
             if (!File.Exists(file))
             {
                 File.Create(file).Close();
-                InitializePLSFile(file);
+                this.InitializePLSFile(file);
             }
         }
 
