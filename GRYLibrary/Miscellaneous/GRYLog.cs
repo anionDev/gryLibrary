@@ -23,6 +23,7 @@ namespace GRYLibrary
         public int LogItemIdLength { get; set; }
         public bool PrintEmptyLines { get; set; }
         public bool PrintErrorsAsInformation { get; set; }
+        public bool StoreErrorsInErrorQueueInsteadOfLoggingThem { get; set; }
         public bool PrintOutputInConsole { get; set; }
         public bool WriteExceptionMessageOfExceptionInLogEntry { get; set; }
         public bool WriteExceptionStackTraceOfExceptionInLogEntry { get; set; }
@@ -118,9 +119,11 @@ namespace GRYLibrary
             this.WarningPrefix = "Warning";
             this.VerbosePrefix = "Additional";
             this.LogOverhead = true;
+            this.PrintEmptyLines = false;
             this.WriteExceptionMessageOfExceptionInLogEntry = true;
             this.WriteExceptionStackTraceOfExceptionInLogEntry = true;
             this.AddIdToEveryLogEntry = false;
+            this.StoreErrorsInErrorQueueInsteadOfLoggingThem = false;
             this.PrintOutputInConsole = true;
             this.ColorForDebug = ConsoleColor.DarkBlue;
             this.ColorForError = ConsoleColor.DarkRed;
@@ -216,13 +219,33 @@ namespace GRYLibrary
         {
             LogError(GetExceptionMessage("An exception occurred", exception), logLineId);
         }
+        private Queue<Tuple<string, string>> _StoredErrors = new Queue<Tuple<string, string>>();
+        public void PrintErrorQueue()
+        {
+            while (_StoredErrors.Count != 0)
+            {
+                var dequeuedError = _StoredErrors.Dequeue();
+                LogErrorInternal(dequeuedError.Item1, dequeuedError.Item2);
+            }
+        }
         public void LogError(string message, string logLineId = "")
         {
             if (!LineShouldBePrinted(message))
             {
                 return;
             }
+            if (this.StoreErrorsInErrorQueueInsteadOfLoggingThem)
+            {
+                _StoredErrors.Enqueue(new Tuple<string, string>(message, logLineId));
+            }
+            else
+            {
+                LogErrorInternal(message, logLineId);
+            }
+        }
 
+        private void LogErrorInternal(string message, string logLineId)
+        {
             if (this.PrintErrorsAsInformation)
             {
                 LogIt(message, LogLevel.Information, logLineId);
@@ -233,6 +256,7 @@ namespace GRYLibrary
                 LogIt(message, LogLevel.Exception, logLineId);
             }
         }
+
         public enum LogLevel : int
         {
             Exception = 0,
