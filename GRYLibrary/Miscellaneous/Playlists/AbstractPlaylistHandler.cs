@@ -30,30 +30,36 @@ namespace GRYLibrary.Miscellaneous.Playlists
         protected abstract IEnumerable<string> GetSongsFromPlaylistImplementation(string playlistFile);
         protected abstract void AddSongsToPlaylistImplementation(string playlistFile, IEnumerable<string> newSongs);
         protected abstract void DeleteSongsFromPlaylistImplementation(string playlistFile, IEnumerable<string> songsToDelete);
-        private IEnumerable<string> GetSongsFromPlaylist(string playlistFile, bool removeDuplicatedItems, bool loadTransitively, ISet<string> excludedPlaylistFiles)
+        private IEnumerable<string> GetSongsFromPlaylist(string playlistFile, bool removeDuplicatedItems, bool loadTransitively, ISet<string> excludedPlaylistFiles, string workingDirectory)
         {
-            string locationOfFile = Path.GetDirectoryName(playlistFile);
-            IEnumerable<string> referencedFiles = GetSongsFromPlaylistImplementation(playlistFile).Where(item => IsAllowedAsPlaylistItem(item));
+            IEnumerable<string> referencedFiles = GetSongsFromPlaylistImplementation(Path.Combine(workingDirectory, playlistFile)).Where(item => IsAllowedAsPlaylistItem(item));
             List<string> newList = new List<string>();
             foreach (string item in referencedFiles)
             {
                 try
                 {
                     string playlistItem;
-                    if (new Uri(item).IsFile)
+                    try
                     {
-                        if (Path.IsPathRooted(item))
+                        if (new Uri(item).IsFile)
                         {
-                            playlistItem = item;
+                            if (Path.IsPathRooted(item))
+                            {
+                                playlistItem = item;
+                            }
+                            else
+                            {
+                                playlistItem = Path.GetFullPath(Path.Combine(workingDirectory, item));
+                            }
                         }
                         else
                         {
-                            playlistItem = Path.GetFullPath(Path.Combine(locationOfFile, item));
+                            playlistItem = item;
                         }
                     }
-                    else
+                    catch
                     {
-                        playlistItem = item;
+                        playlistItem = new Uri(item, UriKind.Relative).OriginalString;
                     }
                     string playlistItemToLower = playlistItem.ToLower();
                     if (IsReadablePlaylist(playlistItemToLower))
@@ -61,7 +67,7 @@ namespace GRYLibrary.Miscellaneous.Playlists
                         if (loadTransitively && (!excludedPlaylistFiles.Contains(playlistItemToLower)))
                         {
                             excludedPlaylistFiles.Add(playlistItemToLower);
-                            newList.AddRange(ExtensionsOfReadablePlaylists[Path.GetExtension(playlistItemToLower).Substring(1)].GetSongsFromPlaylist(playlistItem, removeDuplicatedItems, loadTransitively, excludedPlaylistFiles));
+                            newList.AddRange(ExtensionsOfReadablePlaylists[Path.GetExtension(playlistItemToLower).Substring(1)].GetSongsFromPlaylist(playlistItem, removeDuplicatedItems, loadTransitively, excludedPlaylistFiles, workingDirectory));
                         }
                     }
                     else
@@ -71,7 +77,7 @@ namespace GRYLibrary.Miscellaneous.Playlists
                 }
                 catch
                 {
-                    Utilities.NoOperation();
+                    GRYLibrary.Utilities.NoOperation();
                 }
                 referencedFiles = newList;
             }
@@ -88,7 +94,23 @@ namespace GRYLibrary.Miscellaneous.Playlists
         }
         public IEnumerable<string> GetSongsFromPlaylist(string playlistFile, bool removeDuplicatedItems = true, bool loadTransitively = true)
         {
-            return GetSongsFromPlaylist(playlistFile, removeDuplicatedItems, loadTransitively, new HashSet<string>());
+            Uri uri;
+            string workingDirectory;
+            if (Uri.TryCreate(playlistFile, UriKind.Absolute, out uri))
+            {
+                //absolute uri
+                workingDirectory = uri.AbsolutePath;
+            }
+            else
+            {
+                //relative uri
+                workingDirectory = Path.Combine(Directory.GetCurrentDirectory(), new FileInfo(playlistFile).Directory.FullName);
+            }
+            return GetSongsFromPlaylist(new FileInfo(playlistFile).Name, workingDirectory, removeDuplicatedItems, loadTransitively);
+        }
+        public IEnumerable<string> GetSongsFromPlaylist(string playlistFile, string workingDirectory, bool removeDuplicatedItems = true, bool loadTransitively = true)
+        {
+            return GetSongsFromPlaylist(playlistFile, removeDuplicatedItems, loadTransitively, new HashSet<string>(), workingDirectory);
         }
 
         public void AddSongsToPlaylist(string playlistFile, IEnumerable<string> newSongs, bool addOnlyNotExistingSongs = true)
