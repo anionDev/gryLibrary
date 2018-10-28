@@ -40,22 +40,75 @@ namespace GRYLibraryTest
             handler.DeleteSongsFromPlaylist(file, currentExpectedContent);
             currentExpectedContent.Clear();
             Assert.IsTrue(currentExpectedContent.EqualsIgnoringOrder(handler.GetSongsFromPlaylist(file).ToList()));
+
+
+            System.IO.File.Delete(file);
         }
         [TestMethod]
-        public void TestM3U()
+        public void CommonTestM3U()
         {
-            CommonTest("Test.m3u", M3UHandler.Instance);
+            this.CommonTest("Test.m3u", M3UHandler.Instance);
         }
         [Ignore]
         [TestMethod]
-        public void TestWPL()
+        public void CommonTestWPL()
         {
-            CommonTest("Test.wpl", WPLHandler.Instance);
+            this.CommonTest("Test.wpl", WPLHandler.Instance);
         }
         [TestMethod]
-        public void TestPLS()
+        public void CommonTestPLS()
         {
-            CommonTest("Test.pls", PLSHandler.Instance);
+            this.CommonTest("Test.pls", PLSHandler.Instance);
         }
+        [TestMethod]
+        public void CommonTestM3UReferencedPlaylist()
+        {
+            string directoryName = "test\\test";
+            string m3uFile = directoryName + "\\" + "test1.m3u";
+            string nameOfm3ufile2 = "test2.m3u";
+            string m3uFile2 = directoryName + "\\" + nameOfm3ufile2;
+            Utilities.EnsureFileDoesNotExist(m3uFile);
+            Utilities.EnsureFileDoesNotExist(m3uFile2);
+            Utilities.EnsureDirectoryDoesNotExist(directoryName);
+
+            Utilities.EnsureDirectoryExists(directoryName);
+            M3UHandler.Instance.CreatePlaylist(m3uFile);
+            M3UHandler.Instance.CreatePlaylist(m3uFile2);
+            M3UHandler.Instance.AddSongsToPlaylist(m3uFile, new string[] { "trackA.mp3", nameOfm3ufile2 });
+            M3UHandler.Instance.AddSongsToPlaylist(m3uFile2, new string[] { "trackB.mp3" });
+
+            HashSet<string> playlistItems = new HashSet<string>(M3UHandler.Instance.GetSongsFromPlaylist(m3uFile, true, true));
+            Assert.IsTrue(playlistItems.SetEquals(new string[] { "trackA.mp3", "trackB.mp3" }));
+            Utilities.EnsureFileDoesNotExist(m3uFile);
+            Utilities.EnsureFileDoesNotExist(m3uFile2);
+            Utilities.EnsureDirectoryDoesNotExist(directoryName);
+        }
+    [TestMethod]
+    public void CommonTestM3UConfiguration()
+    {
+        string directoryName = "test";
+        string configurationFile = ".m3uconfiguration";
+        string m3uFile1 = directoryName + "\\" + "test1.m3u";
+        string nameOfm3ufile2 = "test2.m3u";
+        string m3uFile2 = directoryName + "\\" + nameOfm3ufile2;
+        Utilities.EnsureFileDoesNotExist(m3uFile1);
+        Utilities.EnsureFileDoesNotExist(m3uFile2);
+        Utilities.EnsureDirectoryDoesNotExist(directoryName);
+        Utilities.EnsureFileDoesNotExist(configurationFile);
+        Utilities.EnsureDirectoryExists("test");
+        Utilities.EnsureFileExists(configurationFile);
+        System.IO.File.WriteAllText(configurationFile, @"replace:{DefaultPath};C:\Data\Music", System.Text.Encoding.UTF8);
+        M3UHandler.Instance.CreatePlaylist(m3uFile1);
+        M3UHandler.Instance.CreatePlaylist(m3uFile2);
+        M3UHandler.Instance.AddSongsToPlaylist(m3uFile1, new string[] { "trackA.mp3", nameOfm3ufile2, "{DefaultPath}\\trackB.mp3" });
+        M3UHandler.Instance.AddSongsToPlaylist(m3uFile2, new string[] { "trackC.mp3", "{DefaultPath}\\trackD.mp3" });
+
+        HashSet<string> playlistItems = new HashSet<string>(M3UHandler.Instance.GetSongsFromPlaylist(m3uFile1, true, true));
+        Assert.IsTrue(playlistItems.SetEquals(new string[] { "trackA.mp3", @"C:\Data\Music\trackB.mp3", "trackC.mp3", @"C:\Data\Music\trackD.mp3" }));
+        Utilities.EnsureFileDoesNotExist(m3uFile1);
+        Utilities.EnsureFileDoesNotExist(m3uFile2);
+        Utilities.EnsureDirectoryDoesNotExist(directoryName);
+        Utilities.EnsureFileDoesNotExist(configurationFile);
     }
+}
 }

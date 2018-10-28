@@ -73,6 +73,22 @@ namespace GRYLibrary
                 Directory.CreateDirectory(path);
             }
         }
+        
+        public static void EnsureDirectoryDoesNotExist(string path)
+        {
+            if (Directory.Exists(path))
+            {
+                Directory.Delete(path, true);
+            }
+        }
+
+        public static void EnsureFileDoesNotExist(string path)
+        {
+            if (File.Exists(path))
+            {
+                File.Delete(path);
+            }
+        }
         public static string TypeArrayToString(Type[] types)
         {
             return string.Format("{{{0}}}", string.Join(", ", types.Select((type) => type.Name)));
@@ -102,6 +118,7 @@ namespace GRYLibrary
                 CopyFolderAcrossVolumes(folder, destination);
             }
         }
+
         public static void MoveFolderAcrossVolumes(string sourceFolder, string destinationFolder)
         {
             CopyFolderAcrossVolumes(sourceFolder, destinationFolder);
