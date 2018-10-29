@@ -30,9 +30,10 @@ namespace GRYLibrary.Miscellaneous.Playlists
         protected abstract IEnumerable<string> GetSongsFromPlaylistImplementation(string playlistFile);
         protected abstract void AddSongsToPlaylistImplementation(string playlistFile, IEnumerable<string> newSongs);
         protected abstract void DeleteSongsFromPlaylistImplementation(string playlistFile, IEnumerable<string> songsToDelete);
-        private IEnumerable<string> GetSongsFromPlaylist(string playlistFile, bool removeDuplicatedItems, bool loadTransitively, ISet<string> excludedPlaylistFiles, string workingDirectory)
+        private IEnumerable<string> GetSongsFromPlaylist(string playlistFileName, bool removeDuplicatedItems, bool loadTransitively, ISet<string> excludedPlaylistFiles, string workingDirectory)
         {
-            IEnumerable<string> referencedFiles = this.GetSongsFromPlaylistImplementation(Path.Combine(workingDirectory, playlistFile)).Where(item => IsAllowedAsPlaylistItem(item));
+            playlistFileName = NormalizePath(playlistFileName);
+            IEnumerable<string> referencedFiles = this.GetSongsFromPlaylistImplementation(Path.Combine(workingDirectory, playlistFileName)).Where(item => IsAllowedAsPlaylistItem(item));
             List<string> newList = new List<string>();
             foreach (string item in referencedFiles)
             {
@@ -88,6 +89,12 @@ namespace GRYLibrary.Miscellaneous.Playlists
             return referencedFiles;
 
         }
+
+        private string NormalizePath(string path)
+        {
+            return path.Replace("/", "\\").Trim();
+        }
+
         public static AbstractPlaylistHandler GetConcretePlaylistHandler(string file)
         {
             return ExtensionsOfReadablePlaylists[Path.GetExtension(file.ToLower()).Substring(1)];
@@ -115,6 +122,7 @@ namespace GRYLibrary.Miscellaneous.Playlists
 
         public void AddSongsToPlaylist(string playlistFile, IEnumerable<string> newSongs, bool addOnlyNotExistingSongs = true)
         {
+            playlistFile = NormalizePath(playlistFile);
             newSongs = newSongs.Where(item => IsAllowedAsPlaylistItem(item));
             if (newSongs.Count() > 0)
             {
@@ -133,6 +141,7 @@ namespace GRYLibrary.Miscellaneous.Playlists
         }
         public void DeleteSongsFromPlaylist(string playlistFile, IEnumerable<string> songsToDelete)
         {
+            playlistFile = NormalizePath(playlistFile);
             this.DeleteSongsFromPlaylistImplementation(playlistFile, songsToDelete.Where(item => IsAllowedAsPlaylistItem(item)));
         }
         public static bool IsReadablePlaylist(string file)
