@@ -106,7 +106,7 @@ namespace GRYLibrary.Miscellaneous.Playlists
             if (Uri.TryCreate(playlistFile, UriKind.Absolute, out uri))
             {
                 //absolute uri
-                workingDirectory = uri.AbsolutePath;
+                workingDirectory = new FileInfo(uri.AbsolutePath).Directory.FullName;
             }
             else
             {
