@@ -6,7 +6,7 @@ namespace GRYLibrary
 {
     public class ExternalProgramExecutor
     {
-        public ExternalProgramExecutor(string programPathAndFile, string arguments, string title, string workingDirectory, bool printErrorsAsInformation = false, string logFile = null)
+        public ExternalProgramExecutor(string programPathAndFile, string arguments, string title, string workingDirectory, bool printErrorsAsInformation = false, string logFile = null, int? timeout = null)
         {
             this.LogObject = new GRYLog();
             if (logFile == null)
@@ -23,12 +23,14 @@ namespace GRYLibrary
             this.Title = title;
             this.WorkingDirectory = workingDirectory;
             this.PrintErrorsAsInformation = printErrorsAsInformation;
+            this.TimeoutInMilliseconds = timeout;
         }
         public GRYLog LogObject { get; set; }
         public string Arguments { get; set; }
         public string ProgramPathAndFile { get; set; }
         public string Title { get; set; }
         public string WorkingDirectory { get; set; }
+        public int? TimeoutInMilliseconds { get; set; }
         public bool PrintErrorsAsInformation { get; set; }
         private bool _Running = false;
         private readonly ConcurrentQueue<Tuple<GRYLog.LogLevel, string>> _NotLoggedOutputLines = new ConcurrentQueue<Tuple<GRYLog.LogLevel, string>>();
@@ -83,7 +85,17 @@ namespace GRYLibrary
                 process.Start();
                 process.BeginOutputReadLine();
                 process.BeginErrorReadLine();
-                process.WaitForExit();
+                if (this.TimeoutInMilliseconds.HasValue)
+                {
+                    if (!process.WaitForExit(this.TimeoutInMilliseconds.Value))
+                    {
+                        process.Kill();
+                    }
+                }
+                else
+                {
+                    process.WaitForExit();
+                }
                 return process.ExitCode;
             }
             finally
