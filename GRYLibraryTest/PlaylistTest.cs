@@ -37,11 +37,20 @@ namespace GRYLibraryTest
             Assert.IsTrue(currentExpectedContent.EqualsIgnoringOrder(handler.GetSongsFromPlaylist(file).ToList()));
 
 
+
             handler.DeleteSongsFromPlaylist(file, currentExpectedContent);
             currentExpectedContent.Clear();
-            Assert.IsTrue(currentExpectedContent.EqualsIgnoringOrder(handler.GetSongsFromPlaylist(file).ToList()));
+            List<string> items = handler.GetSongsFromPlaylist(file).ToList();
+            Assert.AreEqual(0,items.Count);
+            Assert.IsTrue(currentExpectedContent.EqualsIgnoringOrder(items));
 
+            string[] newTracks = new string[] { @"X:/a/d.Ogg" };
+            handler.AddSongsToPlaylist(file,newTracks );
 
+            byte[] contentBefore = System.IO.File.ReadAllBytes(file);
+            handler.AddSongsToPlaylist(file, newTracks,true);
+            byte[] contentAfter = System.IO.File.ReadAllBytes(file);
+            Assert.AreEqual(contentBefore, contentAfter);
             System.IO.File.Delete(file);
         }
         [TestMethod]
