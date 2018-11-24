@@ -50,7 +50,7 @@ namespace GRYLibraryTest
             byte[] contentBefore = System.IO.File.ReadAllBytes(file);
             handler.AddSongsToPlaylist(file, newTracks,true);
             byte[] contentAfter = System.IO.File.ReadAllBytes(file);
-            Assert.AreEqual(contentBefore, contentAfter);
+            CollectionAssert.AreEqual(contentBefore, contentAfter);
             System.IO.File.Delete(file);
         }
         [TestMethod]
