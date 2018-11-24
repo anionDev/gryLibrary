@@ -433,11 +433,11 @@ namespace GRYLibrary
             return timeSpan.Ticks > 0;
         }
 
-        internal static bool FileEndsWithEmptyLine(string file)
+        public static bool FileEndsWithEmptyLine(string file)
         {
             return File.ReadAllBytes(file).Last().Equals(10);
         }
-        internal static bool FileIsEmpty(string file)
+        public static bool FileIsEmpty(string file)
         {
             return File.ReadAllBytes(file).Count().Equals(0);
         }
