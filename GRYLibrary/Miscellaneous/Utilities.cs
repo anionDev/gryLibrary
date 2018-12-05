@@ -441,5 +441,9 @@ namespace GRYLibrary
         {
             return File.ReadAllBytes(file).Count().Equals(0);
         }
+        public static bool AppendFileDoesNotNeedNewLineCharacter(string file)
+        {
+            return FileIsEmpty(file) || FileEndsWithEmptyLine(file);
+        }
     }
 }
