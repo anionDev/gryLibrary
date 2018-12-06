@@ -79,7 +79,6 @@ namespace GRYLibrary
                     this._WriteToLogFile = value;
                     if (this.WriteLogEntryWhenGLogWIllBeEnabledOrDisabled)
                     {
-
                         if (value)
                         {
                             this.LogInformation("GLog.WriteToLogFile is now enabled.");
@@ -108,6 +107,7 @@ namespace GRYLibrary
         public GRYLog(string logFile)
         {
             this.DebugBreakMode = false;
+            this.ConvertTimeToUTCFormat = false;
             this.Encoding = new UTF8Encoding(false);
             this.DebugBreakLevel = new List<LogLevel>() { LogLevel.Exception };
             this._ConsoleDefaultColor = Console.ForegroundColor;
@@ -274,6 +274,10 @@ namespace GRYLibrary
                 return;
             }
             DateTime momentOfLogEntry = DateTime.Now;
+            if (this.ConvertTimeToUTCFormat)
+            {
+                momentOfLogEntry = momentOfLogEntry.ToUniversalTime();
+            }
             message = message.Trim();
             string originalMessage = message;
             logLineId = logLineId.Trim();
