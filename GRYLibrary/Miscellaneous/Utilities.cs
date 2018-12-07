@@ -169,7 +169,7 @@ namespace GRYLibrary
             using (Image image = Image.FromStream(fileStream, false, false))
             {
                 PropertyItem propItem = image.GetPropertyItem(36867);
-                string dateTaken = new Regex(":").Replace(Encoding.UTF8.GetString(propItem.Value), "-", 2);
+                string dateTaken = new Regex(":").Replace(new UTF8Encoding(false).GetString(propItem.Value), "-", 2);
                 return DateTime.Parse(dateTaken);
             }
         }

@@ -25,7 +25,7 @@ namespace GRYLibrary.Miscellaneous.Playlists
                 return _ExtensionsOfReadablePlaylists;
             }
         }
-        public static Encoding Encoding { get; set; } = Encoding.UTF8;
+        public static Encoding Encoding { get; set; } = new UTF8Encoding(false);
         public abstract void CreatePlaylist(string file);
         protected abstract IEnumerable<string> GetSongsFromPlaylistImplementation(string playlistFile);
         protected abstract void AddSongsToPlaylistImplementation(string playlistFile, IEnumerable<string> newSongs);
