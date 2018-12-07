@@ -358,7 +358,7 @@ namespace GRYLibrary
         }
         public static SimpleObjectPersistence<T> Persist<T>(this T @object, string file) where T : new()
         {
-            return @object.Persist(file, Encoding.UTF8);
+            return @object.Persist(file, new UTF8Encoding(false));
         }
         public static SimpleObjectPersistence<T> Persist<T>(this T @object, string file, Encoding encoding) where T : new()
         {
