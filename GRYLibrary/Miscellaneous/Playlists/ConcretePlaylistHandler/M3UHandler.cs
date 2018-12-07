@@ -35,25 +35,44 @@ namespace GRYLibrary.Miscellaneous.Playlists.ConcretePlaylistHandler
         {
             List<string> lines = File.ReadAllLines(playlistFile, Encoding).Select(line => line.Replace("\"", string.Empty).Trim()).Where(line => !(string.IsNullOrWhiteSpace(line) || line.StartsWith("#"))).ToList();
             List<string> result = new List<string>();
+            List<string> excludedItems = new List<string>();
+
             foreach (string line in lines)
             {
+                string payload;
                 if (line.Contains("*"))
                 {
-                    result.Add(line.Split('*')[0]);
+                    payload = line.Split('*')[0];
                 }
                 else
                 {
-                    result.Add(line);
+                    payload = line;
+                }
+                if (payload.StartsWith("-"))
+                {
+                    excludedItems.Add(payload.Substring(1));
+                }
+                else
+                {
+                    result.Add(payload);
                 }
             }
+            this.TryToApplyConfigurationFile(playlistFile, ref result);
+            this.TryToApplyConfigurationFile(playlistFile, ref excludedItems);
+            result = result.Except(excludedItems).ToList();
+            return result;
+        }
+
+        private void TryToApplyConfigurationFile(string playlistFile, ref List<string> result)
+        {
             string m3uConfigurationFile = new FileInfo(playlistFile).Directory.FullName + ConfigurationFileInCurrentFolder;
             if (!this.SetResultAndApplayConfigurationFile(ref result, m3uConfigurationFile))
             {
                 m3uConfigurationFile = new FileInfo(m3uConfigurationFile).Directory.Parent.FullName + ConfigurationFileInCurrentFolder;
                 this.SetResultAndApplayConfigurationFile(ref result, m3uConfigurationFile);
             }
-            return result;
         }
+
         private const string ConfigurationFileName = ".M3UConfiguration";
         public const string ConfigurationFileInCurrentFolder = "\\" + ConfigurationFileName;
         private bool SetResultAndApplayConfigurationFile(ref List<string> result, string m3uConfigurationFile)
