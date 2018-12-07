@@ -33,17 +33,17 @@ namespace GRYLibrary.Miscellaneous.Playlists.ConcretePlaylistHandler
 
         protected override IEnumerable<string> GetSongsFromPlaylistImplementation(string playlistFile)
         {
-            List<string> items = File.ReadAllLines(playlistFile, Encoding).Select(line => line.Replace("\"", string.Empty).Trim()).Where(line => !(string.IsNullOrWhiteSpace(line) || line.StartsWith("#"))).ToList();
+            List<string> lines = File.ReadAllLines(playlistFile, Encoding).Select(line => line.Replace("\"", string.Empty).Trim()).Where(line => !(string.IsNullOrWhiteSpace(line) || line.StartsWith("#"))).ToList();
             List<string> result = new List<string>();
-            foreach (string item in items)
+            foreach (string line in lines)
             {
-                if (item.Contains("*"))
+                if (line.Contains("*"))
                 {
-                    result.Add(item.Split('*')[0]);
+                    result.Add(line.Split('*')[0]);
                 }
                 else
                 {
-                    result.Add(item);
+                    result.Add(line);
                 }
             }
             string m3uConfigurationFile = new FileInfo(playlistFile).Directory.FullName + ConfigurationFileInCurrentFolder;
