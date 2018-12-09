@@ -38,11 +38,11 @@ namespace GRYLibrary.Miscellaneous
         }
         public IDictionary<string, Stream> GetallInputs()
         {
-            return this.Inputs.DeepClone();
+            return new Dictionary<string, Stream>(this.Inputs);
         }
         public IDictionary<string, Stream> GetallOutputs()
         {
-            return this.Outputs.DeepClone();
+            return new Dictionary<string, Stream>(this.Outputs);
         }
     }
 }
