@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace GRYLibrary.Miscellaneous
 {
@@ -33,6 +35,14 @@ namespace GRYLibrary.Miscellaneous
         {
             Connections.Remove(new TupleWithValueComparisonEquals<string, string>(inputName, outputName));
             throw new System.NotImplementedException();
+        }
+        public IDictionary<string, Stream> GetallInputs()
+        {
+            return this.Inputs.DeepClone();
+        }
+        public IDictionary<string, Stream> GetallOutputs()
+        {
+            return this.Outputs.DeepClone();
         }
     }
 }
