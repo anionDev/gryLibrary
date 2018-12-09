@@ -82,11 +82,11 @@ namespace GRYLibrary
                     {
                         if (value)
                         {
-                            this.LogInformation("GRYLog.WriteToLogFile is now enabled.");
+                            this.LogInformation($"{nameof(GRYLog)}.{nameof(WriteToLogFile)} is now enabled.");
                         }
                         else
                         {
-                            this.LogInformation("GRYLog.WriteToLogFile is now disabled.");
+                            this.LogInformation($"{nameof(GRYLog)}.{nameof(WriteToLogFile)} is now disabled.");
                         }
                     }
                 }
