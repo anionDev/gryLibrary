@@ -30,7 +30,7 @@ namespace GRYLibrary
         public bool WriteExceptionMessageOfExceptionInLogEntry { get; set; }
         public bool WriteExceptionStackTraceOfExceptionInLogEntry { get; set; }
         public bool AddIdToEveryLogEntry { get; set; }
-        public bool WriteLogEntryWhenGLogWIllBeEnabledOrDisabled { get; set; }
+        public bool WriteLogEntryWhenGRYLogWriteToLogFileWIllBeEnabledOrDisabled { get; set; }
         public string DateFormat { get; set; }
         public IList<LogLevel> LoggedMessageTypesInConsole { get; set; }
         public IList<LogLevel> LoggedMessageTypesInLogFile { get; set; }
@@ -78,15 +78,15 @@ namespace GRYLibrary
                 if (value != this.WriteToLogFile)
                 {
                     this._WriteToLogFile = value;
-                    if (this.WriteLogEntryWhenGLogWIllBeEnabledOrDisabled)
+                    if (this.WriteLogEntryWhenGRYLogWriteToLogFileWIllBeEnabledOrDisabled)
                     {
                         if (value)
                         {
-                            this.LogInformation("GLog.WriteToLogFile is now enabled.");
+                            this.LogInformation("GRYLog.WriteToLogFile is now enabled.");
                         }
                         else
                         {
-                            this.LogInformation("GLog.WriteToLogFile is now disabled.");
+                            this.LogInformation("GRYLog.WriteToLogFile is now disabled.");
                         }
                     }
                 }
@@ -116,7 +116,7 @@ namespace GRYLibrary
             this.DateFormat = "yyyy/MM/dd HH:mm:ss";
             this.LoggedMessageTypesInConsole = new List<LogLevel>();
             this.LoggedMessageTypesInLogFile = new List<LogLevel>();
-            this.WriteLogEntryWhenGLogWIllBeEnabledOrDisabled = false;
+            this.WriteLogEntryWhenGRYLogWriteToLogFileWIllBeEnabledOrDisabled = false;
             this.InformationPrefix = "Info";
             this.ErrorPrefix = "Error";
             this.DebugPrefix = "Debug";
