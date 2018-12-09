@@ -25,14 +25,14 @@ namespace GRYLibrary.Miscellaneous.Playlists
                 return _ExtensionsOfReadablePlaylists;
             }
         }
-        public static Encoding Encoding { get; set; } = Encoding.UTF8;
+        public static Encoding Encoding { get; set; } = new UTF8Encoding(false);
         public abstract void CreatePlaylist(string file);
         protected abstract IEnumerable<string> GetSongsFromPlaylistImplementation(string playlistFile);
         protected abstract void AddSongsToPlaylistImplementation(string playlistFile, IEnumerable<string> newSongs);
         protected abstract void DeleteSongsFromPlaylistImplementation(string playlistFile, IEnumerable<string> songsToDelete);
         private IEnumerable<string> GetSongsFromPlaylist(string playlistFileName, bool removeDuplicatedItems, bool loadTransitively, ISet<string> excludedPlaylistFiles, string workingDirectory)
         {
-            playlistFileName = NormalizePath(playlistFileName);
+            playlistFileName = this.NormalizePath(playlistFileName);
             IEnumerable<string> referencedFiles = this.GetSongsFromPlaylistImplementation(Path.Combine(workingDirectory, playlistFileName)).Where(item => IsAllowedAsPlaylistItem(item));
             List<string> newList = new List<string>();
             foreach (string item in referencedFiles)
@@ -122,7 +122,7 @@ namespace GRYLibrary.Miscellaneous.Playlists
 
         public void AddSongsToPlaylist(string playlistFile, IEnumerable<string> newSongs, bool addOnlyNotExistingSongs = true)
         {
-            playlistFile = NormalizePath(playlistFile);
+            playlistFile = this.NormalizePath(playlistFile);
             newSongs = newSongs.Where(item => IsAllowedAsPlaylistItem(item));
             if (newSongs.Count() > 0)
             {
@@ -141,7 +141,7 @@ namespace GRYLibrary.Miscellaneous.Playlists
         }
         public void DeleteSongsFromPlaylist(string playlistFile, IEnumerable<string> songsToDelete)
         {
-            playlistFile = NormalizePath(playlistFile);
+            playlistFile = this.NormalizePath(playlistFile);
             this.DeleteSongsFromPlaylistImplementation(playlistFile, songsToDelete.Where(item => IsAllowedAsPlaylistItem(item)));
         }
         public static bool IsReadablePlaylist(string file)

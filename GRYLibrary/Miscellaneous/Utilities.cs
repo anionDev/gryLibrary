@@ -169,7 +169,7 @@ namespace GRYLibrary
             using (Image image = Image.FromStream(fileStream, false, false))
             {
                 PropertyItem propItem = image.GetPropertyItem(36867);
-                string dateTaken = new Regex(":").Replace(Encoding.UTF8.GetString(propItem.Value), "-", 2);
+                string dateTaken = new Regex(":").Replace(new UTF8Encoding(false).GetString(propItem.Value), "-", 2);
                 return DateTime.Parse(dateTaken);
             }
         }
@@ -358,7 +358,7 @@ namespace GRYLibrary
         }
         public static SimpleObjectPersistence<T> Persist<T>(this T @object, string file) where T : new()
         {
-            return @object.Persist(file, Encoding.UTF8);
+            return @object.Persist(file, new UTF8Encoding(false));
         }
         public static SimpleObjectPersistence<T> Persist<T>(this T @object, string file, Encoding encoding) where T : new()
         {
@@ -431,6 +431,19 @@ namespace GRYLibrary
         public static bool IsPositive(this TimeSpan timeSpan)
         {
             return timeSpan.Ticks > 0;
+        }
+
+        public static bool FileEndsWithEmptyLine(string file)
+        {
+            return File.ReadAllBytes(file).Last().Equals(10);
+        }
+        public static bool FileIsEmpty(string file)
+        {
+            return File.ReadAllBytes(file).Count().Equals(0);
+        }
+        public static bool AppendFileDoesNotNeedNewLineCharacter(string file)
+        {
+            return FileIsEmpty(file) || FileEndsWithEmptyLine(file);
         }
     }
 }

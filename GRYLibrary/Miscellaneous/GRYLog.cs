@@ -8,6 +8,7 @@ namespace GRYLibrary
 {
     public class GRYLog
     {
+        public Encoding Encoding { get; set; }
         public event NewLogItemEventHandler NewLogItem;
         public delegate void NewLogItemEventHandler(string message, string fullMessage, LogLevel level);
         public string InformationPrefix { get; set; }
@@ -60,7 +61,7 @@ namespace GRYLibrary
                     {
                         Directory.CreateDirectory(directoryOfLogFile);
                     }
-                    File.Create(newValue).Dispose();
+                    Utilities.EnsureFileExists(this._LogFile);
                 }
                 this._LogFile = newValue;
             }
@@ -78,7 +79,6 @@ namespace GRYLibrary
                     this._WriteToLogFile = value;
                     if (this.WriteLogEntryWhenGLogWIllBeEnabledOrDisabled)
                     {
-
                         if (value)
                         {
                             this.LogInformation("GLog.WriteToLogFile is now enabled.");
@@ -107,6 +107,8 @@ namespace GRYLibrary
         public GRYLog(string logFile)
         {
             this.DebugBreakMode = false;
+            this.ConvertTimeToUTCFormat = false;
+            this.Encoding = new UTF8Encoding(false);
             this.DebugBreakLevel = new List<LogLevel>() { LogLevel.Exception };
             this._ConsoleDefaultColor = Console.ForegroundColor;
             this.DateFormat = "yyyy/MM/dd HH:mm:ss";
@@ -272,6 +274,10 @@ namespace GRYLibrary
                 return;
             }
             DateTime momentOfLogEntry = DateTime.Now;
+            if (this.ConvertTimeToUTCFormat)
+            {
+                momentOfLogEntry = momentOfLogEntry.ToUniversalTime();
+            }
             message = message.Trim();
             string originalMessage = message;
             logLineId = logLineId.Trim();
@@ -293,7 +299,7 @@ namespace GRYLibrary
                     if (this.LogOverhead)
                     {
                         Console.Write(part1);
-                        this.WriteWithColor(part2, logLevel);
+                        this.WriteWithColorToConsole(part2, logLevel);
                         Console.Write(part3 + Environment.NewLine);
                     }
                     else
@@ -305,19 +311,13 @@ namespace GRYLibrary
                 {
                     try
                     {
-                        if (!File.Exists(this.LogFile))
-                        {
-                            using (File.Create(this.LogFile))
-                            {
-                            }
-                        }
                         if (this.LogOverhead)
                         {
-                            File.AppendAllLines(this.LogFile, new string[] { part1 + part2 + part3 }, Encoding.UTF8);
+                            File.AppendAllLines(this.LogFile, new string[] { part1 + part2 + part3 }, this.Encoding);
                         }
                         else
                         {
-                            File.AppendAllLines(this.LogFile, new string[] { originalMessage }, Encoding.UTF8);
+                            File.AppendAllLines(this.LogFile, new string[] { originalMessage }, this.Encoding);
                         }
                     }
                     catch
@@ -388,7 +388,7 @@ namespace GRYLibrary
             throw new Exception("Invalid LogLevel");
         }
 
-        private void WriteWithColor(string part2, LogLevel type)
+        private void WriteWithColorToConsole(string part2, LogLevel type)
         {
             Console.ForegroundColor = this.GetColorByType(type);
             Console.Write(part2);

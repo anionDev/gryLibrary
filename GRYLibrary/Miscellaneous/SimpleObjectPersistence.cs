@@ -1,4 +1,6 @@
-﻿namespace GRYLibrary
+﻿using System.Text;
+
+namespace GRYLibrary
 {
     public sealed class SimpleObjectPersistence<T> where T : new()
     {
@@ -19,10 +21,10 @@
             this.Object = @object;
             this.SaveObject();
         }
-        public SimpleObjectPersistence(string file) : this(file, System.Text.Encoding.UTF8)
+        public SimpleObjectPersistence(string file) : this(file, new UTF8Encoding(false))
         {
         }
-        public SimpleObjectPersistence(string file, T @object) : this(file, System.Text.Encoding.UTF8, @object)
+        public SimpleObjectPersistence(string file, T @object) : this(file, new UTF8Encoding(false), @object)
         {
         }
         public void LoadObject()

@@ -11,7 +11,10 @@ namespace GRYLibrary.Miscellaneous.Playlists.ConcretePlaylistHandler
         private M3UHandler() { }
         protected override void AddSongsToPlaylistImplementation(string playlistFile, IEnumerable<string> newSongs)
         {
-            File.AppendAllText(playlistFile, System.Environment.NewLine, Encoding);
+            if (!Utilities.FileIsEmpty(playlistFile) && !Utilities.FileEndsWithEmptyLine(playlistFile))
+            {
+                File.AppendAllText(playlistFile, Environment.NewLine, Encoding);
+            }
             File.AppendAllLines(playlistFile, newSongs, Encoding);
         }
 
@@ -30,27 +33,46 @@ namespace GRYLibrary.Miscellaneous.Playlists.ConcretePlaylistHandler
 
         protected override IEnumerable<string> GetSongsFromPlaylistImplementation(string playlistFile)
         {
-            List<string> items = File.ReadAllLines(playlistFile, Encoding).Select(line => line.Replace("\"", string.Empty).Trim()).Where(line => !(string.IsNullOrWhiteSpace(line) || line.StartsWith("#"))).ToList();
+            List<string> lines = File.ReadAllLines(playlistFile, Encoding).Select(line => line.Replace("\"", string.Empty).Trim()).Where(line => !(string.IsNullOrWhiteSpace(line) || line.StartsWith("#"))).ToList();
             List<string> result = new List<string>();
-            foreach (string item in items)
+            List<string> excludedItems = new List<string>();
+
+            foreach (string line in lines)
             {
-                if (item.Contains("*"))
+                string payload;
+                if (line.Contains("*"))
                 {
-                    result.Add(item.Split('*')[0]);
+                    payload = line.Split('*')[0];
                 }
                 else
                 {
-                    result.Add(item);
+                    payload = line;
+                }
+                if (payload.StartsWith("-"))
+                {
+                    excludedItems.Add(payload.Substring(1));
+                }
+                else
+                {
+                    result.Add(payload);
                 }
             }
+            this.TryToApplyConfigurationFile(playlistFile, ref result);
+            this.TryToApplyConfigurationFile(playlistFile, ref excludedItems);
+            result = result.Except(excludedItems).ToList();
+            return result;
+        }
+
+        private void TryToApplyConfigurationFile(string playlistFile, ref List<string> result)
+        {
             string m3uConfigurationFile = new FileInfo(playlistFile).Directory.FullName + ConfigurationFileInCurrentFolder;
             if (!this.SetResultAndApplayConfigurationFile(ref result, m3uConfigurationFile))
             {
                 m3uConfigurationFile = new FileInfo(m3uConfigurationFile).Directory.Parent.FullName + ConfigurationFileInCurrentFolder;
                 this.SetResultAndApplayConfigurationFile(ref result, m3uConfigurationFile);
             }
-            return result;
         }
+
         private const string ConfigurationFileName = ".M3UConfiguration";
         public const string ConfigurationFileInCurrentFolder = "\\" + ConfigurationFileName;
         private bool SetResultAndApplayConfigurationFile(ref List<string> result, string m3uConfigurationFile)

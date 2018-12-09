@@ -13,7 +13,10 @@ namespace GRYLibrary.Miscellaneous.Playlists.ConcretePlaylistHandler
         protected override void AddSongsToPlaylistImplementation(string playlistFile, IEnumerable<string> newSongs)
         {
             int amountOfItems = this.GetAmountOfItems(playlistFile);
-            File.AppendAllText(playlistFile, Environment.NewLine, Encoding);
+            if (!Utilities.FileIsEmpty(playlistFile) && !Utilities.FileEndsWithEmptyLine(playlistFile))
+            {
+                File.AppendAllText(playlistFile, Environment.NewLine, Encoding);
+            }
             foreach (string newItem in newSongs)
             {
                 amountOfItems = amountOfItems + 1;

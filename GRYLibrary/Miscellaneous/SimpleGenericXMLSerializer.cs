@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using System.Runtime.Serialization;
+using System.Text;
 using System.Xml;
 
 namespace GRYLibrary
@@ -28,7 +29,7 @@ namespace GRYLibrary
                 return streamReader.ReadToEnd();
             }
         }
-        public System.Text.Encoding Encoding { get; set; } = System.Text.Encoding.UTF8;
+        public Encoding Encoding { get; set; } = new UTF8Encoding(false);
         public T Deserialize(string xml)
         {
             using (Stream stream = new MemoryStream())
