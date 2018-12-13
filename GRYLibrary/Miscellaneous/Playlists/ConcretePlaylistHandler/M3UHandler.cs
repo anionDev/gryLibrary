@@ -134,33 +134,37 @@ namespace GRYLibrary.Miscellaneous.Playlists.ConcretePlaylistHandler
             internal IEnumerable<string> ApplyTo(IEnumerable<string> input)
             {
                 List<string> result = new List<string>();
-                bool equalsFileExist = !(this._EqualsDefinitionsFile == null) && File.Exists(this._EqualsDefinitionsFile);
-                List<Tuple<string, IEnumerable<string>>> equalsDefinitions = new List<Tuple<string, IEnumerable<string>>>();
-                //todo fill equalsFileExist
+                this.AddEqualsDefinitionsToReplaceDictionary();
                 foreach (string item in input)
                 {
                     string newItem = item;
-                    bool addNewItem = false;
-                    if ((!equalsFileExist) || (equalsFileExist && !this.EqualTrackIsNotAlreadyIncluded(result, newItem, equalsDefinitions)))
+                    foreach (KeyValuePair<string, string> replacement in this._Replace)
                     {
-                        addNewItem = true;
-                    }
-                    if (addNewItem)
-                    {
-                        foreach (KeyValuePair<string, string> replacement in this._Replace)
-                        {
-                            newItem = newItem.Replace(replacement.Key, replacement.Value);
-                        }
-                        result.Add(newItem);
+                        newItem = newItem.Replace(replacement.Key, replacement.Value);
                     }
                     //process other options if available
+                    result.Add(newItem);
                 }
                 return result;
             }
 
-            private bool EqualTrackIsNotAlreadyIncluded(List<string> playlistResult, string newItem, List<Tuple<string, IEnumerable<string>>> equalsDefinitions)
+            private void AddEqualsDefinitionsToReplaceDictionary()
             {
-                throw new NotImplementedException();
+                if (!(this._EqualsDefinitionsFile == null) && File.Exists(this._EqualsDefinitionsFile))
+                {
+                    string[] equalsDefinitions = File.ReadAllLines(this._EqualsDefinitionsFile);
+                    foreach (string equalsDefinition in equalsDefinitions)
+                    {
+                        if (equalsDefinition.Contains("*") && !equalsDefinition.StartsWith("#"))
+                        {
+                            string[] splitted = equalsDefinition.Split('*');
+                            foreach (string value in splitted.Skip(1))
+                            {
+                                this._Replace.Add(splitted[0], value);
+                            }
+                        }
+                    }
+                }
             }
         }
     }
