@@ -94,6 +94,7 @@ namespace GRYLibrary.Miscellaneous.Playlists.ConcretePlaylistHandler
         private class M3UConfiguration
         {
             private readonly Dictionary<string, string> _Replace = new Dictionary<string, string>();
+            private string _EqualsDefinitionsFile = null;
             private readonly string _ConfigurationFile;
             public M3UConfiguration(string configurationFile)
             {
@@ -116,6 +117,10 @@ namespace GRYLibrary.Miscellaneous.Playlists.ConcretePlaylistHandler
                                 string[] splitted = optionValue.Split(';');
                                 this._Replace.Add(splitted[0], splitted[1]);
                             }
+                            if (optionKey.Equals("equals"))
+                            {
+                                this._EqualsDefinitionsFile = optionValue;
+                            }
                             //add other options if desired
                         }
                     }
@@ -129,17 +134,33 @@ namespace GRYLibrary.Miscellaneous.Playlists.ConcretePlaylistHandler
             internal IEnumerable<string> ApplyTo(IEnumerable<string> input)
             {
                 List<string> result = new List<string>();
+                bool equalsFileExist = !(this._EqualsDefinitionsFile == null) && File.Exists(this._EqualsDefinitionsFile);
+                List<Tuple<string, IEnumerable<string>>> equalsDefinitions = new List<Tuple<string, IEnumerable<string>>>();
+                //todo fill equalsFileExist
                 foreach (string item in input)
                 {
                     string newItem = item;
-                    foreach (KeyValuePair<string, string> replacement in this._Replace)
+                    bool addNewItem = false;
+                    if ((!equalsFileExist) || (equalsFileExist && !this.EqualTrackIsNotAlreadyIncluded(result, newItem, equalsDefinitions)))
                     {
-                        newItem = newItem.Replace(replacement.Key, replacement.Value);
+                        addNewItem = true;
+                    }
+                    if (addNewItem)
+                    {
+                        foreach (KeyValuePair<string, string> replacement in this._Replace)
+                        {
+                            newItem = newItem.Replace(replacement.Key, replacement.Value);
+                        }
+                        result.Add(newItem);
                     }
                     //process other options if available
-                    result.Add(newItem);
                 }
                 return result;
+            }
+
+            private bool EqualTrackIsNotAlreadyIncluded(List<string> playlistResult, string newItem, List<Tuple<string, IEnumerable<string>>> equalsDefinitions)
+            {
+                throw new NotImplementedException();
             }
         }
     }
