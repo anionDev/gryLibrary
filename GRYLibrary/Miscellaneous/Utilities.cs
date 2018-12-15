@@ -463,7 +463,7 @@ namespace GRYLibrary
             if (pathRoot.Length <= 2 && pathRoot != "/")
                 return false;
 
-            return !(pathRoot == path && pathRoot.StartsWith("\\\\") && pathRoot.IndexOf('\\', 2) == -1);
+            return !(pathRoot == path && pathRoot.StartsWith(@"\\") && pathRoot.IndexOf('\\', 2) == -1);
         }
         public static string GetAbsolutePath(string basePath, string relativePath)
         {
