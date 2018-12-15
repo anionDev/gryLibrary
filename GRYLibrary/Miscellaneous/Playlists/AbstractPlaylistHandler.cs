@@ -32,6 +32,7 @@ namespace GRYLibrary.Miscellaneous.Playlists
         protected abstract void DeleteSongsFromPlaylistImplementation(string playlistFile, IEnumerable<string> songsToDelete);
         private IEnumerable<string> GetSongsFromPlaylist(string playlistFileName, bool removeDuplicatedItems, bool loadTransitively, ISet<string> excludedPlaylistFiles, string workingDirectory)
         {
+            //TODO fix handling of paths to not existing files and not existing directories
             playlistFileName = this.NormalizePath(playlistFileName);
             IEnumerable<string> referencedFiles = this.GetSongsFromPlaylistImplementation(Path.Combine(workingDirectory, playlistFileName)).Where(item => IsAllowedAsPlaylistItem(item));
             List<string> newList = new List<string>();

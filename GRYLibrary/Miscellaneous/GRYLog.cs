@@ -62,7 +62,7 @@ namespace GRYLibrary
                     {
                         Directory.CreateDirectory(directoryOfLogFile);
                     }
-                    Utilities.EnsureFileExists(this._LogFile);
+                    Utilities.EnsureFileExists(newValue);
                 }
                 this._LogFile = newValue;
             }
