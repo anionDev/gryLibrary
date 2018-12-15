@@ -73,7 +73,7 @@ namespace GRYLibrary
                 Directory.CreateDirectory(path);
             }
         }
-        
+
         public static void EnsureDirectoryDoesNotExist(string path)
         {
             if (Directory.Exists(path))
@@ -444,6 +444,26 @@ namespace GRYLibrary
         public static bool AppendFileDoesNotNeedNewLineCharacter(string file)
         {
             return FileIsEmpty(file) || FileEndsWithEmptyLine(file);
+        }
+        public static bool IsRelativePath(string path)
+        {
+            if (string.IsNullOrWhiteSpace(path) || path.IndexOfAny(Path.GetInvalidPathChars()) != -1 || path.Length > 255)
+            {
+                return false;
+            }
+            throw new NotImplementedException();
+        }
+        public static bool IsAbsolutePath(string path)
+        {
+            if (string.IsNullOrWhiteSpace(path) || path.IndexOfAny(Path.GetInvalidPathChars()) != -1 || path.Length > 255 || !Path.IsPathRooted(path))
+            {
+                return false;
+            }
+            string pathRoot = Path.GetPathRoot(path).Trim();
+            if (pathRoot.Length <= 2 && pathRoot != "/")
+                return false;
+
+            return !(pathRoot == path && pathRoot.StartsWith("\\\\") && pathRoot.IndexOf('\\', 2) == -1);
         }
     }
 }
