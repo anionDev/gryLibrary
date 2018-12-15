@@ -481,7 +481,7 @@ namespace GRYLibrary
             }
             relativePath = relativePath.Trim();
             basePath = basePath.Trim();
-            string finalPath;
+            string finalPath = null;
             if (!Path.IsPathRooted(relativePath) || @"\".Equals(Path.GetPathRoot(relativePath)))
             {
                 if (relativePath.StartsWith(Path.DirectorySeparatorChar.ToString()))
@@ -509,9 +509,9 @@ namespace GRYLibrary
             {
                 return false;
             }
-            foreach (string dir in Directory.GetDirectories(path))
+            foreach (string subFolder in Directory.GetDirectories(path))
             {
-                if (!DirectoryDoesNotContainFiles(dir))
+                if (!DirectoryDoesNotContainFiles(subFolder))
                 {
                     return false;
                 }
@@ -520,7 +520,7 @@ namespace GRYLibrary
         }
         public static bool DirectoryDoesNotContainFolder(string path)
         {
-            return (Directory.GetFiles(path).Length > 0);
+            return Directory.GetFiles(path).Length > 0;
         }
     }
 }
