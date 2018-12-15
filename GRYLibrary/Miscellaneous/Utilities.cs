@@ -465,5 +465,39 @@ namespace GRYLibrary
 
             return !(pathRoot == path && pathRoot.StartsWith("\\\\") && pathRoot.IndexOf('\\', 2) == -1);
         }
+        public static string GetAbsolutePath(string basePath, string relativePath)
+        {
+            if (basePath == null && relativePath == null)
+            {
+                Path.GetFullPath(".");
+            }
+            if (relativePath == null)
+            {
+                return basePath.Trim();
+            }
+            if (basePath == null)
+            {
+                basePath = Path.GetFullPath(".");
+            }
+            relativePath = relativePath.Trim();
+            basePath = basePath.Trim();
+            string finalPath;
+            if (!Path.IsPathRooted(relativePath) || @"\".Equals(Path.GetPathRoot(relativePath)))
+            {
+                if (relativePath.StartsWith(Path.DirectorySeparatorChar.ToString()))
+                {
+                    finalPath = Path.Combine(Path.GetPathRoot(basePath), relativePath.TrimStart(Path.DirectorySeparatorChar));
+                }
+                else
+                {
+                    finalPath = Path.Combine(basePath, relativePath);
+                }
+            }
+            else
+            {
+                finalPath = relativePath;
+            }
+            return Path.GetFullPath(finalPath);
+        }
     }
 }
