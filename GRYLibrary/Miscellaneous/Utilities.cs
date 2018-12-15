@@ -499,5 +499,28 @@ namespace GRYLibrary
             }
             return Path.GetFullPath(finalPath);
         }
+        public static bool DirectoryIsEmpty(string path)
+        {
+            return (Directory.GetFiles(path).Length > 0) && (Directory.GetDirectories(path).Length > 0);
+        }
+        public static bool DirectoryDoesNotContainFiles(string path)
+        {
+            if (Directory.GetFiles(path).Length > 0)
+            {
+                return false;
+            }
+            foreach (string dir in Directory.GetDirectories(path))
+            {
+                if (!DirectoryDoesNotContainFiles(dir))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+        public static bool DirectoryDoesNotContainFolder(string path)
+        {
+            return (Directory.GetFiles(path).Length > 0);
+        }
     }
 }
