@@ -4,6 +4,7 @@ using GRYLibrary.Miscellaneous.Playlists.ConcretePlaylistHandler;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace GRYLibraryTest
 {
@@ -41,14 +42,14 @@ namespace GRYLibraryTest
             handler.DeleteSongsFromPlaylist(file, currentExpectedContent);
             currentExpectedContent.Clear();
             List<string> items = handler.GetSongsFromPlaylist(file).ToList();
-            Assert.AreEqual(0,items.Count);
+            Assert.AreEqual(0, items.Count);
             Assert.IsTrue(currentExpectedContent.EqualsIgnoringOrder(items));
 
             string[] newTracks = new string[] { @"X:/a/d.Ogg" };
-            handler.AddSongsToPlaylist(file,newTracks );
+            handler.AddSongsToPlaylist(file, newTracks);
 
             byte[] contentBefore = System.IO.File.ReadAllBytes(file);
-            handler.AddSongsToPlaylist(file, newTracks,true);
+            handler.AddSongsToPlaylist(file, newTracks, true);
             byte[] contentAfter = System.IO.File.ReadAllBytes(file);
             CollectionAssert.AreEqual(contentBefore, contentAfter);
             System.IO.File.Delete(file);
@@ -106,7 +107,7 @@ namespace GRYLibraryTest
             Utilities.EnsureFileDoesNotExist(configurationFile);
             Utilities.EnsureDirectoryExists("test");
             Utilities.EnsureFileExists(configurationFile);
-            System.IO.File.WriteAllText(configurationFile, @"replace:{DefaultPath};C:\Data\Music", System.Text.Encoding.UTF8);
+            System.IO.File.WriteAllText(configurationFile, @"replace:{DefaultPath};C:\Data\Music", new UTF8Encoding(false));
             M3UHandler.Instance.CreatePlaylist(m3uFile1);
             M3UHandler.Instance.CreatePlaylist(m3uFile2);
             M3UHandler.Instance.AddSongsToPlaylist(m3uFile1, new string[] { "trackA.mp3", nameOfm3ufile2, "{DefaultPath}\\trackB.mp3" });
@@ -122,7 +123,7 @@ namespace GRYLibraryTest
         [TestMethod]
         public void CommonTestM3UConfigurationWithAbsolutePath()
         {
-            string directoryName =System.IO.Directory.GetCurrentDirectory()+ "\\test";
+            string directoryName = System.IO.Directory.GetCurrentDirectory() + "\\test";
             string configurationFile = ".m3uconfiguration";
             string m3uFile1 = directoryName + "\\" + "test1.m3u";
             string nameOfm3ufile2 = "test2.m3u";
@@ -133,7 +134,7 @@ namespace GRYLibraryTest
             Utilities.EnsureFileDoesNotExist(configurationFile);
             Utilities.EnsureDirectoryExists("test");
             Utilities.EnsureFileExists(configurationFile);
-            System.IO.File.WriteAllText(configurationFile, @"replace:{DefaultPath};C:\Data\Music", System.Text.Encoding.UTF8);
+            System.IO.File.WriteAllText(configurationFile, @"replace:{DefaultPath};C:\Data\Music", new UTF8Encoding(false));
             M3UHandler.Instance.CreatePlaylist(m3uFile1);
             M3UHandler.Instance.CreatePlaylist(m3uFile2);
             M3UHandler.Instance.AddSongsToPlaylist(m3uFile1, new string[] { "trackA.mp3", nameOfm3ufile2, "{DefaultPath}\\trackB.mp3" });

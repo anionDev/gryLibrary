@@ -33,27 +33,46 @@ namespace GRYLibrary.Miscellaneous.Playlists.ConcretePlaylistHandler
 
         protected override IEnumerable<string> GetSongsFromPlaylistImplementation(string playlistFile)
         {
-            List<string> items = File.ReadAllLines(playlistFile, Encoding).Select(line => line.Replace("\"", string.Empty).Trim()).Where(line => !(string.IsNullOrWhiteSpace(line) || line.StartsWith("#"))).ToList();
+            List<string> lines = File.ReadAllLines(playlistFile, Encoding).Select(line => line.Replace("\"", string.Empty).Trim()).Where(line => !(string.IsNullOrWhiteSpace(line) || line.StartsWith("#"))).ToList();
             List<string> result = new List<string>();
-            foreach (string item in items)
+            List<string> excludedItems = new List<string>();
+
+            foreach (string line in lines)
             {
-                if (item.Contains("*"))
+                string payload;
+                if (line.Contains("*"))
                 {
-                    result.Add(item.Split('*')[0]);
+                    payload = line.Split('*')[0];
                 }
                 else
                 {
-                    result.Add(item);
+                    payload = line;
+                }
+                if (payload.StartsWith("-"))
+                {
+                    excludedItems.Add(payload.Substring(1));
+                }
+                else
+                {
+                    result.Add(payload);
                 }
             }
+            this.TryToApplyConfigurationFile(playlistFile, ref result);
+            this.TryToApplyConfigurationFile(playlistFile, ref excludedItems);
+            result = result.Except(excludedItems).ToList();
+            return result;
+        }
+
+        private void TryToApplyConfigurationFile(string playlistFile, ref List<string> result)
+        {
             string m3uConfigurationFile = new FileInfo(playlistFile).Directory.FullName + ConfigurationFileInCurrentFolder;
             if (!this.SetResultAndApplayConfigurationFile(ref result, m3uConfigurationFile))
             {
                 m3uConfigurationFile = new FileInfo(m3uConfigurationFile).Directory.Parent.FullName + ConfigurationFileInCurrentFolder;
                 this.SetResultAndApplayConfigurationFile(ref result, m3uConfigurationFile);
             }
-            return result;
         }
+
         private const string ConfigurationFileName = ".M3UConfiguration";
         public const string ConfigurationFileInCurrentFolder = "\\" + ConfigurationFileName;
         private bool SetResultAndApplayConfigurationFile(ref List<string> result, string m3uConfigurationFile)
@@ -75,6 +94,7 @@ namespace GRYLibrary.Miscellaneous.Playlists.ConcretePlaylistHandler
         private class M3UConfiguration
         {
             private readonly Dictionary<string, string> _Replace = new Dictionary<string, string>();
+            private string _EqualsDefinitionsFile = null;
             private readonly string _ConfigurationFile;
             public M3UConfiguration(string configurationFile)
             {
@@ -97,6 +117,10 @@ namespace GRYLibrary.Miscellaneous.Playlists.ConcretePlaylistHandler
                                 string[] splitted = optionValue.Split(';');
                                 this._Replace.Add(splitted[0], splitted[1]);
                             }
+                            if (optionKey.Equals("equals"))
+                            {
+                                this._EqualsDefinitionsFile = optionValue;
+                            }
                             //add other options if desired
                         }
                     }
@@ -110,6 +134,7 @@ namespace GRYLibrary.Miscellaneous.Playlists.ConcretePlaylistHandler
             internal IEnumerable<string> ApplyTo(IEnumerable<string> input)
             {
                 List<string> result = new List<string>();
+                this.AddEqualsDefinitionsToReplaceDictionary();
                 foreach (string item in input)
                 {
                     string newItem = item;
@@ -121,6 +146,25 @@ namespace GRYLibrary.Miscellaneous.Playlists.ConcretePlaylistHandler
                     result.Add(newItem);
                 }
                 return result;
+            }
+
+            private void AddEqualsDefinitionsToReplaceDictionary()
+            {
+                if (!(this._EqualsDefinitionsFile == null) && File.Exists(this._EqualsDefinitionsFile))
+                {
+                    string[] equalsDefinitions = File.ReadAllLines(this._EqualsDefinitionsFile);
+                    foreach (string equalsDefinition in equalsDefinitions)
+                    {
+                        if (equalsDefinition.Contains("*") && !equalsDefinition.StartsWith("#"))
+                        {
+                            string[] splitted = equalsDefinition.Split('*');
+                            foreach (string value in splitted.Skip(1))
+                            {
+                                this._Replace.Add(splitted[0], value);
+                            }
+                        }
+                    }
+                }
             }
         }
     }

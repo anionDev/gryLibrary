@@ -25,13 +25,14 @@ namespace GRYLibrary.Miscellaneous.Playlists
                 return _ExtensionsOfReadablePlaylists;
             }
         }
-        public static Encoding Encoding { get; set; } = Encoding.UTF8;
+        public static Encoding Encoding { get; set; } = new UTF8Encoding(false);
         public abstract void CreatePlaylist(string file);
         protected abstract IEnumerable<string> GetSongsFromPlaylistImplementation(string playlistFile);
         protected abstract void AddSongsToPlaylistImplementation(string playlistFile, IEnumerable<string> newSongs);
         protected abstract void DeleteSongsFromPlaylistImplementation(string playlistFile, IEnumerable<string> songsToDelete);
         private IEnumerable<string> GetSongsFromPlaylist(string playlistFileName, bool removeDuplicatedItems, bool loadTransitively, ISet<string> excludedPlaylistFiles, string workingDirectory)
         {
+            //TODO fix handling of paths to not existing files and not existing directories
             playlistFileName = this.NormalizePath(playlistFileName);
             IEnumerable<string> referencedFiles = this.GetSongsFromPlaylistImplementation(Path.Combine(workingDirectory, playlistFileName)).Where(item => IsAllowedAsPlaylistItem(item));
             List<string> newList = new List<string>();
