@@ -69,7 +69,11 @@ namespace GRYLibrary.Miscellaneous.Playlists.ConcretePlaylistHandler
             if (!this.SetResultAndApplayConfigurationFile(ref result, m3uConfigurationFile))
             {
                 m3uConfigurationFile = new FileInfo(m3uConfigurationFile).Directory.Parent.FullName + ConfigurationFileInCurrentFolder;
-                this.SetResultAndApplayConfigurationFile(ref result, m3uConfigurationFile);
+                if (!this.SetResultAndApplayConfigurationFile(ref result, m3uConfigurationFile))
+                {
+                    m3uConfigurationFile = new FileInfo(m3uConfigurationFile).Directory.Parent.Parent.FullName + ConfigurationFileInCurrentFolder;
+                    this.SetResultAndApplayConfigurationFile(ref result, m3uConfigurationFile);
+                }
             }
         }
 
