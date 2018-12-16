@@ -33,8 +33,6 @@ namespace GRYLibrary.Miscellaneous.Playlists.ConcretePlaylistHandler
 
         protected override IEnumerable<string> GetSongsFromPlaylistImplementation(string playlistFile)
         {
-            if (File.Exists(playlistFile))
-            {
             List<string> lines = File.ReadAllLines(playlistFile, Encoding).Select(line => line.Replace("\"", string.Empty).Trim()).Where(line => !(string.IsNullOrWhiteSpace(line) || line.StartsWith("#"))).ToList();
             List<string> result = new List<string>();
             List<string> excludedItems = new List<string>();
@@ -63,15 +61,6 @@ namespace GRYLibrary.Miscellaneous.Playlists.ConcretePlaylistHandler
             this.TryToApplyConfigurationFile(playlistFile, ref excludedItems);
             result = result.Except(excludedItems).ToList();
             return result;
-            }
-            else
-            {
-                throw new NotImplementedException();
-                //TODO (draft):
-                //search for config
-                //search for filename in configfolders
-                //restart this method with appropriate file
-            }
         }
 
         private void TryToApplyConfigurationFile(string playlistFile, ref List<string> result)

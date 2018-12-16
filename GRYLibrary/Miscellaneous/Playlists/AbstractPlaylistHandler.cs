@@ -17,10 +17,12 @@ namespace GRYLibrary.Miscellaneous.Playlists
             {
                 if (_ExtensionsOfReadablePlaylists == null)
                 {
-                    _ExtensionsOfReadablePlaylists = new Dictionary<string, AbstractPlaylistHandler>();
-                    _ExtensionsOfReadablePlaylists.Add("m3u", M3UHandler.Instance);
-                    _ExtensionsOfReadablePlaylists.Add("pls", PLSHandler.Instance);
-                    _ExtensionsOfReadablePlaylists.Add("wpl", WPLHandler.Instance);
+                    _ExtensionsOfReadablePlaylists = new Dictionary<string, AbstractPlaylistHandler>
+                    {
+                        { "m3u", M3UHandler.Instance },
+                        { "pls", PLSHandler.Instance },
+                        { "wpl", WPLHandler.Instance }
+                    };
                 }
                 return _ExtensionsOfReadablePlaylists;
             }
@@ -40,18 +42,22 @@ namespace GRYLibrary.Miscellaneous.Playlists
             {
                 try
                 {
-                    string playlistItem;
+                    string playlistItem = null;
                     try
                     {
                         if (new Uri(item).IsFile)
                         {
-                            if (Path.IsPathRooted(item))
+                            if (Utilities.IsAbsolutePath(item))
                             {
                                 playlistItem = item;
                             }
+                            else if (Utilities.IsRelativePath(item))
+                            {
+                                playlistItem = Utilities.GetAbsolutePath(Path.GetDirectoryName(playlistFileName), item);
+                            }
                             else
                             {
-                                playlistItem = Path.GetFullPath(Path.Combine(workingDirectory, item));
+                                throw new NotImplementedException();
                             }
                         }
                         else
@@ -79,7 +85,7 @@ namespace GRYLibrary.Miscellaneous.Playlists
                 }
                 catch
                 {
-                    GRYLibrary.Utilities.NoOperation();
+                    Utilities.NoOperation();
                 }
                 referencedFiles = newList;
             }
@@ -102,9 +108,8 @@ namespace GRYLibrary.Miscellaneous.Playlists
         }
         public IEnumerable<string> GetSongsFromPlaylist(string playlistFile, bool removeDuplicatedItems = true, bool loadTransitively = true)
         {
-            Uri uri;
             string workingDirectory;
-            if (Uri.TryCreate(playlistFile, UriKind.Absolute, out uri))
+            if (Uri.TryCreate(playlistFile, UriKind.Absolute, out Uri uri))
             {
                 //absolute uri
                 workingDirectory = new FileInfo(uri.AbsolutePath).Directory.FullName;
