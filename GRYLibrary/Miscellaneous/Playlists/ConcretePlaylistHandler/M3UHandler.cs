@@ -63,18 +63,35 @@ namespace GRYLibrary.Miscellaneous.Playlists.ConcretePlaylistHandler
             return result;
         }
 
-        private void TryToApplyConfigurationFile(string playlistFile, ref List<string> result)
+        private bool TryToApplyConfigurationFile(string playlistFile, ref List<string> result)
         {
             //TODO refactor this
-            string m3uConfigurationFile = new FileInfo(playlistFile).Directory.FullName + ConfigurationFileInCurrentFolder;
-            if (!this.SetResultAndApplayConfigurationFile(ref result, m3uConfigurationFile))
+            try
             {
-                m3uConfigurationFile = new FileInfo(m3uConfigurationFile).Directory.Parent.FullName + ConfigurationFileInCurrentFolder;
-                if (!this.SetResultAndApplayConfigurationFile(ref result, m3uConfigurationFile))
+                string m3uConfigurationFile = new FileInfo(playlistFile).Directory.FullName + ConfigurationFileInCurrentFolder;
+                bool configurationAppliedFound = this.SetResultAndApplayConfigurationFile(ref result, m3uConfigurationFile);
+                if (configurationAppliedFound)
                 {
-                    m3uConfigurationFile = new FileInfo(m3uConfigurationFile).Directory.Parent.Parent.FullName + ConfigurationFileInCurrentFolder;
-                    this.SetResultAndApplayConfigurationFile(ref result, m3uConfigurationFile);
+                    return configurationAppliedFound;
                 }
+                else
+                {
+                    m3uConfigurationFile = new FileInfo(m3uConfigurationFile).Directory.Parent.FullName + ConfigurationFileInCurrentFolder;
+                    configurationAppliedFound = this.SetResultAndApplayConfigurationFile(ref result, m3uConfigurationFile);
+                    if (configurationAppliedFound)
+                    {
+                        return configurationAppliedFound;
+                    }
+                    else
+                    {
+                        m3uConfigurationFile = new FileInfo(m3uConfigurationFile).Directory.Parent.Parent.FullName + ConfigurationFileInCurrentFolder;
+                        return this.SetResultAndApplayConfigurationFile(ref result, m3uConfigurationFile);
+                    }
+                }
+            }
+            catch
+            {
+                return false;
             }
         }
 
