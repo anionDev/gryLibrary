@@ -2,6 +2,7 @@
 using GRYLibrary.Miscellaneous.Playlists;
 using GRYLibrary.Miscellaneous.Playlists.ConcretePlaylistHandler;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -13,47 +14,55 @@ namespace GRYLibraryTest
     {
         private void CommonTest(string file, AbstractPlaylistHandler handler)
         {
-            if (System.IO.File.Exists(file))
+            this.Clean(file);
+            try
             {
-                System.IO.File.Delete(file);
+                Assert.AreEqual(handler, AbstractPlaylistHandler.GetConcretePlaylistHandler(file));
+                handler.CreatePlaylist(file);
+                Assert.IsTrue(System.IO.File.Exists(file));
+                List<string> currentExpectedContent = new List<string>();
+                Assert.IsTrue(currentExpectedContent.EqualsIgnoringOrder(handler.GetSongsFromPlaylist(file).ToList()));
+                currentExpectedContent.Add(@"C:\a\b.mp3");
+                currentExpectedContent.Add(@"C:\A\c.unknownextension");
+                handler.AddSongsToPlaylist(file, currentExpectedContent);
+                Assert.IsTrue(currentExpectedContent.EqualsIgnoringOrder(handler.GetSongsFromPlaylist(file).ToList()));
+
+                currentExpectedContent.Add(@"\\ComputerName\SharedFolder\Resource");
+                currentExpectedContent.Add(@"X:/a/d.Ogg");
+                currentExpectedContent.Add(@"http://player.example.com/stream.mp3");
+                handler.AddSongsToPlaylist(file, currentExpectedContent);
+                Assert.IsTrue(currentExpectedContent.EqualsIgnoringOrder(handler.GetSongsFromPlaylist(file).ToList()));
+
+                currentExpectedContent.Remove(@"X:/a/d.Ogg");
+                handler.DeleteSongsFromPlaylist(file, new string[] { @"X:/a/d.Ogg" });
+                Assert.IsTrue(currentExpectedContent.EqualsIgnoringOrder(handler.GetSongsFromPlaylist(file).ToList()));
+
+                handler.DeleteSongsFromPlaylist(file, currentExpectedContent);
+                currentExpectedContent.Clear();
+                List<string> items = handler.GetSongsFromPlaylist(file).ToList();
+                Assert.AreEqual(0, items.Count);
+                Assert.IsTrue(currentExpectedContent.EqualsIgnoringOrder(items));
+
+                string[] newTracks = new string[] { @"X:/a/d.Ogg" };
+                handler.AddSongsToPlaylist(file, newTracks);
+
+                byte[] contentBefore = System.IO.File.ReadAllBytes(file);
+                handler.AddSongsToPlaylist(file, newTracks, true);
+                byte[] contentAfter = System.IO.File.ReadAllBytes(file);
+                CollectionAssert.AreEqual(contentBefore, contentAfter);
             }
-            Assert.AreEqual(handler, AbstractPlaylistHandler.GetConcretePlaylistHandler(file));
-            handler.CreatePlaylist(file);
-            Assert.IsTrue(System.IO.File.Exists(file));
-            List<string> currentExpectedContent = new List<string>();
-            Assert.IsTrue(currentExpectedContent.EqualsIgnoringOrder(handler.GetSongsFromPlaylist(file).ToList()));
-            currentExpectedContent.Add(@"C:\a\b.mp3");
-            currentExpectedContent.Add(@"C:\A\c.unknownextension");
-            handler.AddSongsToPlaylist(file, currentExpectedContent);
-            Assert.IsTrue(currentExpectedContent.EqualsIgnoringOrder(handler.GetSongsFromPlaylist(file).ToList()));
+            finally
+            {
 
-            currentExpectedContent.Add(@"\\ComputerName\SharedFolder\Resource");
-            currentExpectedContent.Add(@"X:/a/d.Ogg");
-            currentExpectedContent.Add(@"http://player.example.com/stream.mp3");
-            handler.AddSongsToPlaylist(file, currentExpectedContent);
-            Assert.IsTrue(currentExpectedContent.EqualsIgnoringOrder(handler.GetSongsFromPlaylist(file).ToList()));
-
-            currentExpectedContent.Remove(@"X:/a/d.Ogg");
-            handler.DeleteSongsFromPlaylist(file, new string[] { @"X:/a/d.Ogg" });
-            Assert.IsTrue(currentExpectedContent.EqualsIgnoringOrder(handler.GetSongsFromPlaylist(file).ToList()));
-
-
-
-            handler.DeleteSongsFromPlaylist(file, currentExpectedContent);
-            currentExpectedContent.Clear();
-            List<string> items = handler.GetSongsFromPlaylist(file).ToList();
-            Assert.AreEqual(0, items.Count);
-            Assert.IsTrue(currentExpectedContent.EqualsIgnoringOrder(items));
-
-            string[] newTracks = new string[] { @"X:/a/d.Ogg" };
-            handler.AddSongsToPlaylist(file, newTracks);
-
-            byte[] contentBefore = System.IO.File.ReadAllBytes(file);
-            handler.AddSongsToPlaylist(file, newTracks, true);
-            byte[] contentAfter = System.IO.File.ReadAllBytes(file);
-            CollectionAssert.AreEqual(contentBefore, contentAfter);
-            System.IO.File.Delete(file);
+                this.Clean(file);
+            }
         }
+
+        private void Clean(string file)
+        {
+            Utilities.EnsureFileDoesNotExist(file);
+        }
+
         [TestMethod]
         public void CommonTestM3U()
         {
