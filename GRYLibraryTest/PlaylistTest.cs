@@ -103,7 +103,7 @@ namespace GRYLibraryTest
             Utilities.EnsureDirectoryDoesNotExist(directoryName);
         }
         [TestMethod]
-        public void CommonTestM3UConfigurationWithRelativePath()
+        public void CommonTestM3UConfigurationWithRelativePath1()
         {
             string directoryName = "test";
             string configurationFile = ".m3uconfiguration";
@@ -129,6 +129,44 @@ namespace GRYLibraryTest
             Utilities.EnsureDirectoryDoesNotExist(directoryName);
             Utilities.EnsureFileDoesNotExist(configurationFile);
         }
+
+        [TestMethod]
+        public void CommonTestM3UConfigurationWithRelativePath2()
+        {
+            Encoding encoding = new UTF8Encoding(false);
+            Dictionary<string, string[]> filesWithTheirContent = new Dictionary<string, string[]>();
+            string defaultMusicFolder = @"C:\Data\MyMusicFolder";
+            filesWithTheirContent.Add("m3utest/.m3uconfiguration", new string[] { @"replace:{DefaultPath};" + defaultMusicFolder });
+            filesWithTheirContent.Add("m3utest/dir1/t1.m3u", new string[] { @"myTrack1.mp3", @"{DefaultPath}\myTrack2.mp3", @"notWanted1.mp3", @"t2.m3u", });
+            filesWithTheirContent.Add("m3utest/dir1/t2.m3u", new string[] { @"myTrack3.mp3", @"{DefaultPath}\myTrack4.mp3", @"../dir2/t3.m3u" });
+            filesWithTheirContent.Add("m3utest/dir2/t3.m3u", new string[] { @"myTrack5.mp3", @"{DefaultPath}\myTrack6.mp3", @"../dir3/t4.m3u", @"-../dir1/t5.m3u" });
+            filesWithTheirContent.Add("m3utest/dir3/t4.m3u", new string[] { @"myTrack7.mp3", @"{DefaultPath}\myTrack8.mp3", @"-notWanted2.mp3" });
+            filesWithTheirContent.Add("m3utest/dir1/t5.m3u", new string[] { @"notWanted1.mp3", @"notWanted2.mp3" });
+
+            this.EnsureFilesAreDeleted(filesWithTheirContent.Keys);
+            try
+            {
+                foreach (KeyValuePair<string, string[]> file in filesWithTheirContent)
+                {
+                    Utilities.EnsureFileExists(file.Key, true);
+                    System.IO.File.WriteAllLines(file.Key, file.Value, encoding);
+                }
+                throw new NotImplementedException();
+            }
+            finally
+            {
+                this.EnsureFilesAreDeleted(filesWithTheirContent.Keys);
+            }
+        }
+
+        private void EnsureFilesAreDeleted(IEnumerable<string> files)
+        {
+            foreach (string file in files)
+            {
+                Utilities.EnsureFileDoesNotExist(file);
+            }
+        }
+
         [TestMethod]
         public void CommonTestM3UConfigurationWithAbsolutePath()
         {

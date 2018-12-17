@@ -59,8 +59,12 @@ namespace GRYLibrary
             IntPtr intPtr = bitmap.GetHicon();
             return Icon.FromHandle(intPtr);
         }
-        public static void EnsureFileExists(string path)
+        public static void EnsureFileExists(string path, bool createDirectoryIfRequired=false)
         {
+            if (createDirectoryIfRequired)
+            {
+                EnsureDirectoryExists(Path.GetDirectoryName(path));
+            }
             if (!File.Exists(path))
             {
                 File.Create(path).Close();
