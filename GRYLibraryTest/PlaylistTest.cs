@@ -154,7 +154,7 @@ namespace GRYLibraryTest
                     Utilities.EnsureFileExists(file.Key, true);
                     System.IO.File.WriteAllLines(file.Key, file.Value, encoding);
                 }
-                IEnumerable<string> playlistItems = M3UHandler.Instance.GetSongsFromPlaylist(mainPlaylistFile, true, true);
+                IEnumerable<string> playlistItems = M3UHandler.Instance.GetSongsFromPlaylist(mainPlaylistFile);
                 throw new NotImplementedException();
             }
             finally

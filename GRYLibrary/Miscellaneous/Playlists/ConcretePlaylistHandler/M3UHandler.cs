@@ -30,12 +30,8 @@ namespace GRYLibrary.Miscellaneous.Playlists.ConcretePlaylistHandler
             }
             File.WriteAllLines(playlistFile, files, Encoding);
         }
-
-        protected override IEnumerable<string> GetSongsFromPlaylist(string playlistFile)
-        {
-            return GetSongsFromPlaylist(playlistFile, false);
-        }
-        public IEnumerable<string> GetSongsFromPlaylist(string playlistFile, bool resolveTransitivePathsDirect)
+        
+        protected override Tuple<IEnumerable<string>, IEnumerable<string>> GetSongsFromPlaylist(string playlistFile)
         {
             List<string> lines = File.ReadAllLines(playlistFile, Encoding).Select(line => line.Replace("\"", string.Empty).Trim()).Where(line => !(string.IsNullOrWhiteSpace(line) || line.StartsWith("#"))).ToList();
             List<string> result = new List<string>();
@@ -61,32 +57,9 @@ namespace GRYLibrary.Miscellaneous.Playlists.ConcretePlaylistHandler
                     result.Add(payload);
                 }
             }
-            if (resolveTransitivePathsDirect)
-            {
-                result = LoadTransitively(result);
-                excludedItems = LoadTransitively(excludedItems);
-            }
             this.TryToApplyConfigurationFile(playlistFile, ref result);
             this.TryToApplyConfigurationFile(playlistFile, ref excludedItems);
-            result = result.Except(excludedItems).ToList();
-            return result;
-        }
-
-        private List<string> LoadTransitively(List<string> items)
-        {
-            var result = new List<string>();
-            foreach (string item in items)
-            {
-                if (item.ToLower().Trim().EndsWith(".m3u"))
-                {
-                    result.AddRange(GetSongsFromPlaylist(item, true));
-                }
-                else
-                {
-                    result.Add(item);
-                }
-            }
-            return result;
+            return new Tuple<IEnumerable<string>, IEnumerable<string>>(result, excludedItems);
         }
 
         private bool TryToApplyConfigurationFile(string playlistFile, ref List<string> result)

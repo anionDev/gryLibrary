@@ -34,7 +34,7 @@ namespace GRYLibrary.Miscellaneous.Playlists.ConcretePlaylistHandler
                     return int.Parse(line.Split('=')[1].Trim());
                 }
             }
-            return this.GetSongsFromPlaylist(playlistFile).Count();
+            return this.GetSongsFromPlaylist(playlistFile, true, true).Count();
         }
         private void SetAmountOfItems(string playlistFile, int amount)
         {
@@ -76,7 +76,7 @@ namespace GRYLibrary.Miscellaneous.Playlists.ConcretePlaylistHandler
             this.AddSongsToPlaylistImplementation(playlistFile, result);
         }
 
-        protected override IEnumerable<string> GetSongsFromPlaylist(string playlistFile)
+        protected override Tuple<IEnumerable<string>, IEnumerable<string>> GetSongsFromPlaylist(string playlistFile)
         {
             List<string> result = new List<string>();
             foreach (string line in File.ReadLines(playlistFile, Encoding))
@@ -93,7 +93,7 @@ namespace GRYLibrary.Miscellaneous.Playlists.ConcretePlaylistHandler
                     Utilities.NoOperation();
                 }
             }
-            return result;
+            return new Tuple<IEnumerable<string>, IEnumerable<string>>(result, Enumerable.Empty<string>());
         }
 
         public override void CreatePlaylist(string file)

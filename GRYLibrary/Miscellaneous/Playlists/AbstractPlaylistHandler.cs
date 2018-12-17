@@ -29,14 +29,24 @@ namespace GRYLibrary.Miscellaneous.Playlists
         }
         public static Encoding Encoding { get; set; } = new UTF8Encoding(false);
         public abstract void CreatePlaylist(string file);
-        protected abstract IEnumerable<string> GetSongsFromPlaylist(string playlistFile);
+        protected abstract Tuple<IEnumerable<string>, IEnumerable<string>> GetSongsFromPlaylist(string playlistFile);
         protected abstract void AddSongsToPlaylistImplementation(string playlistFile, IEnumerable<string> newSongs);
         protected abstract void DeleteSongsFromPlaylistImplementation(string playlistFile, IEnumerable<string> songsToDelete);
         private IEnumerable<string> GetSongsFromPlaylist(string playlistFileName, bool removeDuplicatedItems, bool loadTransitively, ISet<string> excludedPlaylistFiles, string workingDirectory)
         {
             //TODO fix handling of paths to not existing files and not existing directories
             playlistFileName = this.NormalizePath(playlistFileName);
-            IEnumerable<string> referencedFiles = this.GetSongsFromPlaylist(Path.Combine(workingDirectory, playlistFileName)).Where(item => IsAllowedAsPlaylistItem(item));
+            Tuple<IEnumerable<string>, IEnumerable<string>> songsAndExcludedSongs = this.GetSongsFromPlaylist(Path.Combine(workingDirectory, playlistFileName));
+            IEnumerable<string> referencedFiles = songsAndExcludedSongs.Item1.Where(item => IsAllowedAsPlaylistItem(item));
+            IEnumerable<string> referencedExcludedFiles = songsAndExcludedSongs.Item2.Where(item => IsAllowedAsPlaylistItem(item));
+            referencedFiles = ProcessList(referencedFiles, removeDuplicatedItems, loadTransitively, excludedPlaylistFiles, workingDirectory, playlistFileName);
+            referencedExcludedFiles = ProcessList(referencedExcludedFiles, removeDuplicatedItems, loadTransitively, excludedPlaylistFiles, workingDirectory, playlistFileName);
+          return referencedFiles.Except(referencedExcludedFiles).ToList();
+
+        }
+
+        private IEnumerable<string> ProcessList(IEnumerable<string> referencedFiles, bool removeDuplicatedItems, bool loadTransitively, ISet<string> alreadyProcessedPlaylistFiles, string workingDirectory, string playlistFileName)
+        {
             List<string> newList = new List<string>();
             foreach (string item in referencedFiles)
             {
@@ -72,10 +82,10 @@ namespace GRYLibrary.Miscellaneous.Playlists
                     string playlistItemToLower = playlistItem.ToLower();
                     if (IsReadablePlaylist(playlistItemToLower))
                     {
-                        if (loadTransitively && (!excludedPlaylistFiles.Contains(playlistItemToLower)))
+                        if (loadTransitively && (!alreadyProcessedPlaylistFiles.Contains(playlistItemToLower)))
                         {
-                            excludedPlaylistFiles.Add(playlistItemToLower);
-                            newList.AddRange(ExtensionsOfReadablePlaylists[Path.GetExtension(playlistItemToLower).Substring(1)].GetSongsFromPlaylist(playlistItem, removeDuplicatedItems, loadTransitively, excludedPlaylistFiles, workingDirectory));
+                            alreadyProcessedPlaylistFiles.Add(playlistItemToLower);
+                            newList.AddRange(ExtensionsOfReadablePlaylists[Path.GetExtension(playlistItemToLower).Substring(1)].GetSongsFromPlaylist(playlistItem, removeDuplicatedItems, loadTransitively, alreadyProcessedPlaylistFiles, workingDirectory));
                         }
                     }
                     else
@@ -94,7 +104,6 @@ namespace GRYLibrary.Miscellaneous.Playlists
                 referencedFiles = new HashSet<string>(referencedFiles);
             }
             return referencedFiles;
-
         }
 
         private string NormalizePath(string path)
