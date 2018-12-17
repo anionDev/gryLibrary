@@ -8,6 +8,7 @@ namespace GRYLibrary
 {
     public class GRYLog
     {
+        public bool Enabled { get; set; }
         public Encoding Encoding { get; set; }
         public event NewLogItemEventHandler NewLogItem;
         public delegate void NewLogItemEventHandler(string message, string fullMessage, LogLevel level);
@@ -29,7 +30,7 @@ namespace GRYLibrary
         public bool WriteExceptionMessageOfExceptionInLogEntry { get; set; }
         public bool WriteExceptionStackTraceOfExceptionInLogEntry { get; set; }
         public bool AddIdToEveryLogEntry { get; set; }
-        public bool WriteLogEntryWhenGLogWIllBeEnabledOrDisabled { get; set; }
+        public bool WriteLogEntryWhenGRYLogWriteToLogFileWIllBeEnabledOrDisabled { get; set; }
         public string DateFormat { get; set; }
         public IList<LogLevel> LoggedMessageTypesInConsole { get; set; }
         public IList<LogLevel> LoggedMessageTypesInLogFile { get; set; }
@@ -77,15 +78,15 @@ namespace GRYLibrary
                 if (value != this.WriteToLogFile)
                 {
                     this._WriteToLogFile = value;
-                    if (this.WriteLogEntryWhenGLogWIllBeEnabledOrDisabled)
+                    if (this.WriteLogEntryWhenGRYLogWriteToLogFileWIllBeEnabledOrDisabled)
                     {
                         if (value)
                         {
-                            this.LogInformation("GLog.WriteToLogFile is now enabled.");
+                            this.LogInformation($"{nameof(GRYLog)}.{nameof(this.WriteToLogFile)} is now enabled.");
                         }
                         else
                         {
-                            this.LogInformation("GLog.WriteToLogFile is now disabled.");
+                            this.LogInformation($"{nameof(GRYLog)}.{nameof(this.WriteToLogFile)} is now disabled.");
                         }
                     }
                 }
@@ -106,6 +107,7 @@ namespace GRYLibrary
         }
         public GRYLog(string logFile)
         {
+            this.Enabled = true;
             this.DebugBreakMode = false;
             this.ConvertTimeToUTCFormat = false;
             this.Encoding = new UTF8Encoding(false);
@@ -114,7 +116,7 @@ namespace GRYLibrary
             this.DateFormat = "yyyy/MM/dd HH:mm:ss";
             this.LoggedMessageTypesInConsole = new List<LogLevel>();
             this.LoggedMessageTypesInLogFile = new List<LogLevel>();
-            this.WriteLogEntryWhenGLogWIllBeEnabledOrDisabled = false;
+            this.WriteLogEntryWhenGRYLogWriteToLogFileWIllBeEnabledOrDisabled = false;
             this.InformationPrefix = "Info";
             this.ErrorPrefix = "Error";
             this.DebugPrefix = "Debug";
@@ -158,6 +160,11 @@ namespace GRYLibrary
         }
         public void LogInformation(string message, string logLineId = "")
         {
+            if (!this.CheckEnabled())
+            {
+                return;
+            }
+
             if (this.LineShouldBePrinted(message))
             {
                 this.LogIt(message, LogLevel.Information, logLineId);
@@ -182,6 +189,11 @@ namespace GRYLibrary
         }
         public void LogDebugInformation(string message, string logLineId = "")
         {
+            if (!this.CheckEnabled())
+            {
+                return;
+            }
+
             if (!this.LineShouldBePrinted(message))
             {
                 return;
@@ -192,6 +204,11 @@ namespace GRYLibrary
 
         public void LogWarning(string message, string logLineId = "")
         {
+            if (!this.CheckEnabled())
+            {
+                return;
+            }
+
             if (!this.LineShouldBePrinted(message))
             {
                 return;
@@ -202,6 +219,11 @@ namespace GRYLibrary
         }
         public void LogVerboseMessage(string message, string logLineId = "")
         {
+            if (!this.CheckEnabled())
+            {
+                return;
+            }
+
             if (!this.LineShouldBePrinted(message))
             {
                 return;
@@ -224,6 +246,11 @@ namespace GRYLibrary
         private readonly Queue<Tuple<string, string>> _StoredErrors = new Queue<Tuple<string, string>>();
         public void PrintErrorQueue()
         {
+            if (!this.CheckEnabled())
+            {
+                return;
+            }
+
             while (this._StoredErrors.Count != 0)
             {
                 Tuple<string, string> dequeuedError = this._StoredErrors.Dequeue();
@@ -232,6 +259,11 @@ namespace GRYLibrary
         }
         public void LogError(string message, string logLineId = "")
         {
+            if (!this.CheckEnabled())
+            {
+                return;
+            }
+
             if (!this.LineShouldBePrinted(message))
             {
                 return;
@@ -419,5 +451,10 @@ namespace GRYLibrary
             }
             throw new Exception("Invalid LogLevel");
         }
+        private bool CheckEnabled()
+        {
+            return this.Enabled;
+        }
+
     }
 }

@@ -31,8 +31,9 @@ namespace GRYLibrary.Miscellaneous.Playlists.ConcretePlaylistHandler
             File.WriteAllLines(playlistFile, files, Encoding);
         }
 
-        protected override IEnumerable<string> GetSongsFromPlaylistImplementation(string playlistFile)
+        protected override Tuple<IEnumerable<string>, IEnumerable<string>> GetSongsFromPlaylist(string playlistFile)
         {
+            string directory = Path.GetDirectoryName(playlistFile);
             List<string> lines = File.ReadAllLines(playlistFile, Encoding).Select(line => line.Replace("\"", string.Empty).Trim()).Where(line => !(string.IsNullOrWhiteSpace(line) || line.StartsWith("#"))).ToList();
             List<string> result = new List<string>();
             List<string> excludedItems = new List<string>();
@@ -50,26 +51,59 @@ namespace GRYLibrary.Miscellaneous.Playlists.ConcretePlaylistHandler
                 }
                 if (payload.StartsWith("-"))
                 {
-                    excludedItems.Add(payload.Substring(1));
+                    excludedItems.Add(ConvertToAbsolutePathIfPossible(directory, payload.Substring(1)));
                 }
                 else
                 {
-                    result.Add(payload);
+                    result.Add(ConvertToAbsolutePathIfPossible(directory, payload));
                 }
             }
             this.TryToApplyConfigurationFile(playlistFile, ref result);
             this.TryToApplyConfigurationFile(playlistFile, ref excludedItems);
-            result = result.Except(excludedItems).ToList();
-            return result;
+            return new Tuple<IEnumerable<string>, IEnumerable<string>>(result, excludedItems);
         }
 
-        private void TryToApplyConfigurationFile(string playlistFile, ref List<string> result)
+        private string ConvertToAbsolutePathIfPossible(string pathBase, string path)
         {
-            string m3uConfigurationFile = new FileInfo(playlistFile).Directory.FullName + ConfigurationFileInCurrentFolder;
-            if (!this.SetResultAndApplayConfigurationFile(ref result, m3uConfigurationFile))
+            if (Utilities.IsRelativePath(path))
             {
-                m3uConfigurationFile = new FileInfo(m3uConfigurationFile).Directory.Parent.FullName + ConfigurationFileInCurrentFolder;
-                this.SetResultAndApplayConfigurationFile(ref result, m3uConfigurationFile);
+                return Utilities.GetAbsolutePath(pathBase, path);
+            }
+            else
+            {
+                return path;
+            }
+        }
+
+        private bool TryToApplyConfigurationFile(string playlistFile, ref List<string> result)
+        {
+            //TODO refactor this
+            try
+            {
+                string m3uConfigurationFile = new FileInfo(playlistFile).Directory.FullName + ConfigurationFileInCurrentFolder;
+                bool configurationAppliedFound = this.SetResultAndApplayConfigurationFile(ref result, m3uConfigurationFile);
+                if (configurationAppliedFound)
+                {
+                    return configurationAppliedFound;
+                }
+                else
+                {
+                    m3uConfigurationFile = new FileInfo(m3uConfigurationFile).Directory.Parent.FullName + ConfigurationFileInCurrentFolder;
+                    configurationAppliedFound = this.SetResultAndApplayConfigurationFile(ref result, m3uConfigurationFile);
+                    if (configurationAppliedFound)
+                    {
+                        return configurationAppliedFound;
+                    }
+                    else
+                    {
+                        m3uConfigurationFile = new FileInfo(m3uConfigurationFile).Directory.Parent.Parent.FullName + ConfigurationFileInCurrentFolder;
+                        return this.SetResultAndApplayConfigurationFile(ref result, m3uConfigurationFile);
+                    }
+                }
+            }
+            catch
+            {
+                return false;
             }
         }
 

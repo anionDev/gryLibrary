@@ -25,7 +25,7 @@ namespace GRYLibrary.Miscellaneous.Playlists.ConcretePlaylistHandler
         /// <summary>
         /// Warning: This function is not implemented yet.
         /// </summary>
-        protected override IEnumerable<string> GetSongsFromPlaylistImplementation(string playlistFile)
+        protected override Tuple<IEnumerable<string>, IEnumerable<string>> GetSongsFromPlaylist(string playlistFile)
         {
             throw new NotImplementedException();
         }

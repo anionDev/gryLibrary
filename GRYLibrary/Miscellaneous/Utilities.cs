@@ -59,8 +59,12 @@ namespace GRYLibrary
             IntPtr intPtr = bitmap.GetHicon();
             return Icon.FromHandle(intPtr);
         }
-        public static void EnsureFileExists(string path)
+        public static void EnsureFileExists(string path, bool createDirectoryIfRequired=false)
         {
+            if (createDirectoryIfRequired)
+            {
+                EnsureDirectoryExists(Path.GetDirectoryName(path));
+            }
             if (!File.Exists(path))
             {
                 File.Create(path).Close();
@@ -73,7 +77,7 @@ namespace GRYLibrary
                 Directory.CreateDirectory(path);
             }
         }
-        
+
         public static void EnsureDirectoryDoesNotExist(string path)
         {
             if (Directory.Exists(path))
@@ -444,6 +448,82 @@ namespace GRYLibrary
         public static bool AppendFileDoesNotNeedNewLineCharacter(string file)
         {
             return FileIsEmpty(file) || FileEndsWithEmptyLine(file);
+        }
+        public static bool IsRelativePath(string path)
+        {
+            if (string.IsNullOrWhiteSpace(path) || path.IndexOfAny(Path.GetInvalidPathChars()) != -1 || path.Length > 255)
+            {
+                return false;
+            }
+            throw new NotImplementedException();
+        }
+        public static bool IsAbsolutePath(string path)
+        {
+            if (string.IsNullOrWhiteSpace(path) || path.IndexOfAny(Path.GetInvalidPathChars()) != -1 || path.Length > 255 || !Path.IsPathRooted(path))
+            {
+                return false;
+            }
+            string pathRoot = Path.GetPathRoot(path).Trim();
+            return pathRoot.Length <= 2 && pathRoot != "/"
+                ? false
+                : !(pathRoot == path && pathRoot.StartsWith(@"\\") && pathRoot.IndexOf('\\', 2) == -1);
+        }
+        public static string GetAbsolutePath(string basePath, string relativePath)
+        {
+            if (basePath == null && relativePath == null)
+            {
+                Path.GetFullPath(".");
+            }
+            if (relativePath == null)
+            {
+                return basePath.Trim();
+            }
+            if (basePath == null)
+            {
+                basePath = Path.GetFullPath(".");
+            }
+            relativePath = relativePath.Trim();
+            basePath = basePath.Trim();
+            string finalPath = null;
+            if (!Path.IsPathRooted(relativePath) || @"\".Equals(Path.GetPathRoot(relativePath)))
+            {
+                if (relativePath.StartsWith(Path.DirectorySeparatorChar.ToString()))
+                {
+                    finalPath = Path.Combine(Path.GetPathRoot(basePath), relativePath.TrimStart(Path.DirectorySeparatorChar));
+                }
+                else
+                {
+                    finalPath = Path.Combine(basePath, relativePath);
+                }
+            }
+            else
+            {
+                finalPath = relativePath;
+            }
+            return Path.GetFullPath(finalPath);
+        }
+        public static bool DirectoryIsEmpty(string path)
+        {
+            return (Directory.GetFiles(path).Length > 0) && (Directory.GetDirectories(path).Length > 0);
+        }
+        public static bool DirectoryDoesNotContainFiles(string path)
+        {
+            if (Directory.GetFiles(path).Length > 0)
+            {
+                return false;
+            }
+            foreach (string subFolder in Directory.GetDirectories(path))
+            {
+                if (!DirectoryDoesNotContainFiles(subFolder))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+        public static bool DirectoryDoesNotContainFolder(string path)
+        {
+            return Directory.GetFiles(path).Length > 0;
         }
     }
 }
