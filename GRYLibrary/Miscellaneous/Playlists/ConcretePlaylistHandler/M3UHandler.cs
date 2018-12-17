@@ -31,7 +31,11 @@ namespace GRYLibrary.Miscellaneous.Playlists.ConcretePlaylistHandler
             File.WriteAllLines(playlistFile, files, Encoding);
         }
 
-        protected override IEnumerable<string> GetSongsFromPlaylistImplementation(string playlistFile)
+        protected override IEnumerable<string> GetSongsFromPlaylist(string playlistFile)
+        {
+            return GetSongsFromPlaylist(playlistFile, false);
+        }
+        public IEnumerable<string> GetSongsFromPlaylist(string playlistFile, bool resolveTransitivePathsDirect)
         {
             List<string> lines = File.ReadAllLines(playlistFile, Encoding).Select(line => line.Replace("\"", string.Empty).Trim()).Where(line => !(string.IsNullOrWhiteSpace(line) || line.StartsWith("#"))).ToList();
             List<string> result = new List<string>();
@@ -57,9 +61,31 @@ namespace GRYLibrary.Miscellaneous.Playlists.ConcretePlaylistHandler
                     result.Add(payload);
                 }
             }
+            if (resolveTransitivePathsDirect)
+            {
+                result = foo(result);
+                excludedItems = foo(excludedItems);
+            }
             this.TryToApplyConfigurationFile(playlistFile, ref result);
             this.TryToApplyConfigurationFile(playlistFile, ref excludedItems);
             result = result.Except(excludedItems).ToList();
+            return result;
+        }
+
+        private List<string> foo(List<string> items)
+        {
+            var result = new List<string>();
+            foreach (var item in items)
+            {
+                //if(item is musicfile)
+                //{
+                //    result.Add(item);
+                //}
+                //else if (item is m3uplaylist)
+                //{
+                //    result.AddRange(GetSongsFromPlaylist(item, true));
+                //}
+            }
             return result;
         }
 
