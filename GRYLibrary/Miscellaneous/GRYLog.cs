@@ -82,11 +82,11 @@ namespace GRYLibrary
                     {
                         if (value)
                         {
-                            this.LogInformation($"{nameof(GRYLog)}.{nameof(WriteToLogFile)} is now enabled.");
+                            this.LogInformation($"{nameof(GRYLog)}.{nameof(this.WriteToLogFile)} is now enabled.");
                         }
                         else
                         {
-                            this.LogInformation($"{nameof(GRYLog)}.{nameof(WriteToLogFile)} is now disabled.");
+                            this.LogInformation($"{nameof(GRYLog)}.{nameof(this.WriteToLogFile)} is now disabled.");
                         }
                     }
                 }
@@ -160,7 +160,11 @@ namespace GRYLibrary
         }
         public void LogInformation(string message, string logLineId = "")
         {
-            if (!CheckEnabled()) return;
+            if (!this.CheckEnabled())
+            {
+                return;
+            }
+
             if (this.LineShouldBePrinted(message))
             {
                 this.LogIt(message, LogLevel.Information, logLineId);
@@ -185,7 +189,11 @@ namespace GRYLibrary
         }
         public void LogDebugInformation(string message, string logLineId = "")
         {
-            if (!CheckEnabled()) return;
+            if (!this.CheckEnabled())
+            {
+                return;
+            }
+
             if (!this.LineShouldBePrinted(message))
             {
                 return;
@@ -196,7 +204,11 @@ namespace GRYLibrary
 
         public void LogWarning(string message, string logLineId = "")
         {
-            if (!CheckEnabled()) return;
+            if (!this.CheckEnabled())
+            {
+                return;
+            }
+
             if (!this.LineShouldBePrinted(message))
             {
                 return;
@@ -207,7 +219,11 @@ namespace GRYLibrary
         }
         public void LogVerboseMessage(string message, string logLineId = "")
         {
-            if (!CheckEnabled()) return;
+            if (!this.CheckEnabled())
+            {
+                return;
+            }
+
             if (!this.LineShouldBePrinted(message))
             {
                 return;
@@ -230,7 +246,11 @@ namespace GRYLibrary
         private readonly Queue<Tuple<string, string>> _StoredErrors = new Queue<Tuple<string, string>>();
         public void PrintErrorQueue()
         {
-            if (!CheckEnabled()) return;
+            if (!this.CheckEnabled())
+            {
+                return;
+            }
+
             while (this._StoredErrors.Count != 0)
             {
                 Tuple<string, string> dequeuedError = this._StoredErrors.Dequeue();
@@ -239,7 +259,11 @@ namespace GRYLibrary
         }
         public void LogError(string message, string logLineId = "")
         {
-            if (!CheckEnabled()) return;
+            if (!this.CheckEnabled())
+            {
+                return;
+            }
+
             if (!this.LineShouldBePrinted(message))
             {
                 return;

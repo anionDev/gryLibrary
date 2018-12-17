@@ -28,12 +28,12 @@ namespace GRYLibrary.Miscellaneous
         }
         public void AddConnection(string inputName, string outputName)
         {
-            Connections.Add(new TupleWithValueComparisonEquals<string, string>(inputName, outputName));
+            this.Connections.Add(new TupleWithValueComparisonEquals<string, string>(inputName, outputName));
             throw new System.NotImplementedException();
         }
         public void RemoveConnection(string inputName, string outputName)
         {
-            Connections.Remove(new TupleWithValueComparisonEquals<string, string>(inputName, outputName));
+            this.Connections.Remove(new TupleWithValueComparisonEquals<string, string>(inputName, outputName));
             throw new System.NotImplementedException();
         }
         public IDictionary<string, Stream> GetallInputs()
