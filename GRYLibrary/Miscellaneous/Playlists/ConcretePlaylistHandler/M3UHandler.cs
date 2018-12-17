@@ -63,8 +63,8 @@ namespace GRYLibrary.Miscellaneous.Playlists.ConcretePlaylistHandler
             }
             if (resolveTransitivePathsDirect)
             {
-                result = foo(result);
-                excludedItems = foo(excludedItems);
+                result = LoadTransitively(result);
+                excludedItems = LoadTransitively(excludedItems);
             }
             this.TryToApplyConfigurationFile(playlistFile, ref result);
             this.TryToApplyConfigurationFile(playlistFile, ref excludedItems);
@@ -72,19 +72,19 @@ namespace GRYLibrary.Miscellaneous.Playlists.ConcretePlaylistHandler
             return result;
         }
 
-        private List<string> foo(List<string> items)
+        private List<string> LoadTransitively(List<string> items)
         {
             var result = new List<string>();
-            foreach (var item in items)
+            foreach (string item in items)
             {
-                //if(item is musicfile)
-                //{
-                //    result.Add(item);
-                //}
-                //else if (item is m3uplaylist)
-                //{
-                //    result.AddRange(GetSongsFromPlaylist(item, true));
-                //}
+                if (item.ToLower().Trim().EndsWith(".m3u"))
+                {
+                    result.AddRange(GetSongsFromPlaylist(item, true));
+                }
+                else
+                {
+                    result.Add(item);
+                }
             }
             return result;
         }
