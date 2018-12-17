@@ -30,9 +30,10 @@ namespace GRYLibrary.Miscellaneous.Playlists.ConcretePlaylistHandler
             }
             File.WriteAllLines(playlistFile, files, Encoding);
         }
-        
+
         protected override Tuple<IEnumerable<string>, IEnumerable<string>> GetSongsFromPlaylist(string playlistFile)
         {
+            string directory = Path.GetDirectoryName(playlistFile);
             List<string> lines = File.ReadAllLines(playlistFile, Encoding).Select(line => line.Replace("\"", string.Empty).Trim()).Where(line => !(string.IsNullOrWhiteSpace(line) || line.StartsWith("#"))).ToList();
             List<string> result = new List<string>();
             List<string> excludedItems = new List<string>();
@@ -50,16 +51,28 @@ namespace GRYLibrary.Miscellaneous.Playlists.ConcretePlaylistHandler
                 }
                 if (payload.StartsWith("-"))
                 {
-                    excludedItems.Add(payload.Substring(1));
+                    excludedItems.Add(ConvertToAbsolutePathIfPossible(directory, payload.Substring(1)));
                 }
                 else
                 {
-                    result.Add(payload);
+                    result.Add(ConvertToAbsolutePathIfPossible(directory, payload));
                 }
             }
             this.TryToApplyConfigurationFile(playlistFile, ref result);
             this.TryToApplyConfigurationFile(playlistFile, ref excludedItems);
             return new Tuple<IEnumerable<string>, IEnumerable<string>>(result, excludedItems);
+        }
+
+        private string ConvertToAbsolutePathIfPossible(string pathBase, string path)
+        {
+            if (Utilities.IsRelativePath(path))
+            {
+                return Utilities.GetAbsolutePath(pathBase, path);
+            }
+            else
+            {
+                return path;
+            }
         }
 
         private bool TryToApplyConfigurationFile(string playlistFile, ref List<string> result)
