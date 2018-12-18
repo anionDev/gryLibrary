@@ -28,10 +28,11 @@ namespace GRYLibraryTest
                 Assert.IsTrue(currentExpectedContent.EqualsIgnoringOrder(handler.GetSongsFromPlaylist(file).ToList()));
 
                 currentExpectedContent.Add(@"\\ComputerName\SharedFolder\Resource");
-                currentExpectedContent.Add(@"X:/a/d.Ogg");
+                currentExpectedContent.Add(@"X:\a\d.Ogg");
                 currentExpectedContent.Add(@"http://player.example.com/stream.mp3");
                 handler.AddSongsToPlaylist(file, currentExpectedContent);
-                Assert.IsTrue(currentExpectedContent.EqualsIgnoringOrder(handler.GetSongsFromPlaylist(file).ToList()));
+                List<string> actual = handler.GetSongsFromPlaylist(file).ToList();
+                Assert.IsTrue(currentExpectedContent.EqualsIgnoringOrder(actual));
 
                 currentExpectedContent.Remove(@"X:/a/d.Ogg");
                 handler.DeleteSongsFromPlaylist(file, new string[] { @"X:/a/d.Ogg" });
@@ -43,7 +44,7 @@ namespace GRYLibraryTest
                 Assert.AreEqual(0, items.Count);
                 Assert.IsTrue(currentExpectedContent.EqualsIgnoringOrder(items));
 
-                string[] newTracks = new string[] { @"X:/a/d.Ogg" };
+                string[] newTracks = new string[] { @"X:\a\d.Ogg" };
                 handler.AddSongsToPlaylist(file, newTracks);
 
                 byte[] contentBefore = System.IO.File.ReadAllBytes(file);
