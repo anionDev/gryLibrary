@@ -455,7 +455,7 @@ namespace GRYLibrary
             {
                 return false;
             }
-            throw new NotImplementedException();
+            return  Uri.TryCreate(path, UriKind.Relative, out Uri @out);
         }
         public static bool IsAbsolutePath(string path)
         {
