@@ -41,7 +41,7 @@ namespace GRYLibrary.Miscellaneous.Playlists
             IEnumerable<string> referencedExcludedFiles = songsAndExcludedSongs.Item2.Where(item => IsAllowedAsPlaylistItem(item));
             referencedFiles = ProcessList(referencedFiles, removeDuplicatedItems, loadTransitively, excludedPlaylistFiles, workingDirectory, playlistFileName);
             referencedExcludedFiles = ProcessList(referencedExcludedFiles, removeDuplicatedItems, loadTransitively, excludedPlaylistFiles, workingDirectory, playlistFileName);
-          return referencedFiles.Except(referencedExcludedFiles).ToList();
+            return referencedFiles.Except(referencedExcludedFiles).ToList();
 
         }
 

@@ -104,8 +104,9 @@ namespace GRYLibraryTest
             Utilities.EnsureDirectoryDoesNotExist(directoryName);
         }
         [TestMethod]
-        public void CommonTestM3UConfigurationWithRelativePath1()
+        public void M3UConfigurationWithRelativePath1()
         {
+            string currentDirectory = System.IO.Directory.GetCurrentDirectory();
             string directoryName = "test";
             string configurationFile = ".m3uconfiguration";
             string m3uFile1 = directoryName + "\\" + "test1.m3u";
@@ -124,7 +125,8 @@ namespace GRYLibraryTest
             M3UHandler.Instance.AddSongsToPlaylist(m3uFile2, new string[] { "trackC.mp3", "{DefaultPath}\\trackD.mp3" });
 
             HashSet<string> playlistItems = new HashSet<string>(M3UHandler.Instance.GetSongsFromPlaylist(m3uFile1, true, true));
-            Assert.IsTrue(playlistItems.SetEquals(new string[] { "trackA.mp3", @"C:\Data\Music\trackB.mp3", "trackC.mp3", @"C:\Data\Music\trackD.mp3" }));
+            var expected = new string[] { System.IO.Path.Combine(currentDirectory, @"test\trackA.mp3"), @"C:\Data\Music\trackB.mp3", System.IO.Path.Combine(currentDirectory, @"test\trackC.mp3"), @"C:\Data\Music\trackD.mp3" };
+            Assert.IsTrue(playlistItems.SetEquals(expected));
             Utilities.EnsureFileDoesNotExist(m3uFile1);
             Utilities.EnsureFileDoesNotExist(m3uFile2);
             Utilities.EnsureDirectoryDoesNotExist(directoryName);
@@ -132,7 +134,7 @@ namespace GRYLibraryTest
         }
 
         [TestMethod]
-        public void CommonTestM3UConfigurationWithRelativePath2()
+        public void M3UConfigurationWithRelativePath2()
         {
             Encoding encoding = new UTF8Encoding(false);
             Dictionary<string, string[]> filesWithTheirContent = new Dictionary<string, string[]>();

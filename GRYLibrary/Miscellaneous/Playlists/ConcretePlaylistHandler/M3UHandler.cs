@@ -51,16 +51,28 @@ namespace GRYLibrary.Miscellaneous.Playlists.ConcretePlaylistHandler
                 }
                 if (payload.StartsWith("-"))
                 {
-                    excludedItems.Add(ConvertToAbsolutePathIfPossible(directory, payload.Substring(1)));
+                    excludedItems.Add(payload.Substring(1));
                 }
                 else
                 {
-                    result.Add(ConvertToAbsolutePathIfPossible(directory, payload));
+                    result.Add(payload);
                 }
             }
             this.TryToApplyConfigurationFile(playlistFile, ref result);
             this.TryToApplyConfigurationFile(playlistFile, ref excludedItems);
+            ResolvePaths(ref result, directory);
+            ResolvePaths(ref excludedItems, directory);
             return new Tuple<IEnumerable<string>, IEnumerable<string>>(result, excludedItems);
+        }
+
+        private void ResolvePaths(ref List<string> items, string directory)
+        {
+            var result = new List<string>();
+            foreach (var item in items)
+            {
+                result.Add(ConvertToAbsolutePathIfPossible(directory, item));
+            }
+            items = result;
         }
 
         private string ConvertToAbsolutePathIfPossible(string pathBase, string path)
