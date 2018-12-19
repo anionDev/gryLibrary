@@ -83,7 +83,8 @@ namespace GRYLibraryTest
         [TestMethod]
         public void CommonTestM3UReferencedPlaylist()
         {
-            string directoryName = "test\\test";
+            string currentDirectory = System.IO.Directory.GetCurrentDirectory();
+            string directoryName = @"test\test";
             string m3uFile = directoryName + "\\" + "test1.m3u";
             string nameOfm3ufile2 = "test2.m3u";
             string m3uFile2 = directoryName + "\\" + nameOfm3ufile2;
@@ -98,7 +99,7 @@ namespace GRYLibraryTest
             M3UHandler.Instance.AddSongsToPlaylist(m3uFile2, new string[] { "trackB.mp3" });
 
             HashSet<string> playlistItems = new HashSet<string>(M3UHandler.Instance.GetSongsFromPlaylist(m3uFile, true, true));
-            Assert.IsTrue(playlistItems.SetEquals(new string[] { "trackA.mp3", "trackB.mp3" }));
+            Assert.IsTrue(playlistItems.SetEquals(new string[] { System.IO.Path.Combine(currentDirectory, directoryName + @"\trackA.mp3"), System.IO.Path.Combine(currentDirectory, directoryName + @"\trackB.mp3") }));
             Utilities.EnsureFileDoesNotExist(m3uFile);
             Utilities.EnsureFileDoesNotExist(m3uFile2);
             Utilities.EnsureDirectoryDoesNotExist(directoryName);
