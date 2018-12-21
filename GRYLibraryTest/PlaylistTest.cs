@@ -126,7 +126,7 @@ namespace GRYLibraryTest
             M3UHandler.Instance.AddSongsToPlaylist(m3uFile2, new string[] { "trackC.mp3", "{DefaultPath}\\trackD.mp3" });
 
             HashSet<string> playlistItems = new HashSet<string>(M3UHandler.Instance.GetSongsFromPlaylist(m3uFile1, true, true));
-            var expected = new string[] { System.IO.Path.Combine(currentDirectory, @"test\trackA.mp3"), @"C:\Data\Music\trackB.mp3", System.IO.Path.Combine(currentDirectory, @"test\trackC.mp3"), @"C:\Data\Music\trackD.mp3" };
+            string[] expected = new string[] { System.IO.Path.Combine(currentDirectory, @"test\trackA.mp3"), @"C:\Data\Music\trackB.mp3", System.IO.Path.Combine(currentDirectory, @"test\trackC.mp3"), @"C:\Data\Music\trackD.mp3" };
             Assert.IsTrue(playlistItems.SetEquals(expected));
             Utilities.EnsureFileDoesNotExist(m3uFile1);
             Utilities.EnsureFileDoesNotExist(m3uFile2);
