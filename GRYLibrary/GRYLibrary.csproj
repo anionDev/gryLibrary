@@ -70,7 +70,6 @@
     <Compile Include="Miscellaneous\Playlists\ConcretePlaylistHandler\PLSHandler.cs" />
     <Compile Include="Miscellaneous\Playlists\ConcretePlaylistHandler\WPLHandler.cs" />
     <Compile Include="Miscellaneous\SimpleStreamMultiplier.cs" />
-    <Compile Include="Miscellaneous\StreamMixer.cs" />
     <Compile Include="Miscellaneous\TupleWithValueComparisonEquals.cs" />
     <Compile Include="Miscellaneous\WriteableTuple.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
