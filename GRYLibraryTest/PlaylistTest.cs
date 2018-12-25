@@ -137,6 +137,7 @@ namespace GRYLibraryTest
         [TestMethod]
         public void M3UConfigurationWithRelativePath2()
         {
+            string currentDirectory = System.IO.Directory.GetCurrentDirectory();
             Encoding encoding = new UTF8Encoding(false);
             Dictionary<string, string[]> filesWithTheirContent = new Dictionary<string, string[]>();
             string defaultMusicFolder = @"C:\Data\MyMusicFolder";
@@ -163,12 +164,14 @@ namespace GRYLibraryTest
                 @"{DefaultPath}\myTrack6.mp3",
                 @"../dir3/t3.m3u",
                 @"../notwanted/notWanted5.mp3",
+                @"-{DefaultPath}\notWanted8.mp3",
                 "-../dir4/tn4_3.m3u",
             });
             filesWithTheirContent.Add("m3utest/dir3/t3.m3u", new string[] {
                 @"myTrack7.mp3",
                 @"{DefaultPath}\myTrack8.mp3",
                 @"-notWanted6.mp3",
+                @"{DefaultPath}\notWanted8.mp3",
             });
             filesWithTheirContent.Add("m3utest/dir4/tn4_1.m3u", new string[] {
                 @"..\notwanted\notWanted1.mp3",
@@ -193,8 +196,19 @@ namespace GRYLibraryTest
                     Utilities.EnsureFileExists(file.Key, true);
                     System.IO.File.WriteAllLines(file.Key, file.Value, encoding);
                 }
-                IEnumerable<string> playlistItems = M3UHandler.Instance.GetSongsFromPlaylist(mainPlaylistFile);
-                throw new NotImplementedException();
+                ISet<string> playlistItems = new HashSet<string>(M3UHandler.Instance.GetSongsFromPlaylist(mainPlaylistFile));
+                var expected = new string[] {
+                    System.IO.Path.Combine(currentDirectory, @"m3utest\dir1\track1.mp3"),
+                    @"C:\Data\MyMusicFolder\myTrack2.mp3",
+                    @"C:\Data\MyMusicFolder\wanted.mp3",
+                    System.IO.Path.Combine(currentDirectory, @"m3utest\dir1\track3.mp3"),
+                    @"C:\Data\MyMusicFolder\myTrack4.mp3",
+                    System.IO.Path.Combine(currentDirectory, @"m3utest\dir2\track5.mp3"),
+                    @"C:\Data\MyMusicFolder\myTrack6.mp3",
+                    System.IO.Path.Combine(currentDirectory, @"m3utest\dir2\track7.mp3"),
+                    @"C:\Data\MyMusicFolder\myTrack8.mp3",
+                };
+                Assert.IsTrue(playlistItems.SetEquals(expected));
             }
             finally
             {
@@ -230,7 +244,7 @@ namespace GRYLibraryTest
             M3UHandler.Instance.AddSongsToPlaylist(m3uFile1, new string[] { "trackA.mp3", nameOfm3ufile2, "{DefaultPath}\\trackB.mp3" });
             M3UHandler.Instance.AddSongsToPlaylist(m3uFile2, new string[] { "trackC.mp3", "{DefaultPath}\\trackD.mp3" });
 
-            HashSet<string> playlistItems = new HashSet<string>(M3UHandler.Instance.GetSongsFromPlaylist(m3uFile1, true, true));
+            ISet<string> playlistItems = new HashSet<string>(M3UHandler.Instance.GetSongsFromPlaylist(m3uFile1, true, true));
             Assert.IsTrue(playlistItems.SetEquals(new string[] { System.IO.Path.Combine(directoryName, "trackA.mp3"), @"C:\Data\Music\trackB.mp3", System.IO.Path.Combine(directoryName, "trackC.mp3"), @"C:\Data\Music\trackD.mp3" }));
             Utilities.EnsureFileDoesNotExist(m3uFile1);
             Utilities.EnsureFileDoesNotExist(m3uFile2);
