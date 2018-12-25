@@ -69,7 +69,7 @@ namespace GRYLibraryTest
         {
             this.CommonTest("Test.m3u", M3UHandler.Instance);
         }
-        [Ignore]
+        [Ignore]//WPLHandler ist not implemented yet
         [TestMethod]
         public void CommonTestWPL()
         {
@@ -142,13 +142,48 @@ namespace GRYLibraryTest
             string defaultMusicFolder = @"C:\Data\MyMusicFolder";
             string mainPlaylistFile = "m3utest/dir1/t1.m3u";
             filesWithTheirContent.Add("m3utest/.m3uconfiguration", new string[] { @"replace:{DefaultPath};" + defaultMusicFolder });
-            filesWithTheirContent.Add(mainPlaylistFile, new string[] { @"myTrack1.mp3", @"{DefaultPath}\myTrack2.mp3", @"..\notwanted\notWanted1.mp3", @"..\notwanted\notWanted2.mp3", @"..\notwanted\notWanted3.mp3", @"..\notwanted\notWanted4.mp3", @"t1_2.m3u", @"-../dir4/tn4_1.m3u", @"wanted.mp3" });
-            filesWithTheirContent.Add("m3utest/dir1/t1_2.m3u", new string[] { @"myTrack3.mp3", @"{DefaultPath}\myTrack4.mp3", @"../dir2/t2.m3u" });
-            filesWithTheirContent.Add("m3utest/dir2/t2.m3u", new string[] { @"myTrack5.mp3", @"{DefaultPath}\myTrack6.mp3", @"../dir3/t3.m3u", @"../notwanted/notWanted5.mp3", "-../dir4/tn4_3.m3u" });
-            filesWithTheirContent.Add("m3utest/dir3/t3.m3u", new string[] { @"myTrack7.mp3", @"{DefaultPath}\myTrack8.mp3", @"-notWanted6.mp3" });
-            filesWithTheirContent.Add("m3utest/dir4/tn4_1.m3u", new string[] { @"notWanted1.mp3", @"..\notwanted\notWanted2.mp3", @"wanted.mp3", @"-tn4_2.m3u" });
-            filesWithTheirContent.Add("m3utest/dir4/tn4_2.m3u", new string[] { @"wanted.mp3" });
-            filesWithTheirContent.Add("m3utest/dir4/tn4_3.m3u", new string[] { @"../notwanted/notWanted5.mp3" });
+            filesWithTheirContent.Add(mainPlaylistFile, new string[] {
+                @"myTrack1.mp3", @"{DefaultPath}\myTrack2.mp3",
+                @"..\notwanted\notWanted1.mp3",
+                @"..\notwanted\notWanted2.mp3",
+                @"..\notwanted\notWanted3.mp3",
+                @"..\notwanted\notWanted4.mp3",
+                @"t1_2.m3u",
+                @"-../dir4/tn4_1.m3u",
+                @"wanted.mp3",
+                @"{DefaultPath}\notWanted7.mp3",
+            });
+            filesWithTheirContent.Add("m3utest/dir1/t1_2.m3u", new string[] {
+                @"myTrack3.mp3",
+                @"{DefaultPath}\myTrack4.mp3",
+                @"../dir2/t2.m3u",
+            });
+            filesWithTheirContent.Add("m3utest/dir2/t2.m3u", new string[] {
+                @"myTrack5.mp3",
+                @"{DefaultPath}\myTrack6.mp3",
+                @"../dir3/t3.m3u",
+                @"../notwanted/notWanted5.mp3",
+                "-../dir4/tn4_3.m3u",
+            });
+            filesWithTheirContent.Add("m3utest/dir3/t3.m3u", new string[] {
+                @"myTrack7.mp3",
+                @"{DefaultPath}\myTrack8.mp3",
+                @"-notWanted6.mp3",
+            });
+            filesWithTheirContent.Add("m3utest/dir4/tn4_1.m3u", new string[] {
+                @"..\notwanted\notWanted1.mp3",
+                @"..\notwanted\notWanted2.mp3",
+                @"..\notwanted\wanted.mp3", @"-tn4_2.m3u",
+                @"{DefaultPath}\notWanted7.mp3",
+                @"..\notwanted\notWanted3.mp3",
+                @"..\notwanted\notWanted4.mp3",
+            });
+            filesWithTheirContent.Add("m3utest/dir4/tn4_2.m3u", new string[] {
+                @"wanted.mp3"
+            });
+            filesWithTheirContent.Add("m3utest/dir4/tn4_3.m3u", new string[] {
+                @"../notwanted/notWanted5.mp3",
+            });
 
             this.EnsureFilesAreDeleted(filesWithTheirContent.Keys);
             try
