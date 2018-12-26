@@ -39,8 +39,8 @@ namespace GRYLibrary.Miscellaneous.Playlists
             Tuple<IEnumerable<string>, IEnumerable<string>> songsAndExcludedSongs = this.GetSongsFromPlaylist(Path.Combine(workingDirectory, playlistFileName));
             IEnumerable<string> referencedFiles = songsAndExcludedSongs.Item1.Where(item => IsAllowedAsPlaylistItem(item));
             IEnumerable<string> referencedExcludedFiles = songsAndExcludedSongs.Item2.Where(item => IsAllowedAsPlaylistItem(item));
-            referencedFiles = ProcessList(referencedFiles, removeDuplicatedItems, loadTransitively, excludedPlaylistFiles, workingDirectory, playlistFileName);
-            referencedExcludedFiles = ProcessList(referencedExcludedFiles, removeDuplicatedItems, loadTransitively, excludedPlaylistFiles, workingDirectory, playlistFileName);
+            referencedFiles = this.ProcessList(referencedFiles, removeDuplicatedItems, loadTransitively, excludedPlaylistFiles, workingDirectory, playlistFileName);
+            referencedExcludedFiles = this.ProcessList(referencedExcludedFiles, removeDuplicatedItems, loadTransitively, excludedPlaylistFiles, workingDirectory, playlistFileName);
             return referencedFiles.Except(referencedExcludedFiles).ToList();
 
         }
@@ -117,16 +117,18 @@ namespace GRYLibrary.Miscellaneous.Playlists
         }
         public IEnumerable<string> GetSongsFromPlaylist(string playlistFile, bool removeDuplicatedItems = true, bool loadTransitively = true)
         {
-            string workingDirectory;
-            if (Uri.TryCreate(playlistFile, UriKind.Absolute, out Uri uri))
+            string workingDirectory = null;
+            if (Utilities.IsAbsolutePath(playlistFile))
             {
-                //absolute uri
-                workingDirectory = new FileInfo(uri.AbsolutePath).Directory.FullName;
+                workingDirectory = Path.GetDirectoryName(playlistFile);
+            }
+            else if (Utilities.IsRelativePath(playlistFile))
+            {
+                workingDirectory = Path.Combine(Directory.GetCurrentDirectory(), Path.GetDirectoryName(playlistFile));
             }
             else
             {
-                //relative uri
-                workingDirectory = Path.Combine(Directory.GetCurrentDirectory(), new FileInfo(playlistFile).Directory.FullName);
+                throw new NotImplementedException();
             }
             return this.GetSongsFromPlaylist(new FileInfo(playlistFile).Name, workingDirectory, removeDuplicatedItems, loadTransitively);
         }
