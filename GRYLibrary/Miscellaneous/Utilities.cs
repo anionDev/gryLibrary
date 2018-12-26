@@ -99,7 +99,7 @@ namespace GRYLibrary
         }
         public static string GetCommandLineArgumentWithoutProgramPath()
         {
-            var executableFile = Environment.GetCommandLineArgs()[0];
+            string executableFile = Environment.GetCommandLineArgs()[0];
             return Environment.CommandLine.Remove(Environment.CommandLine.IndexOf(executableFile), executableFile.Length).TrimStart('"').Substring(1).Trim();
         }
         public static void CopyFolderAcrossVolumes(string sourceFolder, string destinationFolder)
