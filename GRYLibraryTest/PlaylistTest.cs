@@ -154,6 +154,7 @@ namespace GRYLibraryTest
                 @"-../dir4/tn4_1.m3u",
                 @"..\notwanted\wanted.mp3",
                 @"{DefaultPath}\notWanted7.mp3",
+                @"..\wanted\wanted2.mp3",
             });
             filesWithTheirContent.Add("m3utest/dir1/t1_2.m3u", new string[] {
                 @"myTrack3.mp3",
@@ -198,16 +199,17 @@ namespace GRYLibraryTest
                     File.WriteAllLines(file.Key, file.Value, encoding);
                 }
                 ISet<string> playlistItems = new HashSet<string>(M3UHandler.Instance.GetSongsFromPlaylist(mainPlaylistFile));
-                var expected = new string[] {
+                string[] expected = new string[] {
                     Path.Combine(currentDirectory, @"m3utest\dir1\myTrack1.mp3"),
                     @"C:\Data\MyMusicFolder\myTrack2.mp3",
-                  Utilities.GetAbsolutePath(Path.Combine(currentDirectory,@"m3utest"), @"notwanted\wanted.mp3"),
+                    Utilities.GetAbsolutePath(Path.Combine(currentDirectory,@"m3utest"), @"notwanted\wanted.mp3"),
                     Path.Combine(currentDirectory, @"m3utest\dir1\myTrack3.mp3"),
                     @"C:\Data\MyMusicFolder\myTrack4.mp3",
                     Path.Combine(currentDirectory, @"m3utest\dir2\myTrack5.mp3"),
                     @"C:\Data\MyMusicFolder\myTrack6.mp3",
                     Path.Combine(currentDirectory, @"m3utest\dir3\myTrack7.mp3"),
                     @"C:\Data\MyMusicFolder\myTrack8.mp3",
+                    Utilities.GetAbsolutePath(Path.Combine(currentDirectory,@"m3utest"),@"wanted\wanted2.mp3"),
                 };
                 Assert.IsTrue(playlistItems.SetEquals(expected));
             }
