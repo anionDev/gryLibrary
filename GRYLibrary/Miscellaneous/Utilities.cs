@@ -59,7 +59,7 @@ namespace GRYLibrary
             IntPtr intPtr = bitmap.GetHicon();
             return Icon.FromHandle(intPtr);
         }
-        public static void EnsureFileExists(string path, bool createDirectoryIfRequired=false)
+        public static void EnsureFileExists(string path, bool createDirectoryIfRequired = false)
         {
             if (createDirectoryIfRequired)
             {
@@ -99,7 +99,8 @@ namespace GRYLibrary
         }
         public static string GetCommandLineArgumentWithoutProgramPath()
         {
-            return Environment.CommandLine.Substring(Environment.GetCommandLineArgs()[0].Length + 3);
+            var executableFile = Environment.GetCommandLineArgs()[0];
+            return Environment.CommandLine.Remove(Environment.CommandLine.IndexOf(executableFile), executableFile.Length).TrimStart('"').Substring(1).Trim();
         }
         public static void CopyFolderAcrossVolumes(string sourceFolder, string destinationFolder)
         {
@@ -455,7 +456,7 @@ namespace GRYLibrary
             {
                 return false;
             }
-            return  Uri.TryCreate(path, UriKind.Relative, out Uri @out);
+            return Uri.TryCreate(path, UriKind.Relative, out Uri @out);
         }
         public static bool IsAbsolutePath(string path)
         {
