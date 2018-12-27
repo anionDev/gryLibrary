@@ -60,8 +60,8 @@ namespace GRYLibrary.Miscellaneous.Playlists.ConcretePlaylistHandler
             }
             this.TryToApplyConfigurationFile(playlistFile, ref result);
             this.TryToApplyConfigurationFile(playlistFile, ref excludedItems);
-            ResolvePaths(ref result, directory);
-            ResolvePaths(ref excludedItems, directory);
+            this.ResolvePaths(ref result, directory);
+            this.ResolvePaths(ref excludedItems, directory);
             return new Tuple<IEnumerable<string>, IEnumerable<string>>(result, excludedItems);
         }
 
@@ -70,7 +70,7 @@ namespace GRYLibrary.Miscellaneous.Playlists.ConcretePlaylistHandler
             List<string> result = new List<string>();
             foreach (string item in items)
             {
-                result.Add(ConvertToAbsolutePathIfPossible(directory, item));
+                result.Add(this.ConvertToAbsolutePathIfPossible(directory, item));
             }
             items = result;
         }
