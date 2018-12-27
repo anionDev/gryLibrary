@@ -67,8 +67,8 @@ namespace GRYLibrary.Miscellaneous.Playlists.ConcretePlaylistHandler
 
         private void ResolvePaths(ref List<string> items, string directory)
         {
-            var result = new List<string>();
-            foreach (var item in items)
+            List<string> result = new List<string>();
+            foreach (string item in items)
             {
                 result.Add(ConvertToAbsolutePathIfPossible(directory, item));
             }
