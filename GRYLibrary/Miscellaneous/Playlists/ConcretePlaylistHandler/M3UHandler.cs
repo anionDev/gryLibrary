@@ -101,14 +101,14 @@ namespace GRYLibrary.Miscellaneous.Playlists.ConcretePlaylistHandler
                 else
                 {
                     m3uConfigurationFile = new FileInfo(m3uConfigurationFile).Directory.Parent.FullName + ConfigurationFileInCurrentFolder;
-                    configurationAppliedFound = this.SetResultAndApplayConfigurationFile(ref result, m3uConfigurationFile);
+                   configurationAppliedFound = this.SetResultAndApplayConfigurationFile(ref result, m3uConfigurationFile);
                     if (configurationAppliedFound)
                     {
                         return configurationAppliedFound;
                     }
                     else
                     {
-                        m3uConfigurationFile = new FileInfo(m3uConfigurationFile).Directory.Parent.Parent.FullName + ConfigurationFileInCurrentFolder;
+                        m3uConfigurationFile = new FileInfo(m3uConfigurationFile).Directory.Parent.FullName + ConfigurationFileInCurrentFolder;
                         return this.SetResultAndApplayConfigurationFile(ref result, m3uConfigurationFile);
                     }
                 }

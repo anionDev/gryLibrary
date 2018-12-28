@@ -420,10 +420,10 @@ namespace GRYLibrary
             throw new Exception("Invalid LogLevel");
         }
 
-        private void WriteWithColorToConsole(string part2, LogLevel type)
+        private void WriteWithColorToConsole(string message, LogLevel logLevel)
         {
-            Console.ForegroundColor = this.GetColorByType(type);
-            Console.Write(part2);
+            Console.ForegroundColor = this.GetColorByType(logLevel);
+            Console.Write(message);
             Console.ForegroundColor = this._ConsoleDefaultColor;
         }
 
