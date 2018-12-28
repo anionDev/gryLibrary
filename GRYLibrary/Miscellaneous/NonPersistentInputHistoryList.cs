@@ -8,11 +8,12 @@ namespace GRYLibrary
         public void EnterPressed(string input)
         {
             input = input.Trim();
-            if (!this.UserInputs.Contains(input))
+            if (this.UserInputs.Contains(input))
             {
-                this.UserInputs.Add(input);
-                this.ResetCurrentReadPosition();
+                this.UserInputs.Remove(input);
             }
+            this.UserInputs.Add(input);
+            this.ResetCurrentReadPosition();
         }
         public string UpPressed()
         {
