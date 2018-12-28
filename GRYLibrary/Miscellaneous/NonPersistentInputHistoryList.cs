@@ -7,8 +7,12 @@ namespace GRYLibrary
         private int CurrentuserInputIndex = 0;
         public void EnterPressed(string input)
         {
-            this.UserInputs.Add(input.Trim());
-            this.ResetCurrentReadPosition();
+            input = input.Trim();
+            if (!this.UserInputs.Contains(input))
+            {
+                this.UserInputs.Add(input);
+                this.ResetCurrentReadPosition();
+            }
         }
         public string UpPressed()
         {
