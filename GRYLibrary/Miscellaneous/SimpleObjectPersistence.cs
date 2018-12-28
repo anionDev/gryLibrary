@@ -5,10 +5,10 @@ namespace GRYLibrary
     public sealed class SimpleObjectPersistence<T> where T : new()
     {
         public T Object { get; private set; }
-        public System.Text.Encoding Encoding { get; private set; }
+        public Encoding Encoding { get; private set; }
         public string File { get; set; }
         private readonly SimpleGenericXMLSerializer<T> _Serializer = null;
-        public SimpleObjectPersistence(string file, System.Text.Encoding encoding)
+        public SimpleObjectPersistence(string file, Encoding encoding)
         {
             this.File = file;
             this.Encoding = encoding;
@@ -16,7 +16,7 @@ namespace GRYLibrary
             this._Serializer.Encoding = this.Encoding;
             this.LoadObject();
         }
-        public SimpleObjectPersistence(string file, System.Text.Encoding encoding, T @object) : this(file, encoding)
+        public SimpleObjectPersistence(string file, Encoding encoding, T @object) : this(file, encoding)
         {
             this.Object = @object;
             this.SaveObject();
