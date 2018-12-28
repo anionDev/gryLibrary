@@ -70,7 +70,14 @@ namespace GRYLibrary.Miscellaneous.Playlists.ConcretePlaylistHandler
             List<string> result = new List<string>();
             foreach (string item in items)
             {
-                result.Add(this.ConvertToAbsolutePathIfPossible(directory, item));
+                try
+                {
+                    result.Add(this.ConvertToAbsolutePathIfPossible(directory, item));
+                }
+                catch
+                {
+                    Utilities.NoOperation();
+                }
             }
             items = result;
         }
@@ -101,7 +108,7 @@ namespace GRYLibrary.Miscellaneous.Playlists.ConcretePlaylistHandler
                 else
                 {
                     m3uConfigurationFile = new FileInfo(m3uConfigurationFile).Directory.Parent.FullName + ConfigurationFileInCurrentFolder;
-                   configurationAppliedFound = this.SetResultAndApplayConfigurationFile(ref result, m3uConfigurationFile);
+                    configurationAppliedFound = this.SetResultAndApplayConfigurationFile(ref result, m3uConfigurationFile);
                     if (configurationAppliedFound)
                     {
                         return configurationAppliedFound;
