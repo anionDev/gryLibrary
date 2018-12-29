@@ -7,6 +7,18 @@ namespace GRYLibrary.Miscellaneous
     {
         public System.Text.Encoding Encoding { get; set; }
         public int MaximalWidth { get; set; }
+        public string[] Generate(string[,] array, string title, bool tableHasTitles, bool addLinesAbove)
+        {
+            return Generate(array, title, tableHasTitles, addLinesAbove, new DefaultLineCharacterDecider());
+        }
+        public string[] Generate(string[,] array, string title, bool tableHasTitles, bool addLinesAbove, ILineCharacterDecider lineCharacterDecider)
+        {
+            throw new NotImplementedException();
+        }
+        public void Generate(string[,] array, string title, string file, bool tableHasTitles, bool addLinesAbove, bool append)
+        {
+            Generate(array, title, file, tableHasTitles, addLinesAbove, append, new DefaultLineCharacterDecider());
+        }
         public void Generate(string[,] array, string title, string file, bool tableHasTitles, bool addLinesAbove, bool append, ILineCharacterDecider lineCharacterDecider)
         {
             if ((tableHasTitles && array.GetLength(0) == 1) | array.GetLength(0) == 0)
@@ -306,5 +318,27 @@ namespace GRYLibrary.Miscellaneous
         public const char TLeftCharacter = '┤';
         public const char TUpCharacter = '┴';
         #endregion
+        public class DefaultLineCharacterDecider : ILineCharacterDecider
+        {
+            public char GetChar(string lineTextBelow)
+            {
+                throw new NotImplementedException();
+            }
+
+            public char GetcMiddle(List<string> resultContentLinesAsString, int i)
+            {
+                throw new NotImplementedException();
+            }
+
+            public char GetcTLeft(List<string> resultContentLinesAsString)
+            {
+                throw new NotImplementedException();
+            }
+
+            public char GetcTRight(List<string> resultContentLinesAsString)
+            {
+                throw new NotImplementedException();
+            }
+        }
     }
 }
