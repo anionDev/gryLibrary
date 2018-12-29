@@ -526,5 +526,25 @@ namespace GRYLibrary
         {
             return Directory.GetFiles(path).Length > 0;
         }
+        //see https://stackoverflow.com/a/9995303/3905529
+        public static byte[] StringToByteArray(string hex)
+        {
+            if (hex.Length % 2 == 1)
+            {
+                throw new Exception("The binary key cannot have an odd number of digits");
+            }
+            byte[] result = new byte[hex.Length >> 1];
+            for (int i = 0; i < hex.Length >> 1; ++i)
+            {
+                result[i] = (byte)((GetHexValue(hex[i << 1]) << 4) + (GetHexValue(hex[(i << 1) + 1])));
+            }
+            return result;
+        }
+
+        public static int GetHexValue(char hex)
+        {
+            int val = (int)hex;
+            return val - (val < 58 ? 48 : 55);
+        }
     }
 }
