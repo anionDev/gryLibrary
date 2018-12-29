@@ -531,7 +531,7 @@ namespace GRYLibrary
         {
             if (hex.Length % 2 == 1)
             {
-                throw new Exception("The binary key cannot have an odd number of digits");
+                hex = "0" + hex;
             }
             byte[] result = new byte[hex.Length >> 1];
             for (int i = 0; i < hex.Length >> 1; ++i)
