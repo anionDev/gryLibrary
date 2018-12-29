@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text;
 
 namespace GRYLibrary.Miscellaneous
 {
     public class TableGenerator
     {
-        public System.Text.Encoding Encoding { get; set; }
+        public Encoding Encoding { get; set; } = new UTF8Encoding(false);
         public int MaximalWidth { get; set; }
         public string[] Generate(string[,] array, string title, bool tableHasTitles, bool addLinesAbove)
         {
@@ -13,28 +14,21 @@ namespace GRYLibrary.Miscellaneous
         }
         public string[] Generate(string[,] array, string title, bool tableHasTitles, bool addLinesAbove, ILineCharacterDecider lineCharacterDecider)
         {
-            throw new NotImplementedException();
+            if ((tableHasTitles && array.GetLength(0) == 1) | array.GetLength(0) == 0)
+            {
+                throw new Exception("Not enough data available!");
+            }
+            return this.GetTableByArray(array, tableHasTitles, addLinesAbove, lineCharacterDecider);
         }
         public void Generate(string[,] array, string title, string file, bool tableHasTitles, bool addLinesAbove, bool append)
         {
-            Generate(array, title, file, tableHasTitles, addLinesAbove, append, new DefaultLineCharacterDecider());
+            Generate(array, title, file, tableHasTitles, addLinesAbove, new DefaultLineCharacterDecider());
         }
-        public void Generate(string[,] array, string title, string file, bool tableHasTitles, bool addLinesAbove, bool append, ILineCharacterDecider lineCharacterDecider)
+        public void Generate(string[,] array, string title, string file, bool tableHasTitles, bool addLinesAbove, ILineCharacterDecider lineCharacterDecider)
         {
-            if ((tableHasTitles && array.GetLength(0) == 1) | array.GetLength(0) == 0)
-            {
-                throw new System.Exception("Not enough data available!");
-            }
-            string[] tableLines = this.GetTableByArray(array, tableHasTitles, addLinesAbove, lineCharacterDecider);
-            if (!append)
-            {
-                System.IO.File.WriteAllText(file, string.Empty, Encoding);
-            }
-            List<string> lines = new List<string>
-            {
-                title + ":"
-            };
-            lines.AddRange(tableLines);
+            Utilities.EnsureFileExists(file);
+            List<string> lines = new List<string> { title };
+            lines.AddRange(Generate(array, title, tableHasTitles, addLinesAbove, lineCharacterDecider));
             System.IO.File.AppendAllLines(file, lines, Encoding);
         }
         private string[] GetTableByArray(string[,] array, bool tableHasTitles, bool addLinesAbove, ILineCharacterDecider lineCharacterDecider)
