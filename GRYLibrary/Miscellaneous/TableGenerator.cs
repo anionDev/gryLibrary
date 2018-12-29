@@ -7,7 +7,7 @@ namespace GRYLibrary.Miscellaneous
     public class TableGenerator
     {
         public Encoding Encoding { get; set; } = new UTF8Encoding(false);
-        public int MaximalWidth { get; set; }
+        public int MaximalWidth { get; set; } = int.MaxValue;
         public string[] Generate(string[,] array, string title, bool tableHasTitles, bool addLinesAbove)
         {
             return Generate(array, title, tableHasTitles, addLinesAbove, new DefaultLineCharacterDecider());
