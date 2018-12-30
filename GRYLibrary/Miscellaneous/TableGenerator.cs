@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace GRYLibrary.Miscellaneous
@@ -77,6 +78,29 @@ namespace GRYLibrary.Miscellaneous
             }
             result.Add(this.GetLastLine(widths));
             return result.ToArray();
+        }
+
+        internal static string[,] GetTableContentFromColumnList(IList<IList<string>> columns)
+        {
+            string[,] result = new string[columns.Select(list => list.Count).Max(), columns.Count()];
+            for (int i = 0; i < columns.Count; i++)
+            {
+                IList<string> currentList = columns[i];
+                for (int j = 0; j < currentList.Count; j++)
+                {
+                    string cellValue = null;
+                    if (j < currentList.Count)
+                    {
+                        cellValue = currentList[j];
+                    }
+                    if (cellValue == null)
+                    {
+                        cellValue = "<null>";
+                    }
+                    result[j, i] = cellValue;
+                }
+            }
+            return result;
         }
 
         private int[] GetMaximalWidthsOfColumns(string[,] array)

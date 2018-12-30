@@ -59,6 +59,19 @@ namespace GRYLibrary
             IntPtr intPtr = bitmap.GetHicon();
             return Icon.FromHandle(intPtr);
         }
+
+        public static void WriteToConsoleAsASCIITable(IList<IList<string>> columns)
+        {
+            TableGenerator tableGenerator = new TableGenerator();
+            tableGenerator.Encoding = new UTF8Encoding(false);
+            string[] table = tableGenerator.Generate(TableGenerator.GetTableContentFromColumnList(columns), "Encoding-table", true, false);
+            foreach (string line in table)
+            {
+                Console.WriteLine(line);
+            }
+
+        }
+
         public static void EnsureFileExists(string path, bool createDirectoryIfRequired = false)
         {
             if (createDirectoryIfRequired)
