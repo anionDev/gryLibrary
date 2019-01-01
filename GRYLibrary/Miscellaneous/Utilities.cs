@@ -59,6 +59,21 @@ namespace GRYLibrary
             IntPtr intPtr = bitmap.GetHicon();
             return Icon.FromHandle(intPtr);
         }
+
+        public static void WriteToConsoleAsASCIITable(IList<IList<string>> columns)
+        {
+            TableGenerator tableGenerator = new TableGenerator
+            {
+                Encoding = new UTF8Encoding(false)
+            };
+            string[] table = tableGenerator.Generate(TableGenerator.GetTableContentFromColumnList(columns), "Encoding-table", true, false);
+            foreach (string line in table)
+            {
+                Console.WriteLine(line);
+            }
+
+        }
+
         public static void EnsureFileExists(string path, bool createDirectoryIfRequired = false)
         {
             if (createDirectoryIfRequired)
@@ -121,6 +136,23 @@ namespace GRYLibrary
                 string name = Path.GetFileName(folder);
                 string destination = Path.Combine(destinationFolder, name);
                 CopyFolderAcrossVolumes(folder, destination);
+            }
+        }
+
+        public static void DeleteAllEmptyFolderTransitively(string folder, bool deleteFolderItselfIfAlsoEmpty = false)
+        {
+            ForEachFileAndDirectoryTransitively(folder, DeleteAllEmptyFolderTransitivelyDirectoryAction, (string file, object argument) => { }, false, null, null);
+            if (deleteFolderItselfIfAlsoEmpty && DirectoryIsEmpty(folder))
+            {
+                Directory.Delete(folder);
+            }
+        }
+
+        private static void DeleteAllEmptyFolderTransitivelyDirectoryAction(string directory, object argument)
+        {
+            if (DirectoryIsEmpty(directory))
+            {
+                Directory.Delete(directory);
             }
         }
 
@@ -450,6 +482,10 @@ namespace GRYLibrary
         {
             return FileIsEmpty(file) || FileEndsWithEmptyLine(file);
         }
+        public static bool AppendFileDoesNeedNewLineCharacter(string file)
+        {
+            return !AppendFileDoesNotNeedNewLineCharacter(file);
+        }
         public static bool IsRelativePath(string path)
         {
             if (string.IsNullOrWhiteSpace(path) || path.IndexOfAny(Path.GetInvalidPathChars()) != -1 || path.Length > 255)
@@ -505,7 +541,7 @@ namespace GRYLibrary
         }
         public static bool DirectoryIsEmpty(string path)
         {
-            return (Directory.GetFiles(path).Length > 0) && (Directory.GetDirectories(path).Length > 0);
+            return (Directory.GetFiles(path).Length == 0) && (Directory.GetDirectories(path).Length == 0);
         }
         public static bool DirectoryDoesNotContainFiles(string path)
         {
@@ -525,6 +561,26 @@ namespace GRYLibrary
         public static bool DirectoryDoesNotContainFolder(string path)
         {
             return Directory.GetFiles(path).Length > 0;
+        }
+        //see https://stackoverflow.com/a/9995303/3905529
+        public static byte[] StringToByteArray(string hex)
+        {
+            if (hex.Length % 2 == 1)
+            {
+                hex = "0" + hex;
+            }
+            byte[] result = new byte[hex.Length >> 1];
+            for (int i = 0; i < hex.Length >> 1; ++i)
+            {
+                result[i] = (byte)((GetHexValue(hex[i << 1]) << 4) + (GetHexValue(hex[(i << 1) + 1])));
+            }
+            return result;
+        }
+
+        public static int GetHexValue(char hex)
+        {
+            int val = (int)hex;
+            return val - (val < 58 ? 48 : 55);
         }
     }
 }
