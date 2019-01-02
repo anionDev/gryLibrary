@@ -6,25 +6,27 @@ namespace GRYLibrary
 {
     public class ExternalProgramExecutor
     {
-        public ExternalProgramExecutor(string programPathAndFile, string arguments, string title, string workingDirectory, bool printErrorsAsInformation = false, string logFile = null, int? timeout = null)
+        public ExternalProgramExecutor(string programPathAndFile, string arguments, string title, string workingDirectory, bool printErrorsAsInformation = false, string logFile = null, int? timeoutInMilliseconds = null)
         {
             this.LogObject = new GRYLog();
+            this.LogObject.PrintOutputInConsole = true;
             if (logFile == null)
             {
                 this.LogObject.WriteToLogFile = false;
             }
             else
             {
-                this.LogObject.LogFile = logFile;
                 this.LogObject.WriteToLogFile = true;
+                this.LogObject.LogFile = logFile;
             }
             this.ProgramPathAndFile = programPathAndFile;
             this.Arguments = arguments;
             this.Title = title;
             this.WorkingDirectory = workingDirectory;
             this.PrintErrorsAsInformation = printErrorsAsInformation;
-            this.TimeoutInMilliseconds = timeout;
+            this.TimeoutInMilliseconds = timeoutInMilliseconds;
         }
+        public bool LogOverhead { get; set; } = false;
         public GRYLog LogObject { get; set; }
         public string Arguments { get; set; }
         public string ProgramPathAndFile { get; set; }
@@ -32,7 +34,7 @@ namespace GRYLibrary
         public string WorkingDirectory { get; set; }
         public int? TimeoutInMilliseconds { get; set; }
         public bool PrintErrorsAsInformation { get; set; }
-        private bool _Running = false;
+        private bool _StopLogOutputThread = false;
         private readonly ConcurrentQueue<Tuple<GRYLog.LogLevel, string>> _NotLoggedOutputLines = new ConcurrentQueue<Tuple<GRYLog.LogLevel, string>>();
         /// <summary>
         /// Starts the program which was set in the properties.
@@ -76,12 +78,18 @@ namespace GRYLibrary
                         this.EnqueueError(e.Data);
                     }
                 };
-                this._Running = true;
-                SupervisedThread thread = new SupervisedThread(this.LogOutput)
+                this._StopLogOutputThread = false;
+                SupervisedThread readLogItemsThread = new SupervisedThread(this.LogOutput)
                 {
-                    Name = $"Logger-Thread for '{this.Title}' ({nameof(ExternalProgramExecutor)}({this.ProgramPathAndFile} {this.Arguments}))"
+                    Name = $"Logger-Thread for '{this.Title}' ({nameof(ExternalProgramExecutor)}({this.ProgramPathAndFile} {this.Arguments}))",
+                    LogOverhead = false
                 };
-                thread.Start();
+                readLogItemsThread.Start();
+                if (this.LogOverhead)
+                {
+                    this.EnqueueInformation($"-----------------------------------------------------");
+                    this.EnqueueInformation($"Start '{this.ProgramPathAndFile} {this.Arguments}' in '{this.WorkingDirectory}'");
+                }
                 process.Start();
                 process.BeginOutputReadLine();
                 process.BeginErrorReadLine();
@@ -96,13 +104,18 @@ namespace GRYLibrary
                 {
                     process.WaitForExit();
                 }
+                if (this.LogOverhead)
+                {
+                    this.EnqueueInformation($"Finished '{this.ProgramPathAndFile} {this.Arguments}'");
+                    this.EnqueueInformation($"-----------------------------------------------------");
+                }
                 return process.ExitCode;
             }
             finally
             {
                 try
                 {
-                    this._Running = false;
+                    this._StopLogOutputThread = true;
                     Console.Title = originalConsoleTitle;
                 }
                 finally
@@ -122,7 +135,7 @@ namespace GRYLibrary
         }
         private void LogOutput()
         {
-            while (this._Running)
+            while (!this._StopLogOutputThread)
             {
                 if (this._NotLoggedOutputLines.TryDequeue(out Tuple<GRYLog.LogLevel, string> logItem))
                 {

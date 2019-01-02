@@ -12,6 +12,7 @@ namespace GRYLibrary
             this.Name = this.Id.ToString();
             this.LogObject = new GRYLog();
         }
+        public bool LogOverhead { get; set; } = false;
         public string Name { get; set; }
         public Guid Id { get; }
         public Action Action { get; }
@@ -20,9 +21,12 @@ namespace GRYLibrary
         private void Execute()
         {
             this._Running = true;
+            if (LogOverhead)
+            {
+                this.LogObject.LogInformation(string.Format("Start Action of thread with id {0} and name \"{1}\"", this.Id.ToString(), this.Name.ToString()));
+            }
             try
             {
-                this.LogObject.LogInformation(string.Format("Start execution of Action of thread with id {0} and name \"{1}\"", this.Id.ToString(), this.Name.ToString()));
                 this.Action();
             }
             catch (Exception exception)
@@ -33,7 +37,10 @@ namespace GRYLibrary
             {
                 this._Running = false;
             }
-            this.LogObject.LogInformation(string.Format("Execution of Action of thread with id {0} and name \"{1}\" finished", this.Id.ToString(), this.Name.ToString()));
+            if (LogOverhead)
+            {
+                this.LogObject.LogInformation(string.Format("Startprocess of thread with id {0} and name \"{1}\" started", this.Id.ToString(), this.Name.ToString()));
+            }
         }
 
         public void Start()
@@ -44,16 +51,7 @@ namespace GRYLibrary
                 {
                     Name = this.Name
                 };
-                try
-                {
-                    this.LogObject.LogInformation(string.Format("Start startprocess of thread with id {0} and name \"{1}\"", this.Id.ToString(), this.Name.ToString()));
-                    this._Thread.Start();
-                }
-                catch (Exception exception)
-                {
-                    this.LogObject.LogError(string.Format("Error occurred while startprocess of thread with id {0} and name \"{1}\"", this.Id.ToString(), this.Name.ToString()), exception);
-                }
-                this.LogObject.LogInformation(string.Format("Startprocess of thread with id {0} and name \"{1}\" started", this.Id.ToString(), this.Name.ToString()));
+                this._Thread.Start();
             }
         }
         public void Abort()
