@@ -113,7 +113,7 @@ namespace GRYLibrary
             this.Encoding = new UTF8Encoding(false);
             this.DebugBreakLevel = new List<LogLevel>() { LogLevel.Exception };
             this._ConsoleDefaultColor = Console.ForegroundColor;
-            this.DateFormat = "yyyy/MM/dd HH:mm:ss";
+            this.DateFormat = "yyyy-MM-dd HH:mm:ss";
             this.LoggedMessageTypesInConsole = new List<LogLevel>();
             this.LoggedMessageTypesInLogFile = new List<LogLevel>();
             this.WriteLogEntryWhenGRYLogWriteToLogFileWIllBeEnabledOrDisabled = false;
