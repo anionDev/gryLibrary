@@ -68,7 +68,6 @@
     <Compile Include="Miscellaneous\Playlists\AbstractPlaylistHandler.cs" />
     <Compile Include="Miscellaneous\Playlists\ConcretePlaylistHandler\M3UHandler.cs" />
     <Compile Include="Miscellaneous\Playlists\ConcretePlaylistHandler\PLSHandler.cs" />
-    <Compile Include="Miscellaneous\Playlists\ConcretePlaylistHandler\WPLHandler.cs" />
     <Compile Include="Miscellaneous\SimpleStreamMultiplier.cs" />
     <Compile Include="Miscellaneous\TableGenerator.cs" />
     <Compile Include="Miscellaneous\TupleWithValueComparisonEquals.cs" />

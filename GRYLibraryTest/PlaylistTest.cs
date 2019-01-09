@@ -70,12 +70,6 @@ namespace GRYLibraryTest
         {
             this.CommonTest("Test.m3u", M3UHandler.Instance);
         }
-        [Ignore]//WPLHandler ist not implemented yet
-        [TestMethod]
-        public void CommonTestWPL()
-        {
-            this.CommonTest("Test.wpl", WPLHandler.Instance);
-        }
         [TestMethod]
         public void CommonTestPLS()
         {

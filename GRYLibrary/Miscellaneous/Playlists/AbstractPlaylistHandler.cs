@@ -20,8 +20,7 @@ namespace GRYLibrary.Miscellaneous.Playlists
                     _ExtensionsOfReadablePlaylists = new Dictionary<string, AbstractPlaylistHandler>
                     {
                         { "m3u", M3UHandler.Instance },
-                        { "pls", PLSHandler.Instance },
-                        { "wpl", WPLHandler.Instance }
+                        { "pls", PLSHandler.Instance }
                     };
                 }
                 return _ExtensionsOfReadablePlaylists;
