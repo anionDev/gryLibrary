@@ -469,6 +469,61 @@ namespace GRYLibrary
         {
             return timeSpan.Ticks > 0;
         }
+        public static string ToOnlyFirstCharToUpper(this string input)
+        {
+            if (string.IsNullOrEmpty(input))
+            {
+                return input;
+            }
+            if (input.Length == 1)
+            {
+                return input.ToUpper();
+            }
+            return input.First().ToString().ToUpper() + input.Substring(1).ToLower();
+        }
+        private static readonly char[] Whitespace = new char[] { ' ' };
+        private static readonly char[] WhitespaceAndPartialWordIndicators = new char[] { ' ', '_', '-' };
+        public static string ToOnlyFirstCharOfEveryWordToUpper(this string input)
+        {
+            return ToOnlyFirstCharOfEveryWordToUpper(input, (lastCharacter) => Whitespace.Contains(lastCharacter));
+        }
+        public static string ToOnlyFirstCharOfEveryWordOrPartialWordToUpper(this string input)
+        {
+            return ToOnlyFirstCharOfEveryWordToUpper(input, (lastCharacter) => WhitespaceAndPartialWordIndicators.Contains(lastCharacter));
+        }
+        public static string ToOnlyFirstCharOfEveryNewLetterSequenceToUpper(this string input)
+        {
+            return ToOnlyFirstCharOfEveryWordToUpper(input, (lastCharacter) => !char.IsLetter(lastCharacter));
+        }
+        public static string ToOnlyFirstCharOfEveryWordToUpper(this string input, Func<char, bool> printCharUppercaseDependentOnPreviousChar)
+        {
+            if (string.IsNullOrWhiteSpace(input))
+            {
+                return input;
+            }
+            char[] splitted = input.ToCharArray();
+            char lastChar = default;
+            for (int i = 0; i < splitted.Length; i++)
+            {
+                if (0 == i)
+                {
+                    splitted[i] = splitted[i].ToString().ToUpper().First();
+                }
+                if (0 < i)
+                {
+                    if (printCharUppercaseDependentOnPreviousChar(lastChar))
+                    {
+                        splitted[i] = splitted[i].ToString().ToUpper().First();
+                    }
+                    else
+                    {
+                        splitted[i] = splitted[i].ToString().ToLower().First();
+                    }
+                }
+                lastChar = splitted[i];
+            }
+            return new string(splitted);
+        }
 
         public static bool FileEndsWithEmptyLine(string file)
         {
