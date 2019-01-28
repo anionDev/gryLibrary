@@ -637,5 +637,10 @@ namespace GRYLibrary
             int val = (int)hex;
             return val - (val < 58 ? 48 : 55);
         }
+
+        public static void ClearFile(string file)
+        {
+            File.WriteAllText(file, string.Empty, Encoding.ASCII);
+        }
     }
 }
