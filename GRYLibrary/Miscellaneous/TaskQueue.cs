@@ -11,6 +11,8 @@ namespace GRYLibrary.Miscellaneous
 
         public TaskQueue(bool infiniteMode = false)
         {
+            this.CurrentAmountOfThreads = 0;
+            this.IsRunning = false;
             this.InfiniteMode = infiniteMode;
             this.MaxDegreeOfParallelism = 10;
         }
@@ -44,7 +46,7 @@ namespace GRYLibrary.Miscellaneous
                     }
                     while (!this.IsFinished())
                     {
-                        while (this.StartnewThread())
+                        while (this.NewThreadCanBeStarted())
                         {
                             new Thread(() => this.ExecuteTask(this._ActionQueue.Dequeue())).Start();
                         }
@@ -63,7 +65,7 @@ namespace GRYLibrary.Miscellaneous
             return 0 == this._ActionQueue.Count && this.CurrentAmountOfThreads == 0;
         }
 
-        private bool StartnewThread()
+        private bool NewThreadCanBeStarted()
         {
             return 0 < this._ActionQueue.Count && this.CurrentAmountOfThreads < this.MaxDegreeOfParallelism;
         }
