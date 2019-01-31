@@ -71,6 +71,7 @@
     <Compile Include="Miscellaneous\Playlists\ConcretePlaylistHandler\PLSHandler.cs" />
     <Compile Include="Miscellaneous\SimpleStreamMultiplier.cs" />
     <Compile Include="Miscellaneous\TableGenerator.cs" />
+    <Compile Include="Miscellaneous\TaskQueue.cs" />
     <Compile Include="Miscellaneous\TupleWithValueComparisonEquals.cs" />
     <Compile Include="Miscellaneous\WriteableTuple.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
