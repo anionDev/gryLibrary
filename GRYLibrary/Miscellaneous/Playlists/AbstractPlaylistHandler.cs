@@ -27,7 +27,7 @@ namespace GRYLibrary.Miscellaneous.Playlists
             }
         }
         public static Encoding Encoding { get; set; } = new UTF8Encoding(false);
-        public IEnumerable<string> AllowedFiletypes = new string[] { "mp3" };
+        public IEnumerable<string> AllowedFiletypesForMusicFiles = new string[] { "mp3" };
         public abstract void CreatePlaylist(string file);
         protected abstract Tuple<IEnumerable<string>, IEnumerable<string>> GetSongsFromPlaylist(string playlistFile);
         protected abstract void AddSongsToPlaylistImplementation(string playlistFile, IEnumerable<string> newSongs);
@@ -186,7 +186,7 @@ namespace GRYLibrary.Miscellaneous.Playlists
             }
             else
             {
-                return AllowedFiletypes.Contains(extension);
+                return AllowedFiletypesForMusicFiles.Contains(extension);
             }
         }
     }
