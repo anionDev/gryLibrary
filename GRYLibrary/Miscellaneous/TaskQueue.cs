@@ -7,8 +7,6 @@ namespace GRYLibrary.Miscellaneous
 {
     public class TaskQueue
     {
-        //TODO add required locks
-
         public TaskQueue(bool infiniteMode = false)
         {
             this.CurrentAmountOfThreads = 0;
@@ -21,7 +19,7 @@ namespace GRYLibrary.Miscellaneous
         {
             this._ActionQueue.Enqueue(action);
         }
-        public int CurrentAmountOfThreads { get; private set; }
+        public Semaphore CurrentAmountOfThreads { get; private set; }
         public bool IsRunning { get; private set; }
         public bool InfiniteMode { get; }
         public int MaxDegreeOfParallelism { get; set; }
@@ -62,17 +60,17 @@ namespace GRYLibrary.Miscellaneous
 
         private bool IsFinished()
         {
-            return 0 == this._ActionQueue.Count && this.CurrentAmountOfThreads == 0;
+            return 0 == this._ActionQueue.Count && this.CurrentAmountOfThreads.Value == 0;
         }
 
         private bool NewThreadCanBeStarted()
         {
-            return 0 < this._ActionQueue.Count && this.CurrentAmountOfThreads < this.MaxDegreeOfParallelism;
+            return 0 < this._ActionQueue.Count && this.CurrentAmountOfThreads.Value < this.MaxDegreeOfParallelism;
         }
 
         private void ExecuteTask(Action action)
         {
-            this.CurrentAmountOfThreads = this.CurrentAmountOfThreads + 1;
+            this.CurrentAmountOfThreads.Increment();
             try
             {
                 Task.Run(action).Wait();
@@ -83,7 +81,7 @@ namespace GRYLibrary.Miscellaneous
             }
             finally
             {
-                this.CurrentAmountOfThreads = this.CurrentAmountOfThreads - 1;
+                this.CurrentAmountOfThreads.Decrement();
             }
         }
     }
