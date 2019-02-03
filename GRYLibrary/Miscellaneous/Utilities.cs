@@ -13,6 +13,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Threading;
+using System.DirectoryServices;
 
 namespace GRYLibrary
 {
@@ -641,6 +642,32 @@ namespace GRYLibrary
         public static void ClearFile(string file)
         {
             File.WriteAllText(file, string.Empty, Encoding.ASCII);
+        }
+
+        /// <summary>
+        /// Authenticates a user against an active directory.
+        /// </summary>
+        /// <param name="username">Represents the name of the desired user. It can be "MyUsername" or optionally "Domain\MyUsername."</param>
+        /// <param name="authentificationServerName">Represents the (LDAP-)server. The format must be with leading slashs, e. g. "//MyServer.com".</param>
+        /// <returns>Returns true if and only if <paramref name="password"/> is the correct password for the user with the name <paramref name="username"/></returns>
+        private static bool IsAuthenticated(string authentificationServerName, string username, string password, string authenticationProtocol = "LDAP")
+        {
+            bool isAuthenticated = false;
+            try
+            {
+                DirectoryEntry entry = new DirectoryEntry(authenticationProtocol + ":" + authentificationServerName, username, password);
+                object nativeObject = entry.NativeObject;
+                isAuthenticated = true;
+            }
+            catch (DirectoryServicesCOMException)
+            {
+                //Not authenticated. Reason can be found in exception if desired
+            }
+            catch (Exception)
+            {
+                //Not authenticated for unknown/other reasons if desired.
+            }
+            return isAuthenticated;
         }
     }
 }
