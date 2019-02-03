@@ -27,11 +27,12 @@ namespace GRYLibrary.Miscellaneous.Playlists
             }
         }
         public static Encoding Encoding { get; set; } = new UTF8Encoding(false);
+        public IEnumerable<string> AllowedFiletypes = new string[] { ".mp3" };
         public abstract void CreatePlaylist(string file);
         protected abstract Tuple<IEnumerable<string>, IEnumerable<string>> GetSongsFromPlaylist(string playlistFile);
         protected abstract void AddSongsToPlaylistImplementation(string playlistFile, IEnumerable<string> newSongs);
         protected abstract void DeleteSongsFromPlaylistImplementation(string playlistFile, IEnumerable<string> songsToDelete);
-        private IEnumerable<string> GetSongsFromPlaylist(string playlistFileName, bool removeDuplicatedItems, bool loadTransitively, ISet<string> excludedPlaylistFiles, string workingDirectory)
+        private IEnumerable<string> GetSongsFromPlaylistImplementation(string playlistFileName, bool removeDuplicatedItems, bool loadTransitively, ISet<string> excludedPlaylistFiles, string workingDirectory)
         {
             //TODO fix handling of paths to not existing files and not existing directories
             playlistFileName = this.NormalizePath(playlistFileName);
@@ -40,10 +41,10 @@ namespace GRYLibrary.Miscellaneous.Playlists
             IEnumerable<string> referencedExcludedFiles = songsAndExcludedSongs.Item2.Where(item => IsAllowedAsPlaylistItem(item));
             referencedFiles = this.ProcessList(referencedFiles, removeDuplicatedItems, loadTransitively, excludedPlaylistFiles, workingDirectory, playlistFileName);
             referencedExcludedFiles = this.ProcessList(referencedExcludedFiles, removeDuplicatedItems, loadTransitively, excludedPlaylistFiles, workingDirectory, playlistFileName);
-            return referencedFiles.Except(referencedExcludedFiles).ToList();
-
+            return referencedFiles.Except(referencedExcludedFiles);
         }
 
+      
         private IEnumerable<string> ProcessList(IEnumerable<string> referencedFiles, bool removeDuplicatedItems, bool loadTransitively, ISet<string> alreadyProcessedPlaylistFiles, string workingDirectory, string playlistFileName)
         {
             List<string> newList = new List<string>();
@@ -84,7 +85,7 @@ namespace GRYLibrary.Miscellaneous.Playlists
                         if (loadTransitively && (!alreadyProcessedPlaylistFiles.Contains(playlistItemToLower)))
                         {
                             alreadyProcessedPlaylistFiles.Add(playlistItemToLower);
-                            newList.AddRange(ExtensionsOfReadablePlaylists[Path.GetExtension(playlistItemToLower).Substring(1)].GetSongsFromPlaylist(playlistItem, removeDuplicatedItems, loadTransitively, alreadyProcessedPlaylistFiles, workingDirectory));
+                            newList.AddRange(ExtensionsOfReadablePlaylists[Path.GetExtension(playlistItemToLower).Substring(1)].GetSongsFromPlaylistImplementation(playlistItem, removeDuplicatedItems, loadTransitively, alreadyProcessedPlaylistFiles, workingDirectory));
                         }
                     }
                     else
@@ -133,7 +134,7 @@ namespace GRYLibrary.Miscellaneous.Playlists
         }
         public IEnumerable<string> GetSongsFromPlaylist(string playlistFile, string workingDirectory, bool removeDuplicatedItems = true, bool loadTransitively = true)
         {
-            return this.GetSongsFromPlaylist(playlistFile, removeDuplicatedItems, loadTransitively, new HashSet<string>(), workingDirectory);
+            return this.GetSongsFromPlaylistImplementation(playlistFile, removeDuplicatedItems, loadTransitively, new HashSet<string>(), workingDirectory);
         }
 
         public void AddSongsToPlaylist(string playlistFile, IEnumerable<string> newSongs, bool addOnlyNotExistingSongs = true)
@@ -172,9 +173,20 @@ namespace GRYLibrary.Miscellaneous.Playlists
             }
             return false;
         }
-        public static bool IsAllowedAsPlaylistItem(string item)
+        public bool IsAllowedAsPlaylistItem(string item)
         {
-            return !item.Equals(string.Empty);
+            return (!string.IsNullOrWhiteSpace(item)) && HasAllowedExtension(item);
+        }
+        private bool HasAllowedExtension(string item)
+        {
+            foreach (var extension in AllowedFiletypes)
+            {
+                if (item.EndsWith(extension))
+                {
+                    return true;
+                }
+            }
+            return false;
         }
     }
 }
