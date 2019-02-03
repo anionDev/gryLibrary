@@ -52,6 +52,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Miscellaneous\Semaphore.cs" />
     <Compile Include="Miscellaneous\SimpleObjectPersistence.cs" />
     <Compile Include="GRYObjectSystem\Meta\Attribute.cs" />
     <Compile Include="GRYObjectSystem\Meta\Operation.cs" />
