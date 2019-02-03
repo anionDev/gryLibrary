@@ -193,7 +193,7 @@ namespace GRYLibrary.Miscellaneous.Playlists
                 else
                 {
                     extension = extension.Substring(1).ToLower();
-                    return AllowedFiletypesForMusicFiles.Contains(extension) || ExtensionsOfReadablePlaylists.ContainsKey(extension);
+                    return (AllowedFiletypesForMusicFiles.Contains(extension) || ExtensionsOfReadablePlaylists.ContainsKey(extension)) && File.Exists(item);
                 }
             }
         }
