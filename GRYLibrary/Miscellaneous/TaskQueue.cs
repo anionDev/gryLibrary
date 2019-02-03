@@ -58,6 +58,7 @@ namespace GRYLibrary.Miscellaneous
                             };
                             this.CurrentAmountOfThreads.Increment();
                             thread.Start();
+                            Thread.Sleep(100);
                         }
                     }
                 }
