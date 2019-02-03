@@ -27,7 +27,7 @@ namespace GRYLibrary.Miscellaneous.Playlists
             }
         }
         public static Encoding Encoding { get; set; } = new UTF8Encoding(false);
-        public IEnumerable<string> AllowedFiletypesForMusicFiles = new string[] { "mp3" };
+        public IEnumerable<string> AllowedFiletypesForMusicFiles { get; set; } = new string[] { "mp3" };
         public abstract void CreatePlaylist(string file);
         protected abstract Tuple<IEnumerable<string>, IEnumerable<string>> GetSongsFromPlaylist(string playlistFile);
         protected abstract void AddSongsToPlaylistImplementation(string playlistFile, IEnumerable<string> newSongs);
@@ -44,7 +44,7 @@ namespace GRYLibrary.Miscellaneous.Playlists
             return referencedFiles.Except(referencedExcludedFiles);
         }
 
-      
+
         private IEnumerable<string> ProcessList(IEnumerable<string> referencedFiles, bool removeDuplicatedItems, bool loadTransitively, ISet<string> alreadyProcessedPlaylistFiles, string workingDirectory, string playlistFileName)
         {
             List<string> newList = new List<string>();
