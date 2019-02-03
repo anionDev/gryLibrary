@@ -62,7 +62,7 @@ namespace GRYLibrary.GRYObjectSystem.Meta.Property
                 return typeof(T);
             }
         }
-        public T Value
+        public virtual T Value
         {
             get
             {
