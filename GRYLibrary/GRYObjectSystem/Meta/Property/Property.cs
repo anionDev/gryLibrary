@@ -136,7 +136,7 @@ namespace GRYLibrary.GRYObjectSystem.Meta.Property
 
         public void ResetToInitialValue()
         {
-            this.Value = this._InitialValue;
+           this.SetValue(this._InitialValue);
         }
         public void ResetHistory()
         {

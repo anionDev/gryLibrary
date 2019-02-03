@@ -75,7 +75,7 @@ namespace GRYLibrary.Miscellaneous
         private void ExecuteTask(Tuple<string, Action> action)
         {
             this.CurrentAmountOfThreads.Increment();
-            LogObject?.LogInformation($"Start action {action.Item1}.");
+            LogObject?.LogInformation($"Start action {action.Item1}. {CurrentAmountOfThreads.Value} Threads are now running.");
             try
             {
                 Task.Run(action.Item2).Wait();
@@ -87,7 +87,7 @@ namespace GRYLibrary.Miscellaneous
             finally
             {
                 this.CurrentAmountOfThreads.Decrement();
-                LogObject?.LogInformation($"Finished action {action.Item1}.");
+                LogObject?.LogInformation($"Finished action {action.Item1}. {CurrentAmountOfThreads.Value} Threads are still running.");
             }
         }
     }
