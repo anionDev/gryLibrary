@@ -7,6 +7,8 @@ namespace GRYLibrary.Miscellaneous
     public class TaskQueue
     {
         private readonly Queue<Tuple<string, Action>> _ActionQueue = new Queue<Tuple<string, Action>>();
+        public bool Enabled { get; set; } = true;
+
         public TaskQueue(bool infiniteMode = false)
         {
             this.CurrentAmountOfThreads = new Semaphore(nameof(this.CurrentAmountOfThreads));
@@ -74,7 +76,7 @@ namespace GRYLibrary.Miscellaneous
 
         private bool NewThreadCanBeStarted()
         {
-            return 0 < this._ActionQueue.Count && this.CurrentAmountOfThreads.Value < this.MaxDegreeOfParallelism;
+            return 0 < this._ActionQueue.Count && this.CurrentAmountOfThreads.Value < this.MaxDegreeOfParallelism && this.Enabled;
         }
 
         private void ExecuteTask(Tuple<string, Action> action)
