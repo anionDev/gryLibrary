@@ -9,7 +9,7 @@ namespace GRYLibrary.Miscellaneous
     {
         public TaskQueue(bool infiniteMode = false)
         {
-            this.CurrentAmountOfThreads = 0;
+            this.CurrentAmountOfThreads =new Semaphore(nameof(this.CurrentAmountOfThreads));
             this.IsRunning = false;
             this.InfiniteMode = infiniteMode;
             this.MaxDegreeOfParallelism = 10;
