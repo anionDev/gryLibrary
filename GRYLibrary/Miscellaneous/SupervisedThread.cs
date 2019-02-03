@@ -5,11 +5,11 @@ namespace GRYLibrary
     public class SupervisedThread
     {
         public GRYLog LogObject { get; set; }
-        public SupervisedThread(Action action)
+        public SupervisedThread(Action action, string name = "")
         {
             this.Action = action;
             this.Id = Guid.NewGuid();
-            this.Name = this.Id.ToString();
+            this.Name = $"{nameof(SupervisedThread)} {this.Id.ToString()} " + (string.IsNullOrEmpty(name) ? string.Empty : $"({name})");
             this.LogObject = new GRYLog();
         }
         public bool LogOverhead { get; set; } = false;

@@ -1,12 +1,15 @@
-﻿using System;
+﻿using GRYLibrary.GRYObjectSystem.Meta.Property;
+using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
+using System.Threading;
 
 namespace GRYLibrary
 {
-    public class GRYLog
+    public class GRYLog : IDisposable
     {
         public bool Enabled { get; set; }
         public Encoding Encoding { get; set; }
@@ -19,7 +22,6 @@ namespace GRYLibrary
         public string VerbosePrefix { get; set; }
         private string _LogFile;
         private bool _WriteToLogFile;
-        private readonly static object _LockObject = new object();
         private readonly bool _Initialized = false;
         public bool IgnoreErrorsWhileWriteLogItem { get; set; }
         public int LogItemIdLength { get; set; }
@@ -46,6 +48,7 @@ namespace GRYLibrary
         public bool DebugBreakMode { get; set; }
         public IList<LogLevel> DebugBreakLevel { get; set; }
         private readonly ConsoleColor _ConsoleDefaultColor;
+        private Property<bool> _DequeueSchedulerEnabled = null;
         public string LogFile
         {
             get
@@ -142,7 +145,14 @@ namespace GRYLibrary
             this.LoggedMessageTypesInLogFile.Add(LogLevel.Warning);
             this.LoggedMessageTypesInLogFile.Add(LogLevel.Information);
             this.IgnoreErrorsWhileWriteLogItem = false;
+            this._DequeueSchedulerEnabled = new Property<bool>(true, nameof(_DequeueSchedulerEnabled), false)
+            {
+                LockEnabled = true
+            };
 
+            Thread dequeueThread = new Thread(Dequeue);
+            dequeueThread.Name = $"{nameof(GRYLog)}-Thread.";
+            dequeueThread.Start();
             if (string.IsNullOrWhiteSpace(logFile))
             {
                 this.WriteToLogFile = false;
@@ -155,6 +165,24 @@ namespace GRYLibrary
             }
             this._Initialized = true;
         }
+        private void Dequeue()
+        {
+            while (_DequeueSchedulerEnabled.Value)
+            {
+                if (_Queue.TryDequeue(out LogItem logitem))
+                {
+                    try
+                    {
+                        LogIt(logitem);
+                    }
+                    catch
+                    {
+                        Utilities.NoOperation();
+                    }
+                }
+            }
+        }
+
         public GRYLog() : this(string.Empty)
         {
         }
@@ -167,7 +195,7 @@ namespace GRYLibrary
 
             if (this.LineShouldBePrinted(message))
             {
-                this.LogIt(message, LogLevel.Information, logLineId);
+                this.EnqueueLogItem(message, LogLevel.Information, logLineId);
             }
         }
 
@@ -199,7 +227,7 @@ namespace GRYLibrary
                 return;
             }
 
-            this.LogIt(message, LogLevel.Debug, logLineId);
+            this.EnqueueLogItem(message, LogLevel.Debug, logLineId);
         }
 
         public void LogWarning(string message, string logLineId = "")
@@ -215,7 +243,7 @@ namespace GRYLibrary
             }
 
             this._AmountOfWarnings = this._AmountOfWarnings + 1;
-            this.LogIt(message, LogLevel.Warning, logLineId);
+            this.EnqueueLogItem(message, LogLevel.Warning, logLineId);
         }
         public void LogVerboseMessage(string message, string logLineId = "")
         {
@@ -229,7 +257,7 @@ namespace GRYLibrary
                 return;
             }
 
-            this.LogIt(message, LogLevel.Verbose, logLineId);
+            this.EnqueueLogItem(message, LogLevel.Verbose, logLineId);
         }
         public void LogError(string message, Exception exception, string logLineId = "")
         {
@@ -282,12 +310,12 @@ namespace GRYLibrary
         {
             if (this.PrintErrorsAsInformation)
             {
-                this.LogIt(message, LogLevel.Information, logLineId);
+                this.EnqueueLogItem(message, LogLevel.Information, logLineId);
             }
             else
             {
                 this._AmountOfErrors = this._AmountOfErrors + 1;
-                this.LogIt(message, LogLevel.Exception, logLineId);
+                this.EnqueueLogItem(message, LogLevel.Exception, logLineId);
             }
         }
 
@@ -299,7 +327,13 @@ namespace GRYLibrary
             Verbose = 3,
             Debug = 4
         }
-        private void LogIt(string message, LogLevel logLevel, string logLineId)
+        private ConcurrentQueue<LogItem> _Queue = new ConcurrentQueue<LogItem>();
+        private void EnqueueLogItem(string message, LogLevel logLevel, string logLineId)
+        {
+            _Queue.Enqueue(new LogItem(message, logLevel, logLineId));
+        }
+
+        private void LogIt(LogItem logItem)
         {
             if (!this._Initialized)
             {
@@ -310,70 +344,68 @@ namespace GRYLibrary
             {
                 momentOfLogEntry = momentOfLogEntry.ToUniversalTime();
             }
-            message = message.Trim();
-            string originalMessage = message;
-            logLineId = logLineId.Trim();
-            if (!string.IsNullOrEmpty(logLineId))
+            logItem.Message = logItem.Message.Trim();
+            string originalMessage = logItem.Message;
+            logItem.LogLineId = logItem.LogLineId.Trim();
+            if (!string.IsNullOrEmpty(logItem.LogLineId))
             {
-                message = "[" + logLineId + "] " + message;
+                logItem.Message = "[" + logItem.LogLineId + "] " + logItem.Message;
             }
             if (this.AddIdToEveryLogEntry)
             {
-                message = "[" + this.GetLogItemId() + "] " + message;
+                logItem.Message = "[" + this.GetLogItemId() + "] " + logItem.Message;
             }
             string part1 = "[" + momentOfLogEntry.ToString(this.DateFormat) + "] [";
-            string part2 = this.GetPrefixInStringFormat(logLevel);
-            string part3 = "] " + message;
-            lock (_LockObject)
+            string part2 = this.GetPrefixInStringFormat(logItem.LogLevel);
+            string part3 = "] " + logItem.Message;
+            if (this.PrintOutputInConsole && this.LoggedMessageTypesInConsole.Contains(logItem.LogLevel))
             {
-                if (this.PrintOutputInConsole && this.LoggedMessageTypesInConsole.Contains(logLevel))
+                if (this.LogOverhead)
+                {
+                    Console.Write(part1);
+                    this.WriteWithColorToConsole(part2, logItem.LogLevel);
+                    Console.Write(part3 + Environment.NewLine);
+                }
+                else
+                {
+                    Console.WriteLine(originalMessage);
+                }
+            }
+            if (this.WriteToLogFile && this.LoggedMessageTypesInLogFile.Contains(logItem.LogLevel))
+            {
+                try
                 {
                     if (this.LogOverhead)
                     {
-                        Console.Write(part1);
-                        this.WriteWithColorToConsole(part2, logLevel);
-                        Console.Write(part3 + Environment.NewLine);
+                        File.AppendAllLines(this.LogFile, new string[] { part1 + part2 + part3 }, this.Encoding);
                     }
                     else
                     {
-                        Console.WriteLine(originalMessage);
+                        File.AppendAllLines(this.LogFile, new string[] { originalMessage }, this.Encoding);
                     }
                 }
-                if (this.WriteToLogFile && this.LoggedMessageTypesInLogFile.Contains(logLevel))
+                catch
                 {
-                    try
+                    if (!this.IgnoreErrorsWhileWriteLogItem)
                     {
-                        if (this.LogOverhead)
-                        {
-                            File.AppendAllLines(this.LogFile, new string[] { part1 + part2 + part3 }, this.Encoding);
-                        }
-                        else
-                        {
-                            File.AppendAllLines(this.LogFile, new string[] { originalMessage }, this.Encoding);
-                        }
-                    }
-                    catch
-                    {
-                        if (!this.IgnoreErrorsWhileWriteLogItem)
-                        {
-                            throw;
-                        }
+                        throw;
                     }
                 }
             }
-            if (this.DebugBreakMode && this.DebugBreakLevel.Contains(logLevel) && Debugger.IsAttached)
+            if (this.DebugBreakMode && this.DebugBreakLevel.Contains(logItem.LogLevel) && Debugger.IsAttached)
             {
                 Debugger.Break();
             }
             if (this.LogOverhead)
             {
-                NewLogItem?.Invoke(originalMessage, part1 + part2 + part3, logLevel);
+                NewLogItem?.Invoke(originalMessage, part1 + part2 + part3, logItem.LogLevel);
             }
             else
             {
-                NewLogItem?.Invoke(originalMessage, originalMessage, logLevel);
+                NewLogItem?.Invoke(originalMessage, originalMessage, logItem.LogLevel);
             }
         }
+
         private string GetLogItemId()
         {
             return Guid.NewGuid().ToString().Replace("-", string.Empty).Substring(0, this.LogItemIdLength);
@@ -454,6 +486,27 @@ namespace GRYLibrary
         private bool CheckEnabled()
         {
             return this.Enabled;
+        }
+
+        public void Dispose()
+        {
+            this.Enabled = false;
+            SpinWait.SpinUntil(() => _Queue.IsEmpty);
+            this._DequeueSchedulerEnabled.Value = false;
+        }
+
+        private class LogItem
+        {
+            public LogItem(string message, LogLevel logLevel, string logLineId)
+            {
+                this.Message = message;
+                this.LogLevel = logLevel;
+                this.LogLineId = logLineId;
+            }
+
+            public string Message { get; internal set; }
+            public LogLevel LogLevel { get; internal set; }
+            public string LogLineId { get; internal set; }
         }
 
     }

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace GRYLibrary.Miscellaneous
 {
@@ -50,7 +49,13 @@ namespace GRYLibrary.Miscellaneous
                     {
                         while (this.NewThreadCanBeStarted())
                         {
-                            new Thread(() => this.ExecuteTask(this._ActionQueue.Dequeue())).Start();
+                            Tuple<string, Action> dequeuedAction = this._ActionQueue.Dequeue();
+                            Thread thread = new Thread(() => this.ExecuteTask(dequeuedAction))
+                            {
+                                Name = $"{nameof(TaskQueue)}-Thread for action \"{dequeuedAction.Item1}\""
+                            };
+                            this.CurrentAmountOfThreads.Increment();
+                            thread.Start();
                         }
                     }
                 }
@@ -74,11 +79,10 @@ namespace GRYLibrary.Miscellaneous
 
         private void ExecuteTask(Tuple<string, Action> action)
         {
-            this.CurrentAmountOfThreads.Increment();
             LogObject?.LogInformation($"Start action {action.Item1}. {CurrentAmountOfThreads.Value} Threads are now running.");
             try
             {
-                Task.Run(action.Item2).Wait();
+                action.Item2();
             }
             catch (Exception exception)
             {
