@@ -120,10 +120,7 @@ namespace GRYLibrary
         }
         public static void CopyFolderAcrossVolumes(string sourceFolder, string destinationFolder)
         {
-            if (!Directory.Exists(destinationFolder))
-            {
-                Directory.CreateDirectory(destinationFolder);
-            }
+            EnsureDirectoryExists(destinationFolder);
             string[] files = Directory.GetFiles(sourceFolder);
             foreach (string file in files)
             {
@@ -157,10 +154,30 @@ namespace GRYLibrary
             }
         }
 
-        public static void MoveFolderAcrossVolumes(string sourceFolder, string destinationFolder)
+        public static void MoveFolderAcrossVolumes(string sourceFolder, string destinationFolder, bool deleteSourceFolderCompletely = true)
         {
             CopyFolderAcrossVolumes(sourceFolder, destinationFolder);
-            Directory.Delete(sourceFolder, true);
+            DeleteFolder(sourceFolder, deleteSourceFolderCompletely);
+        }
+
+        public static void DeleteFolder(string folder, bool deleteSourceFolderCompletely = true)
+        {
+            if (deleteSourceFolderCompletely)
+            {
+                Directory.Delete(folder, true);
+            }
+            else
+            {
+                DirectoryInfo directoryInfo = new DirectoryInfo(folder);
+                foreach (FileInfo file in directoryInfo.GetFiles())
+                {
+                    file.Delete();
+                }
+                foreach (DirectoryInfo subDirectoryInfo in directoryInfo.GetDirectories())
+                {
+                    subDirectoryInfo.Delete(true);
+                }
+            }
         }
 
         public static bool IsHexDigit(this char @char)
