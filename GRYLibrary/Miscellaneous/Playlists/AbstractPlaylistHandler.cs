@@ -66,7 +66,7 @@ namespace GRYLibrary.Miscellaneous.Playlists
                             }
                             else
                             {
-                                throw new NotImplementedException();
+                                throw new Exception(item + " has an unknown format.");
                             }
                         }
                         else
@@ -127,7 +127,7 @@ namespace GRYLibrary.Miscellaneous.Playlists
             }
             else
             {
-                throw new NotImplementedException();
+                throw new Exception(playlistFile + " has an unknown format.");
             }
             return this.GetSongsFromPlaylist(new FileInfo(playlistFile).Name, workingDirectory, removeDuplicatedItems, loadTransitively);
         }
