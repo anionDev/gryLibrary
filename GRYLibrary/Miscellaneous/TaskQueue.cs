@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace GRYLibrary.Miscellaneous
 {
     public class TaskQueue
     {
         private readonly Queue<Tuple<string, Action>> _ActionQueue = new Queue<Tuple<string, Action>>();
+        public bool Enabled { get; set; } = true;
+
         public TaskQueue(bool infiniteMode = false)
         {
             this.CurrentAmountOfThreads = new Semaphore(nameof(this.CurrentAmountOfThreads));
@@ -50,7 +51,14 @@ namespace GRYLibrary.Miscellaneous
                     {
                         while (this.NewThreadCanBeStarted())
                         {
-                            new Thread(() => this.ExecuteTask(this._ActionQueue.Dequeue())).Start();
+                            Tuple<string, Action> dequeuedAction = this._ActionQueue.Dequeue();
+                            Thread thread = new Thread(() => this.ExecuteTask(dequeuedAction))
+                            {
+                                Name = $"{nameof(TaskQueue)}-Thread for action \"{dequeuedAction.Item1}\""
+                            };
+                            this.CurrentAmountOfThreads.Increment();
+                            thread.Start();
+                            Thread.Sleep(100);
                         }
                     }
                 }
@@ -69,16 +77,15 @@ namespace GRYLibrary.Miscellaneous
 
         private bool NewThreadCanBeStarted()
         {
-            return 0 < this._ActionQueue.Count && this.CurrentAmountOfThreads.Value < this.MaxDegreeOfParallelism;
+            return 0 < this._ActionQueue.Count && this.CurrentAmountOfThreads.Value < this.MaxDegreeOfParallelism && this.Enabled;
         }
 
         private void ExecuteTask(Tuple<string, Action> action)
         {
-            this.CurrentAmountOfThreads.Increment();
-            LogObject?.LogInformation($"Start action {action.Item1}.");
+            LogObject?.LogInformation($"Start action {action.Item1}. {CurrentAmountOfThreads.Value} Threads are now running.");
             try
             {
-                Task.Run(action.Item2).Wait();
+                action.Item2();
             }
             catch (Exception exception)
             {
@@ -87,7 +94,7 @@ namespace GRYLibrary.Miscellaneous
             finally
             {
                 this.CurrentAmountOfThreads.Decrement();
-                LogObject?.LogInformation($"Finished action {action.Item1}.");
+                LogObject?.LogInformation($"Finished action {action.Item1}. {CurrentAmountOfThreads.Value} Threads are still running.");
             }
         }
     }
