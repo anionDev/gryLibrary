@@ -9,10 +9,10 @@ namespace GRYLibrary.Miscellaneous
     {
         public Encoding Encoding { get; set; } = new UTF8Encoding(false);
         public int MaximalWidth { get; set; } = int.MaxValue;
-        public ITableCharacter TableCharacter = new OneLineTableCharacter();
+        public static ITableCharacter TableCharacter = new OneLineTableCharacter();
         public string[] Generate(string[,] array, string title, bool tableHasTitles, bool addLinesAbove)
         {
-            return Generate(array, title, tableHasTitles, addLinesAbove, null);
+            return this.Generate(array, title, tableHasTitles, addLinesAbove, null);
         }
         public string[] Generate(string[,] array, string title, bool tableHasTitles, bool addLinesAbove, ILineCharacterDecider lineCharacterDecider)
         {
@@ -24,14 +24,14 @@ namespace GRYLibrary.Miscellaneous
         }
         public void Generate(string[,] array, string title, string file, bool tableHasTitles, bool addLinesAbove, bool append)
         {
-            Generate(array, title, file, tableHasTitles, addLinesAbove, null);
+            this.Generate(array, title, file, tableHasTitles, addLinesAbove, null);
         }
         public void Generate(string[,] array, string title, string file, bool tableHasTitles, bool addLinesAbove, ILineCharacterDecider lineCharacterDecider)
         {
             Utilities.EnsureFileExists(file);
             List<string> lines = new List<string> { title };
-            lines.AddRange(Generate(array, title, tableHasTitles, addLinesAbove, lineCharacterDecider));
-            System.IO.File.AppendAllLines(file, lines, Encoding);
+            lines.AddRange(this.Generate(array, title, tableHasTitles, addLinesAbove, lineCharacterDecider));
+            System.IO.File.AppendAllLines(file, lines, this.Encoding);
         }
         private string[] GetTableByArray(string[,] array, bool tableHasTitles, bool addLinesAbove, ILineCharacterDecider lineCharacterDecider)
         {
