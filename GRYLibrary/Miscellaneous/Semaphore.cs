@@ -16,9 +16,9 @@ namespace GRYLibrary.Miscellaneous
         }
         public void Decrement()
         {
-            if (Value == 0)
+            if (this.Value == 0)
             {
-                throw new InvalidOperationException($"The value of the {nameof(Semaphore)} can not be decremented if the {nameof(Value)} is 0.");
+                throw new InvalidOperationException($"The value of the {nameof(Semaphore)} can not be decremented if the {nameof(this.Value)} is 0.");
             }
             base.Value = base.Value - 1;
         }

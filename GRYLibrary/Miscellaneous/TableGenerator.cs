@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,9 +9,10 @@ namespace GRYLibrary.Miscellaneous
     {
         public Encoding Encoding { get; set; } = new UTF8Encoding(false);
         public int MaximalWidth { get; set; } = int.MaxValue;
+        public static ITableCharacter TableCharacter = new OneLineTableCharacter();
         public string[] Generate(string[,] array, string title, bool tableHasTitles, bool addLinesAbove)
         {
-            return Generate(array, title, tableHasTitles, addLinesAbove, new DefaultLineCharacterDecider());
+            return this.Generate(array, title, tableHasTitles, addLinesAbove, null);
         }
         public string[] Generate(string[,] array, string title, bool tableHasTitles, bool addLinesAbove, ILineCharacterDecider lineCharacterDecider)
         {
@@ -23,14 +24,14 @@ namespace GRYLibrary.Miscellaneous
         }
         public void Generate(string[,] array, string title, string file, bool tableHasTitles, bool addLinesAbove, bool append)
         {
-            Generate(array, title, file, tableHasTitles, addLinesAbove, new DefaultLineCharacterDecider());
+            this.Generate(array, title, file, tableHasTitles, addLinesAbove, null);
         }
         public void Generate(string[,] array, string title, string file, bool tableHasTitles, bool addLinesAbove, ILineCharacterDecider lineCharacterDecider)
         {
             Utilities.EnsureFileExists(file);
             List<string> lines = new List<string> { title };
-            lines.AddRange(Generate(array, title, tableHasTitles, addLinesAbove, lineCharacterDecider));
-            System.IO.File.AppendAllLines(file, lines, Encoding);
+            lines.AddRange(this.Generate(array, title, tableHasTitles, addLinesAbove, lineCharacterDecider));
+            System.IO.File.AppendAllLines(file, lines, this.Encoding);
         }
         private string[] GetTableByArray(string[,] array, bool tableHasTitles, bool addLinesAbove, ILineCharacterDecider lineCharacterDecider)
         {
@@ -243,17 +244,17 @@ namespace GRYLibrary.Miscellaneous
         {
             List<string> result = new List<string>
             {
-                LeftUpperCornerCharacter.ToString()
+                TableCharacter.LeftUpperCornerCharacter.ToString()
             };
             for (int i = 0; i <= widths.Length - 1; i++)
             {
                 if (!(i == 0))
                 {
-                    result.Add(TDownCharacter.ToString());
+                    result.Add(TableCharacter.TDownCharacter.ToString());
                 }
-                result.Add(this.FillOrCut(string.Empty, widths[i], HorizontalLineCharacter));
+                result.Add(this.FillOrCut(string.Empty, widths[i], TableCharacter.HorizontalLineCharacter));
             }
-            result.Add(RightUpperCornerCharacter.ToString());
+            result.Add(TableCharacter.RightUpperCornerCharacter.ToString());
             return string.Join(string.Empty, result);
         }
 
@@ -263,10 +264,10 @@ namespace GRYLibrary.Miscellaneous
             for (int i = 0; i <= resultContentLinesAsString.Count - 1; i++)
             {
                 string currentLine = resultContentLinesAsString[i];
-                result.Add(VerticalLineCharacter.ToString());
+                result.Add(TableCharacter.VerticalLineCharacter.ToString());
                 result.Add(this.FillOrCut(currentLine, widths[i], ' '));
             }
-            result.Add(VerticalLineCharacter.ToString());
+            result.Add(TableCharacter.VerticalLineCharacter.ToString());
             return string.Join("", result);
         }
 
@@ -274,17 +275,17 @@ namespace GRYLibrary.Miscellaneous
         {
             List<string> result = new List<string>
             {
-                TRightCharacter.ToString()
+                TableCharacter.TRightCharacter.ToString()
             };
             for (int i = 0; i <= widths.Length - 1; i++)
             {
                 if (!(i == 0))
                 {
-                    result.Add(CrossCharacterCharacter.ToString());
+                    result.Add(TableCharacter.CrossCharacter.ToString());
                 }
-                result.Add(this.FillOrCut(string.Empty, widths[i], HorizontalLineCharacter));
+                result.Add(this.FillOrCut(string.Empty, widths[i], TableCharacter.HorizontalLineCharacter));
             }
-            result.Add(TLeftCharacter.ToString());
+            result.Add(TableCharacter.TLeftCharacter.ToString());
             return string.Join(string.Empty, result);
         }
 
@@ -292,17 +293,17 @@ namespace GRYLibrary.Miscellaneous
         {
             List<string> result = new List<string>
             {
-                LeftLowerCornerCharacter.ToString()
+               TableCharacter. LeftLowerCornerCharacter.ToString()
             };
             for (int i = 0; i <= widths.Length - 1; i++)
             {
                 if (!(i == 0))
                 {
-                    result.Add(TUpCharacter.ToString());
+                    result.Add(TableCharacter.TUpCharacter.ToString());
                 }
-                result.Add(this.FillOrCut(string.Empty, widths[i], HorizontalLineCharacter));
+                result.Add(this.FillOrCut(string.Empty, widths[i], TableCharacter.HorizontalLineCharacter));
             }
-            result.Add(RightLowerCornerCharacter.ToString());
+            result.Add(TableCharacter.RightLowerCornerCharacter.ToString());
             return string.Join(string.Empty, result);
         }
         private string GetMiddleLine(List<string> resultContentLinesAsString, ILineCharacterDecider lineCharacterDecider, int[] widths)
@@ -323,40 +324,47 @@ namespace GRYLibrary.Miscellaneous
             result.Add(lineCharacterDecider.GetcTLeft(resultContentLinesAsString).ToString());
             return string.Join(string.Empty, result);
         }
-        #region Constants
-        public const char HorizontalLineCharacter = '─';
-        public const char VerticalLineCharacter = '│';
-        public const char LeftUpperCornerCharacter = '┌';
-        public const char RightUpperCornerCharacter = '┐';
-        public const char LeftLowerCornerCharacter = '└';
-        public const char RightLowerCornerCharacter = '┘';
-        public const char CrossCharacterCharacter = '┼';
-        public const char TDownCharacter = '┬';
-        public const char TRightCharacter = '├';
-        public const char TLeftCharacter = '┤';
-        public const char TUpCharacter = '┴';
-        #endregion
-        public class DefaultLineCharacterDecider : ILineCharacterDecider
-        {
-            public char GetChar(string lineTextBelow)
-            {
-                throw new NotImplementedException();
-            }
-
-            public char GetcMiddle(List<string> resultContentLinesAsString, int i)
-            {
-                throw new NotImplementedException();
-            }
-
-            public char GetcTLeft(List<string> resultContentLinesAsString)
-            {
-                throw new NotImplementedException();
-            }
-
-            public char GetcTRight(List<string> resultContentLinesAsString)
-            {
-                throw new NotImplementedException();
-            }
-        }
+    }
+    public interface ITableCharacter
+    {
+        char HorizontalLineCharacter { get; }
+        char VerticalLineCharacter { get; }
+        char LeftUpperCornerCharacter { get; }
+        char RightUpperCornerCharacter { get; }
+        char LeftLowerCornerCharacter { get; }
+        char RightLowerCornerCharacter { get; }
+        char CrossCharacter { get; }
+        char TDownCharacter { get; }
+        char TRightCharacter { get; }
+        char TLeftCharacter { get; }
+        char TUpCharacter { get; }
+    }
+    public class OneLineTableCharacter : ITableCharacter
+    {
+        public char HorizontalLineCharacter => '─';
+        public char VerticalLineCharacter => '│';
+        public char LeftUpperCornerCharacter => '┌';
+        public char RightUpperCornerCharacter => '┐';
+        public char LeftLowerCornerCharacter => '└';
+        public char RightLowerCornerCharacter => '┘';
+        public char CrossCharacter => '┼';
+        public char TDownCharacter => '┬';
+        public char TRightCharacter => '├';
+        public char TLeftCharacter => '┤';
+        public char TUpCharacter => '┴';
+    }
+    public class DoubleLineTableCharacter : ITableCharacter
+    {
+        public char HorizontalLineCharacter => '═';
+        public char VerticalLineCharacter => '║';
+        public char LeftUpperCornerCharacter => '╔';
+        public char RightUpperCornerCharacter => '╗';
+        public char LeftLowerCornerCharacter => '╚';
+        public char RightLowerCornerCharacter => '╝';
+        public char CrossCharacter => '╬';
+        public char TDownCharacter => '╦';
+        public char TRightCharacter => '╠';
+        public char TLeftCharacter => '╣';
+        public char TUpCharacter => '╩';
     }
 }

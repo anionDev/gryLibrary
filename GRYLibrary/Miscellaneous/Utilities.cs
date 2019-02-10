@@ -184,6 +184,30 @@ namespace GRYLibrary
                 subDirectoryInfo.Delete(true);
             }
         }
+        public static void MoveNewFilesInFoldersAcrossVolumesAndDeleteAllOtherFiles(string sourceFolder, string targetFolder, Func<string, bool> fileselectorPredicate, bool deleteAlreadyExistingFilesWithoutCopy = false)
+        {
+            void fileAction(string sourceFile, object @object)
+            {
+                if (fileselectorPredicate(sourceFile))
+                {
+                    string fileName = Path.GetFileName(sourceFile);
+                    string targetFile = targetFolder + fileName;
+                    if (File.Exists(targetFile))
+                    {
+                        if (deleteAlreadyExistingFilesWithoutCopy)
+                        {
+                            File.Delete(sourceFile);
+                        }
+                    }
+                    else
+                    {
+                        File.Copy(sourceFile, targetFile);
+                        File.Delete(sourceFile);
+                    }
+                }
+            }
+            ForEachFileAndDirectoryTransitively(sourceFolder, (str, obj) => { }, fileAction, false, null, null);
+        }
 
         public static bool IsHexDigit(this char @char)
         {
@@ -691,5 +715,6 @@ namespace GRYLibrary
             }
             return isAuthenticated;
         }
+
     }
 }

@@ -21,7 +21,7 @@ namespace GRYLibrary
         private void Execute()
         {
             this._Running = true;
-            if (LogOverhead)
+            if (this.LogOverhead)
             {
                 this.LogObject.LogInformation(string.Format("Start Action of thread with id {0} and name \"{1}\"", this.Id.ToString(), this.Name.ToString()));
             }
@@ -37,7 +37,7 @@ namespace GRYLibrary
             {
                 this._Running = false;
             }
-            if (LogOverhead)
+            if (this.LogOverhead)
             {
                 this.LogObject.LogInformation(string.Format("Startprocess of thread with id {0} and name \"{1}\" started", this.Id.ToString(), this.Name.ToString()));
             }

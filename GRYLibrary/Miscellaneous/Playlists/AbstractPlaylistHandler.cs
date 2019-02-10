@@ -37,8 +37,8 @@ namespace GRYLibrary.Miscellaneous.Playlists
             //TODO fix handling of paths to not existing files and not existing directories
             playlistFileName = this.NormalizePath(playlistFileName);
             Tuple<IEnumerable<string>, IEnumerable<string>> songsAndExcludedSongs = this.GetSongsFromPlaylist(Path.Combine(workingDirectory, playlistFileName));
-            IEnumerable<string> referencedFiles = songsAndExcludedSongs.Item1.Where(item => IsAllowedAsPlaylistItem(item));
-            IEnumerable<string> referencedExcludedFiles = songsAndExcludedSongs.Item2.Where(item => IsAllowedAsPlaylistItem(item));
+            IEnumerable<string> referencedFiles = songsAndExcludedSongs.Item1.Where(item => this.IsAllowedAsPlaylistItem(item));
+            IEnumerable<string> referencedExcludedFiles = songsAndExcludedSongs.Item2.Where(item => this.IsAllowedAsPlaylistItem(item));
             referencedFiles = this.ProcessList(referencedFiles, removeDuplicatedItems, loadTransitively, excludedPlaylistFiles, workingDirectory, playlistFileName);
             referencedExcludedFiles = this.ProcessList(referencedExcludedFiles, removeDuplicatedItems, loadTransitively, excludedPlaylistFiles, workingDirectory, playlistFileName);
             return referencedFiles.Except(referencedExcludedFiles);
@@ -67,7 +67,7 @@ namespace GRYLibrary.Miscellaneous.Playlists
                             }
                             else
                             {
-                                throw new NotImplementedException();
+                                throw new Exception(item + " has an unknown format.");
                             }
                         }
                         else
@@ -128,7 +128,7 @@ namespace GRYLibrary.Miscellaneous.Playlists
             }
             else
             {
-                throw new NotImplementedException();
+                throw new Exception(playlistFile + " has an unknown format.");
             }
             return this.GetSongsFromPlaylist(new FileInfo(playlistFile).Name, workingDirectory, removeDuplicatedItems, loadTransitively);
         }
@@ -140,7 +140,7 @@ namespace GRYLibrary.Miscellaneous.Playlists
         public void AddSongsToPlaylist(string playlistFile, IEnumerable<string> newSongs, bool addOnlyNotExistingSongs = true)
         {
             playlistFile = this.NormalizePath(playlistFile);
-            newSongs = newSongs.Where(item => IsAllowedAsPlaylistItem(item));
+            newSongs = newSongs.Where(item => this.IsAllowedAsPlaylistItem(item));
             if (newSongs.Count() > 0)
             {
                 if (addOnlyNotExistingSongs)
@@ -159,7 +159,7 @@ namespace GRYLibrary.Miscellaneous.Playlists
         public void DeleteSongsFromPlaylist(string playlistFile, IEnumerable<string> songsToDelete)
         {
             playlistFile = this.NormalizePath(playlistFile);
-            this.DeleteSongsFromPlaylistImplementation(playlistFile, songsToDelete.Where(item => IsAllowedAsPlaylistItem(item)));
+            this.DeleteSongsFromPlaylistImplementation(playlistFile, songsToDelete.Where(item => this.IsAllowedAsPlaylistItem(item)));
         }
         public static bool IsReadablePlaylist(string file)
         {
@@ -175,7 +175,7 @@ namespace GRYLibrary.Miscellaneous.Playlists
         }
         public bool IsAllowedAsPlaylistItem(string item)
         {
-            return (!string.IsNullOrWhiteSpace(item)) && HasAllowedExtension(item);
+            return (!string.IsNullOrWhiteSpace(item)) && this.HasAllowedExtension(item);
         }
         private bool HasAllowedExtension(string item)
         {
@@ -186,14 +186,14 @@ namespace GRYLibrary.Miscellaneous.Playlists
             }
             else
             {
-                if (AllowedFiletypesForMusicFiles.Count == 0)
+                if (this.AllowedFiletypesForMusicFiles.Count == 0)
                 {
                     return true;
                 }
                 else
                 {
                     extension = extension.Substring(1).ToLower();
-                    return (AllowedFiletypesForMusicFiles.Contains(extension) || ExtensionsOfReadablePlaylists.ContainsKey(extension)) && File.Exists(item);
+                    return (this.AllowedFiletypesForMusicFiles.Contains(extension) || ExtensionsOfReadablePlaylists.ContainsKey(extension)) && File.Exists(item);
                 }
             }
         }
