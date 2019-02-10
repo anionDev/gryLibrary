@@ -168,15 +168,20 @@ namespace GRYLibrary
             }
             else
             {
-                DirectoryInfo directoryInfo = new DirectoryInfo(folder);
-                foreach (FileInfo file in directoryInfo.GetFiles())
-                {
-                    file.Delete();
-                }
-                foreach (DirectoryInfo subDirectoryInfo in directoryInfo.GetDirectories())
-                {
-                    subDirectoryInfo.Delete(true);
-                }
+                DeleteContentOfFolder(folder);
+            }
+        }
+
+        public static void DeleteContentOfFolder(string folder)
+        {
+            DirectoryInfo directoryInfo = new DirectoryInfo(folder);
+            foreach (FileInfo file in directoryInfo.GetFiles())
+            {
+                file.Delete();
+            }
+            foreach (DirectoryInfo subDirectoryInfo in directoryInfo.GetDirectories())
+            {
+                subDirectoryInfo.Delete(true);
             }
         }
 
