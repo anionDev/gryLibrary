@@ -184,6 +184,10 @@ namespace GRYLibrary
                 subDirectoryInfo.Delete(true);
             }
         }
+        public static void MoveNewFilesInFoldersAcrossVolumesAndDeleteAllOtherFiles(string sourceFolder, string targetFolder, FileSelector fileSelector, bool deleteAlreadyExistingFilesWithoutCopy = false)
+        {
+            MoveNewFilesInFoldersAcrossVolumesAndDeleteAllOtherFiles(sourceFolder, targetFolder, (file) => fileSelector.Files.Contains(file), deleteAlreadyExistingFilesWithoutCopy);
+        }
         public static void MoveNewFilesInFoldersAcrossVolumesAndDeleteAllOtherFiles(string sourceFolder, string targetFolder, Func<string, bool> fileSelectorPredicate, bool deleteAlreadyExistingFilesWithoutCopy = false)
         {
             void fileAction(string sourceFile, object @object)
