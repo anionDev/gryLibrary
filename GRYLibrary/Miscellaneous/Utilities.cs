@@ -184,33 +184,53 @@ namespace GRYLibrary
                 subDirectoryInfo.Delete(true);
             }
         }
+        private static void _DefaultErrorHandlerForMoveNewFilesInFoldersAcrossVolumesAndDeleteAllOtherFiles(Exception exeption) { }
         public static void MoveNewFilesInFoldersAcrossVolumesAndDeleteAllOtherFiles(string sourceFolder, string targetFolder, FileSelector fileSelector, bool deleteAlreadyExistingFilesWithoutCopy = false)
         {
-            MoveNewFilesInFoldersAcrossVolumesAndDeleteAllOtherFiles(sourceFolder, targetFolder, (file) => fileSelector.Files.Contains(file), deleteAlreadyExistingFilesWithoutCopy);
+            MoveNewFilesInFoldersAcrossVolumesAndDeleteAllOtherFiles(sourceFolder, targetFolder, fileSelector, _DefaultErrorHandlerForMoveNewFilesInFoldersAcrossVolumesAndDeleteAllOtherFiles, deleteAlreadyExistingFilesWithoutCopy);
         }
         public static void MoveNewFilesInFoldersAcrossVolumesAndDeleteAllOtherFiles(string sourceFolder, string targetFolder, Func<string, bool> fileSelectorPredicate, bool deleteAlreadyExistingFilesWithoutCopy = false)
         {
+            MoveNewFilesInFoldersAcrossVolumesAndDeleteAllOtherFiles(sourceFolder, targetFolder, fileSelectorPredicate, _DefaultErrorHandlerForMoveNewFilesInFoldersAcrossVolumesAndDeleteAllOtherFiles, deleteAlreadyExistingFilesWithoutCopy);
+        }
+
+        public static void MoveNewFilesInFoldersAcrossVolumesAndDeleteAllOtherFiles(string sourceFolder, string targetFolder, FileSelector fileSelector, Action<Exception> errorHandler, bool deleteAlreadyExistingFilesWithoutCopy = false)
+        {
+            MoveNewFilesInFoldersAcrossVolumesAndDeleteAllOtherFiles(sourceFolder, targetFolder, (file) => fileSelector.Files.Contains(file), errorHandler, deleteAlreadyExistingFilesWithoutCopy);
+        }
+        public static void MoveNewFilesInFoldersAcrossVolumesAndDeleteAllOtherFiles(string sourceFolder, string targetFolder, Func<string, bool> fileSelectorPredicate, Action<Exception> errorHandler, bool deleteAlreadyExistingFilesWithoutCopy = false)
+        {
             void fileAction(string sourceFile, object @object)
             {
-                if (fileSelectorPredicate(sourceFile))
+                try
                 {
-                    string fileName = Path.GetFileName(sourceFile);
-                    string targetFile = targetFolder + fileName;
-                    if (File.Exists(targetFile))
+                    if (fileSelectorPredicate(sourceFile))
                     {
-                        if (deleteAlreadyExistingFilesWithoutCopy)
+                        string fileName = Path.GetFileName(sourceFile);
+                        string fullTargetFolder = Path.Combine(targetFolder, Path.GetDirectoryName(sourceFile).Substring(sourceFolder.Length).TrimStart('/', '\\'));
+                        EnsureDirectoryExists(fullTargetFolder);
+                        string targetFile = Path.Combine(fullTargetFolder, fileName);
+                        if (File.Exists(targetFile))
                         {
+                            string c = sourceFolder;
+                            if (deleteAlreadyExistingFilesWithoutCopy)
+                            {
+                                File.Delete(sourceFile);
+                            }
+                        }
+                        else
+                        {
+                            File.Copy(sourceFile, targetFile);
                             File.Delete(sourceFile);
                         }
                     }
-                    else
-                    {
-                        File.Copy(sourceFile, targetFile);
-                        File.Delete(sourceFile);
-                    }
+                }
+                catch (Exception exception)
+                {
+                    errorHandler(exception);
                 }
             }
-            ForEachFileAndDirectoryTransitively(sourceFolder, (str, obj) => { }, fileAction, false, null, null);
+            ForEachFileAndDirectoryTransitively(sourceFolder, (str, obj) => { }, (sourceFile, @object) => fileAction(sourceFile, @object), false, null, null);
         }
 
         public static bool IsHexDigit(this char @char)
