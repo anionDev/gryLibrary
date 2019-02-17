@@ -739,6 +739,103 @@ namespace GRYLibrary
             }
             return isAuthenticated;
         }
-
+        private const char Slash = '/';
+        private const char Backslash = '\\';
+        public static string EnsurePathStartsWithSlash(this string path)
+        {
+            if (path.StartsWith(Slash.ToString()))
+            {
+                return path;
+            }
+            else
+            {
+                return Slash + path;
+            }
+        }
+        public static string EnsurePathStartsWithBackslash(this string path)
+        {
+            if (path.StartsWith(Slash.ToString()))
+            {
+                return path;
+            }
+            else
+            {
+                return Backslash + path;
+            }
+        }
+        public static string EnsurePathStartsWithoutSlash(this string path)
+        {
+            if (path.StartsWith(Slash.ToString()))
+            {
+                return path.TrimStart(Slash);
+            }
+            else
+            {
+                return path;
+            }
+        }
+        public static string EnsurePathStartsWithoutBackslash(this string path)
+        {
+            if (path.StartsWith(Backslash.ToString()))
+            {
+                return path.TrimStart(Slash);
+            }
+            else
+            {
+                return path;
+            }
+        }
+        public static string EnsurePathEndsWithSlash(this string path)
+        {
+            if (path.EndsWith(Slash.ToString()))
+            {
+                return path;
+            }
+            else
+            {
+                return path + Slash;
+            }
+        }
+        public static string EnsurePathEndsWithBackslash(this string path)
+        {
+            if (path.EndsWith(Backslash.ToString()))
+            {
+                return path;
+            }
+            else
+            {
+                return path + Backslash;
+            }
+        }
+        public static string EnsurePathEndsWithoutSlash(this string path)
+        {
+            if (path.EndsWith(Slash.ToString()))
+            {
+                return path.TrimEnd(Slash);
+            }
+            else
+            {
+                return path;
+            }
+        }
+        public static string EnsurePathEndsWithoutBackslash(this string path)
+        {
+            if (path.EndsWith(Backslash.ToString()))
+            {
+                return path.TrimEnd(Backslash);
+            }
+            else
+            {
+                return path;
+            }
+        }
+        public static string EnsurePathStartsWithoutSlashOrBackslash(this string path)
+        {
+            return path.EnsurePathStartsWithoutSlash().EnsurePathStartsWithoutBackslash();
+        }
+        public static string EnsurePathSEndsWithoutSlashOrBackslash(this string path)
+        {
+            return path.EnsurePathEndsWithoutSlash().EnsurePathEndsWithoutBackslash();
+        }
     }
 }
