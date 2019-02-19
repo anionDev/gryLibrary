@@ -144,10 +144,20 @@ namespace GRYLibrary.Miscellaneous.Playlists.ConcretePlaylistHandler
             Utilities.EnsureFileExists(file);
         }
 
-        private class M3UConfiguration
+        internal class M3UConfiguration
         {
-            private readonly Dictionary<string, string> _Replace = new Dictionary<string, string>();
-            private string _EqualsDefinitionsFile = null;
+            internal class M3UConfigurationPerPC
+            {
+                public Dictionary<string, string> Replace { get; } = new Dictionary<string, string>();
+                public string EqualsDefinitionsFile { get; set; }
+                public string PCName { get; }
+                public M3UConfigurationPerPC(string pcName)
+                {
+                    this.PCName = pcName;
+                }
+
+            }
+            internal IList<M3UConfigurationPerPC> ConfigurationItems { get; } = new List<M3UConfigurationPerPC>();
             private readonly string _ConfigurationFile;
             public M3UConfiguration(string configurationFile)
             {
@@ -161,20 +171,30 @@ namespace GRYLibrary.Miscellaneous.Playlists.ConcretePlaylistHandler
                 {
                     try
                     {
-                        if (line.Contains(":"))
+                        string trimmedLine = line.Trim();
+                        if ((!trimmedLine.StartsWith("#")) && (!string.IsNullOrWhiteSpace(trimmedLine)))
                         {
-                            string optionKey = line.Split(':')[0].ToLower();
-                            string optionValue = line.Substring(optionKey.Length + 1);
-                            if (optionKey.Equals("replace"))
+                            M3UConfigurationPerPC currentConfiguration = null;
+                            if (trimmedLine.ToLower().StartsWith("on:"))
                             {
-                                string[] splitted = optionValue.Split(';');
-                                this._Replace.Add(splitted[0], splitted[1]);
+                                currentConfiguration = new M3UConfigurationPerPC(trimmedLine.Split(':')[1].ToUpper());
+                                this.ConfigurationItems.Add(currentConfiguration);
                             }
-                            if (optionKey.Equals("equals"))
+                            if (trimmedLine.Contains(":"))
                             {
-                                this._EqualsDefinitionsFile = optionValue;
+                                string optionKey = trimmedLine.Split(':')[0].ToLower();
+                                string optionValue = trimmedLine.Substring(optionKey.Length + 1);
+                                if (optionKey.Equals("replace"))
+                                {
+                                    string[] splitted = optionValue.Split(';');
+                                    currentConfiguration.Replace.Add(splitted[0], splitted[1]);
+                                }
+                                if (optionKey.Equals("equals"))
+                                {
+                                    currentConfiguration.EqualsDefinitionsFile = optionValue;
+                                }
+                                //add other options if desired
                             }
-                            //add other options if desired
                         }
                     }
                     catch
@@ -186,12 +206,13 @@ namespace GRYLibrary.Miscellaneous.Playlists.ConcretePlaylistHandler
 
             internal IEnumerable<string> ApplyTo(IEnumerable<string> input)
             {
+                M3UConfigurationPerPC configuration = this.GetApplicableConfiguration();
                 List<string> result = new List<string>();
-                this.AddEqualsDefinitionsToReplaceDictionary();
+                this.AddEqualsDefinitionsToReplaceDictionary(configuration);
                 foreach (string item in input)
                 {
                     string newItem = item;
-                    foreach (KeyValuePair<string, string> replacement in this._Replace)
+                    foreach (KeyValuePair<string, string> replacement in configuration.Replace)
                     {
                         newItem = newItem.Replace(replacement.Key, replacement.Value);
                     }
@@ -201,11 +222,30 @@ namespace GRYLibrary.Miscellaneous.Playlists.ConcretePlaylistHandler
                 return result;
             }
 
-            private void AddEqualsDefinitionsToReplaceDictionary()
+            private M3UConfigurationPerPC GetApplicableConfiguration()
             {
-                if (!(this._EqualsDefinitionsFile == null) && File.Exists(this._EqualsDefinitionsFile))
+                foreach (M3UConfigurationPerPC item in this.ConfigurationItems)
                 {
-                    string[] equalsDefinitions = File.ReadAllLines(this._EqualsDefinitionsFile);
+                    if (item.PCName.Equals(Environment.MachineName))
+                    {
+                        return item;
+                    }
+                }
+                foreach (M3UConfigurationPerPC item in this.ConfigurationItems)
+                {
+                    if (item.PCName.Equals("all"))
+                    {
+                        return item;
+                    }
+                }
+                throw new KeyNotFoundException();
+            }
+
+            private void AddEqualsDefinitionsToReplaceDictionary(M3UConfigurationPerPC configuration)
+            {
+                if (!(configuration.EqualsDefinitionsFile == null) && File.Exists(configuration.EqualsDefinitionsFile))
+                {
+                    string[] equalsDefinitions = File.ReadAllLines(configuration.EqualsDefinitionsFile);
                     foreach (string equalsDefinition in equalsDefinitions)
                     {
                         if (equalsDefinition.Contains("*") && !equalsDefinition.StartsWith("#"))
@@ -213,7 +253,7 @@ namespace GRYLibrary.Miscellaneous.Playlists.ConcretePlaylistHandler
                             string[] splitted = equalsDefinition.Split('*');
                             foreach (string value in splitted.Skip(1))
                             {
-                                this._Replace.Add(splitted[0], value);
+                                configuration.Replace.Add(splitted[0], value);
                             }
                         }
                     }
