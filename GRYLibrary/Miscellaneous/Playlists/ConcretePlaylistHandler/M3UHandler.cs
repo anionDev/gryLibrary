@@ -167,6 +167,7 @@ namespace GRYLibrary.Miscellaneous.Playlists.ConcretePlaylistHandler
 
             private void ReadConfigFile()
             {
+                M3UConfigurationPerPC currentConfiguration = null;
                 foreach (string line in File.ReadAllLines(this._ConfigurationFile))
                 {
                     try
@@ -174,16 +175,15 @@ namespace GRYLibrary.Miscellaneous.Playlists.ConcretePlaylistHandler
                         string trimmedLine = line.Trim();
                         if ((!trimmedLine.StartsWith("#")) && (!string.IsNullOrWhiteSpace(trimmedLine)))
                         {
-                            M3UConfigurationPerPC currentConfiguration = null;
-                            if (trimmedLine.ToLower().StartsWith("on:"))
-                            {
-                                currentConfiguration = new M3UConfigurationPerPC(trimmedLine.Split(':')[1].ToUpper());
-                                this.ConfigurationItems.Add(currentConfiguration);
-                            }
                             if (trimmedLine.Contains(":"))
                             {
                                 string optionKey = trimmedLine.Split(':')[0].ToLower();
                                 string optionValue = trimmedLine.Substring(optionKey.Length + 1);
+                                if (optionKey.Equals("on"))
+                                {
+                                    currentConfiguration = new M3UConfigurationPerPC(trimmedLine.Split(':')[1].ToUpper());
+                                    this.ConfigurationItems.Add(currentConfiguration);
+                                }
                                 if (optionKey.Equals("replace"))
                                 {
                                     string[] splitted = optionValue.Split(';');
