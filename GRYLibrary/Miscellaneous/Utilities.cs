@@ -185,20 +185,28 @@ namespace GRYLibrary
             }
         }
         private static void _DefaultErrorHandlerForMoveNewFilesInFoldersAcrossVolumesAndDeleteAllOtherFiles(Exception exeption) { }
-        public static void MoveNewFilesInFoldersAcrossVolumesAndDeleteAllOtherFiles(string sourceFolder, string targetFolder, FileSelector fileSelector, bool deleteAlreadyExistingFilesWithoutCopy = false)
+        public static void MoveContentOfFoldersAcrossVolumes(string sourceFolder, string targetFolder, FileSelector fileSelector, bool deleteAlreadyExistingFilesWithoutCopy = false)
         {
-            MoveNewFilesInFoldersAcrossVolumesAndDeleteAllOtherFiles(sourceFolder, targetFolder, fileSelector, _DefaultErrorHandlerForMoveNewFilesInFoldersAcrossVolumesAndDeleteAllOtherFiles, deleteAlreadyExistingFilesWithoutCopy);
+            MoveContentOfFoldersAcrossVolumes(sourceFolder, targetFolder, fileSelector, _DefaultErrorHandlerForMoveNewFilesInFoldersAcrossVolumesAndDeleteAllOtherFiles, deleteAlreadyExistingFilesWithoutCopy);
         }
-        public static void MoveNewFilesInFoldersAcrossVolumesAndDeleteAllOtherFiles(string sourceFolder, string targetFolder, Func<string, bool> fileSelectorPredicate, bool deleteAlreadyExistingFilesWithoutCopy = false)
+        public static void MoveContentOfFoldersAcrossVolumes(string sourceFolder, string targetFolder, Func<string, bool> fileSelectorPredicate, bool deleteAlreadyExistingFilesWithoutCopy = false)
         {
-            MoveNewFilesInFoldersAcrossVolumesAndDeleteAllOtherFiles(sourceFolder, targetFolder, fileSelectorPredicate, _DefaultErrorHandlerForMoveNewFilesInFoldersAcrossVolumesAndDeleteAllOtherFiles, deleteAlreadyExistingFilesWithoutCopy);
+            MoveContentOfFoldersAcrossVolumes(sourceFolder, targetFolder, fileSelectorPredicate, _DefaultErrorHandlerForMoveNewFilesInFoldersAcrossVolumesAndDeleteAllOtherFiles, deleteAlreadyExistingFilesWithoutCopy);
         }
 
-        public static void MoveNewFilesInFoldersAcrossVolumesAndDeleteAllOtherFiles(string sourceFolder, string targetFolder, FileSelector fileSelector, Action<Exception> errorHandler, bool deleteAlreadyExistingFilesWithoutCopy = false)
+        public static void MoveContentOfFoldersAcrossVolumes(string sourceFolder, string targetFolder, FileSelector fileSelector, Action<Exception> errorHandler, bool deleteAlreadyExistingFilesWithoutCopy = false)
         {
-            MoveNewFilesInFoldersAcrossVolumesAndDeleteAllOtherFiles(sourceFolder, targetFolder, (file) => fileSelector.Files.Contains(file), errorHandler, deleteAlreadyExistingFilesWithoutCopy);
+            MoveContentOfFoldersAcrossVolumes(sourceFolder, targetFolder, (file) => fileSelector.Files.Contains(file), errorHandler, deleteAlreadyExistingFilesWithoutCopy);
         }
-        public static void MoveNewFilesInFoldersAcrossVolumesAndDeleteAllOtherFiles(string sourceFolder, string targetFolder, Func<string, bool> fileSelectorPredicate, Action<Exception> errorHandler, bool deleteAlreadyExistingFilesWithoutCopy = false)
+        /// <summary>
+        /// Moves the content of <paramref name="sourceFolder"/> to <paramref name="targetFolder"/>.
+        /// </summary>
+        /// <remarks>
+        /// If <paramref name="deleteAlreadyExistingFilesWithoutCopy"/>==true then the files in <paramref name="sourceFolder"/> which do already exist in <paramref name="targetFolder"/> will be deleted without copying them and without any backup. (Only filepath/-name will be compared. The content of the file does not matter for this comparison.)
+        /// This function preserves the directory-structure of <paramref name="sourceFolder"/>.
+        /// This function ignores empty directories in <paramref name="sourceFolder"/>.
+        /// </remarks>
+        public static void MoveContentOfFoldersAcrossVolumes(string sourceFolder, string targetFolder, Func<string, bool> fileSelectorPredicate, Action<Exception> errorHandler, bool deleteAlreadyExistingFilesWithoutCopy = false)
         {
             void fileAction(string sourceFile, object @object)
             {
@@ -206,13 +214,13 @@ namespace GRYLibrary
                 {
                     if (fileSelectorPredicate(sourceFile))
                     {
+                        string sourceFolderTrimmed = sourceFolder.Trim().TrimStart('/', '\\').TrimEnd('/', '\\');
                         string fileName = Path.GetFileName(sourceFile);
-                        string fullTargetFolder = Path.Combine(targetFolder, Path.GetDirectoryName(sourceFile).Substring(sourceFolder.Length).TrimStart('/', '\\'));
+                        string fullTargetFolder = Path.Combine(targetFolder, Path.GetDirectoryName(sourceFile).Substring(sourceFolderTrimmed.Length).TrimStart('/', '\\'));
                         EnsureDirectoryExists(fullTargetFolder);
                         string targetFile = Path.Combine(fullTargetFolder, fileName);
                         if (File.Exists(targetFile))
                         {
-                            string c = sourceFolder;
                             if (deleteAlreadyExistingFilesWithoutCopy)
                             {
                                 File.Delete(sourceFile);
