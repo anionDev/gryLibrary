@@ -28,7 +28,7 @@ namespace GRYLibraryTest
                 handler.AddSongsToPlaylist(file, currentExpectedContent);
                 Assert.IsTrue(currentExpectedContent.EqualsIgnoringOrder(handler.GetSongsFromPlaylist(file).ToList()));
 
-                currentExpectedContent.Add(@"\\ComputerName\SharedFolder\Resource");
+                currentExpectedContent.Add(@"\\ComputerName\SharedFolder\Resource.mp3");
                 currentExpectedContent.Add(@"X:\a\d.Ogg");
                 currentExpectedContent.Add(@"http://player.example.com/stream.mp3");
                 handler.AddSongsToPlaylist(file, currentExpectedContent);
@@ -123,7 +123,7 @@ namespace GRYLibraryTest
                 Utilities.EnsureFileDoesNotExist(configurationFile);
                 Utilities.EnsureDirectoryExists("test");
                 Utilities.EnsureFileExists(configurationFile);
-                File.WriteAllText(configurationFile, @"replace:{DefaultPath};C:\Data\Music", new UTF8Encoding(false));
+                File.WriteAllText(configurationFile, "on:all" + Environment.NewLine + @"replace:{DefaultPath};C:\Data\Music", new UTF8Encoding(false));
                 M3UHandler.Instance.CreatePlaylist(m3uFile1);
                 M3UHandler.Instance.CreatePlaylist(m3uFile2);
                 M3UHandler.Instance.AddSongsToPlaylist(m3uFile1, new string[] { "trackA.mp3", nameOfm3ufile2, "{DefaultPath}\\trackB.mp3" });
@@ -151,7 +151,7 @@ namespace GRYLibraryTest
             Dictionary<string, string[]> filesWithTheirContent = new Dictionary<string, string[]>();
             string defaultMusicFolder = @"C:\Data\MyMusicFolder";
             string mainPlaylistFile = "m3utest/dir1/t1.m3u";
-            filesWithTheirContent.Add("m3utest/.m3uconfiguration", new string[] { @"replace:{DefaultPath};" + defaultMusicFolder });
+            filesWithTheirContent.Add("m3utest/.m3uconfiguration", new string[] { "on:all", @"replace:{DefaultPath};" + defaultMusicFolder });
             filesWithTheirContent.Add(mainPlaylistFile, new string[] {
                 @"myTrack1.mp3", @"{DefaultPath}\myTrack2.mp3",
                 @"..\notwanted\notWanted1.mp3",
@@ -252,7 +252,7 @@ namespace GRYLibraryTest
                 Utilities.EnsureFileDoesNotExist(configurationFile);
                 Utilities.EnsureDirectoryExists("test");
                 Utilities.EnsureFileExists(configurationFile);
-                File.WriteAllText(configurationFile, @"replace:{DefaultPath};C:\Data\Music", new UTF8Encoding(false));
+                File.WriteAllText(configurationFile, "on:all" + Environment.NewLine + @"replace:{DefaultPath};C:\Data\Music", new UTF8Encoding(false));
                 M3UHandler.Instance.CreatePlaylist(m3uFile1);
                 M3UHandler.Instance.CreatePlaylist(m3uFile2);
                 M3UHandler.Instance.AddSongsToPlaylist(m3uFile1, new string[] { "trackA.mp3", nameOfm3ufile2, "{DefaultPath}\\trackB.mp3" });

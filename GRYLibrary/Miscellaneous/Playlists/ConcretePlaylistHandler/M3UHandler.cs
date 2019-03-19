@@ -233,7 +233,7 @@ namespace GRYLibrary.Miscellaneous.Playlists.ConcretePlaylistHandler
                 }
                 foreach (M3UConfigurationPerPC item in this.ConfigurationItems)
                 {
-                    if (item.PCName.Equals("all"))
+                    if (item.PCName.ToUpper().Equals("all".ToUpper()))
                     {
                         return item;
                     }
