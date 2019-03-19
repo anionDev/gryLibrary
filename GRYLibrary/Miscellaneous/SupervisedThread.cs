@@ -10,7 +10,7 @@ namespace GRYLibrary
             this.Action = action;
             this.Id = Guid.NewGuid();
             this.Name = $"{nameof(SupervisedThread)} {this.Id.ToString()} " + (string.IsNullOrEmpty(name) ? string.Empty : $"({name})");
-            this.LogObject = new GRYLog();
+            this.LogObject = GRYLog.Create();
         }
         public bool LogOverhead { get; set; } = false;
         public string Name { get; set; }
