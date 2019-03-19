@@ -8,10 +8,8 @@ namespace GRYLibrary
     {
         public ExternalProgramExecutor(string programPathAndFile, string arguments, string title, string workingDirectory, bool printErrorsAsInformation = false, string logFile = null, int? timeoutInMilliseconds = null)
         {
-            this.LogObject = new GRYLog
-            {
-                PrintOutputInConsole = true
-            };
+            this.LogObject = new GRYLog();
+            this.LogObject.Configuration.PrintOutputInConsole = true;
             if (logFile == null)
             {
                 this.LogObject.WriteToLogFile = false;
@@ -37,7 +35,7 @@ namespace GRYLibrary
         public int? TimeoutInMilliseconds { get; set; }
         public bool PrintErrorsAsInformation { get; set; }
         private bool _StopLogOutputThread = false;
-        private readonly ConcurrentQueue<Tuple<GRYLog.LogLevel, string>> _NotLoggedOutputLines = new ConcurrentQueue<Tuple<GRYLog.LogLevel, string>>();
+        private readonly ConcurrentQueue<Tuple<GRYLogLogLevel, string>> _NotLoggedOutputLines = new ConcurrentQueue<Tuple<GRYLogLogLevel, string>>();
         /// <summary>
         /// Starts the program which was set in the properties.
         /// </summary>
@@ -128,24 +126,24 @@ namespace GRYLibrary
         }
         private void EnqueueError(string data)
         {
-            this._NotLoggedOutputLines.Enqueue(new Tuple<GRYLog.LogLevel, string>(GRYLog.LogLevel.Exception, data));
+            this._NotLoggedOutputLines.Enqueue(new Tuple<GRYLogLogLevel, string>(GRYLogLogLevel.Exception, data));
         }
 
         private void EnqueueInformation(string data)
         {
-            this._NotLoggedOutputLines.Enqueue(new Tuple<GRYLog.LogLevel, string>(GRYLog.LogLevel.Information, data));
+            this._NotLoggedOutputLines.Enqueue(new Tuple<GRYLogLogLevel, string>(GRYLogLogLevel.Information, data));
         }
         private void LogOutput()
         {
             while (!this._StopLogOutputThread)
             {
-                if (this._NotLoggedOutputLines.TryDequeue(out Tuple<GRYLog.LogLevel, string> logItem))
+                if (this._NotLoggedOutputLines.TryDequeue(out Tuple<GRYLogLogLevel, string> logItem))
                 {
-                    if (logItem.Item1.Equals(GRYLog.LogLevel.Exception))
+                    if (logItem.Item1.Equals(GRYLogLogLevel.Exception))
                     {
                         this.LogObject.LogError(logItem.Item2);
                     }
-                    if (logItem.Item1.Equals(GRYLog.LogLevel.Information))
+                    if (logItem.Item1.Equals(GRYLogLogLevel.Information))
                     {
                         this.LogObject.LogInformation(logItem.Item2);
                     }

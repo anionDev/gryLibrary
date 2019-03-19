@@ -6,92 +6,85 @@ using System.Text;
 
 namespace GRYLibrary
 {
-    public class GRYLog
+    public enum GRYLogLogLevel : int
     {
-        public bool Enabled { get; set; }
-        public Encoding Encoding { get; set; }
-        public event NewLogItemEventHandler NewLogItem;
-        public delegate void NewLogItemEventHandler(string message, string fullMessage, LogLevel level);
-        public string InformationPrefix { get; set; }
-        public string WarningPrefix { get; set; }
-        public string ErrorPrefix { get; set; }
-        public string DebugPrefix { get; set; }
-        public string VerbosePrefix { get; set; }
-        private string _LogFile;
-        private bool _WriteToLogFile;
+        Critical = 0,
+        Exception = 1,
+        Warning = 2,
+        Information = 3,
+        Verbose = 4,
+        Debug = 5
+    }
+    public class GRYLog : IDisposable
+    {
+        EventLog _EventLog;
+        public GRYLogConfiguration Configuration { get; set; }
         private readonly static object _LockObject = new object();
         private readonly bool _Initialized = false;
-        public bool IgnoreErrorsWhileWriteLogItem { get; set; }
-        public int LogItemIdLength { get; set; }
-        public bool PrintEmptyLines { get; set; }
-        public bool PrintErrorsAsInformation { get; set; }
-        public bool StoreErrorsInErrorQueueInsteadOfLoggingThem { get; set; }
-        public bool PrintOutputInConsole { get; set; }
-        public bool WriteExceptionMessageOfExceptionInLogEntry { get; set; }
-        public bool WriteExceptionStackTraceOfExceptionInLogEntry { get; set; }
-        public bool AddIdToEveryLogEntry { get; set; }
-        public bool WriteLogEntryWhenGRYLogWriteToLogFileWIllBeEnabledOrDisabled { get; set; }
-        public string DateFormat { get; set; }
-        public IList<LogLevel> LoggedMessageTypesInConsole { get; set; }
-        public IList<LogLevel> LoggedMessageTypesInLogFile { get; set; }
-        public ConsoleColor ColorForInfo { get; set; }
-        public ConsoleColor ColorForWarning { get; set; }
-        public ConsoleColor ColorForError { get; set; }
-        public ConsoleColor ColorForDebug { get; set; }
-        public ConsoleColor ColorForVerbose { get; set; }
-        public bool LogOverhead { get; set; }
-        public bool ConvertTimeToUTCFormat { get; set; }
         private int _AmountOfErrors = 0;
         private int _AmountOfWarnings = 0;
-        public bool DebugBreakMode { get; set; }
-        public IList<LogLevel> DebugBreakLevel { get; set; }
         private readonly ConsoleColor _ConsoleDefaultColor;
-        public string LogFile
+        public event NewLogItemEventHandler NewLogItem;
+        public delegate void NewLogItemEventHandler(string message, string fullMessage, GRYLogLogLevel level);
+        private FileSystemWatcher _Watcher;
+        private GRYLog(GRYLogConfiguration configuration, string configurationFile)
         {
-            get
+            this._ConsoleDefaultColor = Console.ForegroundColor;
+            this.Configuration = configuration;
+            if (this.Configuration.ReloadConfigurationWhenSourceFileWillBeChanged && File.Exists(configurationFile))
             {
-                return this._LogFile;
+                StartFileWatcherForConfigurationFile(configurationFile);
             }
-            set
+            _EventLog = new EventLog(this.Configuration.ApplicationNameForWindowsEventViewer)
             {
-                string newValue = value;
-                if (!File.Exists(newValue))
-                {
-                    string directoryOfLogFile = Path.GetDirectoryName(newValue);
-                    if (!(string.IsNullOrWhiteSpace(directoryOfLogFile) || Directory.Exists(directoryOfLogFile)))
-                    {
-                        Directory.CreateDirectory(directoryOfLogFile);
-                    }
-                    Utilities.EnsureFileExists(newValue);
-                }
-                this._LogFile = newValue;
-            }
+                Source = this.Configuration.NameOfSourceForWindowsEventViewer
+            };
+            this._Initialized = true;
         }
-        public bool WriteToLogFile
+        public static GRYLog Create()
         {
-            get
-            {
-                return this._WriteToLogFile;
-            }
-            set
-            {
-                if (value != this.WriteToLogFile)
-                {
-                    this._WriteToLogFile = value;
-                    if (this.WriteLogEntryWhenGRYLogWriteToLogFileWIllBeEnabledOrDisabled)
-                    {
-                        if (value)
-                        {
-                            this.LogInformation($"{nameof(GRYLog)}.{nameof(this.WriteToLogFile)} is now enabled.");
-                        }
-                        else
-                        {
-                            this.LogInformation($"{nameof(GRYLog)}.{nameof(this.WriteToLogFile)} is now disabled.");
-                        }
-                    }
-                }
-            }
+            return new GRYLog(new GRYLogConfiguration(), string.Empty);
         }
+        public static GRYLog Create(string logFile)
+        {
+            var configuration = new GRYLogConfiguration
+            {
+                LogFile = logFile
+            };
+            return new GRYLog(configuration, string.Empty);
+        }
+        public static GRYLog CreateByConfigurationFile(string configurationFile)
+        {
+            return new GRYLog(GRYLogConfiguration.LoadConfiguration(configurationFile), configurationFile);
+        }
+
+        private void StartFileWatcherForConfigurationFile(string configurationFile)
+        {
+            _Watcher = new FileSystemWatcher
+            {
+                Path = configurationFile,
+                NotifyFilter = NotifyFilters.LastWrite,
+                Filter = "*.*"
+            };
+            _Watcher.Changed += new FileSystemEventHandler((object sender, FileSystemEventArgs eventArgs) =>
+            {
+                try
+                {
+                    _Watcher.EnableRaisingEvents = false;
+                    this.Configuration = GRYLogConfiguration.LoadConfiguration(configurationFile);
+                }
+                catch (Exception exception)
+                {
+                    this.LogError("Could not reload Configuration", exception);
+                }
+                finally
+                {
+                    _Watcher.EnableRaisingEvents = true;
+                }
+            });
+            _Watcher.EnableRaisingEvents = true;
+        }
+
         public int GetAmountOfErrors()
         {
             return this._AmountOfErrors;
@@ -105,59 +98,6 @@ namespace GRYLibrary
             this.LogInformation("Amount of occurred Errors: " + this.GetAmountOfErrors().ToString());
             this.LogInformation("Amount of occurred Warnings: " + this.GetAmountOfWarnings().ToString());
         }
-        public GRYLog(string logFile)
-        {
-            this.Enabled = true;
-            this.DebugBreakMode = false;
-            this.ConvertTimeToUTCFormat = false;
-            this.Encoding = new UTF8Encoding(false);
-            this.DebugBreakLevel = new List<LogLevel>() { LogLevel.Exception };
-            this._ConsoleDefaultColor = Console.ForegroundColor;
-            this.DateFormat = "yyyy-MM-dd HH:mm:ss";
-            this.LoggedMessageTypesInConsole = new List<LogLevel>();
-            this.LoggedMessageTypesInLogFile = new List<LogLevel>();
-            this.WriteLogEntryWhenGRYLogWriteToLogFileWIllBeEnabledOrDisabled = false;
-            this.InformationPrefix = "Info";
-            this.ErrorPrefix = "Error";
-            this.DebugPrefix = "Debug";
-            this.WarningPrefix = "Warning";
-            this.VerbosePrefix = "Additional";
-            this.LogOverhead = true;
-            this.PrintEmptyLines = false;
-            this.WriteExceptionMessageOfExceptionInLogEntry = true;
-            this.WriteExceptionStackTraceOfExceptionInLogEntry = true;
-            this.AddIdToEveryLogEntry = false;
-            this.StoreErrorsInErrorQueueInsteadOfLoggingThem = false;
-            this.PrintOutputInConsole = true;
-            this.ColorForDebug = ConsoleColor.DarkBlue;
-            this.ColorForError = ConsoleColor.DarkRed;
-            this.ColorForInfo = ConsoleColor.Green;
-            this.ColorForWarning = ConsoleColor.DarkYellow;
-            this.ColorForVerbose = ConsoleColor.Blue;
-            this.LogItemIdLength = 8;
-            this.LoggedMessageTypesInConsole.Add(LogLevel.Exception);
-            this.LoggedMessageTypesInConsole.Add(LogLevel.Warning);
-            this.LoggedMessageTypesInConsole.Add(LogLevel.Information);
-            this.LoggedMessageTypesInLogFile.Add(LogLevel.Exception);
-            this.LoggedMessageTypesInLogFile.Add(LogLevel.Warning);
-            this.LoggedMessageTypesInLogFile.Add(LogLevel.Information);
-            this.IgnoreErrorsWhileWriteLogItem = false;
-
-            if (string.IsNullOrWhiteSpace(logFile))
-            {
-                this.WriteToLogFile = false;
-                this._LogFile = logFile;
-            }
-            else
-            {
-                this.LogFile = logFile;
-                this.WriteToLogFile = true;
-            }
-            this._Initialized = true;
-        }
-        public GRYLog() : this(string.Empty)
-        {
-        }
         public void LogInformation(string message, string logLineId = "")
         {
             if (!this.CheckEnabled())
@@ -167,7 +107,7 @@ namespace GRYLibrary
 
             if (this.LineShouldBePrinted(message))
             {
-                this.LogIt(message, LogLevel.Information, logLineId);
+                this.LogIt(message, GRYLogLogLevel.Information, logLineId);
             }
         }
 
@@ -178,7 +118,7 @@ namespace GRYLibrary
                 return false;
             }
 
-            if (this.PrintEmptyLines)
+            if (this.Configuration.PrintEmptyLines)
             {
                 return true;
             }
@@ -199,7 +139,7 @@ namespace GRYLibrary
                 return;
             }
 
-            this.LogIt(message, LogLevel.Debug, logLineId);
+            this.LogIt(message, GRYLogLogLevel.Debug, logLineId);
         }
 
         public void LogWarning(string message, string logLineId = "")
@@ -215,7 +155,7 @@ namespace GRYLibrary
             }
 
             this._AmountOfWarnings = this._AmountOfWarnings + 1;
-            this.LogIt(message, LogLevel.Warning, logLineId);
+            this.LogIt(message, GRYLogLogLevel.Warning, logLineId);
         }
         public void LogVerboseMessage(string message, string logLineId = "")
         {
@@ -229,8 +169,47 @@ namespace GRYLibrary
                 return;
             }
 
-            this.LogIt(message, LogLevel.Verbose, logLineId);
+            this.LogIt(message, GRYLogLogLevel.Verbose, logLineId);
         }
+
+        public void LogCritical(string message, Exception exception, string logLineId = "")
+        {
+            if (!this.LineShouldBePrinted(message))
+            {
+                return;
+            }
+            this.LogCritical(this.GetExceptionMessage(message, exception), logLineId);
+        }
+        public void LogCritical(Exception exception, string logLineId = "")
+        {
+            this.LogCritical(this.GetExceptionMessage("An exception occurred", exception), logLineId);
+        }
+        public void LogCritical(string message, string logLineId = "")
+        {
+            if (!this.CheckEnabled())
+            {
+                return;
+            }
+
+            if (!this.LineShouldBePrinted(message))
+            {
+                return;
+            }
+            if (this.Configuration.StoreErrorsInErrorQueueInsteadOfLoggingThem)
+            {
+                this._StoredErrors.Enqueue(new Tuple<string, string>(message, logLineId));
+            }
+            else
+            {
+                this.LogCriticalInternal(message, logLineId);
+            }
+        }
+
+        private void LogCriticalInternal(string message, string logLineId)
+        {
+            LogErrorHelper(message, logLineId, GRYLogLogLevel.Critical);
+        }
+
         public void LogError(string message, Exception exception, string logLineId = "")
         {
             if (!this.LineShouldBePrinted(message))
@@ -243,6 +222,32 @@ namespace GRYLibrary
         {
             this.LogError(this.GetExceptionMessage("An exception occurred", exception), logLineId);
         }
+        public void LogError(string message, string logLineId = "")
+        {
+            LogErrorHelper(message, logLineId, GRYLogLogLevel.Exception);
+        }
+
+        private void LogErrorHelper(string message, string logLineId, GRYLogLogLevel loglevel)
+        {
+            if (!this.CheckEnabled())
+            {
+                return;
+            }
+
+            if (!this.LineShouldBePrinted(message))
+            {
+                return;
+            }
+            if (this.Configuration.StoreErrorsInErrorQueueInsteadOfLoggingThem)
+            {
+                this._StoredErrors.Enqueue(new Tuple<string, string>(message, logLineId));
+            }
+            else
+            {
+                this.LogErrorInternal(message, logLineId, GRYLogLogLevel.Critical);
+            }
+        }
+
         private readonly Queue<Tuple<string, string>> _StoredErrors = new Queue<Tuple<string, string>>();
         public void PrintErrorQueue()
         {
@@ -254,59 +259,31 @@ namespace GRYLibrary
             while (this._StoredErrors.Count != 0)
             {
                 Tuple<string, string> dequeuedError = this._StoredErrors.Dequeue();
-                this.LogErrorInternal(dequeuedError.Item1, dequeuedError.Item2);
-            }
-        }
-        public void LogError(string message, string logLineId = "")
-        {
-            if (!this.CheckEnabled())
-            {
-                return;
-            }
-
-            if (!this.LineShouldBePrinted(message))
-            {
-                return;
-            }
-            if (this.StoreErrorsInErrorQueueInsteadOfLoggingThem)
-            {
-                this._StoredErrors.Enqueue(new Tuple<string, string>(message, logLineId));
-            }
-            else
-            {
-                this.LogErrorInternal(message, logLineId);
+                this.LogErrorInternal(dequeuedError.Item1, dequeuedError.Item2, GRYLogLogLevel.Exception);
             }
         }
 
-        private void LogErrorInternal(string message, string logLineId)
+        private void LogErrorInternal(string message, string logLineId, GRYLogLogLevel errorLogLevel)
         {
-            if (this.PrintErrorsAsInformation)
+            if (this.Configuration.PrintErrorsAsInformation)
             {
-                this.LogIt(message, LogLevel.Information, logLineId);
+                this.LogIt(message, GRYLogLogLevel.Information, logLineId);
             }
             else
             {
                 this._AmountOfErrors = this._AmountOfErrors + 1;
-                this.LogIt(message, LogLevel.Exception, logLineId);
+                this.LogIt(message, errorLogLevel, logLineId);
             }
         }
 
-        public enum LogLevel : int
-        {
-            Exception = 0,
-            Warning = 1,
-            Information = 2,
-            Verbose = 3,
-            Debug = 4
-        }
-        private void LogIt(string message, LogLevel logLevel, string logLineId)
+        private void LogIt(string message, GRYLogLogLevel logLevel, string logLineId)
         {
             if (!this._Initialized)
             {
                 return;
             }
             DateTime momentOfLogEntry = DateTime.Now;
-            if (this.ConvertTimeToUTCFormat)
+            if (this.Configuration.ConvertTimeToUTCFormat)
             {
                 momentOfLogEntry = momentOfLogEntry.ToUniversalTime();
             }
@@ -317,55 +294,104 @@ namespace GRYLibrary
             {
                 message = "[" + logLineId + "] " + message;
             }
-            if (this.AddIdToEveryLogEntry)
+            if (this.Configuration.AddIdToEveryLogEntry)
             {
                 message = "[" + this.GetLogItemId() + "] " + message;
             }
-            string part1 = "[" + momentOfLogEntry.ToString(this.DateFormat) + "] [";
+            string part1 = "[" + momentOfLogEntry.ToString(this.Configuration.DateFormat) + "] [";
             string part2 = this.GetPrefixInStringFormat(logLevel);
             string part3 = "] " + message;
             lock (_LockObject)
             {
-                if (this.PrintOutputInConsole && this.LoggedMessageTypesInConsole.Contains(logLevel))
+                string textForLogFileAndEventViewer;
+                if (this.Configuration.LogOverhead)
                 {
-                    if (this.LogOverhead)
-                    {
-                        Console.Write(part1);
-                        this.WriteWithColorToConsole(part2, logLevel);
-                        Console.Write(part3 + Environment.NewLine);
-                    }
-                    else
-                    {
-                        Console.WriteLine(originalMessage);
-                    }
+                    textForLogFileAndEventViewer = part1 + part2 + part3;
                 }
-                if (this.WriteToLogFile && this.LoggedMessageTypesInLogFile.Contains(logLevel))
+                else
                 {
-                    try
+                    textForLogFileAndEventViewer = originalMessage;
+                }
+                if (this.Configuration.WriteToLogFileIfLogFileIsAvailable && this.Configuration.LoggedMessageTypesInLogFile.Contains(logLevel) && (File.Exists(this.Configuration.LogFile) || this.Configuration.CreateLogFileIfRequiredAndIfPossible))
+                {
+                    if (!File.Exists(this.Configuration.LogFile))
                     {
-                        if (this.LogOverhead)
+                        if (this.Configuration.CreateLogFileIfRequiredAndIfPossible)
                         {
-                            File.AppendAllLines(this.LogFile, new string[] { part1 + part2 + part3 }, this.Encoding);
+                            if (string.IsNullOrWhiteSpace(this.Configuration.LogFile))
+                            {
+                                throw new FileNotFoundException($"LogFile '{this.Configuration.LogFile}' is no valid file-path");
+                            }
+                            else
+                            {
+                                string directoryOfLogFile = Path.GetDirectoryName(this.Configuration.LogFile);
+                                if (!(string.IsNullOrWhiteSpace(directoryOfLogFile) || Directory.Exists(directoryOfLogFile)))
+                                {
+                                    Directory.CreateDirectory(directoryOfLogFile);
+                                }
+                                Utilities.EnsureFileExists(this.Configuration.LogFile);
+                            }
                         }
                         else
                         {
-                            File.AppendAllLines(this.LogFile, new string[] { originalMessage }, this.Encoding);
+                            throw new FileNotFoundException($"LogFile '{this.Configuration.LogFile}' is not available.");
+                        }
+                    }
+                    try
+                    {
+                        File.AppendAllLines(this.Configuration.LogFile, new string[] { textForLogFileAndEventViewer }, this.Configuration.EncodingForLogfile);
+                    }
+                    catch
+                    {
+                        if (!this.Configuration.IgnoreErrorsWhileWriteLogItem)
+                        {
+                            throw;
+                        }
+                    }
+                }
+                if (this.Configuration.WriteLogEntriesToWindowsEventViewer && this.Configuration.LoggedMessageTypesInWindowsEventViewer.Contains(logLevel))
+                {
+                    try
+                    {
+                        _EventLog.WriteEntry(textForLogFileAndEventViewer, GetEventType(logLevel));
+                    }
+                    catch
+                    {
+                        if (!this.Configuration.IgnoreErrorsWhileWriteLogItem)
+                        {
+                            throw;
+                        }
+                    }
+                }
+                if (this.Configuration.PrintOutputInConsole && this.Configuration.LoggedMessageTypesInConsole.Contains(logLevel))
+                {
+                    try
+                    {
+                        if (this.Configuration.LogOverhead)
+                        {
+                            Console.Write(part1);
+                            this.WriteWithColorToConsole(part2, logLevel);
+                            Console.Write(part3 + Environment.NewLine);
+                        }
+                        else
+                        {
+                            Console.WriteLine(originalMessage);
                         }
                     }
                     catch
                     {
-                        if (!this.IgnoreErrorsWhileWriteLogItem)
+                        if (!this.Configuration.IgnoreErrorsWhileWriteLogItem)
                         {
                             throw;
                         }
                     }
                 }
             }
-            if (this.DebugBreakMode && this.DebugBreakLevel.Contains(logLevel) && Debugger.IsAttached)
+            if (this.Configuration.DebugBreakMode && this.Configuration.DebugBreakLevel.Contains(logLevel) && Debugger.IsAttached)
             {
                 Debugger.Break();
             }
-            if (this.LogOverhead)
+            if (this.Configuration.LogOverhead)
             {
                 NewLogItem?.Invoke(originalMessage, part1 + part2 + part3, logLevel);
             }
@@ -374,9 +400,39 @@ namespace GRYLibrary
                 NewLogItem?.Invoke(originalMessage, originalMessage, logLevel);
             }
         }
+
+        private EventLogEntryType GetEventType(GRYLogLogLevel logLevel)
+        {
+            if (logLevel == GRYLogLogLevel.Information)
+            {
+                return EventLogEntryType.Information;
+            }
+            if (logLevel == GRYLogLogLevel.Critical)
+            {
+                return EventLogEntryType.Error;
+            }
+            if (logLevel == GRYLogLogLevel.Exception)
+            {
+                return EventLogEntryType.Error;
+            }
+            if (logLevel == GRYLogLogLevel.Warning)
+            {
+                return EventLogEntryType.Warning;
+            }
+            if (logLevel == GRYLogLogLevel.Debug)
+            {
+                return EventLogEntryType.Information;
+            }
+            if (logLevel == GRYLogLogLevel.Verbose)
+            {
+                return EventLogEntryType.Information;
+            }
+            throw new KeyNotFoundException();
+        }
+
         private string GetLogItemId()
         {
-            return Guid.NewGuid().ToString().Replace("-", string.Empty).Substring(0, this.LogItemIdLength);
+            return Guid.NewGuid().ToString().Replace("-", string.Empty).Substring(0, this.Configuration.LogItemIdLength);
         }
         private string GetExceptionMessage(string message, Exception exception)
         {
@@ -385,76 +441,204 @@ namespace GRYLibrary
             {
                 result = message + ".";
             }
-            if (this.WriteExceptionMessageOfExceptionInLogEntry)
+            if (this.Configuration.WriteExceptionMessageOfExceptionInLogEntry)
             {
                 result = result + " Exception-message: " + exception.Message;
             }
-            if (this.WriteExceptionStackTraceOfExceptionInLogEntry)
+            if (this.Configuration.WriteExceptionStackTraceOfExceptionInLogEntry)
             {
                 result = result + " (Exception-details: " + exception.ToString().Replace(Environment.NewLine, string.Empty) + ")";
             }
             return result;
         }
-        private string GetPrefixInStringFormat(LogLevel logLevel)
+        private string GetPrefixInStringFormat(GRYLogLogLevel logLevel)
         {
-            if (logLevel == LogLevel.Exception)
+            if (logLevel == GRYLogLogLevel.Critical)
             {
-                return this.ErrorPrefix;
+                return this.Configuration.CriticalPrefix;
             }
-            if (logLevel == LogLevel.Information)
+            if (logLevel == GRYLogLogLevel.Exception)
             {
-                return this.InformationPrefix;
+                return this.Configuration.ErrorPrefix;
             }
-            if (logLevel == LogLevel.Warning)
+            if (logLevel == GRYLogLogLevel.Information)
             {
-                return this.WarningPrefix;
+                return this.Configuration.InformationPrefix;
             }
-            if (logLevel == LogLevel.Debug)
+            if (logLevel == GRYLogLogLevel.Warning)
             {
-                return this.DebugPrefix;
+                return this.Configuration.WarningPrefix;
             }
-            if (logLevel == LogLevel.Verbose)
+            if (logLevel == GRYLogLogLevel.Debug)
             {
-                return this.VerbosePrefix;
+                return this.Configuration.DebugPrefix;
+            }
+            if (logLevel == GRYLogLogLevel.Verbose)
+            {
+                return this.Configuration.VerbosePrefix;
             }
             throw new Exception("Invalid LogLevel");
         }
 
-        private void WriteWithColorToConsole(string message, LogLevel logLevel)
+        private void WriteWithColorToConsole(string message, GRYLogLogLevel logLevel)
         {
             Console.ForegroundColor = this.GetColorByType(logLevel);
             Console.Write(message);
             Console.ForegroundColor = this._ConsoleDefaultColor;
         }
 
-        private ConsoleColor GetColorByType(LogLevel type)
+        private ConsoleColor GetColorByType(GRYLogLogLevel type)
         {
-            if (type == LogLevel.Exception)
+            if (type == GRYLogLogLevel.Critical)
             {
-                return this.ColorForError;
+                return this.Configuration.ColorForCritical;
             }
-            if (type == LogLevel.Information)
+            if (type == GRYLogLogLevel.Exception)
             {
-                return this.ColorForInfo;
+                return this.Configuration.ColorForError;
             }
-            if (type == LogLevel.Warning)
+            if (type == GRYLogLogLevel.Information)
             {
-                return this.ColorForWarning;
+                return this.Configuration.ColorForInfo;
             }
-            if (type == LogLevel.Debug)
+            if (type == GRYLogLogLevel.Warning)
             {
-                return this.ColorForDebug;
+                return this.Configuration.ColorForWarning;
             }
-            if (type == LogLevel.Verbose)
+            if (type == GRYLogLogLevel.Debug)
             {
-                return this.ColorForVerbose;
+                return this.Configuration.ColorForDebug;
+            }
+            if (type == GRYLogLogLevel.Verbose)
+            {
+                return this.Configuration.ColorForVerbose;
             }
             throw new Exception("Invalid LogLevel");
         }
         private bool CheckEnabled()
         {
-            return this.Enabled;
+            return this.Configuration.Enabled;
         }
 
+        public void Dispose()
+        {
+            this._EventLog.Dispose();
+            if (this._Watcher != null)
+            {
+                this._Watcher.Dispose();
+            }
+        }
+    }
+    public class GRYLogConfiguration
+    {
+        public GRYLogConfiguration()
+        {
+            this.Enabled = true;
+            this.DebugBreakMode = false;
+            this.LogFile = string.Empty;
+            this.ConvertTimeToUTCFormat = false;
+            this.WriteLogEntriesToWindowsEventViewer = false;
+            this.EncodingForLogfile = new UTF8Encoding(false);
+            this.DebugBreakLevel = new List<GRYLogLogLevel>() { GRYLogLogLevel.Exception };
+            this.DateFormat = "yyyy-MM-dd HH:mm:ss";
+            this.LoggedMessageTypesInConsole = new List<GRYLogLogLevel>();
+            this.LoggedMessageTypesInLogFile = new List<GRYLogLogLevel>();
+            this.LoggedMessageTypesInWindowsEventViewer = new List<GRYLogLogLevel>();
+            this.CreateLogEntryWhenGRYLogWriteToLogFileWillBeEnabledOrDisabled = false;
+            this.InformationPrefix = "Info";
+            this.ErrorPrefix = "Error";
+            this.DebugPrefix = "Debug";
+            this.WarningPrefix = "Warning";
+            this.VerbosePrefix = "Additional";
+            this.CriticalPrefix = "Critical";
+            this.LogOverhead = true;
+            this.PrintEmptyLines = false;
+            this.WriteExceptionMessageOfExceptionInLogEntry = true;
+            this.WriteExceptionStackTraceOfExceptionInLogEntry = true;
+            this.AddIdToEveryLogEntry = false;
+            this.StoreErrorsInErrorQueueInsteadOfLoggingThem = false;
+            this.PrintOutputInConsole = true;
+            this.ColorForDebug = ConsoleColor.DarkBlue;
+            this.ColorForError = ConsoleColor.Red;
+            this.ColorForInfo = ConsoleColor.Green;
+            this.ColorForWarning = ConsoleColor.DarkYellow;
+            this.ColorForVerbose = ConsoleColor.Blue;
+            this.ColorForCritical = ConsoleColor.DarkRed;
+            this.LogItemIdLength = 8;
+            this.LoggedMessageTypesInConsole.Add(GRYLogLogLevel.Exception);
+            this.LoggedMessageTypesInConsole.Add(GRYLogLogLevel.Warning);
+            this.LoggedMessageTypesInConsole.Add(GRYLogLogLevel.Information);
+            this.LoggedMessageTypesInLogFile.Add(GRYLogLogLevel.Exception);
+            this.LoggedMessageTypesInLogFile.Add(GRYLogLogLevel.Warning);
+            this.LoggedMessageTypesInLogFile.Add(GRYLogLogLevel.Information);
+            this.IgnoreErrorsWhileWriteLogItem = false;
+            this.NameOfSourceForWindowsEventViewer = string.Empty;
+            this.ApplicationNameForWindowsEventViewer = string.Empty;
+            this.ReloadConfigurationWhenSourceFileWillBeChanged = true;
+            this.CreateLogFileIfRequiredAndIfPossible = true;
+            this.WriteToLogFileIfLogFileIsAvailable = true;
+        }
+        public string LogFile { get; set; }
+        /// <summary>
+        /// If this value is false then changing this value in the configuration-file has no effect.
+        /// </summary>
+        public bool ReloadConfigurationWhenSourceFileWillBeChanged { get; set; }
+        public bool DebugBreakMode { get; set; }
+        public IList<GRYLogLogLevel> DebugBreakLevel { get; set; }
+        public bool Enabled { get; set; }
+        public Encoding EncodingForLogfile { get; set; }
+        public string InformationPrefix { get; set; }
+        public string WarningPrefix { get; set; }
+        public string ErrorPrefix { get; set; }
+        public string CriticalPrefix { get; set; }
+        public string DebugPrefix { get; set; }
+        public string VerbosePrefix { get; set; }
+        public bool IgnoreErrorsWhileWriteLogItem { get; set; }
+        public int LogItemIdLength { get; set; }
+        public bool PrintEmptyLines { get; set; }
+        public bool PrintErrorsAsInformation { get; set; }
+        public bool StoreErrorsInErrorQueueInsteadOfLoggingThem { get; set; }
+        public bool PrintOutputInConsole { get; set; }
+        public bool WriteLogEntriesToWindowsEventViewer { get; set; }
+        public bool WriteExceptionMessageOfExceptionInLogEntry { get; set; }
+        public bool WriteExceptionStackTraceOfExceptionInLogEntry { get; set; }
+        public bool AddIdToEveryLogEntry { get; set; }
+        public bool CreateLogEntryWhenGRYLogWriteToLogFileWillBeEnabledOrDisabled { get; set; }
+        public string DateFormat { get; set; }
+        public IList<GRYLogLogLevel> LoggedMessageTypesInConsole { get; set; }
+        public IList<GRYLogLogLevel> LoggedMessageTypesInLogFile { get; set; }
+        public IList<GRYLogLogLevel> LoggedMessageTypesInWindowsEventViewer { get; set; }
+        public ConsoleColor ColorForInfo { get; set; }
+        public ConsoleColor ColorForWarning { get; set; }
+        public ConsoleColor ColorForError { get; set; }
+        public ConsoleColor ColorForDebug { get; set; }
+        public ConsoleColor ColorForVerbose { get; set; }
+        public ConsoleColor ColorForCritical { get; set; }
+        public bool LogOverhead { get; set; }
+        public bool ConvertTimeToUTCFormat { get; set; }
+        public string ApplicationNameForWindowsEventViewer { get; set; }
+        public string NameOfSourceForWindowsEventViewer { get; set; }
+        public bool WriteToLogFileIfLogFileIsAvailable { get; set; }
+        public bool CreateLogFileIfRequiredAndIfPossible { get; set; }
+
+        private static SimpleObjectPersistence<GRYLogConfiguration> _SimpleObjectPersistence = null;
+        public static Encoding GRYLogConfigurationFileEncoding { get; set; } = new UTF8Encoding(false);
+        public static GRYLogConfiguration LoadConfiguration(string configurationFile)
+        {
+            if (_SimpleObjectPersistence == null)
+            {
+                _SimpleObjectPersistence = new SimpleObjectPersistence<GRYLogConfiguration>(configurationFile, GRYLogConfigurationFileEncoding);
+            }
+            return _SimpleObjectPersistence.Object;
+        }
+        public static void SavedConfiguration(string configurationFile, GRYLogConfiguration configuration)
+        {
+            if (_SimpleObjectPersistence == null)
+            {
+                _SimpleObjectPersistence = new SimpleObjectPersistence<GRYLogConfiguration>(configurationFile, GRYLogConfigurationFileEncoding);
+            }
+            _SimpleObjectPersistence.Object = configuration;
+            _SimpleObjectPersistence.SaveObject();
+        }
     }
 }

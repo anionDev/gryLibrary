@@ -147,7 +147,7 @@ namespace GRYLibrary.Miscellaneous
             {
                 if (string.IsNullOrEmpty(input))
                 {
-                    return (fillChar.ToString() + fillChar.ToString());
+                    return fillChar.ToString() + fillChar.ToString();
                 }
                 else
                 {

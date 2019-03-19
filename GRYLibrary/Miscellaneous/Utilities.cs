@@ -420,7 +420,7 @@ namespace GRYLibrary
         public static ISet<string> ToCaseInsensitiveSet(this ISet<string> input)
         {
             ISet<TupleWithValueComparisonEquals<string, string>> tupleList = new HashSet<TupleWithValueComparisonEquals<string, string>>(input.Select((item) => new TupleWithValueComparisonEquals<string, string>(item, item.ToLower())));
-            return new HashSet<string>((tupleList.Select((item) => item.Item1)));
+            return new HashSet<string>(tupleList.Select((item) => item.Item1));
         }
         #region IsList and IsDictionary
         //see https://stackoverflow.com/a/17190236/3905529
@@ -706,7 +706,7 @@ namespace GRYLibrary
             byte[] result = new byte[hex.Length >> 1];
             for (int i = 0; i < hex.Length >> 1; ++i)
             {
-                result[i] = (byte)((GetHexValue(hex[i << 1]) << 4) + (GetHexValue(hex[(i << 1) + 1])));
+                result[i] = (byte)((GetHexValue(hex[i << 1]) << 4) + GetHexValue(hex[(i << 1) + 1]));
             }
             return result;
         }
@@ -844,6 +844,39 @@ namespace GRYLibrary
         public static string EnsurePathSEndsWithoutSlashOrBackslash(this string path)
         {
             return path.EnsurePathEndsWithoutSlash().EnsurePathEndsWithoutBackslash();
+        }
+
+        public readonly static byte[] BOM_UTF8 = new byte[] { 239, 187, 191 };
+        public static Encoding GuessEncodingOfByteArray(string file, Encoding asciiTreatment)
+        {
+            return GuessEncodingOfByteArray(File.ReadAllBytes(file), asciiTreatment);
+        }
+        /// <remarks>
+        /// This function comes with absolutely no warranty (as every function in the GRYLibrary). This function can not recognize the encoding every <paramref name="content"/> correctly. 
+        /// </remarks>
+        public static Encoding GuessEncodingOfByteArray(byte[] content, Encoding asciiTreatment)
+        {
+            if (content.Length == 0)
+            {
+                return asciiTreatment;
+            }
+            if (StartsWith(content, BOM_UTF8))
+            {
+                return new UTF8Encoding(true);
+            }
+            throw new NotImplementedException();
+        }
+
+        public static bool StartsWith<T>(T[] entireArray, T[] start)
+        {
+            for (int i = 0; i < start.Length; i++)
+            {
+                if (!entireArray[i].Equals(start[i]))
+                {
+                    return false;
+                }
+            }
+            return true;
         }
     }
 }
