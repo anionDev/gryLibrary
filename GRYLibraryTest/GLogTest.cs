@@ -14,43 +14,48 @@ namespace GRYLibraryTest
             Utilities.EnsureFileDoesNotExist(logFile);
             try
             {
-                GRYLog logObject = new GRYLog();
+                GRYLog logObject = GRYLog.Create();
+                logObject.Configuration.LogOverhead = false;
                 string file = logFile;
                 Assert.IsFalse(File.Exists(file));
                 string fileWithRelativePath = logFile;
-                logObject.LogFile = fileWithRelativePath;
-                logObject.WriteToLogFile = true;
-                Assert.AreEqual(fileWithRelativePath, logObject.LogFile);
+                logObject.Configuration.LogFile = fileWithRelativePath;
+                Assert.AreEqual(fileWithRelativePath, logObject.Configuration.LogFile);
+                Assert.IsFalse(File.Exists(fileWithRelativePath));
+                string testContent = "test";
+                logObject.LogInformation(testContent);
                 Assert.IsTrue(File.Exists(fileWithRelativePath));
-                logObject.LogInformation("test");
-                File.Delete(file);
-                Assert.IsFalse(File.Exists(file));
+                Assert.AreEqual(testContent + System.Environment.NewLine, File.ReadAllText(logFile));
             }
             finally
             {
-                Utilities.EnsureDirectoryDoesNotExist(logFile);
+                Utilities.EnsureFileDoesNotExist(logFile);
             }
         }
         [TestMethod]
         public void TestLogFileWithRelativePathWithSubFolder()
         {
             string folder = "folder";
-            string fileWithRelativePath = folder + "/logFile.log";
+            string logFile = folder + "/logFile.log";
+            Utilities.EnsureFileDoesNotExist(logFile);
             try
             {
-                Utilities.EnsureFileDoesNotExist(fileWithRelativePath);
-                Utilities.EnsureDirectoryDoesNotExist(folder);
-                GRYLog logObject = new GRYLog();
-                Assert.IsFalse(Directory.Exists(folder));
-                logObject.LogFile = fileWithRelativePath;
-                Assert.AreEqual(fileWithRelativePath, logObject.LogFile);
+                GRYLog logObject = GRYLog.Create();
+                logObject.Configuration.LogOverhead = false;
+                string file = logFile;
+                Assert.IsFalse(File.Exists(file));
+                string fileWithRelativePath = logFile;
+                logObject.Configuration.LogFile = fileWithRelativePath;
+                Assert.AreEqual(fileWithRelativePath, logObject.Configuration.LogFile);
+                Assert.IsFalse(File.Exists(fileWithRelativePath));
+                string testContent = "test";
+                logObject.LogInformation(testContent);
                 Assert.IsTrue(File.Exists(fileWithRelativePath));
-                Directory.Delete(folder, true);
-                Assert.IsFalse(Directory.Exists(folder));
+                Assert.AreEqual(testContent + System.Environment.NewLine, File.ReadAllText(logFile));
             }
             finally
             {
-                Utilities.EnsureFileDoesNotExist(fileWithRelativePath);
+                Utilities.EnsureFileDoesNotExist(logFile);
                 Utilities.EnsureDirectoryDoesNotExist(folder);
             }
         }

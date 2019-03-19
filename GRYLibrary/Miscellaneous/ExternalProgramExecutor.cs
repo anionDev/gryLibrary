@@ -8,17 +8,8 @@ namespace GRYLibrary
     {
         public ExternalProgramExecutor(string programPathAndFile, string arguments, string title, string workingDirectory, bool printErrorsAsInformation = false, string logFile = null, int? timeoutInMilliseconds = null)
         {
-            this.LogObject = new GRYLog();
+            this.LogObject = GRYLog.Create(logFile);
             this.LogObject.Configuration.PrintOutputInConsole = true;
-            if (logFile == null)
-            {
-                this.LogObject.WriteToLogFile = false;
-            }
-            else
-            {
-                this.LogObject.WriteToLogFile = true;
-                this.LogObject.LogFile = logFile;
-            }
             this.ProgramPathAndFile = programPathAndFile;
             this.Arguments = arguments;
             this.Title = title;
