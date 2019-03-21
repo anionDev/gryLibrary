@@ -17,7 +17,7 @@ namespace GRYLibrary
     }
     public class GRYLog : IDisposable
     {
-        EventLog _EventLog;
+        private readonly EventLog _EventLog;
         public GRYLogConfiguration Configuration { get; set; }
         private readonly static object _LockObject = new object();
         private readonly bool _Initialized = false;
@@ -33,9 +33,9 @@ namespace GRYLibrary
             this.Configuration = configuration;
             if (this.Configuration.ReloadConfigurationWhenSourceFileWillBeChanged && File.Exists(configurationFile))
             {
-                StartFileWatcherForConfigurationFile(configurationFile);
+                this.StartFileWatcherForConfigurationFile(configurationFile);
             }
-            _EventLog = new EventLog(this.Configuration.ApplicationNameForWindowsEventViewer)
+            this._EventLog = new EventLog(this.Configuration.ApplicationNameForWindowsEventViewer)
             {
                 Source = this.Configuration.NameOfSourceForWindowsEventViewer
             };
@@ -47,7 +47,7 @@ namespace GRYLibrary
         }
         public static GRYLog Create(string logFile)
         {
-            var configuration = new GRYLogConfiguration
+            GRYLogConfiguration configuration = new GRYLogConfiguration
             {
                 LogFile = logFile
             };
@@ -60,17 +60,17 @@ namespace GRYLibrary
 
         private void StartFileWatcherForConfigurationFile(string configurationFile)
         {
-            _Watcher = new FileSystemWatcher
+            this._Watcher = new FileSystemWatcher
             {
                 Path = configurationFile,
                 NotifyFilter = NotifyFilters.LastWrite,
                 Filter = "*.*"
             };
-            _Watcher.Changed += new FileSystemEventHandler((object sender, FileSystemEventArgs eventArgs) =>
+            this._Watcher.Changed += new FileSystemEventHandler((object sender, FileSystemEventArgs eventArgs) =>
             {
                 try
                 {
-                    _Watcher.EnableRaisingEvents = false;
+                    this._Watcher.EnableRaisingEvents = false;
                     this.Configuration = GRYLogConfiguration.LoadConfiguration(configurationFile);
                 }
                 catch (Exception exception)
@@ -79,10 +79,10 @@ namespace GRYLibrary
                 }
                 finally
                 {
-                    _Watcher.EnableRaisingEvents = true;
+                    this._Watcher.EnableRaisingEvents = true;
                 }
             });
-            _Watcher.EnableRaisingEvents = true;
+            this._Watcher.EnableRaisingEvents = true;
         }
 
         public int GetAmountOfErrors()
@@ -93,9 +93,9 @@ namespace GRYLibrary
         {
             return this._AmountOfWarnings;
         }
-        public void Summarize()
+        public void SummarizeLog()
         {
-            this.LogInformation("Amount of occurred Errors: " + this.GetAmountOfErrors().ToString());
+            this.LogInformation("Amount of occurred Errors and Criticals: " + this.GetAmountOfErrors().ToString());
             this.LogInformation("Amount of occurred Warnings: " + this.GetAmountOfWarnings().ToString());
         }
         public void LogInformation(string message, string logLineId = "")
@@ -207,7 +207,7 @@ namespace GRYLibrary
 
         private void LogCriticalInternal(string message, string logLineId)
         {
-            LogErrorHelper(message, logLineId, GRYLogLogLevel.Critical);
+            this.LogErrorHelper(message, logLineId, GRYLogLogLevel.Critical);
         }
 
         public void LogError(string message, Exception exception, string logLineId = "")
@@ -224,7 +224,7 @@ namespace GRYLibrary
         }
         public void LogError(string message, string logLineId = "")
         {
-            LogErrorHelper(message, logLineId, GRYLogLogLevel.Exception);
+            this.LogErrorHelper(message, logLineId, GRYLogLogLevel.Exception);
         }
 
         private void LogErrorHelper(string message, string logLineId, GRYLogLogLevel loglevel)
@@ -337,53 +337,23 @@ namespace GRYLibrary
                             throw new FileNotFoundException($"LogFile '{this.Configuration.LogFile}' is not available.");
                         }
                     }
-                    try
-                    {
-                        File.AppendAllLines(this.Configuration.LogFile, new string[] { textForLogFileAndEventViewer }, this.Configuration.EncodingForLogfile);
-                    }
-                    catch
-                    {
-                        if (!this.Configuration.IgnoreErrorsWhileWritingLogItems)
-                        {
-                            throw;
-                        }
-                    }
+                    File.AppendAllLines(this.Configuration.LogFile, new string[] { textForLogFileAndEventViewer }, this.Configuration.EncodingForLogfile);
                 }
                 if (this.Configuration.WriteLogEntriesToWindowsEventViewer && this.Configuration.LoggedMessageTypesInWindowsEventViewer.Contains(logLevel))
                 {
-                    try
-                    {
-                        _EventLog.WriteEntry(textForLogFileAndEventViewer, GetEventType(logLevel));
-                    }
-                    catch
-                    {
-                        if (!this.Configuration.IgnoreErrorsWhileWritingLogItems)
-                        {
-                            throw;
-                        }
-                    }
+                    this._EventLog.WriteEntry(textForLogFileAndEventViewer, this.GetEventType(logLevel));
                 }
                 if (this.Configuration.PrintOutputInConsole && this.Configuration.LoggedMessageTypesInConsole.Contains(logLevel))
                 {
-                    try
+                    if (this.Configuration.LogOverhead)
                     {
-                        if (this.Configuration.LogOverhead)
-                        {
-                            Console.Write(part1);
-                            this.WriteWithColorToConsole(part2, logLevel);
-                            Console.Write(part3 + Environment.NewLine);
-                        }
-                        else
-                        {
-                            Console.WriteLine(originalMessage);
-                        }
+                        Console.Write(part1);
+                        this.WriteWithColorToConsole(part2, logLevel);
+                        Console.Write(part3 + Environment.NewLine);
                     }
-                    catch
+                    else
                     {
-                        if (!this.Configuration.IgnoreErrorsWhileWritingLogItems)
-                        {
-                            throw;
-                        }
+                        Console.WriteLine(originalMessage);
                     }
                 }
             }
@@ -447,7 +417,7 @@ namespace GRYLibrary
             }
             if (this.Configuration.WriteExceptionStackTraceOfExceptionInLogEntry)
             {
-                result = result + " (Exception-details: " + exception.ToString().Replace(Environment.NewLine, string.Empty) + ")";
+                result = result + " (Exception-details: " + exception.StackTrace.Replace(Environment.NewLine, " ") + ")";
             }
             return result;
         }
@@ -519,6 +489,76 @@ namespace GRYLibrary
         {
             return this.Configuration.Enabled;
         }
+        private void ExecuteAndLog(Action action, string nameOfAction)
+        {
+            this.LogInformation($"Action '{nameOfAction}' will be started now.");
+            try
+            {
+                action();
+            }
+            catch (Exception exception)
+            {
+                this.LogError($"An exception occurred while executing action '{nameOfAction}'.", exception);
+                throw;
+            }
+            finally
+            {
+                this.LogInformation($"Action '{nameOfAction}' finished.");
+            }
+        }
+        public void ExecuteAndLog<TParameter>(Action<TParameter> action, string nameOfAction, TParameter argument)
+        {
+            string argumentAsString = argument.ToString();
+            this.LogInformation($"Action '{nameOfAction}({argumentAsString})' will be started now.");
+            try
+            {
+                action(argument);
+            }
+            catch (Exception exception)
+            {
+                this.LogError($"An exception occurred while executing action '{nameOfAction}({argumentAsString})'.", exception);
+                throw;
+            }
+            finally
+            {
+                this.LogInformation($"Action '{nameOfAction}({argumentAsString})' finished.");
+            }
+        }
+        public TResult ExecuteAndLog<TResult>(Func<TResult> action, string nameOfAction)
+        {
+            this.LogInformation($"Action '{nameOfAction}' will be started now.");
+            try
+            {
+                return action();
+            }
+            catch (Exception exception)
+            {
+                this.LogError($"An exception occurred while executing action '{nameOfAction}'.", exception);
+                throw;
+            }
+            finally
+            {
+                this.LogInformation($"Action '{nameOfAction}' finished.");
+            }
+        }
+        public TOut ExecuteAndLog<TParameter, TOut>(Func<TParameter, TOut> action, string nameOfAction, TParameter argument)
+        {
+            string argumentAsString = argument.ToString();
+            this.LogInformation($"Action '{nameOfAction}({argumentAsString})' will be started now.");
+            try
+            {
+                return action(argument);
+            }
+            catch (Exception exception)
+            {
+                this.LogError($"An exception occurred while executing action '{nameOfAction}({argumentAsString})'.", exception);
+                throw;
+            }
+            finally
+            {
+                this.LogInformation($"Action '{nameOfAction}({argumentAsString})' finished.");
+            }
+        }
 
         public void Dispose()
         {
@@ -544,7 +584,6 @@ namespace GRYLibrary
             this.LoggedMessageTypesInConsole = new List<GRYLogLogLevel>();
             this.LoggedMessageTypesInLogFile = new List<GRYLogLogLevel>();
             this.LoggedMessageTypesInWindowsEventViewer = new List<GRYLogLogLevel>();
-            this.CreateLogEntryWhenGRYLogWriteToLogFileWillBeEnabledOrDisabled = false;
             this.InformationPrefix = "Info";
             this.ErrorPrefix = "Error";
             this.DebugPrefix = "Debug";
@@ -571,12 +610,12 @@ namespace GRYLibrary
             this.LoggedMessageTypesInLogFile.Add(GRYLogLogLevel.Exception);
             this.LoggedMessageTypesInLogFile.Add(GRYLogLogLevel.Warning);
             this.LoggedMessageTypesInLogFile.Add(GRYLogLogLevel.Information);
-            this.IgnoreErrorsWhileWritingLogItems = false;
             this.NameOfSourceForWindowsEventViewer = string.Empty;
             this.ApplicationNameForWindowsEventViewer = string.Empty;
             this.ReloadConfigurationWhenSourceFileWillBeChanged = true;
             this.CreateLogFileIfRequiredAndIfPossible = true;
             this.WriteToLogFileIfLogFileIsAvailable = true;
+            this.PrintErrorsAsInformation = false;
         }
         public string LogFile { get; set; }
         /// <summary>
@@ -598,7 +637,6 @@ namespace GRYLibrary
         public string CriticalPrefix { get; set; }
         public string DebugPrefix { get; set; }
         public string VerbosePrefix { get; set; }
-        public bool IgnoreErrorsWhileWritingLogItems { get; set; }
         public int LogItemIdLength { get; set; }
         public bool PrintEmptyLines { get; set; }
         public bool PrintErrorsAsInformation { get; set; }
@@ -611,7 +649,6 @@ namespace GRYLibrary
         /// If true then every log-entry gets a random id. This function is disabled by default.
         /// </summary>
         public bool AddIdToEveryLogEntry { get; set; }
-        public bool CreateLogEntryWhenGRYLogWriteToLogFileWillBeEnabledOrDisabled { get; set; }
         public string DateFormat { get; set; }
         public IList<GRYLogLogLevel> DebugBreakLevel { get; set; }
         public IList<GRYLogLogLevel> LoggedMessageTypesInConsole { get; set; }
@@ -633,15 +670,10 @@ namespace GRYLibrary
         public bool WriteToLogFileIfLogFileIsAvailable { get; set; }
         public bool CreateLogFileIfRequiredAndIfPossible { get; set; }
 
-        private static SimpleObjectPersistence<GRYLogConfiguration> _SimpleObjectPersistence = null;
         public static Encoding GRYLogConfigurationFileDefaultEncoding { get; set; } = new UTF8Encoding(false);
         public static GRYLogConfiguration LoadConfiguration(string configurationFile, Encoding encoding)
         {
-            if (_SimpleObjectPersistence == null)
-            {
-                _SimpleObjectPersistence = new SimpleObjectPersistence<GRYLogConfiguration>(configurationFile, encoding);
-            }
-            return _SimpleObjectPersistence.Object;
+            return new SimpleObjectPersistence<GRYLogConfiguration>(configurationFile, encoding).Object;
         }
         public static GRYLogConfiguration LoadConfiguration(string configurationFile)
         {
@@ -649,12 +681,10 @@ namespace GRYLibrary
         }
         public static void SavedConfiguration(string configurationFile, GRYLogConfiguration configuration, Encoding encoding)
         {
-            if (_SimpleObjectPersistence == null)
+            new SimpleObjectPersistence<GRYLogConfiguration>(configurationFile, encoding)
             {
-                _SimpleObjectPersistence = new SimpleObjectPersistence<GRYLogConfiguration>(configurationFile, encoding);
-            }
-            _SimpleObjectPersistence.Object = configuration;
-            _SimpleObjectPersistence.SaveObject();
+                Object = configuration
+            }.SaveObject();
         }
         public static void SavedConfiguration(string configurationFile, GRYLogConfiguration configuration)
         {
