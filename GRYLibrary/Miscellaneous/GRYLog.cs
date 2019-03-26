@@ -244,7 +244,7 @@ namespace GRYLibrary
             }
             else
             {
-                this.LogErrorInternal(message, logLineId, GRYLogLogLevel.Critical);
+                this.LogErrorInternal(message, logLineId, loglevel);
             }
         }
 
@@ -314,7 +314,7 @@ namespace GRYLibrary
                 }
                 if (this.Configuration.WriteToLogFileIfLogFileIsAvailable && this.Configuration.LoggedMessageTypesInLogFile.Contains(logLevel) && (File.Exists(this.Configuration.LogFile) || this.Configuration.CreateLogFileIfRequiredAndIfPossible))
                 {
-                    if (this.Configuration.LogFile==null)
+                    if (this.Configuration.LogFile == null)
                     {
                         throw new NullReferenceException($"LogFile is null");
                     }
@@ -374,7 +374,6 @@ namespace GRYLibrary
                 NewLogItem?.Invoke(originalMessage, originalMessage, logLevel);
             }
         }
-
         private EventLogEntryType GetEventType(GRYLogLogLevel logLevel)
         {
             if (logLevel == GRYLogLogLevel.Information)
@@ -427,31 +426,39 @@ namespace GRYLibrary
         }
         private string GetPrefixInStringFormat(GRYLogLogLevel logLevel)
         {
+            string result = string.Empty;
             if (logLevel == GRYLogLogLevel.Critical)
             {
-                return this.Configuration.CriticalPrefix;
+                result = this.Configuration.CriticalPrefix;
             }
             if (logLevel == GRYLogLogLevel.Exception)
             {
-                return this.Configuration.ErrorPrefix;
+                result = this.Configuration.ErrorPrefix;
             }
             if (logLevel == GRYLogLogLevel.Information)
             {
-                return this.Configuration.InformationPrefix;
+                result = this.Configuration.InformationPrefix;
             }
             if (logLevel == GRYLogLogLevel.Warning)
             {
-                return this.Configuration.WarningPrefix;
+                result = this.Configuration.WarningPrefix;
             }
             if (logLevel == GRYLogLogLevel.Debug)
             {
-                return this.Configuration.DebugPrefix;
+                result = this.Configuration.DebugPrefix;
             }
             if (logLevel == GRYLogLogLevel.Verbose)
             {
-                return this.Configuration.VerbosePrefix;
+                result = this.Configuration.VerbosePrefix;
             }
-            throw new Exception("Invalid LogLevel");
+            if (result.Length > Configuration.MaximalLengthOfPrefixes)
+            {
+                return result.Substring(0, Configuration.MaximalLengthOfPrefixes);
+            }
+            else
+            {
+                return result;
+            }
         }
 
         private void WriteWithColorToConsole(string message, GRYLogLogLevel logLevel)
@@ -588,12 +595,13 @@ namespace GRYLibrary
             this.LoggedMessageTypesInConsole = new List<GRYLogLogLevel>();
             this.LoggedMessageTypesInLogFile = new List<GRYLogLogLevel>();
             this.LoggedMessageTypesInWindowsEventViewer = new List<GRYLogLogLevel>();
-            this.InformationPrefix = "Info";
+            this.InformationPrefix = "Information";
             this.ErrorPrefix = "Error";
             this.DebugPrefix = "Debug";
             this.WarningPrefix = "Warning";
-            this.VerbosePrefix = "Additional";
+            this.VerbosePrefix = "Verbose";
             this.CriticalPrefix = "Critical";
+            this.MaximalLengthOfPrefixes = 30;
             this.LogOverhead = true;
             this.PrintEmptyLines = false;
             this.WriteExceptionMessageOfExceptionInLogEntry = true;
@@ -611,9 +619,11 @@ namespace GRYLibrary
             this.LoggedMessageTypesInConsole.Add(GRYLogLogLevel.Exception);
             this.LoggedMessageTypesInConsole.Add(GRYLogLogLevel.Warning);
             this.LoggedMessageTypesInConsole.Add(GRYLogLogLevel.Information);
+            this.LoggedMessageTypesInConsole.Add(GRYLogLogLevel.Critical);
             this.LoggedMessageTypesInLogFile.Add(GRYLogLogLevel.Exception);
             this.LoggedMessageTypesInLogFile.Add(GRYLogLogLevel.Warning);
             this.LoggedMessageTypesInLogFile.Add(GRYLogLogLevel.Information);
+            this.LoggedMessageTypesInLogFile.Add(GRYLogLogLevel.Critical);
             this.NameOfSourceForWindowsEventViewer = string.Empty;
             this.ApplicationNameForWindowsEventViewer = string.Empty;
             this.ReloadConfigurationWhenSourceFileWillBeChanged = true;
@@ -649,6 +659,7 @@ namespace GRYLibrary
         public bool WriteLogEntriesToWindowsEventViewer { get; set; }
         public bool WriteExceptionMessageOfExceptionInLogEntry { get; set; }
         public bool WriteExceptionStackTraceOfExceptionInLogEntry { get; set; }
+        public int MaximalLengthOfPrefixes { get; set; }
         /// <summary>
         /// If true then every log-entry gets a random id. This function is disabled by default.
         /// </summary>
