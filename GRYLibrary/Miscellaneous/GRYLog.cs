@@ -314,6 +314,10 @@ namespace GRYLibrary
                 }
                 if (this.Configuration.WriteToLogFileIfLogFileIsAvailable && this.Configuration.LoggedMessageTypesInLogFile.Contains(logLevel) && (File.Exists(this.Configuration.LogFile) || this.Configuration.CreateLogFileIfRequiredAndIfPossible))
                 {
+                    if (this.Configuration.LogFile==null)
+                    {
+                        throw new NullReferenceException($"LogFile is null");
+                    }
                     if (!File.Exists(this.Configuration.LogFile))
                     {
                         if (this.Configuration.CreateLogFileIfRequiredAndIfPossible)

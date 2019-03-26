@@ -6,11 +6,13 @@ namespace GRYLibrary
 {
     public class ExternalProgramExecutor
     {
-        public ExternalProgramExecutor(string programPathAndFile, string arguments, string title, string workingDirectory, bool printErrorsAsInformation = false, string logFile = null, int? timeoutInMilliseconds = null)
+        public ExternalProgramExecutor(string programPathAndFile, string arguments, string title, string workingDirectory, string logfile = null, bool printErrorsAsInformation = false, int? timeoutInMilliseconds = null)
+            : this(programPathAndFile, arguments, title, workingDirectory, GRYLog.Create(logfile), printErrorsAsInformation, timeoutInMilliseconds)
         {
-            this.LogObject = GRYLog.Create(logFile);
-            this.LogObject = GRYLog.Create(logFile);
-            this.LogObject.Configuration.PrintOutputInConsole = true;
+        }
+        public ExternalProgramExecutor(string programPathAndFile, string arguments, string title, string workingDirectory, GRYLog logObject = null, bool printErrorsAsInformation = false, int? timeoutInMilliseconds = null)
+        {
+            this.LogObject = logObject;
             this.ProgramPathAndFile = programPathAndFile;
             this.Arguments = arguments;
             this.Title = title;
@@ -133,11 +135,11 @@ namespace GRYLibrary
                 {
                     if (logItem.Item1.Equals(GRYLogLogLevel.Exception))
                     {
-                        this.LogObject.LogError(logItem.Item2);
+                        this.LogObject?.LogError(logItem.Item2);
                     }
                     if (logItem.Item1.Equals(GRYLogLogLevel.Information))
                     {
-                        this.LogObject.LogInformation(logItem.Item2);
+                        this.LogObject?.LogInformation(logItem.Item2);
                     }
                 }
             }
