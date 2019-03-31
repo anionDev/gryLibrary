@@ -451,9 +451,9 @@ namespace GRYLibrary
             {
                 result = this.Configuration.VerbosePrefix;
             }
-            if (result.Length > Configuration.MaximalLengthOfPrefixes)
+            if (result.Length > this.Configuration.MaximalLengthOfPrefixes)
             {
-                return result.Substring(0, Configuration.MaximalLengthOfPrefixes);
+                return result.Substring(0, this.Configuration.MaximalLengthOfPrefixes);
             }
             else
             {
