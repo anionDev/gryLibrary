@@ -453,15 +453,15 @@ namespace GRYLibrary
         }
         #endregion
 
+        private static IFormatter _Formatter = new BinaryFormatter();
         //see https://stackoverflow.com/a/129395/3905529
         public static T DeepClone<T>(this T @object)
         {
             using (Stream memoryStream = new MemoryStream())
             {
-                IFormatter formatter = new BinaryFormatter();
-                formatter.Serialize(memoryStream, @object);
+                _Formatter.Serialize(memoryStream, @object);
                 memoryStream.Position = 0;
-                return (T)formatter.Deserialize(memoryStream);
+                return (T)_Formatter.Deserialize(memoryStream);
             }
         }
         public static ISet<T> ToSet<T>(this IEnumerable<T> source, IEqualityComparer<T> comparer = null)

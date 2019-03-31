@@ -29,6 +29,10 @@ namespace GRYLibrary
         private FileSystemWatcher _Watcher;
         private GRYLog(GRYLogConfiguration configuration, string configurationFile)
         {
+            if (string.IsNullOrWhiteSpace(configuration.LogFile) && configuration.CreateLogFileIfRequiredAndIfPossible)
+            {
+                configuration.WriteToLogFileIfLogFileIsAvailable = false;
+            }
             this._ConsoleDefaultColor = Console.ForegroundColor;
             this.Configuration = configuration;
             if (this.Configuration.ReloadConfigurationWhenSourceFileWillBeChanged && File.Exists(configurationFile))
