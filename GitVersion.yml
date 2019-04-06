@@ -1,6 +1,6 @@
 branches:
-  release:
-    regex: release?[/-]
+  dev:
+    regex: dev?[/-]
     mode: ContinuousDeployment
     increment: Minor
     prevent-increment-of-merged-branch-version: false
