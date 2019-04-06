@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Diagnostics;
+using System.IO;
 
 namespace GRYLibrary
 {
@@ -39,6 +40,7 @@ namespace GRYLibrary
         public int StartConsoleApplicationInCurrentConsoleWindow()
         {
             string originalConsoleTitle = Console.Title;
+            Process process = null;
             try
             {
                 try
@@ -48,9 +50,9 @@ namespace GRYLibrary
                 finally
                 {
                 }
-                Process process = new Process
+                process = new Process
                 {
-                    StartInfo = new ProcessStartInfo(this.ProgramPathAndFile)
+                    StartInfo = new ProcessStartInfo(this.Resolve(this.ProgramPathAndFile))
                     {
                         UseShellExecute = false,
                         ErrorDialog = false,
@@ -110,6 +112,7 @@ namespace GRYLibrary
                 try
                 {
                     this._StopLogOutputThread = true;
+                    process?.Dispose();
                     Console.Title = originalConsoleTitle;
                 }
                 finally
@@ -118,6 +121,37 @@ namespace GRYLibrary
                 }
             }
         }
+        private static readonly string WherePath = @"C:\Windows\System32\where.exe";
+        private string Resolve(string program)
+        {
+            if (File.Exists(program))
+            {
+                return program;
+            }
+            if (!(program.Contains("/") || program.Contains("\\") || program.Contains(":")))
+            {
+                string output = string.Empty;
+                using (Process process = new Process())
+                {
+                    process.StartInfo.FileName = WherePath;
+                    process.StartInfo.Arguments = program;
+                    process.StartInfo.UseShellExecute = false;
+                    process.StartInfo.RedirectStandardOutput = true;
+                    process.Start();
+                    StreamReader reader = process.StandardOutput;
+                    output = reader.ReadToEnd();
+                    Console.WriteLine(output);
+                    process.WaitForExit();
+                }
+                output = output.Replace("\r\n", string.Empty);
+                if (File.Exists(output))
+                {
+                    return output;
+                }
+            }
+            throw new FileNotFoundException($"Program '{program}' can not be found");
+        }
+
         private void EnqueueError(string data)
         {
             this._NotLoggedOutputLines.Enqueue(new Tuple<GRYLogLogLevel, string>(GRYLogLogLevel.Exception, data));
