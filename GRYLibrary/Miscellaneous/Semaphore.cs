@@ -12,7 +12,7 @@ namespace GRYLibrary.Miscellaneous
         public override long Value { get => base.Value; set => throw new InvalidOperationException($"Please use the {nameof(Semaphore.Increment)}- and {nameof(Semaphore.Decrement)}-operation to modify the value."); }
         public void Increment()
         {
-            base.Value = base.Value + 1;
+            base.Value += 1;
         }
         public void Decrement()
         {
@@ -20,7 +20,7 @@ namespace GRYLibrary.Miscellaneous
             {
                 throw new InvalidOperationException($"The value of the {nameof(Semaphore)} can not be decremented if the {nameof(this.Value)} is 0.");
             }
-            base.Value = base.Value - 1;
+            base.Value -= 1;
         }
 
     }

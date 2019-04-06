@@ -14,7 +14,7 @@ namespace GRYLibraryTest
             Utilities.EnsureFileDoesNotExist(logFile);
             try
             {
-                GRYLog logObject = GRYLog.Create();
+                GRYLog logObject = GRYLog.Create(logFile);
                 logObject.Configuration.LogOverhead = false;
                 string file = logFile;
                 Assert.IsFalse(File.Exists(file));
@@ -40,7 +40,7 @@ namespace GRYLibraryTest
             Utilities.EnsureFileDoesNotExist(logFile);
             try
             {
-                GRYLog logObject = GRYLog.Create();
+                GRYLog logObject = GRYLog.Create(logFile);
                 logObject.Configuration.LogOverhead = false;
                 string file = logFile;
                 Assert.IsFalse(File.Exists(file));

@@ -19,7 +19,7 @@ namespace GRYLibrary.Miscellaneous.Playlists.ConcretePlaylistHandler
             }
             foreach (string newItem in newSongs)
             {
-                amountOfItems = amountOfItems + 1;
+                amountOfItems += 1;
                 File.AppendAllLines(playlistFile, new string[] { string.Empty, $"File{amountOfItems.ToString()}={newItem}" }, Encoding);
             }
             this.SetAmountOfItems(playlistFile, amountOfItems);

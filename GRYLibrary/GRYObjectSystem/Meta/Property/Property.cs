@@ -43,7 +43,7 @@ namespace GRYLibrary.GRYObjectSystem.Meta.Property
             }
         }
         /// <summary>
-        /// The history contains all <see cref="T"/>-values which where set as value for <see cref="Property{T}.Value"/> with the <see cref="DateTime"/> when they were set.
+        /// The history contains all T-objects which where set as value for <see cref="Property{T}.Value"/> with the <see cref="DateTime"/> when they were set.
         /// </summary>
         public Stack<KeyValuePair<DateTime, T>> History
         {

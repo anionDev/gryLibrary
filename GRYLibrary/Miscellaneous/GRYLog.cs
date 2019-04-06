@@ -29,6 +29,10 @@ namespace GRYLibrary
         private FileSystemWatcher _Watcher;
         private GRYLog(GRYLogConfiguration configuration, string configurationFile)
         {
+            if (string.IsNullOrWhiteSpace(configuration.LogFile) && configuration.CreateLogFileIfRequiredAndIfPossible)
+            {
+                configuration.WriteToLogFileIfLogFileIsAvailable = false;
+            }
             this._ConsoleDefaultColor = Console.ForegroundColor;
             this.Configuration = configuration;
             if (this.Configuration.ReloadConfigurationWhenSourceFileWillBeChanged && File.Exists(configurationFile))
@@ -154,7 +158,7 @@ namespace GRYLibrary
                 return;
             }
 
-            this._AmountOfWarnings = this._AmountOfWarnings + 1;
+            this._AmountOfWarnings += 1;
             this.LogIt(message, GRYLogLogLevel.Warning, logLineId);
         }
         public void LogVerboseMessage(string message, string logLineId = "")
@@ -271,7 +275,7 @@ namespace GRYLibrary
             }
             else
             {
-                this._AmountOfErrors = this._AmountOfErrors + 1;
+                this._AmountOfErrors += 1;
                 this.LogIt(message, errorLogLevel, logLineId);
             }
         }
@@ -500,7 +504,7 @@ namespace GRYLibrary
         {
             return this.Configuration.Enabled;
         }
-        private void ExecuteAndLog(Action action, string nameOfAction)
+        public void ExecuteAndLog(Action action, string nameOfAction)
         {
             this.LogInformation($"Action '{nameOfAction}' will be started now.");
             try

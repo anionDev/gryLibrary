@@ -16,13 +16,17 @@ namespace GRYLibrary.Miscellaneous
         }
         public string[] Generate(string[,] array, string title, bool tableHasTitles, bool addLinesAbove, ILineCharacterDecider lineCharacterDecider)
         {
+            if (!string.IsNullOrWhiteSpace(title))
+            {
+                //TODO handle title and lineCharacterDecider
+            }
             if ((tableHasTitles && array.GetLength(0) == 1) | array.GetLength(0) == 0)
             {
                 throw new Exception("Not enough data available!");
             }
             return this.GetTableByArray(array, tableHasTitles, addLinesAbove, lineCharacterDecider);
         }
-        public void Generate(string[,] array, string title, string file, bool tableHasTitles, bool addLinesAbove, bool append)
+        public void Generate(string[,] array, string title, string file, bool tableHasTitles, bool addLinesAbove)
         {
             this.Generate(array, title, file, tableHasTitles, addLinesAbove, null);
         }

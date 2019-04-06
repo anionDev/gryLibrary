@@ -5,16 +5,29 @@ namespace GRYLibrary
     public class SupervisedThread
     {
         public GRYLog LogObject { get; set; }
-        public SupervisedThread(Action action, string name = "")
+        public SupervisedThread(Action action, string logFile = "", string name = "", string informationAboutInvoker = "")
+            : this(action, GRYLog.Create(logFile), name, informationAboutInvoker)
+        { }
+
+        public SupervisedThread(Action action, GRYLog log, string name = "", string informationAboutInvoker = "")
         {
+            this.InformationAboutInvoker = informationAboutInvoker;
             this.Action = action;
             this.Id = Guid.NewGuid();
             this.Name = $"{nameof(SupervisedThread)} {this.Id.ToString()} " + (string.IsNullOrEmpty(name) ? string.Empty : $"({name})");
-            this.LogObject = GRYLog.Create();
+            if (log == null)
+            {
+                this.LogObject = GRYLog.Create();
+            }
+            else
+            {
+                this.LogObject = log;
+            }
         }
         public bool LogOverhead { get; set; } = false;
         public string Name { get; set; }
         public Guid Id { get; }
+        public string InformationAboutInvoker { get; set; }
         public Action Action { get; }
         private bool _Running = false;
         private System.Threading.Thread _Thread = null;

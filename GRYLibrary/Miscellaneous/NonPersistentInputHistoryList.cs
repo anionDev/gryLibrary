@@ -19,7 +19,7 @@ namespace GRYLibrary
         {
             if (this.CurrentuserInputIndex > 0)
             {
-                this.CurrentuserInputIndex = this.CurrentuserInputIndex - 1;
+                this.CurrentuserInputIndex -= 1;
             }
             return this.GetCurrentItem();
         }
@@ -27,7 +27,7 @@ namespace GRYLibrary
         {
             if (this.CurrentuserInputIndex < this.UserInputs.Count)
             {
-                this.CurrentuserInputIndex = this.CurrentuserInputIndex + 1;
+                this.CurrentuserInputIndex += 1;
             }
             return this.GetCurrentItem();
         }

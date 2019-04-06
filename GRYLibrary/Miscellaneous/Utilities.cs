@@ -184,14 +184,14 @@ namespace GRYLibrary
                 subDirectoryInfo.Delete(true);
             }
         }
-        private static void _DefaultErrorHandlerForMoveNewFilesInFoldersAcrossVolumesAndDeleteAllOtherFiles(Exception exeption) { }
+        private static void DefaultErrorHandlerForMoveNewFilesInFoldersAcrossVolumesAndDeleteAllOtherFiles(Exception exeption) { }
         public static void MoveContentOfFoldersAcrossVolumes(string sourceFolder, string targetFolder, FileSelector fileSelector, bool deleteAlreadyExistingFilesWithoutCopy = false)
         {
-            MoveContentOfFoldersAcrossVolumes(sourceFolder, targetFolder, fileSelector, _DefaultErrorHandlerForMoveNewFilesInFoldersAcrossVolumesAndDeleteAllOtherFiles, deleteAlreadyExistingFilesWithoutCopy);
+            MoveContentOfFoldersAcrossVolumes(sourceFolder, targetFolder, fileSelector, DefaultErrorHandlerForMoveNewFilesInFoldersAcrossVolumesAndDeleteAllOtherFiles, deleteAlreadyExistingFilesWithoutCopy);
         }
         public static void MoveContentOfFoldersAcrossVolumes(string sourceFolder, string targetFolder, Func<string, bool> fileSelectorPredicate, bool deleteAlreadyExistingFilesWithoutCopy = false)
         {
-            MoveContentOfFoldersAcrossVolumes(sourceFolder, targetFolder, fileSelectorPredicate, _DefaultErrorHandlerForMoveNewFilesInFoldersAcrossVolumesAndDeleteAllOtherFiles, deleteAlreadyExistingFilesWithoutCopy);
+            MoveContentOfFoldersAcrossVolumes(sourceFolder, targetFolder, fileSelectorPredicate, DefaultErrorHandlerForMoveNewFilesInFoldersAcrossVolumesAndDeleteAllOtherFiles, deleteAlreadyExistingFilesWithoutCopy);
         }
 
         public static void MoveContentOfFoldersAcrossVolumes(string sourceFolder, string targetFolder, FileSelector fileSelector, Action<Exception> errorHandler, bool deleteAlreadyExistingFilesWithoutCopy = false)
@@ -304,7 +304,7 @@ namespace GRYLibrary
         }
 
         /// <summary>
-        /// Starts all <see cref="Func{object}"/>-objects in <paramref name="functions"/> concurrent and return all results which did not throw an exception.
+        /// Starts all <see cref="Func{TResult}"/>-objects in <paramref name="functions"/> concurrent and return all results which did not throw an exception.
         /// </summary>
         /// <returns>The results of all finished <paramref name="functions"/>-methods with their results.</returns>
         public static ISet<Tuple<Func<T>, T, Exception>> RunAllConcurrentAndReturnAllResults<T>(this ISet<Func<T>> functions, int maximalDegreeOfParallelism = 4)
@@ -341,7 +341,7 @@ namespace GRYLibrary
             private bool _ResultSet = false;
             public readonly object _LockObject = new object();
             private int _AmountOfRunningFunctions = 0;
-            private int _MaximalDegreeOfParallelism { get; }
+            private readonly int _MaximalDegreeOfParallelism = 4;
 
             public RunAllConcurrentAndReturnFirstResultHelper(int maximalDegreeOfParallelism)
             {
@@ -453,15 +453,15 @@ namespace GRYLibrary
         }
         #endregion
 
+        private static readonly IFormatter _Formatter = new BinaryFormatter();
         //see https://stackoverflow.com/a/129395/3905529
         public static T DeepClone<T>(this T @object)
         {
             using (Stream memoryStream = new MemoryStream())
             {
-                IFormatter formatter = new BinaryFormatter();
-                formatter.Serialize(memoryStream, @object);
+                _Formatter.Serialize(memoryStream, @object);
                 memoryStream.Position = 0;
-                return (T)formatter.Deserialize(memoryStream);
+                return (T)_Formatter.Deserialize(memoryStream);
             }
         }
         public static ISet<T> ToSet<T>(this IEnumerable<T> source, IEqualityComparer<T> comparer = null)
@@ -626,7 +626,7 @@ namespace GRYLibrary
             {
                 return false;
             }
-            return Uri.TryCreate(path, UriKind.Relative, out Uri @out);
+            return Uri.TryCreate(path, UriKind.Relative, out _);
         }
         public static bool IsAbsolutePath(string path)
         {
@@ -655,7 +655,7 @@ namespace GRYLibrary
             }
             relativePath = relativePath.Trim();
             basePath = basePath.Trim();
-            string finalPath = null;
+            string finalPath;
             if (!Path.IsPathRooted(relativePath) || @"\".Equals(Path.GetPathRoot(relativePath)))
             {
                 if (relativePath.StartsWith(Path.DirectorySeparatorChar.ToString()))
@@ -726,9 +726,11 @@ namespace GRYLibrary
         /// Authenticates a user against an active directory.
         /// </summary>
         /// <param name="username">Represents the name of the desired user. It can be "MyUsername" or optionally "Domain\MyUsername."</param>
+        /// <param name="password">Represents the password to authenticate <paramref name="username"/>.</param>
+        /// <param name="authenticationProtocol"></param>
         /// <param name="authentificationServerName">Represents the (LDAP-)server. The format must be with leading slashs, e. g. "//MyServer.com".</param>
         /// <returns>Returns true if and only if <paramref name="password"/> is the correct password for the user with the name <paramref name="username"/></returns>
-        private static bool IsAuthenticated(string authentificationServerName, string username, string password, string authenticationProtocol = "LDAP")
+        public static bool IsAuthenticated(string authentificationServerName, string username, string password, string authenticationProtocol = "LDAP")
         {
             bool isAuthenticated = false;
             try

@@ -117,7 +117,7 @@ namespace GRYLibrary.Miscellaneous.Playlists
         }
         public IEnumerable<string> GetSongsFromPlaylist(string playlistFile, bool removeDuplicatedItems = true, bool loadTransitively = true)
         {
-            string workingDirectory = null;
+            string workingDirectory;
             if (Utilities.IsAbsolutePath(playlistFile))
             {
                 workingDirectory = Path.GetDirectoryName(playlistFile);
