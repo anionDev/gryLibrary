@@ -140,7 +140,6 @@ namespace GRYLibrary
                     process.Start();
                     StreamReader reader = process.StandardOutput;
                     output = reader.ReadToEnd();
-                    Console.WriteLine(output);
                     process.WaitForExit();
                 }
                 output = output.Replace("\r\n", string.Empty);
