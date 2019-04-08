@@ -115,7 +115,7 @@ namespace GRYLibrary
                     process?.Dispose();
                     Console.Title = originalConsoleTitle;
                 }
-                finally
+                catch
                 {
                     Utilities.NoOperation();
                 }
