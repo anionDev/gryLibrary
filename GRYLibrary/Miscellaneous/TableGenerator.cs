@@ -10,6 +10,7 @@ namespace GRYLibrary.Miscellaneous
         public Encoding Encoding { get; set; } = new UTF8Encoding(false);
         public int MaximalWidth { get; set; } = int.MaxValue;
         public static ITableCharacter TableCharacter = new OneLineTableCharacter();
+        //TODO offer variants with ASCIITable
         public string[] Generate(string[,] array, string title, bool tableHasTitles, bool addLinesAbove)
         {
             return this.Generate(array, title, tableHasTitles, addLinesAbove, null);
@@ -371,4 +372,49 @@ namespace GRYLibrary.Miscellaneous
         public char TLeftCharacter => '╣';
         public char TUpCharacter => '╩';
     }
+    #region TableOutputType
+    public abstract class TableOutputType
+    {
+        public abstract void Accept(ITableOutputTypeVisitor visitor);
+        public abstract T Accept<T>(ITableOutputTypeVisitor<T> visitor);
+
+    }
+    public interface ITableOutputTypeVisitor
+    {
+        void Handle(ASCIITable tableOutputType);
+        void Handle(HTMLTable tableOutputType);
+    }
+
+    public interface ITableOutputTypeVisitor<T>
+    {
+        T Handle(ASCIITable tableOutputType);
+        T Handle(HTMLTable tableOutputType);
+    }
+    public sealed class ASCIITable : TableOutputType
+    {
+
+        public override void Accept(ITableOutputTypeVisitor visitor)
+        {
+            visitor.Handle(this);
+        }
+
+        public override T Accept<T>(ITableOutputTypeVisitor<T> visitor)
+        {
+            return visitor.Handle(this);
+        }
+    }
+    public sealed class HTMLTable : TableOutputType
+    {
+        public override void Accept(ITableOutputTypeVisitor visitor)
+        {
+            visitor.Handle(this);
+        }
+
+        public override T Accept<T>(ITableOutputTypeVisitor<T> visitor)
+        {
+            return visitor.Handle(this);
+        }
+    }
+    #endregion
+
 }
