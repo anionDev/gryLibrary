@@ -6,11 +6,6 @@ namespace GRYLibrary.Miscellaneous
 {
     public class TableGenerator
     {
-        public static string[] Generate(IList<IList<string>> array, string title, bool tableHasTitles, TableOutputType outputType, int maximalColumnWitdh)
-        {
-            return Generate(array.Select(values => values.ToArray()).ToArray(), title, tableHasTitles, outputType, maximalColumnWitdh);
-        }
-
         public static string[] Generate(string[,] array, string title, bool tableHasTitles, TableOutputType outputType, int maximalColumnWitdh)
         {
             return outputType.Accept(new TableOutputTypeVisitor(array, title, tableHasTitles, maximalColumnWitdh));
@@ -67,7 +62,7 @@ namespace GRYLibrary.Miscellaneous
 
             private string GetHeadlineDividerLineForASCIITable(ASCIITable tableOutputType, int[] columnLengths)
             {
-                return this.GetLine(tableOutputType.Characters.TRightCharacter, this.NTimes(tableOutputType.Characters.HorizontalLineCharacter.ToString(), columnLengths.Length), tableOutputType.Characters.HorizontalLineCharacter, tableOutputType.Characters.CrossCharacter, tableOutputType.Characters.TRightCharacter, columnLengths);
+                return this.GetLine(tableOutputType.Characters.TRightCharacter, this.NTimes(tableOutputType.Characters.HorizontalLineCharacter.ToString(), columnLengths.Length), tableOutputType.Characters.HorizontalLineCharacter, tableOutputType.Characters.CrossCharacter, tableOutputType.Characters.TLeftCharacter, columnLengths);
             }
 
 
@@ -213,7 +208,7 @@ namespace GRYLibrary.Miscellaneous
         public sealed class ASCIITable : TableOutputType
         {
             public ITableCharacter Characters { get; set; } = new OneLineTableCharacter();
-          
+
             public override void Accept(ITableOutputTypeVisitor visitor)
             {
                 visitor.Handle(this);

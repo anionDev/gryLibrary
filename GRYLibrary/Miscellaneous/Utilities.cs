@@ -64,12 +64,16 @@ namespace GRYLibrary
 
         public static void WriteToConsoleAsASCIITable(IList<IList<string>> columns)
         {
-            string[] table = TableGenerator.Generate(columns, "Encoding-table", true, new ASCIITable(), 100);
+            string[] table = TableGenerator.Generate(ConvertEnumerableOfEnumerableTo2DArray(columns), "Encoding-table", true, new ASCIITable(), 100);
             foreach (string line in table)
             {
                 Console.WriteLine(line);
             }
+        }
 
+        public static T[,] ConvertEnumerableOfEnumerableTo2DArray<T>(IEnumerable<IEnumerable<T>> items)
+        {
+            throw new NotImplementedException();
         }
 
         public static void EnsureFileExists(string path, bool createDirectoryIfRequired = false)
