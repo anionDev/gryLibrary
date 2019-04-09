@@ -36,13 +36,11 @@ namespace GRYLibrary.Miscellaneous
                 //TODO
                 result.Add(this.GetFirstLineForASCIITable(tableOutputType, columnLengths));
                 result.Add(this.GetHeadlineLineForASCIITable(tableOutputType, columnLengths));
-                int startIndex = 0;
                 if (this.TableHasTitles)
                 {
                     result.Add(this.GetHeadlineDividerLineForASCIITable(tableOutputType, columnLengths));
-                    startIndex = 1;
                 }
-                for (int lineNumber = startIndex; lineNumber < this.Array.GetLength(0); lineNumber++)
+                for (int lineNumber = 1; lineNumber < this.Array.GetLength(0); lineNumber++)
                 {
                     result.Add(this.GetLineForASCIITable(tableOutputType, columnLengths, lineNumber));
                 }
