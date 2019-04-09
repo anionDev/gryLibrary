@@ -1,420 +1,241 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace GRYLibrary.Miscellaneous
 {
     public class TableGenerator
     {
-        public Encoding Encoding { get; set; } = new UTF8Encoding(false);
-        public int MaximalWidth { get; set; } = int.MaxValue;
-        public static ITableCharacter TableCharacter = new OneLineTableCharacter();
-        //TODO offer variants with ASCIITable
-        public string[] Generate(string[,] array, string title, bool tableHasTitles, bool addLinesAbove)
+        public static string[] Generate(IList<IList<string>> array, string title, bool tableHasTitles, TableOutputType outputType, int maximalColumnWitdh)
         {
-            return this.Generate(array, title, tableHasTitles, addLinesAbove, null);
-        }
-        public string[] Generate(string[,] array, string title, bool tableHasTitles, bool addLinesAbove, ILineCharacterDecider lineCharacterDecider)
-        {
-            if (!string.IsNullOrWhiteSpace(title))
-            {
-                //TODO handle title and lineCharacterDecider
-            }
-            if ((tableHasTitles && array.GetLength(0) == 1) | array.GetLength(0) == 0)
-            {
-                throw new Exception("Not enough data available!");
-            }
-            return this.GetTableByArray(array, tableHasTitles, addLinesAbove, lineCharacterDecider);
-        }
-        public void Generate(string[,] array, string title, string file, bool tableHasTitles, bool addLinesAbove)
-        {
-            this.Generate(array, title, file, tableHasTitles, addLinesAbove, null);
-        }
-        public void Generate(string[,] array, string title, string file, bool tableHasTitles, bool addLinesAbove, ILineCharacterDecider lineCharacterDecider)
-        {
-            Utilities.EnsureFileExists(file);
-            List<string> lines = new List<string> { title };
-            lines.AddRange(this.Generate(array, title, tableHasTitles, addLinesAbove, lineCharacterDecider));
-            System.IO.File.AppendAllLines(file, lines, this.Encoding);
-        }
-        private string[] GetTableByArray(string[,] array, bool tableHasTitles, bool addLinesAbove, ILineCharacterDecider lineCharacterDecider)
-        {
-            List<List<string>> resultContentLines = new List<List<string>>();
-            int[] widths = this.GetMaximalWidthsOfColumns(array);
-
-            for (int rowIndex = 0; rowIndex <= array.GetLength(0) - 1; rowIndex++)
-            {
-                List<string> newItem = new List<string>();
-                for (int lineIndex = 0; lineIndex <= array.GetLength(1) - 1; lineIndex++)
-                {
-                    newItem.Add(array[rowIndex, lineIndex]);
-                }
-                resultContentLines.Add(newItem);
-            }
-
-            List<string>[] resultContentLinesAsString = resultContentLines.ToArray();
-            List<string> result = new List<string>
-            {
-                this.GetFirstLine(widths)
-            };
-            if (tableHasTitles)
-            {
-                result.Add(this.GetContentLine(resultContentLinesAsString[0], widths));
-                result.Add(this.GetSecondLine(widths));
-                for (int i = 1; i <= resultContentLinesAsString.Length - 1; i++)
-                {
-                    if (addLinesAbove && (!(i == 1)))
-                    {
-                        result.Add(this.GetMiddleLine(resultContentLinesAsString[i], lineCharacterDecider, widths));
-                    }
-                    result.Add(this.GetContentLine(resultContentLinesAsString[i], widths));
-                }
-            }
-            else
-            {
-                for (int i = 0; i <= resultContentLinesAsString.Length - 1; i++)
-                {
-                    if (addLinesAbove && (!(i == 0)))
-                    {
-                        result.Add(this.GetMiddleLine(resultContentLinesAsString[i], lineCharacterDecider, widths));
-                    }
-                    result.Add(this.GetContentLine(resultContentLinesAsString[i], widths));
-                }
-            }
-            result.Add(this.GetLastLine(widths));
-            return result.ToArray();
+            return Generate(array.Select(values => values.ToArray()).ToArray(), title, tableHasTitles, outputType, maximalColumnWitdh);
         }
 
-        internal static string[,] GetTableContentFromColumnList(IList<IList<string>> columns)
+        public static string[] Generate(string[,] array, string title, bool tableHasTitles, TableOutputType outputType, int maximalColumnWitdh)
         {
-            string[,] result = new string[columns.Select(list => list.Count).Max(), columns.Count()];
-            for (int i = 0; i < columns.Count; i++)
-            {
-                IList<string> currentList = columns[i];
-                for (int j = 0; j < currentList.Count; j++)
-                {
-                    string cellValue = null;
-                    if (j < currentList.Count)
-                    {
-                        cellValue = currentList[j];
-                    }
-                    if (cellValue == null)
-                    {
-                        cellValue = "<null>";
-                    }
-                    result[j, i] = cellValue;
-                }
-            }
-            return result;
+            return outputType.Accept(new TableOutputTypeVisitor(array, title, tableHasTitles, maximalColumnWitdh));
         }
+        private class TableOutputTypeVisitor : ITableOutputTypeVisitor<string[]>
+        {
+            public string[,] Array { get; set; }
+            public string Title { get; set; }
+            public bool TableHasTitles { get; set; }
+            public int MaximalWidth { get; set; }
 
-        private int[] GetMaximalWidthsOfColumns(string[,] array)
-        {
-            List<int> result = new List<int>();
-            for (int i = 0; i <= array.GetLength(1) - 1; i++)
+            public TableOutputTypeVisitor(string[,] array, string title, bool tableHasTitles, int maximalWidth)
             {
-                dynamic maxLengthOfColumn = 0;
-                for (int j = 0; j <= array.GetLength(0) - 1; j++)
+                this.Array = array;
+                this.Title = title.Trim();
+                this.TableHasTitles = tableHasTitles;
+                this.MaximalWidth = maximalWidth;
+            }
+
+            public string[] Handle(ASCIITable tableOutputType)
+            {
+                List<string> result = new List<string>();
+                if (!string.IsNullOrEmpty(this.Title))
                 {
-                    maxLengthOfColumn = Math.Max(maxLengthOfColumn, array[j, i].Length);
+                    result.Add(this.Title);
                 }
-                if (maxLengthOfColumn > this.MaximalWidth)
+                int[] columnLengths = this.GetColumnLengths(this.Array, this.MaximalWidth);
+                //TODO
+                result.Add(this.GetFirstLineForASCIITable(tableOutputType, columnLengths));
+                result.Add(this.GetHeadlineLineForASCIITable(tableOutputType, columnLengths));
+                int startIndex = 0;
+                if (this.TableHasTitles)
                 {
-                    maxLengthOfColumn = this.MaximalWidth;
+                    result.Add(this.GetHeadlineDividerLineForASCIITable(tableOutputType, columnLengths));
+                    startIndex = 1;
                 }
-                result.Add(maxLengthOfColumn);
-            }
-            return result.ToArray();
-        }
-        private string FillOrCut(string input, int amountOfChars, char fillChar, bool addFillCharAfterInput = true)
-        {
-            if (string.IsNullOrEmpty(fillChar.ToString()))
-            {
-                fillChar = ' ';
-            }
-            if (amountOfChars == 0)
-            {
-                return string.Empty;
-            }
-            if (amountOfChars == 1)
-            {
-                if (string.IsNullOrEmpty(input))
+                for (int lineNumber = startIndex; lineNumber < this.Array.GetLength(0); lineNumber++)
                 {
-                    return fillChar.ToString();
+                    result.Add(this.GetLineForASCIITable(tableOutputType, columnLengths, lineNumber));
+                }
+                result.Add(this.GetLastLineForASCIITable(tableOutputType, columnLengths));
+                return result.ToArray();
+            }
+
+            private string GetLineForASCIITable(ASCIITable tableOutputType, int[] columnLengths, int lineNumber)
+            {
+                string[] content = new string[columnLengths.Length];
+                for (int column = 0; column < this.Array.GetLength(1); column++)
+                {
+                    content[column] = this.Array[lineNumber, column];
+                }
+                return this.GetLine(tableOutputType.Characters.VerticalLineCharacter, content, ' ', tableOutputType.Characters.VerticalLineCharacter, tableOutputType.Characters.VerticalLineCharacter, columnLengths);
+            }
+
+            private string GetHeadlineDividerLineForASCIITable(ASCIITable tableOutputType, int[] columnLengths)
+            {
+                return this.GetLine(tableOutputType.Characters.TRightCharacter, this.NTimes(tableOutputType.Characters.HorizontalLineCharacter.ToString(), columnLengths.Length), tableOutputType.Characters.HorizontalLineCharacter, tableOutputType.Characters.CrossCharacter, tableOutputType.Characters.TRightCharacter, columnLengths);
+            }
+
+
+            private string GetLastLineForASCIITable(ASCIITable tableOutputType, int[] columnLengths)
+            {
+                return this.GetLine(tableOutputType.Characters.LeftLowerCornerCharacter, this.NTimes(tableOutputType.Characters.HorizontalLineCharacter.ToString(), columnLengths.Length), tableOutputType.Characters.HorizontalLineCharacter, tableOutputType.Characters.TUpCharacter, tableOutputType.Characters.RightLowerCornerCharacter, columnLengths);
+            }
+
+            private string GetHeadlineLineForASCIITable(ASCIITable tableOutputType, int[] columnLengths)
+            {
+                return this.GetLineForASCIITable(tableOutputType, columnLengths, 0);
+            }
+
+            private string GetFirstLineForASCIITable(ASCIITable tableOutputType, int[] columnLengths)
+            {
+                return this.GetLine(tableOutputType.Characters.LeftUpperCornerCharacter, this.NTimes(tableOutputType.Characters.HorizontalLineCharacter.ToString(), columnLengths.Length), tableOutputType.Characters.HorizontalLineCharacter, tableOutputType.Characters.TDownCharacter, tableOutputType.Characters.RightUpperCornerCharacter, columnLengths);
+            }
+            private string GetLine(char firstChar, string[] content, char fillCharForContent, char separator, char lastChar, int[] columnLengths)
+            {
+                return $"{firstChar}{this.GetContentOfLine(content, fillCharForContent, separator, columnLengths)}{lastChar}";
+            }
+
+            private string GetContentOfLine(string[] content, char fillCharForContent, char separator, int[] columnLengths)
+            {
+                for (int i = 0; i < content.Length; i++)
+                {
+                    content[i] = this.AdjustLength(content[i], columnLengths[i]).PadRight(columnLengths[i], fillCharForContent);
+                }
+                return string.Join(separator.ToString(), content);
+            }
+
+            private string AdjustLength(string value, int maximalLength)
+            {
+                int valueLength = value.Length;
+                if (valueLength <= maximalLength)
+                {
+                    return value;
                 }
                 else
                 {
-                    return input.Substring(0, 1);
-                }
-            }
-            if (amountOfChars == 2)
-            {
-                if (string.IsNullOrEmpty(input))
-                {
-                    return fillChar.ToString() + fillChar.ToString();
-                }
-                else
-                {
-                    if (input.Length == 1)
+                    int minimumLengthForCut = 8;
+                    if (maximalLength < minimumLengthForCut)
                     {
-                        if (addFillCharAfterInput)
-                        {
-                            return input + fillChar;
-                        }
-                        else
-                        {
-                            return fillChar + input;
-                        }
+                        return value.Substring(0, maximalLength);
                     }
                     else
                     {
-                        return input.Substring(0, 2);
+                        return value.Substring(0, maximalLength - 3) + "...";
                     }
                 }
             }
-            if (amountOfChars == 3)
+
+            private T[] NTimes<T>(T value, int amount)
             {
-                if (string.IsNullOrEmpty(input))
+                return Enumerable.Repeat(value, amount).ToArray();
+            }
+            private int[] GetColumnLengths(string[,] array, int maximalWidth)
+            {
+                int[] result = this.NTimes(0, array.GetLength(1));
+                for (int line = 0; line < array.GetLength(0); line++)
                 {
-                    return (fillChar.ToString() + fillChar + fillChar).ToString();
-                }
-                else
-                {
-                    if (input.Length == 1)
+                    for (int column = 0; column < array.GetLength(1); column++)
                     {
-                        if (addFillCharAfterInput)
+                        string currentCellValue = array[line, column];
+                        int currentCellValueLength = currentCellValue.Length;
+                        if (result[column] == 0 || result[column] < currentCellValueLength)
                         {
-                            return input + fillChar + fillChar;
+                            result[column] = currentCellValueLength;
                         }
-                        else
+                        if (result[column] > maximalWidth)
                         {
-                            return fillChar.ToString() + fillChar + input;
-                        }
-                    }
-                    else
-                    {
-                        if (input.Length == 2)
-                        {
-                            if (addFillCharAfterInput)
-                            {
-                                return input + fillChar;
-                            }
-                            else
-                            {
-                                return fillChar + input;
-                            }
-                        }
-                        else
-                        {
-                            return input.Substring(0, 3);
+                            result[column] = maximalWidth;
                         }
                     }
                 }
+                return result;
             }
-            if (input.Length < amountOfChars)
+
+            public string[] Handle(HTMLTable tableOutputType)
             {
-                if (addFillCharAfterInput)
-                {
-                    return this.FillOrCut(input + fillChar, amountOfChars, fillChar);
-                }
-                else
-                {
-                    return this.FillOrCut(fillChar + input, amountOfChars, fillChar);
-                }
-            }
-            else if (input.Length > amountOfChars)
-            {
-                return input.Substring(0, amountOfChars - 3) + "...";
-            }
-            else
-            {
-                return input;
+                throw new NotImplementedException();
             }
         }
-        public interface ILineCharacterDecider
+        public interface ITableCharacter
         {
-            char GetChar(string lineTextBelow);
-
-            char GetcTRight(List<string> resultContentLinesAsString);
-
-            char GetcMiddle(List<string> resultContentLinesAsString, int i);
-
-            char GetcTLeft(List<string> resultContentLinesAsString);
-
+            char HorizontalLineCharacter { get; }
+            char VerticalLineCharacter { get; }
+            char LeftUpperCornerCharacter { get; }
+            char RightUpperCornerCharacter { get; }
+            char LeftLowerCornerCharacter { get; }
+            char RightLowerCornerCharacter { get; }
+            char CrossCharacter { get; }
+            char TDownCharacter { get; }
+            char TRightCharacter { get; }
+            char TLeftCharacter { get; }
+            char TUpCharacter { get; }
+        }
+        public class OneLineTableCharacter : ITableCharacter
+        {
+            public char HorizontalLineCharacter => '─';
+            public char VerticalLineCharacter => '│';
+            public char LeftUpperCornerCharacter => '┌';
+            public char RightUpperCornerCharacter => '┐';
+            public char LeftLowerCornerCharacter => '└';
+            public char RightLowerCornerCharacter => '┘';
+            public char CrossCharacter => '┼';
+            public char TDownCharacter => '┬';
+            public char TRightCharacter => '├';
+            public char TLeftCharacter => '┤';
+            public char TUpCharacter => '┴';
+        }
+        public class DoubleLineTableCharacter : ITableCharacter
+        {
+            public char HorizontalLineCharacter => '═';
+            public char VerticalLineCharacter => '║';
+            public char LeftUpperCornerCharacter => '╔';
+            public char RightUpperCornerCharacter => '╗';
+            public char LeftLowerCornerCharacter => '╚';
+            public char RightLowerCornerCharacter => '╝';
+            public char CrossCharacter => '╬';
+            public char TDownCharacter => '╦';
+            public char TRightCharacter => '╠';
+            public char TLeftCharacter => '╣';
+            public char TUpCharacter => '╩';
+        }
+        public abstract class TableOutputType
+        {
+            public abstract void Accept(ITableOutputTypeVisitor visitor);
+            public abstract T Accept<T>(ITableOutputTypeVisitor<T> visitor);
 
         }
-
-        private string GetFirstLine(int[] widths)
+        public interface ITableOutputTypeVisitor
         {
-            List<string> result = new List<string>
+            void Handle(ASCIITable tableOutputType);
+            void Handle(HTMLTable tableOutputType);
+        }
+
+        public interface ITableOutputTypeVisitor<T>
+        {
+            T Handle(ASCIITable tableOutputType);
+            T Handle(HTMLTable tableOutputType);
+        }
+        public sealed class ASCIITable : TableOutputType
+        {
+            public ITableCharacter Characters { get; set; } = new OneLineTableCharacter();
+          
+            public override void Accept(ITableOutputTypeVisitor visitor)
             {
-                TableCharacter.LeftUpperCornerCharacter.ToString()
-            };
-            for (int i = 0; i <= widths.Length - 1; i++)
-            {
-                if (!(i == 0))
-                {
-                    result.Add(TableCharacter.TDownCharacter.ToString());
-                }
-                result.Add(this.FillOrCut(string.Empty, widths[i], TableCharacter.HorizontalLineCharacter));
+                visitor.Handle(this);
             }
-            result.Add(TableCharacter.RightUpperCornerCharacter.ToString());
-            return string.Join(string.Empty, result);
-        }
 
-        private string GetContentLine(List<string> resultContentLinesAsString, int[] widths)
-        {
-            List<string> result = new List<string>();
-            for (int i = 0; i <= resultContentLinesAsString.Count - 1; i++)
+            public override T Accept<T>(ITableOutputTypeVisitor<T> visitor)
             {
-                string currentLine = resultContentLinesAsString[i];
-                result.Add(TableCharacter.VerticalLineCharacter.ToString());
-                result.Add(this.FillOrCut(currentLine, widths[i], ' '));
+                return visitor.Handle(this);
             }
-            result.Add(TableCharacter.VerticalLineCharacter.ToString());
-            return string.Join("", result);
         }
-
-        private string GetSecondLine(int[] widths)
+        public sealed class HTMLTable : TableOutputType
         {
-            List<string> result = new List<string>
+            public override void Accept(ITableOutputTypeVisitor visitor)
             {
-                TableCharacter.TRightCharacter.ToString()
-            };
-            for (int i = 0; i <= widths.Length - 1; i++)
-            {
-                if (!(i == 0))
-                {
-                    result.Add(TableCharacter.CrossCharacter.ToString());
-                }
-                result.Add(this.FillOrCut(string.Empty, widths[i], TableCharacter.HorizontalLineCharacter));
+                visitor.Handle(this);
             }
-            result.Add(TableCharacter.TLeftCharacter.ToString());
-            return string.Join(string.Empty, result);
-        }
 
-        private string GetLastLine(int[] widths)
-        {
-            List<string> result = new List<string>
+            public override T Accept<T>(ITableOutputTypeVisitor<T> visitor)
             {
-               TableCharacter. LeftLowerCornerCharacter.ToString()
-            };
-            for (int i = 0; i <= widths.Length - 1; i++)
-            {
-                if (!(i == 0))
-                {
-                    result.Add(TableCharacter.TUpCharacter.ToString());
-                }
-                result.Add(this.FillOrCut(string.Empty, widths[i], TableCharacter.HorizontalLineCharacter));
+                return visitor.Handle(this);
             }
-            result.Add(TableCharacter.RightLowerCornerCharacter.ToString());
-            return string.Join(string.Empty, result);
-        }
-        private string GetMiddleLine(List<string> resultContentLinesAsString, ILineCharacterDecider lineCharacterDecider, int[] widths)
-        {
-            List<string> result = new List<string>
-            {
-                lineCharacterDecider.GetcTRight(resultContentLinesAsString).ToString()
-            };
-            for (int i = 0; i <= resultContentLinesAsString.Count - 1; i++)
-            {
-                if (!(i == 0))
-                {
-                    result.Add(lineCharacterDecider.GetcMiddle(resultContentLinesAsString, i).ToString());
-                }
-                dynamic current = resultContentLinesAsString[i];
-                result.Add(FillOrCut(string.Empty, widths[i], lineCharacterDecider.GetChar(current)));
-            }
-            result.Add(lineCharacterDecider.GetcTLeft(resultContentLinesAsString).ToString());
-            return string.Join(string.Empty, result);
-        }
-    }
-    public interface ITableCharacter
-    {
-        char HorizontalLineCharacter { get; }
-        char VerticalLineCharacter { get; }
-        char LeftUpperCornerCharacter { get; }
-        char RightUpperCornerCharacter { get; }
-        char LeftLowerCornerCharacter { get; }
-        char RightLowerCornerCharacter { get; }
-        char CrossCharacter { get; }
-        char TDownCharacter { get; }
-        char TRightCharacter { get; }
-        char TLeftCharacter { get; }
-        char TUpCharacter { get; }
-    }
-    public class OneLineTableCharacter : ITableCharacter
-    {
-        public char HorizontalLineCharacter => '─';
-        public char VerticalLineCharacter => '│';
-        public char LeftUpperCornerCharacter => '┌';
-        public char RightUpperCornerCharacter => '┐';
-        public char LeftLowerCornerCharacter => '└';
-        public char RightLowerCornerCharacter => '┘';
-        public char CrossCharacter => '┼';
-        public char TDownCharacter => '┬';
-        public char TRightCharacter => '├';
-        public char TLeftCharacter => '┤';
-        public char TUpCharacter => '┴';
-    }
-    public class DoubleLineTableCharacter : ITableCharacter
-    {
-        public char HorizontalLineCharacter => '═';
-        public char VerticalLineCharacter => '║';
-        public char LeftUpperCornerCharacter => '╔';
-        public char RightUpperCornerCharacter => '╗';
-        public char LeftLowerCornerCharacter => '╚';
-        public char RightLowerCornerCharacter => '╝';
-        public char CrossCharacter => '╬';
-        public char TDownCharacter => '╦';
-        public char TRightCharacter => '╠';
-        public char TLeftCharacter => '╣';
-        public char TUpCharacter => '╩';
-    }
-    #region TableOutputType
-    public abstract class TableOutputType
-    {
-        public abstract void Accept(ITableOutputTypeVisitor visitor);
-        public abstract T Accept<T>(ITableOutputTypeVisitor<T> visitor);
-
-    }
-    public interface ITableOutputTypeVisitor
-    {
-        void Handle(ASCIITable tableOutputType);
-        void Handle(HTMLTable tableOutputType);
-    }
-
-    public interface ITableOutputTypeVisitor<T>
-    {
-        T Handle(ASCIITable tableOutputType);
-        T Handle(HTMLTable tableOutputType);
-    }
-    public sealed class ASCIITable : TableOutputType
-    {
-
-        public override void Accept(ITableOutputTypeVisitor visitor)
-        {
-            visitor.Handle(this);
         }
 
-        public override T Accept<T>(ITableOutputTypeVisitor<T> visitor)
-        {
-            return visitor.Handle(this);
-        }
     }
-    public sealed class HTMLTable : TableOutputType
-    {
-        public override void Accept(ITableOutputTypeVisitor visitor)
-        {
-            visitor.Handle(this);
-        }
-
-        public override T Accept<T>(ITableOutputTypeVisitor<T> visitor)
-        {
-            return visitor.Handle(this);
-        }
-    }
-    #endregion
-
 }

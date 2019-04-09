@@ -14,6 +14,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Threading;
 using System.DirectoryServices;
+using static GRYLibrary.Miscellaneous.TableGenerator;
 
 namespace GRYLibrary
 {
@@ -63,11 +64,7 @@ namespace GRYLibrary
 
         public static void WriteToConsoleAsASCIITable(IList<IList<string>> columns)
         {
-            TableGenerator tableGenerator = new TableGenerator
-            {
-                Encoding = new UTF8Encoding(false)
-            };
-            string[] table = tableGenerator.Generate(TableGenerator.GetTableContentFromColumnList(columns), "Encoding-table", true, false);
+            string[] table = TableGenerator.Generate(columns, "Encoding-table", true, new ASCIITable(), 100);
             foreach (string line in table)
             {
                 Console.WriteLine(line);
