@@ -1,4 +1,4 @@
-﻿# GRYLibrary
+﻿# GRYLibrary [![License: LGPL v3](https://img.shields.io/badge/License-LGPL%20v3-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0)
 The GRYLibrary is a collection with some useful .NET classes and functions which are very easy (re)usable.
 
 ## Getting Started 
