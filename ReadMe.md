@@ -27,4 +27,4 @@ The GRYLibrary-nuget-packages are always signed. You can check the public key to
 The public key token of all official GRYLibrary-releases is `def3d0f8e99ddde7`. For security-reasons you should only use GRYLibrary.dll-files which you have compiled by yourself from the source code in this repository or which have this public key token.
 
 ## License
-GRYLibrary is licensed under the terms of LGPL. The concrete license-text can be found [here](./License.txt).
+GRYLibrary is licensed under the terms of LGPL3. The concrete license-text for the GRYLibrary can be found [here](./License.txt).
