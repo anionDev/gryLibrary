@@ -26,10 +26,6 @@ You are welcome to contribute by
 
 and you are also welcome to share your commits under the terms of LGPL by creating a pullrequest. If you do that please create a fork of the development-branch (currently ´dev/grylibrary-0-3-0-0´) and then create a pullrequest back to this branch (not to the ´master´-branch).
 
-# Tests
-
-The current test-coverage of the GRYLibrary can be found [here](https://aniondev.github.io/gryLibraryReference/TestReports/index.htm).
-
 # Links
 
 [Github GRYLibrary-project](https://github.com/anionDev/gryLibrary)
@@ -38,7 +34,9 @@ The current test-coverage of the GRYLibrary can be found [here](https://aniondev
 
 [Nuget GRYLibrary-package](https://www.nuget.org/packages/GRYLibrary)
 
-[Class Reference and Documentation](https://aniondev.github.io/gryLibrary/Site/api/GRYLibrary.html)
+[Class Reference and Documentation](https://aniondev.github.io/gryLibraryReference/Site/api/GRYLibrary.html)
+
+[Test-coverage](https://aniondev.github.io/gryLibraryReference/TestReports/index.htm).
 
 # Additional information
 
