@@ -11,9 +11,19 @@ All labels (for classes, properties, etc.) have meaningful names.
 
 The concrete reference all types can be found [here](https://aniondev.github.io/gryLibraryReference/Site/api/GRYLibrary.html).
 
-# Version-system
+# Additional information
 
-For every new release the minor version will be increased. v0.1 and v0.2 are released and now v.03 will be developed currently.
+[![NuGet](https://img.shields.io/nuget/v/GRYLibrary.svg?color=green)](https://www.nuget.org/packages/GRYLibrary/)
+
+![Nuget](https://img.shields.io/nuget/dt/GRYLibrary.svg)
+
+![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/anionDev/gryLibrary.svg)
+
+![GitHub repo size](https://img.shields.io/github/repo-size/anionDev/gryLibrary.svg)
+
+![GitHub issues](https://img.shields.io/github/issues-raw/anionDev/gryLibrary.svg)
+
+![Maintenance](https://img.shields.io/maintenance/yes/2020.svg)
 
 # Contribute
 
@@ -36,16 +46,8 @@ and you are also welcome to share your commits under the terms of LGPL by creati
 
 [Class Reference and Documentation](https://aniondev.github.io/gryLibraryReference/Site/api/GRYLibrary.html)
 
-[Test-coverage](https://aniondev.github.io/gryLibraryReference/TestReports/index.htm).
+[Test-coverage](https://aniondev.github.io/gryLibraryReference/TestReports/index.htm)
 
-# Additional information
+# Version-system
 
-![Nuget](https://img.shields.io/nuget/dt/GRYLibrary.svg)
-
-![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/anionDev/gryLibrary.svg)
-
-![GitHub repo size](https://img.shields.io/github/repo-size/anionDev/gryLibrary.svg)
-
-![GitHub issues](https://img.shields.io/github/issues-raw/anionDev/gryLibrary.svg)
-
-![Maintenance](https://img.shields.io/maintenance/yes/2020.svg)
+For every new release the minor version will be increased. v0.1 and v0.2 are released and now v.03 will currently be developed.

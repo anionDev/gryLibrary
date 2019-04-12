@@ -9,7 +9,6 @@ namespace GRYLibrary.Miscellaneous
         public IEnumerable<string> Files { get; private set; }
         private FileSelector()
         {
-
         }
         public static FileSelector SingleFile(string file)
         {
