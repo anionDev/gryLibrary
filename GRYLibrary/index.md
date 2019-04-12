@@ -6,15 +6,10 @@ The GRYLibrary contains some useful functions and extensions written in C#. For 
 - SimpleGenericXMLSerializer To serialize/deserialize any object as XML in a very easy way.
 
 All labels (for classes, properties, etc.) have meaningful names.
-The concrete reference all types can be found [here](https://aniondev.github.io/gryLibrary/Site/api/GRYLibrary.html).
 
-# Additional information
+# Reference
 
-![Nuget](https://img.shields.io/nuget/dt/GRYLibrary.svg)
-![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/anionDev/gryLibrary.svg)
-![GitHub repo size](https://img.shields.io/github/repo-size/anionDev/gryLibrary.svg)
-![GitHub issues](https://img.shields.io/github/issues-raw/anionDev/gryLibrary.svg)
-![Maintenance](https://img.shields.io/maintenance/yes/2020.svg)
+The concrete reference all types can be found [here](https://aniondev.github.io/gryLibraryReference/Site/api/GRYLibrary.html).
 
 # Version-system
 
@@ -34,3 +29,25 @@ and you are also welcome to share your commits under the terms of LGPL by creati
 # Tests
 
 The current test-coverage of the GRYLibrary can be found [here](https://aniondev.github.io/gryLibraryReference/TestReports/index.htm).
+
+# Links
+
+[Github GRYLibrary-project](https://github.com/anionDev/gryLibrary)
+
+[Github GRYLibraryReference-project](https://github.com/anionDev/gryLibraryReference)
+
+[Nuget GRYLibrary-package](https://www.nuget.org/packages/GRYLibrary)
+
+[Class Reference and Documentation](https://aniondev.github.io/gryLibrary/Site/api/GRYLibrary.html)
+
+# Additional information
+
+![Nuget](https://img.shields.io/nuget/dt/GRYLibrary.svg)
+
+![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/anionDev/gryLibrary.svg)
+
+![GitHub repo size](https://img.shields.io/github/repo-size/anionDev/gryLibrary.svg)
+
+![GitHub issues](https://img.shields.io/github/issues-raw/anionDev/gryLibrary.svg)
+
+![Maintenance](https://img.shields.io/maintenance/yes/2020.svg)
