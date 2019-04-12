@@ -24,16 +24,14 @@ namespace GRYLibraryTest
             items[2, 1] = "lastline1";
             items[2, 2] = "lastline2";
             items[2, 3] = "lastline3_012345";
-            string title = "sample";
-            string[] table = TableGenerator.Generate(items, title, true, new TableGenerator.ASCIITable(), 100);
-            Assert.AreEqual(7, table.Length);
-            Assert.AreEqual(title, table[0]);
-            Assert.AreEqual("┌───────────┬──────────────┬──────────────┬────────────────┐", table[1]);
-            Assert.AreEqual("│firstline0 │firstline1_012│firstline2    │firstline3      │", table[2]);
-            Assert.AreEqual("├───────────┼──────────────┼──────────────┼────────────────┤", table[3]);
-            Assert.AreEqual("│secondline0│secondline1   │secondline2_01│secondline3     │", table[4]);
-            Assert.AreEqual("│lastline0  │lastline1     │lastline2     │lastline3_012345│", table[5]);
-            Assert.AreEqual("└───────────┴──────────────┴──────────────┴────────────────┘", table[6]);
+            string[] table = TableGenerator.Generate(items, new TableGenerator.ASCIITable() { TableHasTitles = true });
+            Assert.AreEqual(6, table.Length);
+            Assert.AreEqual("┌───────────┬──────────────┬──────────────┬────────────────┐", table[0]);
+            Assert.AreEqual("│firstline0 │firstline1_012│firstline2    │firstline3      │", table[1]);
+            Assert.AreEqual("├───────────┼──────────────┼──────────────┼────────────────┤", table[2]);
+            Assert.AreEqual("│secondline0│secondline1   │secondline2_01│secondline3     │", table[3]);
+            Assert.AreEqual("│lastline0  │lastline1     │lastline2     │lastline3_012345│", table[4]);
+            Assert.AreEqual("└───────────┴──────────────┴──────────────┴────────────────┘", table[5]);
         }
         [TestMethod]
         public void TestSimpleASCIITable2()
@@ -51,15 +49,13 @@ namespace GRYLibraryTest
             items[2, 1] = "lastline1";
             items[2, 2] = "lastline2";
             items[2, 3] = "lastline3_012345";
-            string title = "sample";
-            string[] table = TableGenerator.Generate(items, title, false, new TableGenerator.ASCIITable() { Characters = new DoubleLineTableCharacter() }, 11);
-            Assert.AreEqual(6, table.Length);
-            Assert.AreEqual(title, table[0]);
-            Assert.AreEqual("╔══════════╦═══════════╦═══════════╦═══════════╗", table[1]);
-            Assert.AreEqual("║firstline0║firstlin...║firstline2 ║firstline3 ║", table[2]);
-            Assert.AreEqual("║secondline║secondline1║secondli...║secondline3║", table[3]);
-            Assert.AreEqual("║lastline0 ║lastline1  ║lastline2  ║lastline...║", table[4]);
-            Assert.AreEqual("╚══════════╩═══════════╩═══════════╩═══════════╝", table[5]);
+            string[] table = TableGenerator.Generate(items, new TableGenerator.ASCIITable() { Characters = new DoubleLineTableCharacter(), MaximalWidth = 11 });
+            Assert.AreEqual(5, table.Length);
+            Assert.AreEqual("╔══════════╦═══════════╦═══════════╦═══════════╗", table[0]);
+            Assert.AreEqual("║firstline0║firstlin...║firstline2 ║firstline3 ║", table[1]);
+            Assert.AreEqual("║secondline║secondline1║secondli...║secondline3║", table[2]);
+            Assert.AreEqual("║lastline0 ║lastline1  ║lastline2  ║lastline...║", table[3]);
+            Assert.AreEqual("╚══════════╩═══════════╩═══════════╩═══════════╝", table[4]);
         }
         [TestMethod]
         public void TestSimpleCSVTable1()
@@ -77,13 +73,11 @@ namespace GRYLibraryTest
             items[2, 1] = "lastline1";
             items[2, 2] = "lastline2";
             items[2, 3] = "lastline3_012345";
-            string title = "sample";
-            string[] table = TableGenerator.Generate(items, title, false, new TableGenerator.CSV(), 11);
-            Assert.AreEqual(4, table.Length);
-            Assert.AreEqual(title, table[0]);
-            Assert.AreEqual("firstline0;firstline1_012;firstline2;firstline3", table[1]);
-            Assert.AreEqual("secondline;secondline1;secondline2_01;secondline3", table[2]);
-            Assert.AreEqual("lastline0;lastline1;lastline2;lastline3_012345", table[3]);
+            string[] table = TableGenerator.Generate(items, new TableGenerator.CSV());
+            Assert.AreEqual(3, table.Length);
+            Assert.AreEqual("firstline0;firstline1_012;firstline2;firstline3", table[0]);
+            Assert.AreEqual("secondline;secondline1;secondline2_01;secondline3", table[1]);
+            Assert.AreEqual("lastline0;lastline1;lastline2;lastline3_012345", table[2]);
         }
     }
 }

@@ -64,7 +64,7 @@ namespace GRYLibrary
 
         public static void WriteToConsoleAsASCIITable(IList<IList<string>> columns)
         {
-            string[] table = TableGenerator.Generate(ConvertEnumerableOfEnumerableTo2DArray(columns), "Encoding-table", true, new ASCIITable(), 100);
+            string[] table = TableGenerator.Generate(ConvertEnumerableOfEnumerableTo2DArray(columns), new ASCIITable());
             foreach (string line in table)
             {
                 Console.WriteLine(line);

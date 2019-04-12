@@ -6,36 +6,30 @@ namespace GRYLibrary.Miscellaneous
 {
     public class TableGenerator
     {
-        public static string[] Generate(string[,] array, string title, bool tableHasTitles, TableOutputType outputType, int maximalColumnWitdh)
+        public static string[] Generate(string[,] array, TableOutputType outputType)
         {
-            return outputType.Accept(new TableOutputTypeVisitor(array, title, tableHasTitles, maximalColumnWitdh));
+            return outputType.Accept(new TableOutputTypeVisitor(array));
         }
         private class TableOutputTypeVisitor : ITableOutputTypeVisitor<string[]>
         {
             public string[,] Array { get; set; }
-            public string Title { get; set; }
-            public bool TableHasTitles { get; set; }
-            public int MaximalWidth { get; set; }
 
-            public TableOutputTypeVisitor(string[,] array, string title, bool tableHasTitles, int maximalWidth)
+            public TableOutputTypeVisitor(string[,] array)
             {
                 this.Array = array;
-                this.Title = title.Trim();
-                this.TableHasTitles = tableHasTitles;
-                this.MaximalWidth = maximalWidth;
             }
 
             public string[] Handle(ASCIITable tableOutputType)
             {
                 List<string> result = new List<string>();
-                if (!string.IsNullOrEmpty(this.Title))
+                if (!string.IsNullOrEmpty(tableOutputType.Title))
                 {
-                    result.Add(this.Title);
+                    result.Add(tableOutputType.Title);
                 }
-                int[] columnLengths = this.GetColumnLengths(this.Array, this.MaximalWidth);
+                int[] columnLengths = this.GetColumnLengths(this.Array, tableOutputType.MaximalWidth);
                 result.Add(this.GetFirstLineForASCIITable(tableOutputType, columnLengths));
                 result.Add(this.GetHeadlineLineForASCIITable(tableOutputType, columnLengths));
-                if (this.TableHasTitles)
+                if (tableOutputType.TableHasTitles)
                 {
                     result.Add(this.GetHeadlineDividerLineForASCIITable(tableOutputType, columnLengths));
                 }
@@ -55,10 +49,6 @@ namespace GRYLibrary.Miscellaneous
             public string[] Handle(CSV csv)
             {
                 List<string> result = new List<string>();
-                if (!string.IsNullOrEmpty(this.Title))
-                {
-                    result.Add(this.Title);
-                }
                 for (int i = 0; i < this.Array.GetLength(0); i++)
                 {
                     List<string> lineItems = new List<string>();
@@ -85,7 +75,6 @@ namespace GRYLibrary.Miscellaneous
             {
                 return this.GetLine(tableOutputType.Characters.TRightCharacter, this.NTimes(tableOutputType.Characters.HorizontalLineCharacter.ToString(), columnLengths.Length), tableOutputType.Characters.HorizontalLineCharacter, tableOutputType.Characters.CrossCharacter, tableOutputType.Characters.TLeftCharacter, columnLengths);
             }
-
 
             private string GetLastLineForASCIITable(ASCIITable tableOutputType, int[] columnLengths)
             {
@@ -230,6 +219,9 @@ namespace GRYLibrary.Miscellaneous
         {
             public ITableCharacter Characters { get; set; } = new OneLineTableCharacter();
 
+            public bool TableHasTitles { get; set; } = false;
+            public int MaximalWidth { get; set; } = 1000;
+            public string Title { get; set; } = string.Empty;
             public override void Accept(ITableOutputTypeVisitor visitor)
             {
                 visitor.Handle(this);
