@@ -33,7 +33,6 @@ namespace GRYLibrary.Miscellaneous
                     result.Add(this.Title);
                 }
                 int[] columnLengths = this.GetColumnLengths(this.Array, this.MaximalWidth);
-                //TODO
                 result.Add(this.GetFirstLineForASCIITable(tableOutputType, columnLengths));
                 result.Add(this.GetHeadlineLineForASCIITable(tableOutputType, columnLengths));
                 if (this.TableHasTitles)
@@ -48,6 +47,30 @@ namespace GRYLibrary.Miscellaneous
                 return result.ToArray();
             }
 
+            public string[] Handle(HTMLTable tableOutputType)
+            {
+                throw new NotImplementedException();
+            }
+
+            public string[] Handle(CSV csv)
+            {
+                List<string> result = new List<string>();
+                if (!string.IsNullOrEmpty(this.Title))
+                {
+                    result.Add(this.Title);
+                }
+                for (int i = 0; i < this.Array.GetLength(0); i++)
+                {
+                    List<string> lineItems = new List<string>();
+                    for (int j = 0; j < this.Array.GetLength(1); j++)
+                    {
+                        lineItems.Add(this.Array[i, j]);
+                    }
+                    result.Add(string.Join(";", lineItems));
+                }
+                return result.ToArray();
+            }
+            #region Helper
             private string GetLineForASCIITable(ASCIITable tableOutputType, int[] columnLengths, int lineNumber)
             {
                 string[] content = new string[columnLengths.Length];
@@ -139,10 +162,8 @@ namespace GRYLibrary.Miscellaneous
                 return result;
             }
 
-            public string[] Handle(HTMLTable tableOutputType)
-            {
-                throw new NotImplementedException();
-            }
+
+            #endregion
         }
         public interface ITableCharacter
         {
@@ -196,12 +217,14 @@ namespace GRYLibrary.Miscellaneous
         {
             void Handle(ASCIITable tableOutputType);
             void Handle(HTMLTable tableOutputType);
+            void Handle(CSV cSV);
         }
 
         public interface ITableOutputTypeVisitor<T>
         {
             T Handle(ASCIITable tableOutputType);
             T Handle(HTMLTable tableOutputType);
+            T Handle(CSV cSV);
         }
         public sealed class ASCIITable : TableOutputType
         {
@@ -218,6 +241,18 @@ namespace GRYLibrary.Miscellaneous
             }
         }
         public sealed class HTMLTable : TableOutputType
+        {
+            public override void Accept(ITableOutputTypeVisitor visitor)
+            {
+                visitor.Handle(this);
+            }
+
+            public override T Accept<T>(ITableOutputTypeVisitor<T> visitor)
+            {
+                return visitor.Handle(this);
+            }
+        }
+        public sealed class CSV : TableOutputType
         {
             public override void Accept(ITableOutputTypeVisitor visitor)
             {
