@@ -15,10 +15,13 @@ The concrete reference all types can be found [here](https://aniondev.github.io/
 ![GitHub repo size](https://img.shields.io/github/repo-size/anionDev/gryLibrary.svg)
 ![GitHub issues](https://img.shields.io/github/issues-raw/anionDev/gryLibrary.svg)
 ![Maintenance](https://img.shields.io/maintenance/yes/2020.svg)
+
 # Version-system
+
 For every new release the minor version will be increased. v0.1 and v0.2 are released and now v.03 will be developed currently.
 
 # Contribute
+
 You are welcome to contribute by
 
 * fixing bugs
@@ -27,3 +30,7 @@ You are welcome to contribute by
 * add tests for existing functions
 
 and you are also welcome to share your commits under the terms of LGPL by creating a pullrequest. If you do that please create a fork of the development-branch (currently ´dev/grylibrary-0-3-0-0´) and then create a pullrequest back to this branch (not to the ´master´-branch).
+
+# Tests
+
+The current test-coverage of the GRYLibrary can be found [here](https://aniondev.github.io/gryLibraryReference/TestReports/index.htm).
