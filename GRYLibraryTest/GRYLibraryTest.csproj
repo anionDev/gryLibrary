@@ -46,16 +46,23 @@
     <Reference Include="Microsoft.VisualStudio.TestPlatform.TestFramework.Extensions, Version=14.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\MSTest.TestFramework.1.2.0\lib\net45\Microsoft.VisualStudio.TestPlatform.TestFramework.Extensions.dll</HintPath>
     </Reference>
+    <Reference Include="PresentationCore" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ColorGradientTest.cs" />
     <Compile Include="ConcurrentTest.cs" />
+    <Compile Include="ExtendedColorTest.cs" />
+    <Compile Include="FileSelectorTest.cs" />
     <Compile Include="GLogTest.cs" />
+    <Compile Include="NonPersistentInputHistoryListTest.cs" />
     <Compile Include="PlaylistTest.cs" />
     <Compile Include="PropertyTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TableGeneratorTest.cs" />
+    <Compile Include="UtilitiesTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
