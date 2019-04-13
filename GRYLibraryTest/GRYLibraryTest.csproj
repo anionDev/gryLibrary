@@ -61,6 +61,7 @@
     <Compile Include="PlaylistTest.cs" />
     <Compile Include="PropertyTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SimpleObjectPersistenceTest.cs" />
     <Compile Include="TableGeneratorTest.cs" />
     <Compile Include="UtilitiesTest.cs" />
   </ItemGroup>
