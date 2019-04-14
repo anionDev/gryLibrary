@@ -14,7 +14,7 @@ Install-Package GRYLibrary
 ```
 
 ## Reference
-The GRYLibrary-reference can be found [here](https://aniondev.github.io/gryLibraryReference/Site/api/GRYLibrary.html).
+The GRYLibrary-reference can be found [here](https://aniondev.github.io/gryLibraryReference/Reference/api/GRYLibrary.html).
 
 The entire documentation-website can be found [here](https://aniondev.github.io/gryLibraryReference/Site/index.html).
 
