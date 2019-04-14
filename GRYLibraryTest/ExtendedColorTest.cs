@@ -21,6 +21,7 @@ namespace GRYLibraryTest
             Assert.AreEqual(color1, color2);
             Assert.AreEqual(color1.GetHashCode(), color2.GetHashCode());
         }
+        [Ignore]
         [TestMethod]
         public void ExtendedColorTest3()
         {

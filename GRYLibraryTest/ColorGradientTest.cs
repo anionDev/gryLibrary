@@ -6,6 +6,7 @@ namespace GRYLibraryTest
     [TestClass]
     public class ColorGradientTest
     {
+        [Ignore]
         [TestMethod]
         public void ColorGradientTest1()
         {
