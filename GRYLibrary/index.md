@@ -25,6 +25,8 @@ The concrete reference all types can be found [here](https://aniondev.github.io/
 
 ![Maintenance](https://img.shields.io/maintenance/yes/2020.svg)
 
+[![Coverage Status](https://coveralls.io/repos/github/anionDev/gryLibrary/badge.svg?branch=dev%2Fgrylibrary-0-3-0)](https://coveralls.io/github/anionDev/gryLibrary?branch=dev%2Fgrylibrary-0-3-0)
+
 # Contribute
 
 You are welcome to contribute by
