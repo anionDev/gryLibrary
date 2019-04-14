@@ -5,7 +5,7 @@ using System.Windows.Media;
 namespace GRYLibraryTest
 {
     [TestClass]
-    class ExtendedColorTest
+   public class ExtendedColorTest
     {
         [TestMethod]
         public void ExtendedColorTest1()

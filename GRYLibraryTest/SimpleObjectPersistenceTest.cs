@@ -6,7 +6,7 @@ using System.Text;
 namespace GRYLibraryTest
 {
     [TestClass]
-    class SimpleObjectPersistenceTest
+    public class SimpleObjectPersistenceTest
     {
         [TestMethod]
         public void SimpleObjectPersistenceTestTest1()

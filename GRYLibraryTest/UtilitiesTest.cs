@@ -4,7 +4,7 @@ using System.Linq;
 namespace GRYLibraryTest
 {
     [TestClass]
-    class UtilitiesTest
+    public class UtilitiesTest
     {
         [TestMethod]
         public void UtilitiesTestEnsureFileExists()
@@ -68,7 +68,7 @@ namespace GRYLibraryTest
             string dir = "dir";
             string testFile = dir + "/file";
             GRYLibrary.Utilities.EnsureFileExists(testFile, true);
-            Assert.IsTrue(System.IO.Directory.Exists(testFile));
+            Assert.IsTrue(System.IO.File.Exists(testFile));
             GRYLibrary.Utilities.EnsureDirectoryDoesNotExist(dir);
             Assert.IsFalse(System.IO.Directory.Exists(testFile));
         }
