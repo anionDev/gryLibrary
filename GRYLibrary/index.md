@@ -36,7 +36,7 @@ You are welcome to contribute by
 * add documentation for existing functions
 * add tests for existing functions
 
-and you are also welcome to share your commits under the terms of LGPL by creating a pullrequest. If you do that please create a fork of the development-branch (currently ´dev/grylibrary-0-3-0-0´) and then create a pullrequest back to this branch (not to the ´master´-branch).
+and you are also welcome to share your commits under the terms of LGPL by creating a pullrequest. If you do that please create a fork of the development-branch (currently `dev/grylibrary-0-3-0-0`) and then create a pullrequest back to this branch (not to the ´master´-branch).
 
 # Links
 
