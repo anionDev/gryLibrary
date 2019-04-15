@@ -1,9 +1,9 @@
 # General
 
 The GRYLibrary contains some useful functions and extensions written in C#. For example:
-- Tablegenerator Generates ASCII-tables
-- GRYLog Represents a (more or less) simple log-functionality
-- SimpleGenericXMLSerializer To serialize/deserialize any object as XML in a very easy way.
+* Tablegenerator: Generates ASCII-tables
+* GRYLog: Represents a (more or less) simple log-functionality
+* SimpleGenericXMLSerializer: To serialize/deserialize objects as XML in a very easy way.
 
 All labels (for classes, properties, etc.) have meaningful names.
 
@@ -30,13 +30,12 @@ The concrete reference all types can be found [here](https://aniondev.github.io/
 # Contribute
 
 You are welcome to contribute by
-
 * fixing bugs
 * adding new useful functions
 * adding documentation for existing functions
 * adding tests for existing functions
 
-and you are also welcome to share your commits under the terms of [LGPL](https://raw.githubusercontent.com/anionDev/gryLibrary/master/ConcreteLicenseTexts/GNU%20Lesser%20General%20Public%20License%20version%203.txt) by creating a pullrequest. If you want to do that please create a fork of the development-branch (currently `dev/grylibrary-0-3-0`) and then create a pullrequest back to this branch (not to the `master`-branch).
+and you are also welcome to share your commits under the terms of [LGPL](https://raw.githubusercontent.com/anionDev/gryLibrary/master/ConcreteLicenseTexts/GNU%20Lesser%20General%20Public%20License%20version%203.txt) by creating a pullrequest. If you want to do that then please create a fork of the development-branch (currently `dev/grylibrary-0-3-0`) and then create a pullrequest back to this branch (not to the `master`-branch).
 
 # Links
 
@@ -54,4 +53,4 @@ and you are also welcome to share your commits under the terms of [LGPL](https:/
 
 # Version-system
 
-For every new release the minor version will be increased. v0.1 and v0.2 are released and now v0.3 will currently be developed.
+For every new release the minor version will be increased. [v0.1](https://www.nuget.org/packages/GRYLibrary/0.1.0) and [v0.2](https://www.nuget.org/packages/GRYLibrary/0.2.0) are released and now v0.3 will currently be developed.
