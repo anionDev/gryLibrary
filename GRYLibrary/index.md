@@ -36,7 +36,7 @@ You are welcome to contribute by
 * add documentation for existing functions
 * add tests for existing functions
 
-and you are also welcome to share your commits under the terms of LGPL by creating a pullrequest. If you do that please create a fork of the development-branch (currently `dev/grylibrary-0-3-0-0`) and then create a pullrequest back to this branch (not to the ´master´-branch).
+and you are also welcome to share your commits under the terms of [LGPL](https://raw.githubusercontent.com/anionDev/gryLibrary/master/ConcreteLicenseTexts/GNU%20Lesser%20General%20Public%20License%20version%203.txt) by creating a pullrequest. If you do that please create a fork of the development-branch (currently `dev/grylibrary-0-3-0`) and then create a pullrequest back to this branch (not to the `master`-branch).
 
 # Links
 
@@ -49,6 +49,8 @@ and you are also welcome to share your commits under the terms of LGPL by creati
 [Class Reference and Documentation](https://aniondev.github.io/gryLibraryReference/Site/api/GRYLibrary.html)
 
 [Test-coverage](https://aniondev.github.io/gryLibraryReference/TestReports/index.htm)
+
+[License](https://raw.githubusercontent.com/anionDev/gryLibrary/master/License.txt)
 
 # Version-system
 
