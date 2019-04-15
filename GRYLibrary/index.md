@@ -36,7 +36,7 @@ You are welcome to contribute by
 * adding documentation for existing functions
 * adding tests for existing functions
 
-and you are also welcome to share your commits under the terms of [LGPL](https://raw.githubusercontent.com/anionDev/gryLibrary/master/ConcreteLicenseTexts/GNU%20Lesser%20General%20Public%20License%20version%203.txt) by creating a pullrequest. If you do that please create a fork of the development-branch (currently `dev/grylibrary-0-3-0`) and then create a pullrequest back to this branch (not to the `master`-branch).
+and you are also welcome to share your commits under the terms of [LGPL](https://raw.githubusercontent.com/anionDev/gryLibrary/master/ConcreteLicenseTexts/GNU%20Lesser%20General%20Public%20License%20version%203.txt) by creating a pullrequest. If you want to do that please create a fork of the development-branch (currently `dev/grylibrary-0-3-0`) and then create a pullrequest back to this branch (not to the `master`-branch).
 
 # Links
 
@@ -54,4 +54,4 @@ and you are also welcome to share your commits under the terms of [LGPL](https:/
 
 # Version-system
 
-For every new release the minor version will be increased. v0.1 and v0.2 are released and now v.03 will currently be developed.
+For every new release the minor version will be increased. v0.1 and v0.2 are released and now v0.3 will currently be developed.
