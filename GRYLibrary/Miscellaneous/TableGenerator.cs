@@ -196,6 +196,20 @@ namespace GRYLibrary.Miscellaneous
             public char TLeftCharacter => '╣';
             public char TUpCharacter => '╩';
         }
+        public class RoundLineTableCharacter : ITableCharacter
+        {
+            public char HorizontalLineCharacter => '─';
+            public char VerticalLineCharacter => '│';
+            public char LeftUpperCornerCharacter => '╭';
+            public char RightUpperCornerCharacter => '╮';
+            public char LeftLowerCornerCharacter => '╰';
+            public char RightLowerCornerCharacter => '╯';
+            public char CrossCharacter => '┼';
+            public char TDownCharacter => '┬';
+            public char TRightCharacter => '├';
+            public char TLeftCharacter => '┤';
+            public char TUpCharacter => '┴';
+        }
         public abstract class TableOutputType
         {
             public abstract void Accept(ITableOutputTypeVisitor visitor);
