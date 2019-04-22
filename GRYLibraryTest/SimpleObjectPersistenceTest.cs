@@ -8,7 +8,6 @@ namespace GRYLibraryTest
     [TestClass]
     public class SimpleObjectPersistenceTest
     {
-        [Ignore]
         [TestMethod]
         public void SimpleObjectPersistenceTestTest1()
         {

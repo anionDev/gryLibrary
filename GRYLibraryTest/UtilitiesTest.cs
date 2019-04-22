@@ -6,7 +6,6 @@ namespace GRYLibraryTest
     [TestClass]
     public class UtilitiesTest
     {
-        [Ignore]
         [TestMethod]
         public void UtilitiesTestEnsureFileExists()
         {
@@ -35,7 +34,6 @@ namespace GRYLibraryTest
             GRYLibrary.Utilities.EnsureFileDoesNotExist(testFile);
             Assert.IsFalse(System.IO.File.Exists(testFile));
         }
-        [Ignore]
         [TestMethod]
         public void UtilitiesTestEnsureDirectoryExists()
         {
@@ -50,7 +48,7 @@ namespace GRYLibraryTest
             }
             finally
             {
-                System.IO.File.Delete(testDir);
+                System.IO.Directory.Delete(testDir);
             }
         }
         [TestMethod]

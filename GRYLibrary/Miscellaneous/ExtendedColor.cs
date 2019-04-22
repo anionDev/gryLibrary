@@ -76,6 +76,10 @@
         {
             return this.ColorCode;
         }
+        public override string ToString()
+        {
+            return $"{nameof(ExtendedColor)}({nameof(A)}={A},{nameof(R)}={R},{nameof(G)}={G},{nameof(B)}={B})";
+        }
 
     }
 }
