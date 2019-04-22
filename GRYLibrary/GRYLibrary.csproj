@@ -43,9 +43,17 @@
   <ItemGroup>
     <Reference Include="PresentationCore" />
     <Reference Include="System" />
+    <Reference Include="System.Collections.Immutable, Version=1.2.3.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Collections.Immutable.1.5.0\lib\netstandard2.0\System.Collections.Immutable.dll</HintPath>
+    </Reference>
     <Reference Include="System.Core" />
     <Reference Include="System.DirectoryServices" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Runtime.Extensions, Version=4.1.1.1, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Runtime.Extensions.4.3.1\lib\net462\System.Runtime.Extensions.dll</HintPath>
+      <Private>True</Private>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Web" />
     <Reference Include="System.Windows.Forms" />
@@ -76,6 +84,7 @@
     <Compile Include="Miscellaneous\Playlists\ConcretePlaylistHandler\M3UHandler.cs" />
     <Compile Include="Miscellaneous\Playlists\ConcretePlaylistHandler\PLSHandler.cs" />
     <Compile Include="Miscellaneous\SimpleStreamMultiplier.cs" />
+    <Compile Include="Miscellaneous\StreamMixer.cs" />
     <Compile Include="Miscellaneous\TableGenerator.cs" />
     <Compile Include="Miscellaneous\TaskQueue.cs" />
     <Compile Include="Miscellaneous\TupleWithValueComparisonEquals.cs" />
