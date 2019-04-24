@@ -6,7 +6,7 @@ namespace GRYLibrary.Miscellaneous
 {
     public class StreamMixer
     {
-        private ISet<StreamPipe> _Connections = new HashSet<StreamPipe>();
+        private readonly ISet<StreamPipe> _Connections = new HashSet<StreamPipe>();
         public void AddPipe(StreamPipe connection)
         {
             if (this._Connections.Add(connection))
