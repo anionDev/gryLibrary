@@ -5,7 +5,8 @@ namespace GRYLibrary.Miscellaneous
 {
     public sealed class Semaphore : Property<long>
     {
-        public Semaphore(string propertyName, bool addValuesToHistory = false) : base(0, propertyName, addValuesToHistory)
+        public string Name { get; set; }
+        public Semaphore(string propertyName = "") : base(0, propertyName, false)
         {
             this.LockEnabled = true;
         }
@@ -22,6 +23,21 @@ namespace GRYLibrary.Miscellaneous
             }
             base.Value -= 1;
         }
-
+        public override bool Equals(object @object)
+        {
+            Semaphore typedObject = @object as Semaphore;
+            if (typedObject == null)
+            {
+                return false;
+            }
+            else
+            {
+                return typedObject.Name.Equals(this.Name);
+            }
+        }
+        public override int GetHashCode()
+        {
+            return this.Name.GetHashCode();
+        }
     }
 }

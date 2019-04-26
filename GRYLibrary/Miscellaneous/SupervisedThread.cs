@@ -5,25 +5,26 @@ namespace GRYLibrary
     public class SupervisedThread
     {
         public GRYLog LogObject { get; set; }
-        public SupervisedThread(Action action, string logFile = "", string name = "", string informationAboutInvoker = "")
-            : this(action, GRYLog.Create(logFile), name, informationAboutInvoker)
+        public static SupervisedThread CreateByLogFile(Action action, string logFile, string name = "", string informationAboutInvoker = "")
         {
+            return CreateWithGRYLog(action, GRYLog.Create(logFile), name, informationAboutInvoker);
+        }
+        public static SupervisedThread CreateWithGRYLog(Action action, GRYLog log = null, string name = "", string informationAboutInvoker = "")
+        {
+            return new SupervisedThread(action, log, name, informationAboutInvoker);
+        }
+        public static SupervisedThread Create(Action action, string name = "", string informationAboutInvoker = "")
+        {
+            return CreateByLogFile(action, string.Empty, name, informationAboutInvoker);
         }
 
-        public SupervisedThread(Action action, GRYLog log, string name = "", string informationAboutInvoker = "")
+        private SupervisedThread(Action action, GRYLog log, string name, string informationAboutInvoker)
         {
             this.InformationAboutInvoker = informationAboutInvoker;
             this.Action = action;
             this.Id = Guid.NewGuid();
             this.Name = $"{nameof(SupervisedThread)} {this.Id.ToString()} " + (string.IsNullOrEmpty(name) ? string.Empty : $"({name})");
-            if (log == null)
-            {
-                this.LogObject = GRYLog.Create();
-            }
-            else
-            {
-                this.LogObject = log;
-            }
+            this.LogObject = log;
         }
         public bool LogOverhead { get; set; } = false;
         public string Name { get; set; }
@@ -37,7 +38,7 @@ namespace GRYLibrary
             this._Running = true;
             if (this.LogOverhead)
             {
-                this.LogObject.LogInformation(string.Format("Start Action of thread with id {0} and name \"{1}\"", this.Id.ToString(), this.Name.ToString()));
+                this.LogObject?.LogInformation(string.Format("Start action with id {0} and name \"{1}\"", this.Id.ToString(), this.Name.ToString()));
             }
             try
             {
@@ -45,7 +46,7 @@ namespace GRYLibrary
             }
             catch (Exception exception)
             {
-                this.LogObject.LogError(string.Format("Error occurred while executing Action of thread with id {0} and name \"{1}\"", this.Id.ToString(), this.Name.ToString()), exception);
+                this.LogObject?.LogError(string.Format("Error occurred while executing action with id {0} and name \"{1}\"", this.Id.ToString(), this.Name.ToString()), exception);
             }
             finally
             {
@@ -53,7 +54,7 @@ namespace GRYLibrary
             }
             if (this.LogOverhead)
             {
-                this.LogObject.LogInformation(string.Format("Startprocess of thread with id {0} and name \"{1}\" started", this.Id.ToString(), this.Name.ToString()));
+                this.LogObject?.LogInformation(string.Format("Finished action with id {0} and name \"{1}\" started", this.Id.ToString(), this.Name.ToString()));
             }
         }
 

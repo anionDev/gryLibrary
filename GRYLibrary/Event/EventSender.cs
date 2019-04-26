@@ -15,27 +15,21 @@ namespace GRYLibrary.Event
             this.LogObject = logObject;
             this.Initialize(default);
         }
-        private IList<IObserver<SenderType, EventArgumentType>> _Observer = null;
+        private ISet<IObserver<SenderType, EventArgumentType>> _Observer = null;
         public void Register(IObserver<SenderType, EventArgumentType> observer)
         {
-            if (!this._Observer.Contains(observer))
-            {
-                this._Observer.Add(observer);
-            }
+            this._Observer.Add(observer);
         }
         public void Deregister(IObserver<SenderType, EventArgumentType> observer)
         {
-            if (this._Observer.Contains(observer))
-            {
-                this._Observer.Remove(observer);
-            }
+            this._Observer.Remove(observer);
         }
         [OnDeserializing()]
         public void Initialize(StreamingContext context)
         {
             if (this._Observer == null)
             {
-                this._Observer = new List<IObserver<SenderType, EventArgumentType>>();
+                this._Observer = new HashSet<IObserver<SenderType, EventArgumentType>>();
             }
         }
 

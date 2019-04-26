@@ -11,7 +11,6 @@ namespace GRYLibrary.GRYObjectSystem.Meta.Property
     {
         string PropertyName { get; set; }
         System.Type PropertyValueType { get; }
-
     }
     [DataContract]
     public class Property<T> : EventSender<Property<T>, PropertyChangedEvengArgument<T>>, IProperty
@@ -136,7 +135,7 @@ namespace GRYLibrary.GRYObjectSystem.Meta.Property
 
         public void ResetToInitialValue()
         {
-           this.SetValue(this._InitialValue);
+            this.SetValue(this._InitialValue);
         }
         public void ResetHistory()
         {

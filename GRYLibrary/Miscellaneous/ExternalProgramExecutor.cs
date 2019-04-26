@@ -7,11 +7,19 @@ namespace GRYLibrary
 {
     public class ExternalProgramExecutor
     {
-        public ExternalProgramExecutor(string programPathAndFile, string arguments, string title, string workingDirectory, string logfile = null, bool printErrorsAsInformation = false, int? timeoutInMilliseconds = null)
-            : this(programPathAndFile, arguments, title, workingDirectory, GRYLog.Create(logfile), printErrorsAsInformation, timeoutInMilliseconds)
+        public static ExternalProgramExecutor CreateByLogFile(string programPathAndFile, string arguments, string logFile, string workingDirectory = "", string title = "", bool printErrorsAsInformation = false, int? timeoutInMilliseconds = null)
         {
+            return CreateWithGRYLog(programPathAndFile, arguments, GRYLog.Create(logFile), workingDirectory, title, printErrorsAsInformation, timeoutInMilliseconds);
         }
-        public ExternalProgramExecutor(string programPathAndFile, string arguments, string title, string workingDirectory, GRYLog logObject = null, bool printErrorsAsInformation = false, int? timeoutInMilliseconds = null)
+        public static ExternalProgramExecutor CreateWithGRYLog(string programPathAndFile, string arguments, GRYLog log, string workingDirectory = "", string title = "", bool printErrorsAsInformation = false, int? timeoutInMilliseconds = null)
+        {
+            return new ExternalProgramExecutor(programPathAndFile, arguments, title, workingDirectory, log, printErrorsAsInformation, timeoutInMilliseconds);
+        }
+        public static ExternalProgramExecutor Create(string programPathAndFile, string arguments, string workingDirectory = "", string title = "", bool printErrorsAsInformation = false, int? timeoutInMilliseconds = null)
+        {
+            return CreateByLogFile(programPathAndFile, arguments, workingDirectory, string.Empty, title, printErrorsAsInformation, timeoutInMilliseconds);
+        }
+        private ExternalProgramExecutor(string programPathAndFile, string arguments, string title, string workingDirectory, GRYLog logObject, bool printErrorsAsInformation, int? timeoutInMilliseconds)
         {
             this.LogObject = logObject;
             this.ProgramPathAndFile = programPathAndFile;
@@ -52,7 +60,7 @@ namespace GRYLibrary
                 }
                 process = new Process
                 {
-                    StartInfo = new ProcessStartInfo(this.Resolve(this.ProgramPathAndFile))
+                    StartInfo = new ProcessStartInfo(this.ResolvePathOfProgram(this.ProgramPathAndFile))
                     {
                         UseShellExecute = false,
                         ErrorDialog = false,
@@ -75,11 +83,9 @@ namespace GRYLibrary
                     }
                 };
                 this._StopLogOutputThread = false;
-                SupervisedThread readLogItemsThread = new SupervisedThread(this.LogOutput)
-                {
-                    Name = $"Logger-Thread for '{this.Title}' ({nameof(ExternalProgramExecutor)}({this.ProgramPathAndFile} {this.Arguments}))",
-                    LogOverhead = false
-                };
+                SupervisedThread readLogItemsThread = SupervisedThread.Create(this.LogOutput);
+                readLogItemsThread.Name = $"Logger-Thread for '{this.Title}' ({nameof(ExternalProgramExecutor)}({this.ProgramPathAndFile} {this.Arguments}))";
+                readLogItemsThread.LogOverhead = false;
                 readLogItemsThread.Start();
                 if (this.LogOverhead)
                 {
@@ -122,7 +128,7 @@ namespace GRYLibrary
             }
         }
         private static readonly string WherePath = @"C:\Windows\System32\where.exe";
-        private string Resolve(string program)
+        private string ResolvePathOfProgram(string program)
         {
             if (File.Exists(program))
             {

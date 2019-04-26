@@ -78,7 +78,7 @@
         }
         public override string ToString()
         {
-            return $"{nameof(ExtendedColor)}({nameof(A)}={A},{nameof(R)}={R},{nameof(G)}={G},{nameof(B)}={B})";
+            return $"{nameof(ExtendedColor)}({nameof(this.A)}={this.A},{nameof(this.R)}={this.R},{nameof(this.G)}={this.G},{nameof(this.B)}={this.B})";
         }
 
     }

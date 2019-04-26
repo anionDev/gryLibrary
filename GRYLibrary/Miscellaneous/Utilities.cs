@@ -879,7 +879,7 @@ namespace GRYLibrary
         /// <remarks>
         /// This function comes with absolutely no warranty (as every function in the GRYLibrary). This function can not recognize the encoding every <paramref name="content"/> correctly. 
         /// </remarks>
-        public static Encoding GuessEncodingOfByteArray(byte[] content, Encoding asciiTreatment)
+        internal static Encoding GuessEncodingOfByteArray(byte[] content, Encoding asciiTreatment)
         {
             if (content.Length == 0)
             {
