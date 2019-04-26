@@ -7,7 +7,8 @@ namespace GRYLibrary
         public GRYLog LogObject { get; set; }
         public SupervisedThread(Action action, string logFile = "", string name = "", string informationAboutInvoker = "")
             : this(action, GRYLog.Create(logFile), name, informationAboutInvoker)
-        { }
+        {
+        }
 
         public SupervisedThread(Action action, GRYLog log, string name = "", string informationAboutInvoker = "")
         {

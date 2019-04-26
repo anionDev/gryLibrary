@@ -4,7 +4,7 @@ using System.IO;
 
 namespace GRYLibrary.Miscellaneous
 {
-    public class StreamMixer
+    internal class StreamMixer
     {
         private readonly ISet<StreamPipe> _Connections = new HashSet<StreamPipe>();
         public void AddPipe(StreamPipe connection)

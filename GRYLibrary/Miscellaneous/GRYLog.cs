@@ -298,6 +298,10 @@ namespace GRYLibrary
             {
                 message = "[" + logLineId + "] " + message;
             }
+            if (!string.IsNullOrEmpty(this.Configuration.Name))
+            {
+                message = "[" + this.Configuration.Name.Trim() + "] " + message;
+            }
             if (this.Configuration.AddIdToEveryLogEntry)
             {
                 message = "[" + this.GetLogItemId() + "] " + message;
@@ -620,6 +624,7 @@ namespace GRYLibrary
             this.ColorForVerbose = ConsoleColor.Blue;
             this.ColorForCritical = ConsoleColor.DarkRed;
             this.LogItemIdLength = 8;
+            this.Name = string.Empty;
             this.LoggedMessageTypesInConsole.Add(GRYLogLogLevel.Exception);
             this.LoggedMessageTypesInConsole.Add(GRYLogLogLevel.Warning);
             this.LoggedMessageTypesInConsole.Add(GRYLogLogLevel.Information);
@@ -658,6 +663,7 @@ namespace GRYLibrary
         public int LogItemIdLength { get; set; }
         public bool PrintEmptyLines { get; set; }
         public bool PrintErrorsAsInformation { get; set; }
+        public string Name { get; set; }
         public bool StoreErrorsInErrorQueueInsteadOfLoggingThem { get; set; }
         public bool PrintOutputInConsole { get; set; }
         public bool WriteLogEntriesToWindowsEventViewer { get; set; }

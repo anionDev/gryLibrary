@@ -64,18 +64,40 @@ namespace GRYLibrary
 
         public static void WriteToConsoleAsASCIITable(IList<IList<string>> columns)
         {
-            string[] table = TableGenerator.Generate(ConvertEnumerableOfEnumerableTo2DArray(columns), new ASCIITable());
+            string[] table = TableGenerator.Generate(JaggedArrayToTwoDimensionalArray(EnumerableOfEnumerableToJaggedArray(columns)), new ASCIITable());
             foreach (string line in table)
             {
                 Console.WriteLine(line);
             }
         }
 
-        public static T[,] ConvertEnumerableOfEnumerableTo2DArray<T>(IEnumerable<IEnumerable<T>> items)
+        public static T[][] EnumerableOfEnumerableToJaggedArray<T>(IEnumerable<IEnumerable<T>> items)
+        {
+            return items.Select(Enumerable.ToArray).ToArray();
+        }
+        public static T[,] JaggedArrayToTwoDimensionalArray<T>(T[][] items)
+        {
+            int amountOfItemsInFirstDimension = items.Length;
+            int amountOfItemsInSecondDimension = items.GroupBy(tArray => tArray.Length).Single().Key;
+            T[,] result = new T[amountOfItemsInFirstDimension, amountOfItemsInSecondDimension];
+            for (int i = 0; i < amountOfItemsInFirstDimension; ++i)
+            {
+                for (int j = 0; j < amountOfItemsInSecondDimension; ++j)
+                {
+                    result[i, j] = items[i][j];
+                }
+            }
+
+            return result;
+        }
+        internal static IEnumerable<IEnumerable<T>> JaggedArrayToEnumerableOfEnumerable<T>(T[][] items)
         {
             throw new NotImplementedException();
         }
-
+        internal static T[][] TwoDimensionalArrayToJaggedArray<T>(T[,] items)
+        {
+            throw new NotImplementedException();
+        }
         public static void EnsureFileExists(string path, bool createDirectoryIfRequired = false)
         {
             if (createDirectoryIfRequired)

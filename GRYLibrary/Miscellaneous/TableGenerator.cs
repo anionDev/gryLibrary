@@ -219,14 +219,14 @@ namespace GRYLibrary.Miscellaneous
         public interface ITableOutputTypeVisitor
         {
             void Handle(ASCIITable tableOutputType);
-            void Handle(HTMLTable tableOutputType);
+            //void Handle(HTMLTable tableOutputType);
             void Handle(CSV cSV);
         }
 
         public interface ITableOutputTypeVisitor<T>
         {
             T Handle(ASCIITable tableOutputType);
-            T Handle(HTMLTable tableOutputType);
+            //T Handle(HTMLTable tableOutputType);
             T Handle(CSV cSV);
         }
         public sealed class ASCIITable : TableOutputType
@@ -246,16 +246,16 @@ namespace GRYLibrary.Miscellaneous
                 return visitor.Handle(this);
             }
         }
-        public sealed class HTMLTable : TableOutputType
+        internal sealed class HTMLTable : TableOutputType
         {
             public override void Accept(ITableOutputTypeVisitor visitor)
             {
-                visitor.Handle(this);
+                throw new NotImplementedException();//visitor.Handle(this);
             }
 
             public override T Accept<T>(ITableOutputTypeVisitor<T> visitor)
             {
-                return visitor.Handle(this);
+                throw new NotImplementedException();//return visitor.Handle(this);
             }
         }
         public sealed class CSV : TableOutputType
