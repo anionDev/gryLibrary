@@ -57,6 +57,21 @@ For every merge to the master the minor version will be increased and a new nuge
 
 # Changelog
 
+## Version 0.4 (Planned)
+
+### Release-information
+
+[Tag](https://github.com/anionDev/gryLibrary/releases/tag/v0.4)
+
+[Nuget](https://www.nuget.org/packages/GRYLibrary/0.4.0)
+
+### Changes
+
+- [ ] Support [Common Log Format](https://httpd.apache.org/docs/1.3/logs.html#common) in GRYLog
+- [ ] Support [Extended Log File Format](https://www.w3.org/TR/WD-logfile.html) in GRYLog
+- [ ] Support custom formats in GRYLog
+- [ ] Implement HTML-Tables in TableGenerator
+
 ## Version 0.3 (In Progress)
 
 ### Release-information
