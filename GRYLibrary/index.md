@@ -98,6 +98,8 @@ For every merge to the master the minor version will be increased and a new nuge
 
 [Nuget](https://www.nuget.org/packages/GRYLibrary/0.2.0)
 
+[Commit 87ba33fc](https://github.com/anionDev/gryLibrary/commit/87ba33fc9073126bcbfdb83acb1eda56311fa6a8)
+
 ### Changes
 
 - [x] Create Fileselector
@@ -111,6 +113,8 @@ For every merge to the master the minor version will be increased and a new nuge
 [Tag](https://github.com/anionDev/gryLibrary/releases/tag/v0.1)
 
 [Nuget](https://www.nuget.org/packages/GRYLibrary/0.1.0)
+
+[Commit 952bb1ac](https://github.com/anionDev/gryLibrary/commit/952bb1ac347852e978016afa6926f9b6256e7cb0)
 
 ### Changes
 
