@@ -1,3 +1,4 @@
 pushd ..
-msbuild GRYLibrary.sln /t:Build /verbosity:detailed /p:Configuration=Release
+rmdir /s /q GRYLibrary\bin\Release
+msbuild GRYLibrary.sln /t:Build /verbosity:normal /property:Configuration=Release
 popd
