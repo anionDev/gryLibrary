@@ -72,6 +72,7 @@ For every merge to the master the minor version will be increased and a new nuge
 - [ ] Support custom formats in GRYLog
 - [ ] Implement HTML-Tables in TableGenerator
 - [ ] Add More doc-comments
+- [ ] Add more testcases
 
 ## Version 0.3
 
