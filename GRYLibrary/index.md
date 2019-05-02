@@ -72,7 +72,6 @@ For every merge to the master the minor version will be increased and a new nuge
 - [ ] Support custom formats in GRYLog
 - [ ] Implement HTML-Tables in TableGenerator
 - [ ] Add More doc-comments
-- [ ] Add more testcases
 
 ## Version 0.3
 
@@ -81,6 +80,8 @@ For every merge to the master the minor version will be increased and a new nuge
 [Tag](https://github.com/anionDev/gryLibrary/releases/tag/v0.3)
 
 [Nuget](https://www.nuget.org/packages/GRYLibrary/0.3.0)
+
+[Commit 3ba30b61](https://github.com/anionDev/gryLibrary/commit/3ba30b612bc72fb220cf6b7b215481edc83d2ffb)
 
 ### Changes
 

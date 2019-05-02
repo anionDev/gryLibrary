@@ -28,7 +28,7 @@ The entire documentation-website can be found [here](https://aniondev.github.io/
 
 ### Platform
 
-The latest nuget-package (0.2.0.0) is compiled for the .NET-Framework 4.7.1 and for the platform 'Any CPU'.
+The latest nuget-package is compiled for the .NET-Framework 4.7.1 and for the platform 'Any CPU'.
 
 ### Signing
 
