@@ -88,7 +88,7 @@ For every merge to the master the minor version will be increased and a new nuge
 - [x] Create DocFX-Project
 - [x] Add more testcases
 - [x] Improve information-files (.md-files etc.)
-- [ ] Add More doc-comments
+- [x] Add More doc-comments
 
 ## Version 0.2
 

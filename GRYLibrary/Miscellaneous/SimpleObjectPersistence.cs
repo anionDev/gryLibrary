@@ -2,6 +2,10 @@
 
 namespace GRYLibrary
 {
+    /// <summary>
+    /// Represents a simple Manager for persisting on the file-system and reloading an object.
+    /// </summary>
+    /// <typeparam name="T">The type of the object which should be persisted.</typeparam>
     public sealed class SimpleObjectPersistence<T> where T : new()
     {
         public T Object { get; set; }

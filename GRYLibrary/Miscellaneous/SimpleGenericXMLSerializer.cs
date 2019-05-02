@@ -5,6 +5,10 @@ using System.Xml;
 
 namespace GRYLibrary
 {
+    /// <summary>
+    /// Represents a very easy usable XML-Serializer.
+    /// </summary>
+    /// <typeparam name="T">The type of the object which should be serialized.</typeparam>
     public class SimpleGenericXMLSerializer<T>
     {
         public string Serialize(T @object)
