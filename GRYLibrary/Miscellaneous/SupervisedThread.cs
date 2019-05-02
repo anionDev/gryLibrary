@@ -5,35 +5,57 @@ namespace GRYLibrary
     public class SupervisedThread
     {
         public GRYLog LogObject { get; set; }
-        public SupervisedThread(Action action)
+        public static SupervisedThread CreateByLogFile(Action action, string logFile, string name = "", string informationAboutInvoker = "")
         {
+            return CreateWithGRYLog(action, GRYLog.Create(logFile), name, informationAboutInvoker);
+        }
+        public static SupervisedThread CreateWithGRYLog(Action action, GRYLog log = null, string name = "", string informationAboutInvoker = "")
+        {
+            return new SupervisedThread(action, log, name, informationAboutInvoker);
+        }
+        public static SupervisedThread Create(Action action, string name = "", string informationAboutInvoker = "")
+        {
+            return CreateByLogFile(action, string.Empty, name, informationAboutInvoker);
+        }
+
+        private SupervisedThread(Action action, GRYLog log, string name, string informationAboutInvoker)
+        {
+            this.InformationAboutInvoker = informationAboutInvoker;
             this.Action = action;
             this.Id = Guid.NewGuid();
-            this.Name = this.Id.ToString();
-            this.LogObject = new GRYLog();
+            this.Name = $"{nameof(SupervisedThread)} {this.Id.ToString()} " + (string.IsNullOrEmpty(name) ? string.Empty : $"({name})");
+            this.LogObject = log;
         }
+        public bool LogOverhead { get; set; } = false;
         public string Name { get; set; }
         public Guid Id { get; }
+        public string InformationAboutInvoker { get; set; }
         public Action Action { get; }
         private bool _Running = false;
         private System.Threading.Thread _Thread = null;
         private void Execute()
         {
             this._Running = true;
+            if (this.LogOverhead)
+            {
+                this.LogObject?.LogInformation(string.Format("Start action with id {0} and name \"{1}\"", this.Id.ToString(), this.Name.ToString()));
+            }
             try
             {
-                this.LogObject.LogInformation(string.Format("Start execution of Action of thread with id {0} and name \"{1}\"", this.Id.ToString(), this.Name.ToString()));
                 this.Action();
             }
             catch (Exception exception)
             {
-                this.LogObject.LogError(string.Format("Error occurred while executing Action of thread with id {0} and name \"{1}\"", this.Id.ToString(), this.Name.ToString()), exception);
+                this.LogObject?.LogError(string.Format("Error occurred while executing action with id {0} and name \"{1}\"", this.Id.ToString(), this.Name.ToString()), exception);
             }
             finally
             {
                 this._Running = false;
             }
-            this.LogObject.LogInformation(string.Format("Execution of Action of thread with id {0} and name \"{1}\" finished", this.Id.ToString(), this.Name.ToString()));
+            if (this.LogOverhead)
+            {
+                this.LogObject?.LogInformation(string.Format("Finished action with id {0} and name \"{1}\" started", this.Id.ToString(), this.Name.ToString()));
+            }
         }
 
         public void Start()
@@ -44,16 +66,7 @@ namespace GRYLibrary
                 {
                     Name = this.Name
                 };
-                try
-                {
-                    this.LogObject.LogInformation(string.Format("Start startprocess of thread with id {0} and name \"{1}\"", this.Id.ToString(), this.Name.ToString()));
-                    this._Thread.Start();
-                }
-                catch (Exception exception)
-                {
-                    this.LogObject.LogError(string.Format("Error occurred while startprocess of thread with id {0} and name \"{1}\"", this.Id.ToString(), this.Name.ToString()), exception);
-                }
-                this.LogObject.LogInformation(string.Format("Startprocess of thread with id {0} and name \"{1}\" started", this.Id.ToString(), this.Name.ToString()));
+                this._Thread.Start();
             }
         }
         public void Abort()

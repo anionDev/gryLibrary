@@ -1,22 +1,35 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace GRYLibrary.Miscellaneous
 {
     public class FileSelector
     {
+        public IEnumerable<string> Files { get; private set; }
         private FileSelector()
         {
-
         }
         public static FileSelector SingleFile(string file)
         {
-            FileSelector result = new FileSelector
+            return new FileSelector
             {
                 Files = new string[] { file }
             };
-            return result;
         }
+        public static FileSelector FileList(IEnumerable<string> files)
+        {
+            return new FileSelector
+            {
+                Files = files.Select((file) => Normalize(file))
+            };
+        }
+
+        private static string Normalize(string file)
+        {
+            return file.Trim().ToLower();
+        }
+
         public static FileSelector FilesInFolder(string folder, bool deepSearch = true)
         {
             return FilesInFolder(folder, (string file) => true, deepSearch);
@@ -35,13 +48,12 @@ namespace GRYLibrary.Miscellaneous
                 {
                     if (filter(file))
                     {
-                        list.Add(file);
+                        list.Add(Normalize(file));
                     }
                 }
             }
             result.Files = list;
             return result;
         }
-        public IEnumerable<string> Files { get; private set; }
     }
 }

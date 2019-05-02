@@ -11,7 +11,6 @@ namespace GRYLibrary.GRYObjectSystem.Meta.Property
     {
         string PropertyName { get; set; }
         System.Type PropertyValueType { get; }
-
     }
     [DataContract]
     public class Property<T> : EventSender<Property<T>, PropertyChangedEvengArgument<T>>, IProperty
@@ -30,6 +29,11 @@ namespace GRYLibrary.GRYObjectSystem.Meta.Property
         private T _Value;
         [DataMember]
         private readonly Stack<KeyValuePair<DateTime, T>> _History;
+        [DataMember]
+        public bool LockEnabled = false;
+
+        public object LockObject = new object();
+
         public T InitialValue
         {
             get
@@ -38,7 +42,7 @@ namespace GRYLibrary.GRYObjectSystem.Meta.Property
             }
         }
         /// <summary>
-        /// The history contains all <see cref="T"/>-values which where set as value for <see cref="Property{T}.Value"/> with the <see cref="DateTime"/> when they were set.
+        /// The history contains all T-objects which where set as value for <see cref="Property{T}.Value"/> with the <see cref="DateTime"/> when they were set.
         /// </summary>
         public Stack<KeyValuePair<DateTime, T>> History
         {
@@ -57,55 +61,81 @@ namespace GRYLibrary.GRYObjectSystem.Meta.Property
                 return typeof(T);
             }
         }
-        public T Value
+        public virtual T Value
         {
             get
             {
-                return this._Value;
+                if (this.LockEnabled)
+                {
+                    lock (this.LockObject)
+                    {
+                        return this._Value;
+                    }
+                }
+                else
+                {
+                    return this._Value;
+                }
             }
             set
             {
-                if ((value == null) && !this.AllowNullAsValue)
+                if (this.LockEnabled)
                 {
-                    throw new InvalidArgumentException("New value can not be null!");
-                }
-                T oldValue = this.Value;
-                T newValue = value;
-                this._Value = newValue;
-                DateTime changeDate = DateTime.Now;
-                if (this.AddValuesToHistory)
-                {
-                    this._History.Push(new KeyValuePair<DateTime, T>(changeDate, this._Value));
-                }
-                Argument<Property<T>, PropertyChangedEvengArgument<T>> argument = new Argument<Property<T>, PropertyChangedEvengArgument<T>>(this, new PropertyChangedEvengArgument<T>(oldValue, newValue, changeDate));
-                try
-                {
-                    if (this.NotifyAboutChanges)
+                    lock (this.LockObject)
                     {
-                        Notify(argument);
+                        this.SetValue(value);
                     }
                 }
-                catch
+                else
                 {
+                    this.SetValue(value);
                 }
             }
         }
-        public Property(T initialValue, string propertyName,bool addValuesToHistory=false)
+
+        private void SetValue(T value)
+        {
+            if ((value == null) && !this.AllowNullAsValue)
+            {
+                throw new InvalidArgumentException("New value can not be null!");
+            }
+            T oldValue = this.Value;
+            T newValue = value;
+            this._Value = newValue;
+            DateTime changeDate = DateTime.Now;
+            if (this.AddValuesToHistory)
+            {
+                this._History.Push(new KeyValuePair<DateTime, T>(changeDate, this._Value));
+            }
+            Argument<Property<T>, PropertyChangedEvengArgument<T>> argument = new Argument<Property<T>, PropertyChangedEvengArgument<T>>(this, new PropertyChangedEvengArgument<T>(oldValue, newValue, changeDate));
+            try
+            {
+                if (this.NotifyAboutChanges)
+                {
+                    this.Notify(argument);
+                }
+            }
+            catch
+            {
+            }
+        }
+
+        public Property(T initialValue, string propertyName, bool addValuesToHistory = false)
         {
             this._History = new Stack<KeyValuePair<DateTime, T>>();
             this._InitialValue = initialValue;
             this.PropertyName = propertyName;
-            ResetToInitialValue();
-            this.AddValuesToHistory =addValuesToHistory;
+            this.ResetToInitialValue();
+            this.AddValuesToHistory = addValuesToHistory;
             if (!this.AddValuesToHistory)
             {
-                ResetHistory();
+                this.ResetHistory();
             }
         }
 
         public void ResetToInitialValue()
         {
-            this.Value = this._InitialValue;
+            this.SetValue(this._InitialValue);
         }
         public void ResetHistory()
         {
@@ -114,7 +144,7 @@ namespace GRYLibrary.GRYObjectSystem.Meta.Property
 
         public bool EqualsValue(Property<T> @object)
         {
-            return EqualsValue(@object.Value);
+            return this.EqualsValue(@object.Value);
         }
         public bool EqualsValue(T @object)
         {

@@ -1,1 +1,0 @@
-﻿The GRYLibrary is a collection with some useful .NET classes and functions which are very easy (re)usable.

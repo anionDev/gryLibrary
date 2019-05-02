@@ -13,6 +13,8 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Threading;
+using System.DirectoryServices;
+using static GRYLibrary.Miscellaneous.TableGenerator;
 
 namespace GRYLibrary
 {
@@ -59,8 +61,49 @@ namespace GRYLibrary
             IntPtr intPtr = bitmap.GetHicon();
             return Icon.FromHandle(intPtr);
         }
-        public static void EnsureFileExists(string path)
+
+        public static void WriteToConsoleAsASCIITable(IList<IList<string>> columns)
         {
+            string[] table = TableGenerator.Generate(JaggedArrayToTwoDimensionalArray(EnumerableOfEnumerableToJaggedArray(columns)), new ASCIITable());
+            foreach (string line in table)
+            {
+                Console.WriteLine(line);
+            }
+        }
+
+        public static T[][] EnumerableOfEnumerableToJaggedArray<T>(IEnumerable<IEnumerable<T>> items)
+        {
+            return items.Select(Enumerable.ToArray).ToArray();
+        }
+        public static T[,] JaggedArrayToTwoDimensionalArray<T>(T[][] items)
+        {
+            int amountOfItemsInFirstDimension = items.Length;
+            int amountOfItemsInSecondDimension = items.GroupBy(tArray => tArray.Length).Single().Key;
+            T[,] result = new T[amountOfItemsInFirstDimension, amountOfItemsInSecondDimension];
+            for (int i = 0; i < amountOfItemsInFirstDimension; ++i)
+            {
+                for (int j = 0; j < amountOfItemsInSecondDimension; ++j)
+                {
+                    result[i, j] = items[i][j];
+                }
+            }
+
+            return result;
+        }
+        internal static IEnumerable<IEnumerable<T>> JaggedArrayToEnumerableOfEnumerable<T>(T[][] items)
+        {
+            throw new NotImplementedException();
+        }
+        internal static T[][] TwoDimensionalArrayToJaggedArray<T>(T[,] items)
+        {
+            throw new NotImplementedException();
+        }
+        public static void EnsureFileExists(string path, bool createDirectoryIfRequired = false)
+        {
+            if (createDirectoryIfRequired)
+            {
+                EnsureDirectoryExists(Path.GetDirectoryName(path));
+            }
             if (!File.Exists(path))
             {
                 File.Create(path).Close();
@@ -73,20 +116,34 @@ namespace GRYLibrary
                 Directory.CreateDirectory(path);
             }
         }
+
+        public static void EnsureDirectoryDoesNotExist(string path)
+        {
+            if (Directory.Exists(path))
+            {
+                Directory.Delete(path, true);
+            }
+        }
+
+        public static void EnsureFileDoesNotExist(string path)
+        {
+            if (File.Exists(path))
+            {
+                File.Delete(path);
+            }
+        }
         public static string TypeArrayToString(Type[] types)
         {
             return string.Format("{{{0}}}", string.Join(", ", types.Select((type) => type.Name)));
         }
         public static string GetCommandLineArgumentWithoutProgramPath()
         {
-            return Environment.CommandLine.Substring(Environment.GetCommandLineArgs()[0].Length + 3);
+            string executableFile = Environment.GetCommandLineArgs()[0];
+            return Environment.CommandLine.Remove(Environment.CommandLine.IndexOf(executableFile), executableFile.Length).TrimStart('"').Substring(1).Trim();
         }
         public static void CopyFolderAcrossVolumes(string sourceFolder, string destinationFolder)
         {
-            if (!Directory.Exists(destinationFolder))
-            {
-                Directory.CreateDirectory(destinationFolder);
-            }
+            EnsureDirectoryExists(destinationFolder);
             string[] files = Directory.GetFiles(sourceFolder);
             foreach (string file in files)
             {
@@ -102,10 +159,109 @@ namespace GRYLibrary
                 CopyFolderAcrossVolumes(folder, destination);
             }
         }
-        public static void MoveFolderAcrossVolumes(string sourceFolder, string destinationFolder)
+
+        public static void DeleteAllEmptyFolderTransitively(string folder, bool deleteFolderItselfIfAlsoEmpty = false)
+        {
+            ForEachFileAndDirectoryTransitively(folder, DeleteAllEmptyFolderTransitivelyDirectoryAction, (string file, object argument) => { }, false, null, null);
+            if (deleteFolderItselfIfAlsoEmpty && DirectoryIsEmpty(folder))
+            {
+                Directory.Delete(folder);
+            }
+        }
+
+        private static void DeleteAllEmptyFolderTransitivelyDirectoryAction(string directory, object argument)
+        {
+            if (DirectoryIsEmpty(directory))
+            {
+                Directory.Delete(directory);
+            }
+        }
+
+        public static void MoveFolderAcrossVolumes(string sourceFolder, string destinationFolder, bool deleteSourceFolderCompletely = true)
         {
             CopyFolderAcrossVolumes(sourceFolder, destinationFolder);
-            Directory.Delete(sourceFolder, true);
+            DeleteFolder(sourceFolder, deleteSourceFolderCompletely);
+        }
+
+        public static void DeleteFolder(string folder, bool deleteSourceFolderCompletely = true)
+        {
+            if (deleteSourceFolderCompletely)
+            {
+                Directory.Delete(folder, true);
+            }
+            else
+            {
+                DeleteContentOfFolder(folder);
+            }
+        }
+
+        public static void DeleteContentOfFolder(string folder)
+        {
+            DirectoryInfo directoryInfo = new DirectoryInfo(folder);
+            foreach (FileInfo file in directoryInfo.GetFiles())
+            {
+                file.Delete();
+            }
+            foreach (DirectoryInfo subDirectoryInfo in directoryInfo.GetDirectories())
+            {
+                subDirectoryInfo.Delete(true);
+            }
+        }
+        private static void DefaultErrorHandlerForMoveNewFilesInFoldersAcrossVolumesAndDeleteAllOtherFiles(Exception exeption) { }
+        public static void MoveContentOfFoldersAcrossVolumes(string sourceFolder, string targetFolder, FileSelector fileSelector, bool deleteAlreadyExistingFilesWithoutCopy = false)
+        {
+            MoveContentOfFoldersAcrossVolumes(sourceFolder, targetFolder, fileSelector, DefaultErrorHandlerForMoveNewFilesInFoldersAcrossVolumesAndDeleteAllOtherFiles, deleteAlreadyExistingFilesWithoutCopy);
+        }
+        public static void MoveContentOfFoldersAcrossVolumes(string sourceFolder, string targetFolder, Func<string, bool> fileSelectorPredicate, bool deleteAlreadyExistingFilesWithoutCopy = false)
+        {
+            MoveContentOfFoldersAcrossVolumes(sourceFolder, targetFolder, fileSelectorPredicate, DefaultErrorHandlerForMoveNewFilesInFoldersAcrossVolumesAndDeleteAllOtherFiles, deleteAlreadyExistingFilesWithoutCopy);
+        }
+
+        public static void MoveContentOfFoldersAcrossVolumes(string sourceFolder, string targetFolder, FileSelector fileSelector, Action<Exception> errorHandler, bool deleteAlreadyExistingFilesWithoutCopy = false)
+        {
+            MoveContentOfFoldersAcrossVolumes(sourceFolder, targetFolder, (file) => fileSelector.Files.Contains(file), errorHandler, deleteAlreadyExistingFilesWithoutCopy);
+        }
+        /// <summary>
+        /// Moves the content of <paramref name="sourceFolder"/> to <paramref name="targetFolder"/>.
+        /// </summary>
+        /// <remarks>
+        /// If <paramref name="deleteAlreadyExistingFilesWithoutCopy"/>==true then the files in <paramref name="sourceFolder"/> which do already exist in <paramref name="targetFolder"/> will be deleted without copying them and without any backup. (Only filepath/-name will be compared. The content of the file does not matter for this comparison.)
+        /// This function preserves the directory-structure of <paramref name="sourceFolder"/>.
+        /// This function ignores empty directories in <paramref name="sourceFolder"/>.
+        /// </remarks>
+        public static void MoveContentOfFoldersAcrossVolumes(string sourceFolder, string targetFolder, Func<string, bool> fileSelectorPredicate, Action<Exception> errorHandler, bool deleteAlreadyExistingFilesWithoutCopy = false)
+        {
+            void fileAction(string sourceFile, object @object)
+            {
+                try
+                {
+                    if (fileSelectorPredicate(sourceFile))
+                    {
+                        string sourceFolderTrimmed = sourceFolder.Trim().TrimStart('/', '\\').TrimEnd('/', '\\');
+                        string fileName = Path.GetFileName(sourceFile);
+                        string fullTargetFolder = Path.Combine(targetFolder, Path.GetDirectoryName(sourceFile).Substring(sourceFolderTrimmed.Length).TrimStart('/', '\\'));
+                        EnsureDirectoryExists(fullTargetFolder);
+                        string targetFile = Path.Combine(fullTargetFolder, fileName);
+                        if (File.Exists(targetFile))
+                        {
+                            if (deleteAlreadyExistingFilesWithoutCopy)
+                            {
+                                File.Delete(sourceFile);
+                            }
+                        }
+                        else
+                        {
+                            File.Copy(sourceFile, targetFile);
+                            File.Delete(sourceFile);
+                        }
+                    }
+                }
+                catch (Exception exception)
+                {
+                    errorHandler(exception);
+                }
+            }
+            ForEachFileAndDirectoryTransitively(sourceFolder, (str, obj) => { }, (sourceFile, @object) => fileAction(sourceFile, @object), false, null, null);
         }
 
         public static bool IsHexDigit(this char @char)
@@ -152,7 +308,7 @@ namespace GRYLibrary
             using (Image image = Image.FromStream(fileStream, false, false))
             {
                 PropertyItem propItem = image.GetPropertyItem(36867);
-                string dateTaken = new Regex(":").Replace(Encoding.UTF8.GetString(propItem.Value), "-", 2);
+                string dateTaken = new Regex(":").Replace(new UTF8Encoding(false).GetString(propItem.Value), "-", 2);
                 return DateTime.Parse(dateTaken);
             }
         }
@@ -171,13 +327,13 @@ namespace GRYLibrary
         }
 
         /// <summary>
-        /// Starts all <see cref="Func{object}"/>-objects in <paramref name="functions"/> concurrent and return all results which did not throw an exception.
+        /// Starts all <see cref="Func{TResult}"/>-objects in <paramref name="functions"/> concurrent and return all results which did not throw an exception.
         /// </summary>
         /// <returns>The results of all finished <paramref name="functions"/>-methods with their results.</returns>
-        public static ISet<Tuple<Func<T>, T, Exception>> RunAllConcurrentAndReturnAllResults<T>(this ISet<Func<T>> functions, int maxDegreeOfParallelism)
+        public static ISet<Tuple<Func<T>, T, Exception>> RunAllConcurrentAndReturnAllResults<T>(this ISet<Func<T>> functions, int maximalDegreeOfParallelism = 4)
         {
             ConcurrentBag<Tuple<Func<T>, T, Exception>> result = new ConcurrentBag<Tuple<Func<T>, T, Exception>>();
-            Parallel.ForEach(functions, new ParallelOptions { MaxDegreeOfParallelism = maxDegreeOfParallelism }, (function) =>
+            Parallel.ForEach(functions, new ParallelOptions { MaxDegreeOfParallelism = maximalDegreeOfParallelism }, (function) =>
             {
                 try
                 {
@@ -198,9 +354,9 @@ namespace GRYLibrary
         /// <returns>The result of the first finished <paramref name="functions"/>-method.</returns>
         /// <exception cref="ArgumentException">If <paramref name="functions"/> is empty.</exception>
         /// <exception cref="Exception">If every <paramref name="functions"/>-method throws an exception.</exception>
-        public static T RunAllConcurrentAndReturnFirstResult<T>(this ISet<Func<T>> functions, int maxDegreeOfParallelism)
+        public static T RunAllConcurrentAndReturnFirstResult<T>(this ISet<Func<T>> functions, int maximalDegreeOfParallelism = 4)
         {
-            return new RunAllConcurrentAndReturnFirstResultHelper<T>(maxDegreeOfParallelism).RunAllConcurrentAndReturnFirstResult(functions);
+            return new RunAllConcurrentAndReturnFirstResultHelper<T>(maximalDegreeOfParallelism).RunAllConcurrentAndReturnFirstResult(functions);
         }
         private class RunAllConcurrentAndReturnFirstResultHelper<T>
         {
@@ -208,11 +364,11 @@ namespace GRYLibrary
             private bool _ResultSet = false;
             public readonly object _LockObject = new object();
             private int _AmountOfRunningFunctions = 0;
-            private int _MaxDegreeOfParallelism { get; }
+            private readonly int _MaximalDegreeOfParallelism = 4;
 
-            public RunAllConcurrentAndReturnFirstResultHelper(int maxDegreeOfParallelism)
+            public RunAllConcurrentAndReturnFirstResultHelper(int maximalDegreeOfParallelism)
             {
-                this._MaxDegreeOfParallelism = maxDegreeOfParallelism;
+                this._MaximalDegreeOfParallelism = maximalDegreeOfParallelism;
             }
 
             private T Result
@@ -259,7 +415,7 @@ namespace GRYLibrary
                 {
                     throw new ArgumentException();
                 }
-                Parallel.ForEach(functions, new ParallelOptions { MaxDegreeOfParallelism = _MaxDegreeOfParallelism }, new Action<Func<T>, ParallelLoopState>((Func<T> function, ParallelLoopState state) =>
+                Parallel.ForEach(functions, new ParallelOptions { MaxDegreeOfParallelism = _MaximalDegreeOfParallelism }, new Action<Func<T>, ParallelLoopState>((Func<T> function, ParallelLoopState state) =>
                 {
                     try
                     {
@@ -287,7 +443,7 @@ namespace GRYLibrary
         public static ISet<string> ToCaseInsensitiveSet(this ISet<string> input)
         {
             ISet<TupleWithValueComparisonEquals<string, string>> tupleList = new HashSet<TupleWithValueComparisonEquals<string, string>>(input.Select((item) => new TupleWithValueComparisonEquals<string, string>(item, item.ToLower())));
-            return new HashSet<string>((tupleList.Select((item) => item.Item1)));
+            return new HashSet<string>(tupleList.Select((item) => item.Item1));
         }
         #region IsList and IsDictionary
         //see https://stackoverflow.com/a/17190236/3905529
@@ -320,15 +476,15 @@ namespace GRYLibrary
         }
         #endregion
 
+        private static readonly IFormatter _Formatter = new BinaryFormatter();
         //see https://stackoverflow.com/a/129395/3905529
         public static T DeepClone<T>(this T @object)
         {
             using (Stream memoryStream = new MemoryStream())
             {
-                IFormatter formatter = new BinaryFormatter();
-                formatter.Serialize(memoryStream, @object);
+                _Formatter.Serialize(memoryStream, @object);
                 memoryStream.Position = 0;
-                return (T)formatter.Deserialize(memoryStream);
+                return (T)_Formatter.Deserialize(memoryStream);
             }
         }
         public static ISet<T> ToSet<T>(this IEnumerable<T> source, IEqualityComparer<T> comparer = null)
@@ -341,7 +497,7 @@ namespace GRYLibrary
         }
         public static SimpleObjectPersistence<T> Persist<T>(this T @object, string file) where T : new()
         {
-            return @object.Persist(file, Encoding.UTF8);
+            return @object.Persist(file, new UTF8Encoding(false));
         }
         public static SimpleObjectPersistence<T> Persist<T>(this T @object, string file, Encoding encoding) where T : new()
         {
@@ -401,6 +557,346 @@ namespace GRYLibrary
             for (int i = 0; i < input.Length; i++)
             {
                 if (char.IsLetter(input[i]) && !char.IsLower(input[i]))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+        public static bool IsNegative(this TimeSpan timeSpan)
+        {
+            return timeSpan.Ticks < 0;
+        }
+        public static bool IsPositive(this TimeSpan timeSpan)
+        {
+            return timeSpan.Ticks > 0;
+        }
+        public static string ToOnlyFirstCharToUpper(this string input)
+        {
+            if (string.IsNullOrEmpty(input))
+            {
+                return input;
+            }
+            if (input.Length == 1)
+            {
+                return input.ToUpper();
+            }
+            return input.First().ToString().ToUpper() + input.Substring(1).ToLower();
+        }
+        private static readonly char[] Whitespace = new char[] { ' ' };
+        private static readonly char[] WhitespaceAndPartialWordIndicators = new char[] { ' ', '_', '-' };
+        public static string ToOnlyFirstCharOfEveryWordToUpper(this string input)
+        {
+            return ToOnlyFirstCharOfEveryWordToUpper(input, (lastCharacter) => Whitespace.Contains(lastCharacter));
+        }
+        public static string ToOnlyFirstCharOfEveryWordOrPartialWordToUpper(this string input)
+        {
+            return ToOnlyFirstCharOfEveryWordToUpper(input, (lastCharacter) => WhitespaceAndPartialWordIndicators.Contains(lastCharacter));
+        }
+        public static string ToOnlyFirstCharOfEveryNewLetterSequenceToUpper(this string input)
+        {
+            return ToOnlyFirstCharOfEveryWordToUpper(input, (lastCharacter) => !char.IsLetter(lastCharacter));
+        }
+        public static string ToOnlyFirstCharOfEveryWordToUpper(this string input, Func<char, bool> printCharUppercaseDependentOnPreviousChar)
+        {
+            if (string.IsNullOrWhiteSpace(input))
+            {
+                return input;
+            }
+            char[] splitted = input.ToCharArray();
+            char lastChar = default;
+            for (int i = 0; i < splitted.Length; i++)
+            {
+                if (0 == i)
+                {
+                    splitted[i] = splitted[i].ToString().ToUpper().First();
+                }
+                if (0 < i)
+                {
+                    if (printCharUppercaseDependentOnPreviousChar(lastChar))
+                    {
+                        splitted[i] = splitted[i].ToString().ToUpper().First();
+                    }
+                    else
+                    {
+                        splitted[i] = splitted[i].ToString().ToLower().First();
+                    }
+                }
+                lastChar = splitted[i];
+            }
+            return new string(splitted);
+        }
+
+        public static bool FileEndsWithEmptyLine(string file)
+        {
+            return File.ReadAllBytes(file).Last().Equals(10);
+        }
+        public static bool FileIsEmpty(string file)
+        {
+            return File.ReadAllBytes(file).Count().Equals(0);
+        }
+        public static bool AppendFileDoesNotNeedNewLineCharacter(string file)
+        {
+            return FileIsEmpty(file) || FileEndsWithEmptyLine(file);
+        }
+        public static bool AppendFileDoesNeedNewLineCharacter(string file)
+        {
+            return !AppendFileDoesNotNeedNewLineCharacter(file);
+        }
+        public static bool IsRelativePath(string path)
+        {
+            if (string.IsNullOrWhiteSpace(path) || path.IndexOfAny(Path.GetInvalidPathChars()) != -1 || path.Length > 255)
+            {
+                return false;
+            }
+            return Uri.TryCreate(path, UriKind.Relative, out _);
+        }
+        public static bool IsAbsolutePath(string path)
+        {
+            if (string.IsNullOrWhiteSpace(path) || path.IndexOfAny(Path.GetInvalidPathChars()) != -1 || path.Length > 255 || !Path.IsPathRooted(path))
+            {
+                return false;
+            }
+            string pathRoot = Path.GetPathRoot(path).Trim();
+            return pathRoot.Length <= 2 && pathRoot != "/"
+                ? false
+                : !(pathRoot == path && pathRoot.StartsWith(@"\\") && pathRoot.IndexOf('\\', 2) == -1);
+        }
+        public static string GetAbsolutePath(string basePath, string relativePath)
+        {
+            if (basePath == null && relativePath == null)
+            {
+                Path.GetFullPath(".");
+            }
+            if (relativePath == null)
+            {
+                return basePath.Trim();
+            }
+            if (basePath == null)
+            {
+                basePath = Path.GetFullPath(".");
+            }
+            relativePath = relativePath.Trim();
+            basePath = basePath.Trim();
+            string finalPath;
+            if (!Path.IsPathRooted(relativePath) || @"\".Equals(Path.GetPathRoot(relativePath)))
+            {
+                if (relativePath.StartsWith(Path.DirectorySeparatorChar.ToString()))
+                {
+                    finalPath = Path.Combine(Path.GetPathRoot(basePath), relativePath.TrimStart(Path.DirectorySeparatorChar));
+                }
+                else
+                {
+                    finalPath = Path.Combine(basePath, relativePath);
+                }
+            }
+            else
+            {
+                finalPath = relativePath;
+            }
+            return Path.GetFullPath(finalPath);
+        }
+        public static bool DirectoryIsEmpty(string path)
+        {
+            return (Directory.GetFiles(path).Length == 0) && (Directory.GetDirectories(path).Length == 0);
+        }
+        public static bool DirectoryDoesNotContainFiles(string path)
+        {
+            if (Directory.GetFiles(path).Length > 0)
+            {
+                return false;
+            }
+            foreach (string subFolder in Directory.GetDirectories(path))
+            {
+                if (!DirectoryDoesNotContainFiles(subFolder))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+        public static bool DirectoryDoesNotContainFolder(string path)
+        {
+            return Directory.GetFiles(path).Length > 0;
+        }
+        //see https://stackoverflow.com/a/9995303/3905529
+        public static byte[] StringToByteArray(string hex)
+        {
+            if (hex.Length % 2 == 1)
+            {
+                hex = "0" + hex;
+            }
+            byte[] result = new byte[hex.Length >> 1];
+            for (int i = 0; i < hex.Length >> 1; ++i)
+            {
+                result[i] = (byte)((GetHexValue(hex[i << 1]) << 4) + GetHexValue(hex[(i << 1) + 1]));
+            }
+            return result;
+        }
+
+        public static int GetHexValue(char hex)
+        {
+            int val = (int)hex;
+            return val - (val < 58 ? 48 : 55);
+        }
+
+        public static void ClearFile(string file)
+        {
+            File.WriteAllText(file, string.Empty, Encoding.ASCII);
+        }
+
+        /// <summary>
+        /// Authenticates a user against an active directory.
+        /// </summary>
+        /// <param name="username">Represents the name of the desired user. It can be "MyUsername" or optionally "Domain\MyUsername."</param>
+        /// <param name="password">Represents the password to authenticate <paramref name="username"/>.</param>
+        /// <param name="authenticationProtocol"></param>
+        /// <param name="authentificationServerName">Represents the (LDAP-)server. The format must be with leading slashs, e. g. "//MyServer.com".</param>
+        /// <returns>Returns true if and only if <paramref name="password"/> is the correct password for the user with the name <paramref name="username"/></returns>
+        public static bool IsAuthenticated(string authentificationServerName, string username, string password, string authenticationProtocol = "LDAP")
+        {
+            bool isAuthenticated = false;
+            try
+            {
+                DirectoryEntry entry = new DirectoryEntry(authenticationProtocol + ":" + authentificationServerName, username, password);
+                object nativeObject = entry.NativeObject;
+                isAuthenticated = true;
+            }
+            catch (DirectoryServicesCOMException)
+            {
+                //Not authenticated. Reason can be found in exception if desired
+            }
+            catch (Exception)
+            {
+                //Not authenticated for unknown/other reasons if desired.
+            }
+            return isAuthenticated;
+        }
+        private const char Slash = '/';
+        private const char Backslash = '\\';
+        public static string EnsurePathStartsWithSlash(this string path)
+        {
+            if (path.StartsWith(Slash.ToString()))
+            {
+                return path;
+            }
+            else
+            {
+                return Slash + path;
+            }
+        }
+        public static string EnsurePathStartsWithBackslash(this string path)
+        {
+            if (path.StartsWith(Slash.ToString()))
+            {
+                return path;
+            }
+            else
+            {
+                return Backslash + path;
+            }
+        }
+        public static string EnsurePathStartsWithoutSlash(this string path)
+        {
+            if (path.StartsWith(Slash.ToString()))
+            {
+                return path.TrimStart(Slash);
+            }
+            else
+            {
+                return path;
+            }
+        }
+        public static string EnsurePathStartsWithoutBackslash(this string path)
+        {
+            if (path.StartsWith(Backslash.ToString()))
+            {
+                return path.TrimStart(Slash);
+            }
+            else
+            {
+                return path;
+            }
+        }
+        public static string EnsurePathEndsWithSlash(this string path)
+        {
+            if (path.EndsWith(Slash.ToString()))
+            {
+                return path;
+            }
+            else
+            {
+                return path + Slash;
+            }
+        }
+        public static string EnsurePathEndsWithBackslash(this string path)
+        {
+            if (path.EndsWith(Backslash.ToString()))
+            {
+                return path;
+            }
+            else
+            {
+                return path + Backslash;
+            }
+        }
+        public static string EnsurePathEndsWithoutSlash(this string path)
+        {
+            if (path.EndsWith(Slash.ToString()))
+            {
+                return path.TrimEnd(Slash);
+            }
+            else
+            {
+                return path;
+            }
+        }
+        public static string EnsurePathEndsWithoutBackslash(this string path)
+        {
+            if (path.EndsWith(Backslash.ToString()))
+            {
+                return path.TrimEnd(Backslash);
+            }
+            else
+            {
+                return path;
+            }
+        }
+        public static string EnsurePathStartsWithoutSlashOrBackslash(this string path)
+        {
+            return path.EnsurePathStartsWithoutSlash().EnsurePathStartsWithoutBackslash();
+        }
+        public static string EnsurePathSEndsWithoutSlashOrBackslash(this string path)
+        {
+            return path.EnsurePathEndsWithoutSlash().EnsurePathEndsWithoutBackslash();
+        }
+
+        public readonly static byte[] BOM_UTF8 = new byte[] { 239, 187, 191 };
+        public static Encoding GuessEncodingOfByteArray(string file, Encoding asciiTreatment)
+        {
+            return GuessEncodingOfByteArray(File.ReadAllBytes(file), asciiTreatment);
+        }
+        /// <remarks>
+        /// This function comes with absolutely no warranty (as every function in the GRYLibrary). This function can not recognize the encoding every <paramref name="content"/> correctly. 
+        /// </remarks>
+        internal static Encoding GuessEncodingOfByteArray(byte[] content, Encoding asciiTreatment)
+        {
+            if (content.Length == 0)
+            {
+                return asciiTreatment;
+            }
+            if (StartsWith(content, BOM_UTF8))
+            {
+                return new UTF8Encoding(true);
+            }
+            throw new NotImplementedException();
+        }
+
+        public static bool StartsWith<T>(T[] entireArray, T[] start)
+        {
+            for (int i = 0; i < start.Length; i++)
+            {
+                if (!entireArray[i].Equals(start[i]))
                 {
                     return false;
                 }

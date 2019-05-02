@@ -7,20 +7,26 @@
         public static readonly ExtendedColor Transparency = new ExtendedColor(0, 0, 0, 0);
         private readonly string _ARGBStringValue;
         private readonly string _RGBStringValue;
-
+        public byte A { get; }
+        public byte R { get; }
+        public byte G { get; }
+        public byte B { get; }
+        public System.Drawing.Color DrawingColor { get; }
+        public System.Windows.Media.Brush Brush { get; }
+        public System.Windows.Media.Color MediaColor { get; }
         public int ColorCode { get; }
+
         public ExtendedColor() : this(0)
         {
         }
-        public ExtendedColor(int a, int r, int g, int b) : this(System.Drawing.Color.FromArgb(a, r, g, b).ToArgb())
+        public ExtendedColor(byte a, byte r, byte g, byte b) : this(System.Drawing.Color.FromArgb(a, r, g, b).ToArgb())
         {
         }
-        public ExtendedColor(int r, int g, int b) : this(System.Drawing.Color.FromArgb(r, g, b).ToArgb())
+        public ExtendedColor(byte r, byte g, byte b) : this(System.Drawing.Color.FromArgb(r, g, b).ToArgb())
         {
         }
         public ExtendedColor(int colorCode)
         {
-            //TODO: add variants without transparency
             this.ColorCode = colorCode;
             this.DrawingColor = System.Drawing.Color.FromArgb(this.ColorCode);
             this.MediaColor = System.Windows.Media.Color.FromArgb(this.DrawingColor.A, this.DrawingColor.R, this.DrawingColor.G, this.DrawingColor.B);
@@ -32,9 +38,7 @@
             this.G = this.DrawingColor.G;
             this.B = this.DrawingColor.B;
         }
-        public System.Drawing.Color DrawingColor { get; }
-        public System.Windows.Media.Brush Brush { get; }
-        public System.Windows.Media.Color MediaColor { get; }
+
         public string GetARGBString(bool withNumberSign = false)
         {
             if (withNumberSign)
@@ -72,9 +76,10 @@
         {
             return this.ColorCode;
         }
-        public int A { get; }
-        public int R { get; }
-        public int G { get; }
-        public int B { get; }
+        public override string ToString()
+        {
+            return $"{nameof(ExtendedColor)}({nameof(this.A)}={this.A},{nameof(this.R)}={this.R},{nameof(this.G)}={this.G},{nameof(this.B)}={this.B})";
+        }
+
     }
 }

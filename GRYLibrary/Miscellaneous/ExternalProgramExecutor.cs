@@ -1,37 +1,44 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Diagnostics;
+using System.IO;
 
 namespace GRYLibrary
 {
     public class ExternalProgramExecutor
     {
-        public ExternalProgramExecutor(string programPathAndFile, string arguments, string title, string workingDirectory, bool printErrorsAsInformation = false, string logFile = null)
+        public static ExternalProgramExecutor CreateByLogFile(string programPathAndFile, string arguments, string logFile, string workingDirectory = "", string title = "", bool printErrorsAsInformation = false, int? timeoutInMilliseconds = null)
         {
-            this.LogObject = new GRYLog();
-            if (logFile == null)
-            {
-                this.LogObject.WriteToLogFile = false;
-            }
-            else
-            {
-                this.LogObject.LogFile = logFile;
-                this.LogObject.WriteToLogFile = true;
-            }
+            return CreateWithGRYLog(programPathAndFile, arguments, GRYLog.Create(logFile), workingDirectory, title, printErrorsAsInformation, timeoutInMilliseconds);
+        }
+        public static ExternalProgramExecutor CreateWithGRYLog(string programPathAndFile, string arguments, GRYLog log, string workingDirectory = "", string title = "", bool printErrorsAsInformation = false, int? timeoutInMilliseconds = null)
+        {
+            return new ExternalProgramExecutor(programPathAndFile, arguments, title, workingDirectory, log, printErrorsAsInformation, timeoutInMilliseconds);
+        }
+        public static ExternalProgramExecutor Create(string programPathAndFile, string arguments, string workingDirectory = "", string title = "", bool printErrorsAsInformation = false, int? timeoutInMilliseconds = null)
+        {
+            return CreateByLogFile(programPathAndFile, arguments, workingDirectory, string.Empty, title, printErrorsAsInformation, timeoutInMilliseconds);
+        }
+        private ExternalProgramExecutor(string programPathAndFile, string arguments, string title, string workingDirectory, GRYLog logObject, bool printErrorsAsInformation, int? timeoutInMilliseconds)
+        {
+            this.LogObject = logObject;
             this.ProgramPathAndFile = programPathAndFile;
             this.Arguments = arguments;
             this.Title = title;
             this.WorkingDirectory = workingDirectory;
             this.PrintErrorsAsInformation = printErrorsAsInformation;
+            this.TimeoutInMilliseconds = timeoutInMilliseconds;
         }
+        public bool LogOverhead { get; set; } = false;
         public GRYLog LogObject { get; set; }
         public string Arguments { get; set; }
         public string ProgramPathAndFile { get; set; }
         public string Title { get; set; }
         public string WorkingDirectory { get; set; }
+        public int? TimeoutInMilliseconds { get; set; }
         public bool PrintErrorsAsInformation { get; set; }
-        private bool _Running = false;
-        private readonly ConcurrentQueue<Tuple<GRYLog.LogLevel, string>> _NotLoggedOutputLines = new ConcurrentQueue<Tuple<GRYLog.LogLevel, string>>();
+        private bool _StopLogOutputThread = false;
+        private readonly ConcurrentQueue<Tuple<GRYLogLogLevel, string>> _NotLoggedOutputLines = new ConcurrentQueue<Tuple<GRYLogLogLevel, string>>();
         /// <summary>
         /// Starts the program which was set in the properties.
         /// </summary>
@@ -41,6 +48,7 @@ namespace GRYLibrary
         public int StartConsoleApplicationInCurrentConsoleWindow()
         {
             string originalConsoleTitle = Console.Title;
+            Process process = null;
             try
             {
                 try
@@ -50,9 +58,9 @@ namespace GRYLibrary
                 finally
                 {
                 }
-                Process process = new Process
+                process = new Process
                 {
-                    StartInfo = new ProcessStartInfo(this.ProgramPathAndFile)
+                    StartInfo = new ProcessStartInfo(this.ResolvePathOfProgram(this.ProgramPathAndFile))
                     {
                         UseShellExecute = false,
                         ErrorDialog = false,
@@ -62,65 +70,115 @@ namespace GRYLibrary
                         RedirectStandardError = true
                     }
                 };
-                process.OutputDataReceived += (object sender, DataReceivedEventArgs e) => EnqueueInformation(e.Data);
+                process.OutputDataReceived += (object sender, DataReceivedEventArgs e) => this.EnqueueInformation(e.Data);
                 process.ErrorDataReceived += (object sender, DataReceivedEventArgs e) =>
                 {
                     if (this.PrintErrorsAsInformation)
                     {
-                        EnqueueInformation(e.Data);
+                        this.EnqueueInformation(e.Data);
                     }
                     else
                     {
-                        EnqueueError(e.Data);
+                        this.EnqueueError(e.Data);
                     }
                 };
-                this._Running = true;
-                SupervisedThread thread = new SupervisedThread(this.LogOutput)
+                this._StopLogOutputThread = false;
+                SupervisedThread readLogItemsThread = SupervisedThread.Create(this.LogOutput);
+                readLogItemsThread.Name = $"Logger-Thread for '{this.Title}' ({nameof(ExternalProgramExecutor)}({this.ProgramPathAndFile} {this.Arguments}))";
+                readLogItemsThread.LogOverhead = false;
+                readLogItemsThread.Start();
+                if (this.LogOverhead)
                 {
-                    Name = $"Logger-Thread for '{this.Title}' ({nameof(ExternalProgramExecutor)}({this.ProgramPathAndFile} {this.Arguments}))"
-                };
-                thread.Start();
+                    this.EnqueueInformation($"-----------------------------------------------------");
+                    this.EnqueueInformation($"Start '{this.ProgramPathAndFile} {this.Arguments}' in '{this.WorkingDirectory}'");
+                }
                 process.Start();
                 process.BeginOutputReadLine();
                 process.BeginErrorReadLine();
-                process.WaitForExit();
+                if (this.TimeoutInMilliseconds.HasValue)
+                {
+                    if (!process.WaitForExit(this.TimeoutInMilliseconds.Value))
+                    {
+                        process.Kill();
+                    }
+                }
+                else
+                {
+                    process.WaitForExit();
+                }
+                if (this.LogOverhead)
+                {
+                    this.EnqueueInformation($"Finished '{this.ProgramPathAndFile} {this.Arguments}'");
+                    this.EnqueueInformation($"-----------------------------------------------------");
+                }
                 return process.ExitCode;
             }
             finally
             {
                 try
                 {
-                    this._Running = false;
+                    this._StopLogOutputThread = true;
+                    process?.Dispose();
                     Console.Title = originalConsoleTitle;
                 }
-                finally
+                catch
                 {
                     Utilities.NoOperation();
                 }
             }
         }
+        private static readonly string WherePath = @"C:\Windows\System32\where.exe";
+        private string ResolvePathOfProgram(string program)
+        {
+            if (File.Exists(program))
+            {
+                return program;
+            }
+            if (!(program.Contains("/") || program.Contains("\\") || program.Contains(":")))
+            {
+                string output = string.Empty;
+                using (Process process = new Process())
+                {
+                    process.StartInfo.FileName = WherePath;
+                    process.StartInfo.Arguments = program;
+                    process.StartInfo.UseShellExecute = false;
+                    process.StartInfo.RedirectStandardOutput = true;
+                    process.Start();
+                    StreamReader reader = process.StandardOutput;
+                    output = reader.ReadToEnd();
+                    process.WaitForExit();
+                }
+                output = output.Replace("\r\n", string.Empty);
+                if (File.Exists(output))
+                {
+                    return output;
+                }
+            }
+            throw new FileNotFoundException($"Program '{program}' can not be found");
+        }
+
         private void EnqueueError(string data)
         {
-            this._NotLoggedOutputLines.Enqueue(new Tuple<GRYLog.LogLevel, string>(GRYLog.LogLevel.Exception, data));
+            this._NotLoggedOutputLines.Enqueue(new Tuple<GRYLogLogLevel, string>(GRYLogLogLevel.Exception, data));
         }
 
         private void EnqueueInformation(string data)
         {
-            this._NotLoggedOutputLines.Enqueue(new Tuple<GRYLog.LogLevel, string>(GRYLog.LogLevel.Information, data));
+            this._NotLoggedOutputLines.Enqueue(new Tuple<GRYLogLogLevel, string>(GRYLogLogLevel.Information, data));
         }
         private void LogOutput()
         {
-            while (this._Running)
+            while (!this._StopLogOutputThread)
             {
-                if (this._NotLoggedOutputLines.TryDequeue(out Tuple<GRYLog.LogLevel, string> logItem))
+                if (this._NotLoggedOutputLines.TryDequeue(out Tuple<GRYLogLogLevel, string> logItem))
                 {
-                    if (logItem.Item1.Equals(GRYLog.LogLevel.Exception))
+                    if (logItem.Item1.Equals(GRYLogLogLevel.Exception))
                     {
-                        this.LogObject.LogError(logItem.Item2);
+                        this.LogObject?.LogError(logItem.Item2);
                     }
-                    if (logItem.Item1.Equals(GRYLog.LogLevel.Information))
+                    if (logItem.Item1.Equals(GRYLogLogLevel.Information))
                     {
-                        this.LogObject.LogInformation(logItem.Item2);
+                        this.LogObject?.LogInformation(logItem.Item2);
                     }
                 }
             }

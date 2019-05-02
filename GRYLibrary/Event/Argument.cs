@@ -3,7 +3,7 @@
     public class Argument<SenderType, EventArgumentType>
     {
         public EventArgumentType ArgumentObject { get; }
-        public SenderType Sender { get; private set; }
+        public SenderType Sender { get; }
 
         public Argument(SenderType sender, EventArgumentType argument)
         {

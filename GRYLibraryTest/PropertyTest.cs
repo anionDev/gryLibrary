@@ -12,7 +12,6 @@ namespace GRYLibraryTest
         {
             object object1 = new object();
             object object2 = new object();
-            object object3 = new object();
             string name = "propertyName";
             Property<object> property = new Property<object>(object1, name, true);
             Assert.AreEqual(1, property.History.Count);

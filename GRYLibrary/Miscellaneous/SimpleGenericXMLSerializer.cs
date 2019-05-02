@@ -1,18 +1,23 @@
 ﻿using System.IO;
 using System.Runtime.Serialization;
+using System.Text;
 using System.Xml;
 
 namespace GRYLibrary
 {
+    /// <summary>
+    /// Represents a very easy usable XML-Serializer.
+    /// </summary>
+    /// <typeparam name="T">The type of the object which should be serialized.</typeparam>
     public class SimpleGenericXMLSerializer<T>
     {
         public string Serialize(T @object)
         {
-            return Serialize(@object, new XmlWriterSettings() { Encoding = this.Encoding });
+            return this.Serialize(@object, new XmlWriterSettings() { Encoding = this.Encoding });
         }
         public string SerializeWithIndent(T @object)
         {
-            return Serialize(@object, new XmlWriterSettings { Indent = true, Encoding = this.Encoding });
+            return this.Serialize(@object, new XmlWriterSettings { Indent = true, Encoding = this.Encoding });
         }
         public string Serialize(T @object, XmlWriterSettings settings)
         {
@@ -28,7 +33,7 @@ namespace GRYLibrary
                 return streamReader.ReadToEnd();
             }
         }
-        public System.Text.Encoding Encoding { get; set; } = System.Text.Encoding.UTF8;
+        public Encoding Encoding { get; set; } = new UTF8Encoding(false);
         public T Deserialize(string xml)
         {
             using (Stream stream = new MemoryStream())

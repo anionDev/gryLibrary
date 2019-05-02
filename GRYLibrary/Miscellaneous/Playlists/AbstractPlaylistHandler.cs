@@ -17,51 +17,75 @@ namespace GRYLibrary.Miscellaneous.Playlists
             {
                 if (_ExtensionsOfReadablePlaylists == null)
                 {
-                    _ExtensionsOfReadablePlaylists = new Dictionary<string, AbstractPlaylistHandler>();
-                    _ExtensionsOfReadablePlaylists.Add("m3u", M3UHandler.Instance);
-                    _ExtensionsOfReadablePlaylists.Add("pls", PLSHandler.Instance);
-                    _ExtensionsOfReadablePlaylists.Add("wpl", WPLHandler.Instance);
+                    _ExtensionsOfReadablePlaylists = new Dictionary<string, AbstractPlaylistHandler>
+                    {
+                        { "m3u", M3UHandler.Instance },
+                        { "pls", PLSHandler.Instance }
+                    };
                 }
                 return _ExtensionsOfReadablePlaylists;
             }
         }
-        public static Encoding Encoding { get; set; } = Encoding.UTF8;
+        public static Encoding Encoding { get; set; } = new UTF8Encoding(false);
+        public IList<string> AllowedFiletypesForMusicFiles { get; } = new List<string>();
         public abstract void CreatePlaylist(string file);
-        protected abstract IEnumerable<string> GetSongsFromPlaylistImplementation(string playlistFile);
+        protected abstract Tuple<IEnumerable<string>, IEnumerable<string>> GetSongsFromPlaylist(string playlistFile);
         protected abstract void AddSongsToPlaylistImplementation(string playlistFile, IEnumerable<string> newSongs);
         protected abstract void DeleteSongsFromPlaylistImplementation(string playlistFile, IEnumerable<string> songsToDelete);
-        private IEnumerable<string> GetSongsFromPlaylist(string playlistFile, bool removeDuplicatedItems, bool loadTransitively, ISet<string> excludedPlaylistFiles)
+        private IEnumerable<string> GetSongsFromPlaylistImplementation(string playlistFileName, bool removeDuplicatedItems, bool loadTransitively, ISet<string> excludedPlaylistFiles, string workingDirectory)
         {
-            string locationOfFile = Path.GetDirectoryName(playlistFile);
-            IEnumerable<string> referencedFiles = GetSongsFromPlaylistImplementation(playlistFile).Where(item => IsAllowedAsPlaylistItem(item));
+            //TODO fix handling of paths to not existing files and not existing directories
+            playlistFileName = this.NormalizePath(playlistFileName);
+            Tuple<IEnumerable<string>, IEnumerable<string>> songsAndExcludedSongs = this.GetSongsFromPlaylist(Path.Combine(workingDirectory, playlistFileName));
+            IEnumerable<string> referencedFiles = songsAndExcludedSongs.Item1.Where(item => this.IsAllowedAsPlaylistItem(item));
+            IEnumerable<string> referencedExcludedFiles = songsAndExcludedSongs.Item2.Where(item => this.IsAllowedAsPlaylistItem(item));
+            referencedFiles = this.ProcessList(referencedFiles, removeDuplicatedItems, loadTransitively, excludedPlaylistFiles, workingDirectory, playlistFileName);
+            referencedExcludedFiles = this.ProcessList(referencedExcludedFiles, removeDuplicatedItems, loadTransitively, excludedPlaylistFiles, workingDirectory, playlistFileName);
+            return referencedFiles.Except(referencedExcludedFiles);
+        }
+
+
+        private IEnumerable<string> ProcessList(IEnumerable<string> referencedFiles, bool removeDuplicatedItems, bool loadTransitively, ISet<string> alreadyProcessedPlaylistFiles, string workingDirectory, string playlistFileName)
+        {
             List<string> newList = new List<string>();
             foreach (string item in referencedFiles)
             {
                 try
                 {
-                    string playlistItem;
-                    if (new Uri(item).IsFile)
+                    string playlistItem = null;
+                    try
                     {
-                        if (Path.IsPathRooted(item))
+                        if (new Uri(item).IsFile)
                         {
-                            playlistItem = item;
+                            if (Utilities.IsAbsolutePath(item))
+                            {
+                                playlistItem = item;
+                            }
+                            else if (Utilities.IsRelativePath(item))
+                            {
+                                playlistItem = Utilities.GetAbsolutePath(Path.GetDirectoryName(playlistFileName), item);
+                            }
+                            else
+                            {
+                                throw new Exception(item + " has an unknown format.");
+                            }
                         }
                         else
                         {
-                            playlistItem = Path.GetFullPath(Path.Combine(locationOfFile, item));
+                            playlistItem = item;
                         }
                     }
-                    else
+                    catch
                     {
-                        playlistItem = item;
+                        playlistItem = new Uri(item, UriKind.Relative).OriginalString;
                     }
                     string playlistItemToLower = playlistItem.ToLower();
                     if (IsReadablePlaylist(playlistItemToLower))
                     {
-                        if (loadTransitively && (!excludedPlaylistFiles.Contains(playlistItemToLower)))
+                        if (loadTransitively && (!alreadyProcessedPlaylistFiles.Contains(playlistItemToLower)))
                         {
-                            excludedPlaylistFiles.Add(playlistItemToLower);
-                            newList.AddRange(ExtensionsOfReadablePlaylists[Path.GetExtension(playlistItemToLower).Substring(1)].GetSongsFromPlaylist(playlistItem, removeDuplicatedItems, loadTransitively, excludedPlaylistFiles));
+                            alreadyProcessedPlaylistFiles.Add(playlistItemToLower);
+                            newList.AddRange(ExtensionsOfReadablePlaylists[Path.GetExtension(playlistItemToLower).Substring(1)].GetSongsFromPlaylistImplementation(playlistItem, removeDuplicatedItems, loadTransitively, alreadyProcessedPlaylistFiles, workingDirectory));
                         }
                     }
                     else
@@ -80,38 +104,62 @@ namespace GRYLibrary.Miscellaneous.Playlists
                 referencedFiles = new HashSet<string>(referencedFiles);
             }
             return referencedFiles;
-
         }
+
+        private string NormalizePath(string path)
+        {
+            return path.Replace("/", "\\").Trim();
+        }
+
         public static AbstractPlaylistHandler GetConcretePlaylistHandler(string file)
         {
             return ExtensionsOfReadablePlaylists[Path.GetExtension(file.ToLower()).Substring(1)];
         }
         public IEnumerable<string> GetSongsFromPlaylist(string playlistFile, bool removeDuplicatedItems = true, bool loadTransitively = true)
         {
-            return GetSongsFromPlaylist(playlistFile, removeDuplicatedItems, loadTransitively, new HashSet<string>());
+            string workingDirectory;
+            if (Utilities.IsAbsolutePath(playlistFile))
+            {
+                workingDirectory = Path.GetDirectoryName(playlistFile);
+            }
+            else if (Utilities.IsRelativePath(playlistFile))
+            {
+                workingDirectory = Path.Combine(Directory.GetCurrentDirectory(), Path.GetDirectoryName(playlistFile));
+            }
+            else
+            {
+                throw new Exception(playlistFile + " has an unknown format.");
+            }
+            return this.GetSongsFromPlaylist(new FileInfo(playlistFile).Name, workingDirectory, removeDuplicatedItems, loadTransitively);
+        }
+        public IEnumerable<string> GetSongsFromPlaylist(string playlistFile, string workingDirectory, bool removeDuplicatedItems = true, bool loadTransitively = true)
+        {
+            return this.GetSongsFromPlaylistImplementation(playlistFile, removeDuplicatedItems, loadTransitively, new HashSet<string>(), workingDirectory);
         }
 
         public void AddSongsToPlaylist(string playlistFile, IEnumerable<string> newSongs, bool addOnlyNotExistingSongs = true)
         {
-            newSongs = newSongs.Where(item => IsAllowedAsPlaylistItem(item));
+            playlistFile = this.NormalizePath(playlistFile);
+            newSongs = newSongs.Where(item => this.IsAllowedAsPlaylistItem(item));
             if (newSongs.Count() > 0)
             {
                 if (addOnlyNotExistingSongs)
                 {
                     HashSet<string> newSongsAsSet = new HashSet<string>(newSongs);
-                    IEnumerable<string> alreadyExistingItems = GetSongsFromPlaylist(playlistFile, true, false);
+                    IEnumerable<string> alreadyExistingItems = this.GetSongsFromPlaylist(playlistFile, true, false);
                     foreach (string alreadyExistingItem in alreadyExistingItems)
                     {
                         newSongsAsSet.Remove(alreadyExistingItem);
                     }
                     newSongs = newSongsAsSet;
                 }
-                AddSongsToPlaylistImplementation(playlistFile, newSongs);
+                this.AddSongsToPlaylistImplementation(playlistFile, newSongs);
             }
         }
         public void DeleteSongsFromPlaylist(string playlistFile, IEnumerable<string> songsToDelete)
         {
-            DeleteSongsFromPlaylistImplementation(playlistFile, songsToDelete.Where(item => IsAllowedAsPlaylistItem(item)));
+            playlistFile = this.NormalizePath(playlistFile);
+            this.DeleteSongsFromPlaylistImplementation(playlistFile, songsToDelete.Where(item => this.IsAllowedAsPlaylistItem(item)));
         }
         public static bool IsReadablePlaylist(string file)
         {
@@ -125,9 +173,29 @@ namespace GRYLibrary.Miscellaneous.Playlists
             }
             return false;
         }
-        public static bool IsAllowedAsPlaylistItem(string item)
+        public bool IsAllowedAsPlaylistItem(string item)
         {
-            return !item.Equals(string.Empty);
+            return (!string.IsNullOrWhiteSpace(item)) && this.HasAllowedExtension(item);
+        }
+        private bool HasAllowedExtension(string item)
+        {
+            string extension = Path.GetExtension(item);
+            if (string.IsNullOrWhiteSpace(extension))
+            {
+                return false;
+            }
+            else
+            {
+                if (this.AllowedFiletypesForMusicFiles.Count == 0)
+                {
+                    return true;
+                }
+                else
+                {
+                    extension = extension.Substring(1).ToLower();
+                    return (this.AllowedFiletypesForMusicFiles.Contains(extension) || ExtensionsOfReadablePlaylists.ContainsKey(extension)) && File.Exists(item);
+                }
+            }
         }
     }
 }
