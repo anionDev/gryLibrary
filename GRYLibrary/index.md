@@ -57,7 +57,7 @@ For every merge to the master the minor version will be increased and a new nuge
 
 # Changelog
 
-## Version 0.4 (Planned)
+## Version 0.4 (In Progress)
 
 ### Release-information
 
@@ -71,8 +71,9 @@ For every merge to the master the minor version will be increased and a new nuge
 - [ ] Support [Extended Log File Format](https://www.w3.org/TR/WD-logfile.html) in GRYLog
 - [ ] Support custom formats in GRYLog
 - [ ] Implement HTML-Tables in TableGenerator
+- [ ] Add More doc-comments
 
-## Version 0.3 (In Progress)
+## Version 0.3
 
 ### Release-information
 
