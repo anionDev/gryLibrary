@@ -7,6 +7,12 @@
         <member name="M:GRYLibrary.Miscellaneous.TaskQueue.Queue(System.Tuple{System.String,System.Action})">
             <remarks>The string-value is supposed to be the name of the action.</remarks>
         </member>
+        <member name="T:GRYLibrary.SimpleObjectPersistence`1">
+            <summary>
+            Represents a simple Manager for persisting on the file-system and reloading an object.
+            </summary>
+            <typeparam name="T">The type of the object which should be persisted.</typeparam>
+        </member>
         <member name="P:GRYLibrary.GRYObjectSystem.Meta.Property.Property`1.History">
             <summary>
             The history contains all T-objects which where set as value for <see cref="P:GRYLibrary.GRYObjectSystem.Meta.Property.Property`1.Value"/> with the <see cref="T:System.DateTime"/> when they were set.
@@ -87,6 +93,12 @@
             <remarks>
             This function comes with absolutely no warranty (as every function in the GRYLibrary). This function can not recognize the encoding every <paramref name="content"/> correctly. 
             </remarks>
+        </member>
+        <member name="T:GRYLibrary.SimpleGenericXMLSerializer`1">
+            <summary>
+            Represents a very easy usable XML-Serializer.
+            </summary>
+            <typeparam name="T">The type of the object which should be serialized.</typeparam>
         </member>
     </members>
 </doc>
