@@ -72,6 +72,7 @@ For every merge to the master the minor version will be increased and a new nuge
 - [ ] Support custom formats in GRYLog
 - [ ] Implement HTML-Tables in TableGenerator
 - [ ] Add more doc-comments
+- [ ] Convert projects to .NET-Standard-projects
 
 ## Version 0.3
 
@@ -91,7 +92,7 @@ For every merge to the master the minor version will be increased and a new nuge
 - [x] Create DocFX-Project
 - [x] Add more testcases
 - [x] Improve information-files (.md-files etc.)
-- [x] Add More doc-comments
+- [x] Add more doc-comments
 
 ## Version 0.2
 
