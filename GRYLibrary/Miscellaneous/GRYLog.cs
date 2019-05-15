@@ -120,6 +120,31 @@ namespace GRYLibrary
             }
         }
 
+        public void LogByFunction(Func<string> message)
+        {
+            LogByFunction(message, GRYLogLogLevel.Information);
+        }
+        public void LogByFunction(Func<string> message, Exception exception)
+        {
+            LogByFunction(message, GRYLogLogLevel.Exception, exception);
+        }
+        public void LogByFunction(Func<string> message, GRYLogLogLevel logLevel, Exception exception)
+        {
+            if (!ShouldBeLogged(logLevel))
+            {
+                return;
+            }
+            LogByFunction(()=>GetExceptionMessage(message(), exception), logLevel);
+        }
+        public void LogByFunction(Func<string> message, GRYLogLogLevel logLevel)
+        {
+            if (!ShouldBeLogged(logLevel))
+            {
+                return;
+            }
+            Log(message(), logLevel);
+        }
+
         public void Log(string message)
         {
             Log(message, GRYLogLogLevel.Information);
@@ -156,10 +181,7 @@ namespace GRYLibrary
                 return;
             }
 
-            if (!( this.Configuration.LoggedMessageTypesInLogFile.Contains(logLevel)
-                || this.Configuration.LoggedMessageTypesInWindowsEventViewer.Contains(logLevel)
-                || this.Configuration.LoggedMessageTypesInConsole.Contains(logLevel) 
-                || this.Configuration.DebugBreakLevel.Contains(logLevel)))
+            if (!ShouldBeLogged(logLevel))
             {
                 return;
             }
@@ -265,6 +287,15 @@ namespace GRYLibrary
                 NewLogItem?.Invoke(originalMessage, originalMessage, logLevel);
             }
         }
+
+        private bool ShouldBeLogged(GRYLogLogLevel logLevel)
+        {
+            return this.Configuration.LoggedMessageTypesInLogFile.Contains(logLevel)
+                 || this.Configuration.LoggedMessageTypesInWindowsEventViewer.Contains(logLevel)
+                 || this.Configuration.LoggedMessageTypesInConsole.Contains(logLevel)
+                 || this.Configuration.DebugBreakLevel.Contains(logLevel);
+        }
+
         private EventLogEntryType GetEventType(GRYLogLogLevel logLevel)
         {
             if (logLevel == GRYLogLogLevel.Information)
