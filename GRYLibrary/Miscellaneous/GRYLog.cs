@@ -79,7 +79,7 @@ namespace GRYLibrary
                 }
                 catch (Exception exception)
                 {
-                    this.LogError("Could not reload Configuration", exception);
+                    this.Log("Could not reload Configuration", GRYLogLogLevel.Exception, exception);
                 }
                 finally
                 {
@@ -99,20 +99,8 @@ namespace GRYLibrary
         }
         public void SummarizeLog()
         {
-            this.LogInformation("Amount of occurred Errors and Criticals: " + this.GetAmountOfErrors().ToString());
-            this.LogInformation("Amount of occurred Warnings: " + this.GetAmountOfWarnings().ToString());
-        }
-        public void LogInformation(string message, string logLineId = "")
-        {
-            if (!this.CheckEnabled())
-            {
-                return;
-            }
-
-            if (this.LineShouldBePrinted(message))
-            {
-                this.LogIt(message, GRYLogLogLevel.Information, logLineId);
-            }
+            this.Log("Amount of occurred Errors and Criticals: " + this.GetAmountOfErrors().ToString(), GRYLogLogLevel.Information);
+            this.Log("Amount of occurred Warnings: " + this.GetAmountOfWarnings().ToString(), GRYLogLogLevel.Information);
         }
 
         private bool LineShouldBePrinted(string message)
@@ -131,160 +119,60 @@ namespace GRYLibrary
                 return !string.IsNullOrWhiteSpace(message);
             }
         }
-        public void LogDebugInformation(string message, string logLineId = "")
+
+        public void Log(string message)
         {
-            if (!this.CheckEnabled())
-            {
-                return;
-            }
-
-            if (!this.LineShouldBePrinted(message))
-            {
-                return;
-            }
-
-            this.LogIt(message, GRYLogLogLevel.Debug, logLineId);
+            Log(message, GRYLogLogLevel.Information);
         }
-
-        public void LogWarning(string message, string logLineId = "")
+        public void Log(string message, Exception exception)
         {
-            if (!this.CheckEnabled())
-            {
-                return;
-            }
-
-            if (!this.LineShouldBePrinted(message))
-            {
-                return;
-            }
-
-            this._AmountOfWarnings += 1;
-            this.LogIt(message, GRYLogLogLevel.Warning, logLineId);
+            this.Log(message, GRYLogLogLevel.Exception, exception);
         }
-        public void LogVerboseMessage(string message, string logLineId = "")
+        public void Log(Exception exception)
         {
-            if (!this.CheckEnabled())
-            {
-                return;
-            }
-
-            if (!this.LineShouldBePrinted(message))
-            {
-                return;
-            }
-
-            this.LogIt(message, GRYLogLogLevel.Verbose, logLineId);
+            Log(GRYLogLogLevel.Exception, exception);
         }
-
-        public void LogCritical(string message, Exception exception, string logLineId = "")
+        public void Log(GRYLogLogLevel logLevel, Exception exception)
         {
-            if (!this.LineShouldBePrinted(message))
-            {
-                return;
-            }
-            this.LogCritical(this.GetExceptionMessage(message, exception), logLineId);
+            Log("An exception occurred", logLevel, exception);
         }
-        public void LogCritical(Exception exception, string logLineId = "")
+        public void Log(string message, GRYLogLogLevel logLevel, Exception exception)
         {
-            this.LogCritical(this.GetExceptionMessage("An exception occurred", exception), logLineId);
+            Log(GetExceptionMessage(message, exception), logLevel);
         }
-        public void LogCritical(string message, string logLineId = "")
-        {
-            if (!this.CheckEnabled())
-            {
-                return;
-            }
-
-            if (!this.LineShouldBePrinted(message))
-            {
-                return;
-            }
-            if (this.Configuration.StoreErrorsInErrorQueueInsteadOfLoggingThem)
-            {
-                this._StoredErrors.Enqueue(new Tuple<string, string>(message, logLineId));
-            }
-            else
-            {
-                this.LogCriticalInternal(message, logLineId);
-            }
-        }
-
-        private void LogCriticalInternal(string message, string logLineId)
-        {
-            this.LogErrorHelper(message, logLineId, GRYLogLogLevel.Critical);
-        }
-
-        public void LogError(string message, Exception exception, string logLineId = "")
-        {
-            if (!this.LineShouldBePrinted(message))
-            {
-                return;
-            }
-            this.LogError(this.GetExceptionMessage(message, exception), logLineId);
-        }
-        public void LogError(Exception exception, string logLineId = "")
-        {
-            this.LogError(this.GetExceptionMessage("An exception occurred", exception), logLineId);
-        }
-        public void LogError(string message, string logLineId = "")
-        {
-            this.LogErrorHelper(message, logLineId, GRYLogLogLevel.Exception);
-        }
-
-        private void LogErrorHelper(string message, string logLineId, GRYLogLogLevel loglevel)
-        {
-            if (!this.CheckEnabled())
-            {
-                return;
-            }
-
-            if (!this.LineShouldBePrinted(message))
-            {
-                return;
-            }
-            if (this.Configuration.StoreErrorsInErrorQueueInsteadOfLoggingThem)
-            {
-                this._StoredErrors.Enqueue(new Tuple<string, string>(message, logLineId));
-            }
-            else
-            {
-                this.LogErrorInternal(message, logLineId, loglevel);
-            }
-        }
-
-        private readonly Queue<Tuple<string, string>> _StoredErrors = new Queue<Tuple<string, string>>();
-        public void PrintErrorQueue()
-        {
-            if (!this.CheckEnabled())
-            {
-                return;
-            }
-
-            while (this._StoredErrors.Count != 0)
-            {
-                Tuple<string, string> dequeuedError = this._StoredErrors.Dequeue();
-                this.LogErrorInternal(dequeuedError.Item1, dequeuedError.Item2, GRYLogLogLevel.Exception);
-            }
-        }
-
-        private void LogErrorInternal(string message, string logLineId, GRYLogLogLevel errorLogLevel)
-        {
-            if (this.Configuration.PrintErrorsAsInformation)
-            {
-                this.LogIt(message, GRYLogLogLevel.Information, logLineId);
-            }
-            else
-            {
-                this._AmountOfErrors += 1;
-                this.LogIt(message, errorLogLevel, logLineId);
-            }
-        }
-
-        private void LogIt(string message, GRYLogLogLevel logLevel, string logLineId)
+        public void Log(string message, GRYLogLogLevel logLevel)
         {
             if (!this._Initialized)
             {
                 return;
+            }
+            if (!this.CheckEnabled())
+            {
+                return;
+            }
+
+            if (!this.LineShouldBePrinted(message))
+            {
+                return;
+            }
+
+            if (!( this.Configuration.LoggedMessageTypesInLogFile.Contains(logLevel)
+                || this.Configuration.LoggedMessageTypesInWindowsEventViewer.Contains(logLevel)
+                || this.Configuration.LoggedMessageTypesInConsole.Contains(logLevel) 
+                || this.Configuration.DebugBreakLevel.Contains(logLevel)))
+            {
+                return;
+            }
+            if (this.Configuration.PrintErrorsAsInformation)
+            {
+                if (logLevel.Equals(GRYLogLogLevel.Exception))
+                {
+                    this._AmountOfErrors += 1;
+                }
+            }
+            if (logLevel.Equals(GRYLogLogLevel.Exception))
+            {
+                logLevel = GRYLogLogLevel.Information;
             }
             DateTime momentOfLogEntry = DateTime.Now;
             if (this.Configuration.ConvertTimeForLogentriesToUTCFormat)
@@ -293,11 +181,6 @@ namespace GRYLibrary
             }
             message = message.Trim();
             string originalMessage = message;
-            logLineId = logLineId.Trim();
-            if (!string.IsNullOrEmpty(logLineId))
-            {
-                message = "[" + logLineId + "] " + message;
-            }
             if (!string.IsNullOrEmpty(this.Configuration.Name))
             {
                 message = "[" + this.Configuration.Name.Trim() + "] " + message;
@@ -510,72 +393,72 @@ namespace GRYLibrary
         }
         public void ExecuteAndLog(Action action, string nameOfAction)
         {
-            this.LogInformation($"Action '{nameOfAction}' will be started now.");
+            this.Log($"Action '{nameOfAction}' will be started now.", GRYLogLogLevel.Information);
             try
             {
                 action();
             }
             catch (Exception exception)
             {
-                this.LogError($"An exception occurred while executing action '{nameOfAction}'.", exception);
+                this.Log($"An exception occurred while executing action '{nameOfAction}'.", GRYLogLogLevel.Exception, exception);
                 throw;
             }
             finally
             {
-                this.LogInformation($"Action '{nameOfAction}' finished.");
+                this.Log($"Action '{nameOfAction}' finished.", GRYLogLogLevel.Information);
             }
         }
         public void ExecuteAndLog<TParameter>(Action<TParameter> action, string nameOfAction, TParameter argument)
         {
             string argumentAsString = argument.ToString();
-            this.LogInformation($"Action '{nameOfAction}({argumentAsString})' will be started now.");
+            this.Log($"Action '{nameOfAction}({argumentAsString})' will be started now.");
             try
             {
                 action(argument);
             }
             catch (Exception exception)
             {
-                this.LogError($"An exception occurred while executing action '{nameOfAction}({argumentAsString})'.", exception);
+                this.Log($"An exception occurred while executing action '{nameOfAction}({argumentAsString})'.", GRYLogLogLevel.Exception, exception);
                 throw;
             }
             finally
             {
-                this.LogInformation($"Action '{nameOfAction}({argumentAsString})' finished.");
+                this.Log($"Action '{nameOfAction}({argumentAsString})' finished.");
             }
         }
         public TResult ExecuteAndLog<TResult>(Func<TResult> action, string nameOfAction)
         {
-            this.LogInformation($"Action '{nameOfAction}' will be started now.");
+            this.Log($"Action '{nameOfAction}' will be started now.");
             try
             {
                 return action();
             }
             catch (Exception exception)
             {
-                this.LogError($"An exception occurred while executing action '{nameOfAction}'.", exception);
+                this.Log($"An exception occurred while executing action '{nameOfAction}'.", GRYLogLogLevel.Exception, exception);
                 throw;
             }
             finally
             {
-                this.LogInformation($"Action '{nameOfAction}' finished.");
+                this.Log($"Action '{nameOfAction}' finished.");
             }
         }
         public TOut ExecuteAndLog<TParameter, TOut>(Func<TParameter, TOut> action, string nameOfAction, TParameter argument)
         {
             string argumentAsString = argument.ToString();
-            this.LogInformation($"Action '{nameOfAction}({argumentAsString})' will be started now.");
+            this.Log($"Action '{nameOfAction}({argumentAsString})' will be started now.");
             try
             {
                 return action(argument);
             }
             catch (Exception exception)
             {
-                this.LogError($"An exception occurred while executing action '{nameOfAction}({argumentAsString})'.", exception);
+                this.Log($"An exception occurred while executing action '{nameOfAction}({argumentAsString})'.", GRYLogLogLevel.Exception, exception);
                 throw;
             }
             finally
             {
-                this.LogInformation($"Action '{nameOfAction}({argumentAsString})' finished.");
+                this.Log($"Action '{nameOfAction}({argumentAsString})' finished.");
             }
         }
 
