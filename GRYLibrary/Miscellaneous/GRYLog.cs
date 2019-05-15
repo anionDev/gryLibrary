@@ -120,23 +120,23 @@ namespace GRYLibrary
             }
         }
 
-        public void LogByFunction(Func<string> message)
+        public void Log(Func<string> message)
         {
-            LogByFunction(message, GRYLogLogLevel.Information);
+            Log(message, GRYLogLogLevel.Information);
         }
         public void LogByFunction(Func<string> message, Exception exception)
         {
-            LogByFunction(message, GRYLogLogLevel.Exception, exception);
+            Log(message, GRYLogLogLevel.Exception, exception);
         }
-        public void LogByFunction(Func<string> message, GRYLogLogLevel logLevel, Exception exception)
+        public void Log(Func<string> message, GRYLogLogLevel logLevel, Exception exception)
         {
             if (!ShouldBeLogged(logLevel))
             {
                 return;
             }
-            LogByFunction(()=>GetExceptionMessage(message(), exception), logLevel);
+            Log(() => GetExceptionMessage(message(), exception), logLevel);
         }
-        public void LogByFunction(Func<string> message, GRYLogLogLevel logLevel)
+        public void Log(Func<string> message, GRYLogLogLevel logLevel)
         {
             if (!ShouldBeLogged(logLevel))
             {
@@ -167,6 +167,7 @@ namespace GRYLibrary
         }
         public void Log(string message, GRYLogLogLevel logLevel)
         {
+            DateTime momentOfLogEntry = DateTime.Now;
             if (!this._Initialized)
             {
                 return;
@@ -185,18 +186,14 @@ namespace GRYLibrary
             {
                 return;
             }
-            if (this.Configuration.PrintErrorsAsInformation)
-            {
-                if (logLevel.Equals(GRYLogLogLevel.Exception))
-                {
-                    this._AmountOfErrors += 1;
-                }
-            }
-            if (logLevel.Equals(GRYLogLogLevel.Exception))
+            if (this.Configuration.PrintErrorsAsInformation && IsErrorLogLevel(logLevel))
             {
                 logLevel = GRYLogLogLevel.Information;
             }
-            DateTime momentOfLogEntry = DateTime.Now;
+            if (IsErrorLogLevel(logLevel))
+            {
+                this._AmountOfErrors += 1;
+            }
             if (this.Configuration.ConvertTimeForLogentriesToUTCFormat)
             {
                 momentOfLogEntry = momentOfLogEntry.ToUniversalTime();
@@ -286,6 +283,11 @@ namespace GRYLibrary
             {
                 NewLogItem?.Invoke(originalMessage, originalMessage, logLevel);
             }
+        }
+
+        private bool IsErrorLogLevel(GRYLogLogLevel logLevel)
+        {
+            return logLevel.Equals(GRYLogLogLevel.Exception) || logLevel.Equals(GRYLogLogLevel.Critical);
         }
 
         private bool ShouldBeLogged(GRYLogLogLevel logLevel)
