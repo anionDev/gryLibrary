@@ -5,7 +5,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace GRYLibraryTest
 {
     [TestClass]
-    class NonPersistentInputHistoryListTest
+    public class NonPersistentInputHistoryListTest
     {
         [TestMethod]
         public void NonPersistentInputHistoryListTest1()
@@ -23,8 +23,8 @@ namespace GRYLibraryTest
 
             inpustList.EnterPressed(input1);
 
-            Assert.AreEqual(input2, inpustList.UpPressed());
-            Assert.AreEqual(input2, inpustList.UpPressed());
+            Assert.AreEqual(input1, inpustList.UpPressed());
+            Assert.AreEqual(input1, inpustList.UpPressed());
 
             inpustList.EnterPressed(input2);
 
