@@ -1,1 +1,1 @@
-# This is the API-documentation of the [Github GRYLibrary-project](https://github.com/anionDev/gryLibrary)
+# This is the API-documentation of the [GRYLibrary](https://github.com/anionDev/gryLibrary)
