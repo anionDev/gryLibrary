@@ -3,6 +3,9 @@ using System;
 
 namespace GRYLibrary.Miscellaneous
 {
+    /// <summary>
+    /// Represents a threadsafe semaphore
+    /// </summary>
     public sealed class Semaphore : Property<long>
     {
         public string Name { get; set; }
