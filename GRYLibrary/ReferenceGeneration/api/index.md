@@ -1,2 +1,1 @@
-# PLACEHOLDER
-TODO: Add .NET projects to the *src* folder and run `docfx` to generate **REAL** *API Documentation*!
+# This is the API-documentation of the [Github GRYLibrary-project](https://github.com/anionDev/gryLibrary)

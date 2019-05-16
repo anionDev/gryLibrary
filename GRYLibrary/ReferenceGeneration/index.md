@@ -9,7 +9,7 @@ All labels (for classes, properties, etc.) have meaningful names.
 
 # Reference
 
-The concrete reference all types can be found [here](https://aniondev.github.io/gryLibraryReference/Reference/api/GRYLibrary.html).
+The reference can be found [here](https://aniondev.github.io/gryLibraryReference/Reference/api/index.html).
 
 # Additional information
 

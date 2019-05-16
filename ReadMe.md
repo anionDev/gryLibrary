@@ -10,7 +10,7 @@ If you have installed GRYLibrary you can immediately use its public classes in t
 
 [![NuGet](https://img.shields.io/nuget/v/GRYLibrary.svg?color=green)](https://www.nuget.org/packages/GRYLibrary/)
 
-Install the GRYLibrary as nuget-package:
+Install the GRYLibrary as nuget-package using the Package Manager Console:
 
 ```
 Install-Package GRYLibrary
