@@ -10,7 +10,7 @@ namespace GRYLibraryTest
         [TestMethod]
         public void NonPersistentInputHistoryListTest1()
         {
-            var inpustList = new NonPersistentInputHistoryList();
+            NonPersistentInputHistoryList inpustList = new NonPersistentInputHistoryList();
 
             string input1 = "1";
             string input2 = "2";

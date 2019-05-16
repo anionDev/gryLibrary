@@ -116,7 +116,7 @@ namespace GRYLibraryTest
             }
             public override int GetHashCode()
             {
-                return TestDouble.GetHashCode();
+                return this.TestDouble.GetHashCode();
             }
         }
         public interface SerializeTestInterface
@@ -139,7 +139,7 @@ namespace GRYLibraryTest
             }
             public override int GetHashCode()
             {
-                return TestAttribute.GetHashCode();
+                return this.TestAttribute.GetHashCode();
             }
         }
         public class SerializeTestAttributeClass
@@ -168,7 +168,7 @@ namespace GRYLibraryTest
             }
             public override int GetHashCode()
             {
-                return TestString1.GetHashCode();
+                return this.TestString1.GetHashCode();
             }
 
         }

@@ -38,7 +38,7 @@ namespace GRYLibrary
             this._Running = true;
             if (this.LogOverhead)
             {
-                this.LogObject?.LogInformation(string.Format("Start action with id {0} and name \"{1}\"", this.Id.ToString(), this.Name.ToString()));
+                this.LogObject?.Log(string.Format("Start action with id {0} and name \"{1}\"", this.Id.ToString(), this.Name.ToString()));
             }
             try
             {
@@ -46,7 +46,7 @@ namespace GRYLibrary
             }
             catch (Exception exception)
             {
-                this.LogObject?.LogError(string.Format("Error occurred while executing action with id {0} and name \"{1}\"", this.Id.ToString(), this.Name.ToString()), exception);
+                this.LogObject?.Log(string.Format("Error occurred while executing action with id {0} and name \"{1}\"", this.Id.ToString(), this.Name.ToString()), exception);
             }
             finally
             {
@@ -54,7 +54,7 @@ namespace GRYLibrary
             }
             if (this.LogOverhead)
             {
-                this.LogObject?.LogInformation(string.Format("Finished action with id {0} and name \"{1}\" started", this.Id.ToString(), this.Name.ToString()));
+                this.LogObject?.Log(string.Format("Finished action with id {0} and name \"{1}\" started", this.Id.ToString(), this.Name.ToString()));
             }
         }
 

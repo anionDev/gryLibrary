@@ -23,7 +23,7 @@ namespace GRYLibraryTest
                 Assert.AreEqual(fileWithRelativePath, logObject.Configuration.LogFile);
                 Assert.IsFalse(File.Exists(fileWithRelativePath));
                 string testContent = "test";
-                logObject.LogInformation(testContent);
+                logObject.Log(testContent);
                 Assert.IsTrue(File.Exists(fileWithRelativePath));
                 Assert.AreEqual(testContent + System.Environment.NewLine, File.ReadAllText(logFile));
             }
@@ -49,7 +49,7 @@ namespace GRYLibraryTest
                 Assert.AreEqual(fileWithRelativePath, logObject.Configuration.LogFile);
                 Assert.IsFalse(File.Exists(fileWithRelativePath));
                 string testContent = "test";
-                logObject.LogInformation(testContent);
+                logObject.Log(testContent);
                 Assert.IsTrue(File.Exists(fileWithRelativePath));
                 Assert.AreEqual(testContent + System.Environment.NewLine, File.ReadAllText(logFile));
             }

@@ -39,7 +39,7 @@ namespace GRYLibrary.Miscellaneous
         {
             try
             {
-                this.LogObject?.LogInformation($"Start executing queued actions.");
+                this.LogObject?.Log($"Start executing queued actions.");
                 bool enabled = true;
                 while (enabled)
                 {
@@ -66,7 +66,7 @@ namespace GRYLibrary.Miscellaneous
             finally
             {
                 this.IsRunning = false;
-                this.LogObject?.LogInformation($"Finished executing queued actions.");
+                this.LogObject?.Log($"Finished executing queued actions.");
             }
         }
 
@@ -82,19 +82,19 @@ namespace GRYLibrary.Miscellaneous
 
         private void ExecuteTask(Tuple<string, Action> action)
         {
-            this.LogObject?.LogInformation($"Start action {action.Item1}. {this.CurrentAmountOfThreads.Value} Threads are now running.");
+            this.LogObject?.Log($"Start action {action.Item1}. {this.CurrentAmountOfThreads.Value} Threads are now running.");
             try
             {
                 action.Item2();
             }
             catch (Exception exception)
             {
-                this.LogObject?.LogError($"Error in action {action.Item1}.", exception);
+                this.LogObject?.Log($"Error in action {action.Item1}.", exception);
             }
             finally
             {
                 this.CurrentAmountOfThreads.Decrement();
-                this.LogObject?.LogInformation($"Finished action {action.Item1}. {this.CurrentAmountOfThreads.Value} Threads are still running.");
+                this.LogObject?.Log($"Finished action {action.Item1}. {this.CurrentAmountOfThreads.Value} Threads are still running.");
             }
         }
     }

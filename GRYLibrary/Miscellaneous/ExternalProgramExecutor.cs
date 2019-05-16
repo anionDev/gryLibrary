@@ -174,11 +174,11 @@ namespace GRYLibrary
                 {
                     if (logItem.Item1.Equals(GRYLogLogLevel.Exception))
                     {
-                        this.LogObject?.LogError(logItem.Item2);
+                        this.LogObject?.Log(logItem.Item2);
                     }
                     if (logItem.Item1.Equals(GRYLogLogLevel.Information))
                     {
-                        this.LogObject?.LogInformation(logItem.Item2);
+                        this.LogObject?.Log(logItem.Item2);
                     }
                 }
             }

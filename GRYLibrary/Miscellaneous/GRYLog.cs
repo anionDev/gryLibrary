@@ -122,32 +122,32 @@ namespace GRYLibrary
 
         public void Log(Func<string> message)
         {
-            Log(message, GRYLogLogLevel.Information);
+            this.Log(message, GRYLogLogLevel.Information);
         }
         public void LogByFunction(Func<string> message, Exception exception)
         {
-            Log(message, GRYLogLogLevel.Exception, exception);
+            this.Log(message, GRYLogLogLevel.Exception, exception);
         }
         public void Log(Func<string> message, GRYLogLogLevel logLevel, Exception exception)
         {
-            if (!ShouldBeLogged(logLevel))
+            if (!this.ShouldBeLogged(logLevel))
             {
                 return;
             }
-            Log(() => GetExceptionMessage(message(), exception), logLevel);
+            this.Log(() => this.GetExceptionMessage(message(), exception), logLevel);
         }
         public void Log(Func<string> message, GRYLogLogLevel logLevel)
         {
-            if (!ShouldBeLogged(logLevel))
+            if (!this.ShouldBeLogged(logLevel))
             {
                 return;
             }
-            Log(message(), logLevel);
+            this.Log(message(), logLevel);
         }
 
         public void Log(string message)
         {
-            Log(message, GRYLogLogLevel.Information);
+            this.Log(message, GRYLogLogLevel.Information);
         }
         public void Log(string message, Exception exception)
         {
@@ -155,15 +155,15 @@ namespace GRYLibrary
         }
         public void Log(Exception exception)
         {
-            Log(GRYLogLogLevel.Exception, exception);
+            this.Log(GRYLogLogLevel.Exception, exception);
         }
         public void Log(GRYLogLogLevel logLevel, Exception exception)
         {
-            Log("An exception occurred", logLevel, exception);
+            this.Log("An exception occurred", logLevel, exception);
         }
         public void Log(string message, GRYLogLogLevel logLevel, Exception exception)
         {
-            Log(GetExceptionMessage(message, exception), logLevel);
+            this.Log(this.GetExceptionMessage(message, exception), logLevel);
         }
         public void Log(string message, GRYLogLogLevel logLevel)
         {
@@ -182,17 +182,21 @@ namespace GRYLibrary
                 return;
             }
 
-            if (!ShouldBeLogged(logLevel))
+            if (!this.ShouldBeLogged(logLevel))
             {
                 return;
             }
-            if (this.Configuration.PrintErrorsAsInformation && IsErrorLogLevel(logLevel))
+            if (this.Configuration.PrintErrorsAsInformation && this.IsErrorLogLevel(logLevel))
             {
                 logLevel = GRYLogLogLevel.Information;
             }
-            if (IsErrorLogLevel(logLevel))
+            if (this.IsErrorLogLevel(logLevel))
             {
                 this._AmountOfErrors += 1;
+            }
+            if (this.IsWarningLogLevel(logLevel))
+            {
+                this._AmountOfWarnings += 1;
             }
             if (this.Configuration.ConvertTimeForLogentriesToUTCFormat)
             {
@@ -283,6 +287,11 @@ namespace GRYLibrary
             {
                 NewLogItem?.Invoke(originalMessage, originalMessage, logLevel);
             }
+        }
+
+        private bool IsWarningLogLevel(GRYLogLogLevel logLevel)
+        {
+            return logLevel.Equals(GRYLogLogLevel.Warning);
         }
 
         private bool IsErrorLogLevel(GRYLogLogLevel logLevel)
