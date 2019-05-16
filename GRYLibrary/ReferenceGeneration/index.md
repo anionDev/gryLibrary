@@ -45,7 +45,7 @@ and you are also welcome to share your commits under the terms of [LGPL](https:/
 
 [Nuget GRYLibrary-package](https://www.nuget.org/packages/GRYLibrary)
 
-[Class Reference and Documentation](https://aniondev.github.io/gryLibraryReference/Site/api/GRYLibrary.html)
+[Class Reference and Documentation](https://aniondev.github.io/gryLibraryReference/Reference/api/GRYLibrary.html)
 
 [Test-coverage](https://aniondev.github.io/gryLibraryReference/TestReports/index.htm)
 
