@@ -4,6 +4,11 @@
         <name>GRYLibrary</name>
     </assembly>
     <members>
+        <member name="T:GRYLibrary.Miscellaneous.Semaphore">
+            <summary>
+            Represents a threadsafe semaphore
+            </summary>
+        </member>
         <member name="M:GRYLibrary.Miscellaneous.TaskQueue.Queue(System.Tuple{System.String,System.Action})">
             <remarks>The string-value is supposed to be the name of the action.</remarks>
         </member>
