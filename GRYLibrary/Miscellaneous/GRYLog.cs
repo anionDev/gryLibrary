@@ -19,8 +19,7 @@ namespace GRYLibrary
     {
         OnlyMessage = 0,
         GRYLogFormat = 1,
-        CommonLogFormat = 2,
-        ExtendedCommonLogFormat = 3
+        DateOnly = 2
     }
     public class GRYLog : IDisposable
     {
@@ -288,13 +287,11 @@ namespace GRYLibrary
                 colorBegin = part1.Length;
                 colorEnd = part1.Length + part2.Length;
             }
-            if (this.Configuration.Format == GRYLogLogFormat.CommonLogFormat)
+            if (this.Configuration.Format == GRYLogLogFormat.DateOnly)
             {
-                throw new NotImplementedException();
-            }
-            if (this.Configuration.Format == GRYLogLogFormat.ExtendedCommonLogFormat)
-            {
-                throw new NotImplementedException();
+                formattedMessage = momentOfLogEntry.ToString(this.Configuration.DateFormat) + " " + message;
+                colorBegin = 0;
+                colorEnd = 0;
             }
             throw new KeyNotFoundException();
         }
