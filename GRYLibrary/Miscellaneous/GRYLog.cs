@@ -277,6 +277,7 @@ namespace GRYLibrary
                 formattedMessage = message;
                 colorBegin = 0;
                 colorEnd = 0;
+                return;
             }
             if (this.Configuration.Format == GRYLogLogFormat.OnlyMessage)
             {
@@ -286,12 +287,14 @@ namespace GRYLibrary
                 formattedMessage = part1 + part2 + part3;
                 colorBegin = part1.Length;
                 colorEnd = part1.Length + part2.Length;
+                return;
             }
             if (this.Configuration.Format == GRYLogLogFormat.DateOnly)
             {
                 formattedMessage = momentOfLogEntry.ToString(this.Configuration.DateFormat) + " " + message;
                 colorBegin = 0;
                 colorEnd = 0;
+                return;
             }
             throw new KeyNotFoundException();
         }
