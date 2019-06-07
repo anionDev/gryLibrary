@@ -92,13 +92,38 @@ namespace GRYLibrary
 
             return result;
         }
-        internal static IEnumerable<IEnumerable<T>> JaggedArrayToEnumerableOfEnumerable<T>(T[][] items)
+        public static IEnumerable<IEnumerable<T>> JaggedArrayToEnumerableOfEnumerable<T>(T[][] items)
         {
-            throw new NotImplementedException();
+            List<List<T>> result = new List<List<T>>();
+            foreach (T[] innerArray in items)
+            {
+                List<T> innerList = new List<T>();
+                foreach (T item in innerArray)
+                {
+                    innerList.Add(item);
+                }
+                result.Add(innerList);
+            }
+            return result;
         }
-        internal static T[][] TwoDimensionalArrayToJaggedArray<T>(T[,] items)
+        public static T[][] TwoDimensionalArrayToJaggedArray<T>(T[,] items)
         {
-            throw new NotImplementedException();
+            int rowsFirstIndex = items.GetLowerBound(0);
+            int rowsLastIndex = items.GetUpperBound(0);
+            int numberOfRows = rowsLastIndex + 1;
+            int columnsFirstIndex = items.GetLowerBound(1);
+            int columnsLastIndex = items.GetUpperBound(1);
+            int numberOfColumns = columnsLastIndex + 1;
+            T[][] result = new T[numberOfRows][];
+            for (int i = rowsFirstIndex; i <= rowsLastIndex; i++)
+            {
+                result[i] = new T[numberOfColumns];
+                for (int j = columnsFirstIndex; j <= columnsLastIndex; j++)
+                {
+                    result[i][j] = items[i, j];
+                }
+            }
+            return result;
         }
         public static void EnsureFileExists(string path, bool createDirectoryIfRequired = false)
         {
@@ -164,18 +189,10 @@ namespace GRYLibrary
 
         public static void DeleteAllEmptyFolderTransitively(string folder, bool deleteFolderItselfIfAlsoEmpty = false)
         {
-            ForEachFileAndDirectoryTransitively(folder, DeleteAllEmptyFolderTransitivelyDirectoryAction, (string file, object argument) => { }, false, null, null);
+            ForEachFileAndDirectoryTransitively(folder, (string directory, object argument) => { if (DirectoryIsEmpty(directory)) { Directory.Delete(directory); } }, (string file, object argument) => { }, false, null, null);
             if (deleteFolderItselfIfAlsoEmpty && DirectoryIsEmpty(folder))
             {
                 Directory.Delete(folder);
-            }
-        }
-
-        private static void DeleteAllEmptyFolderTransitivelyDirectoryAction(string directory, object argument)
-        {
-            if (DirectoryIsEmpty(directory))
-            {
-                Directory.Delete(directory);
             }
         }
 
@@ -209,14 +226,13 @@ namespace GRYLibrary
                 subDirectoryInfo.Delete(true);
             }
         }
-        private static void DefaultErrorHandlerForMoveNewFilesInFoldersAcrossVolumesAndDeleteAllOtherFiles(Exception exeption) { }
         public static void MoveContentOfFoldersAcrossVolumes(string sourceFolder, string targetFolder, FileSelector fileSelector, bool deleteAlreadyExistingFilesWithoutCopy = false)
         {
-            MoveContentOfFoldersAcrossVolumes(sourceFolder, targetFolder, fileSelector, DefaultErrorHandlerForMoveNewFilesInFoldersAcrossVolumesAndDeleteAllOtherFiles, deleteAlreadyExistingFilesWithoutCopy);
+            MoveContentOfFoldersAcrossVolumes(sourceFolder, targetFolder, fileSelector, (exception) => { }, deleteAlreadyExistingFilesWithoutCopy);
         }
         public static void MoveContentOfFoldersAcrossVolumes(string sourceFolder, string targetFolder, Func<string, bool> fileSelectorPredicate, bool deleteAlreadyExistingFilesWithoutCopy = false)
         {
-            MoveContentOfFoldersAcrossVolumes(sourceFolder, targetFolder, fileSelectorPredicate, DefaultErrorHandlerForMoveNewFilesInFoldersAcrossVolumesAndDeleteAllOtherFiles, deleteAlreadyExistingFilesWithoutCopy);
+            MoveContentOfFoldersAcrossVolumes(sourceFolder, targetFolder, fileSelectorPredicate, (exception) => { }, deleteAlreadyExistingFilesWithoutCopy);
         }
 
         public static void MoveContentOfFoldersAcrossVolumes(string sourceFolder, string targetFolder, FileSelector fileSelector, Action<Exception> errorHandler, bool deleteAlreadyExistingFilesWithoutCopy = false)
@@ -514,7 +530,6 @@ namespace GRYLibrary
             return new SimpleObjectPersistence<T>(file, encoding);
         }
 
-        //see https://stackoverflow.com/a/51284316/3905529
         public static string GetCommandLineArguments()
         {
             string exe = Environment.GetCommandLineArgs()[0];
@@ -522,7 +537,6 @@ namespace GRYLibrary
             return rawCmd.Remove(rawCmd.IndexOf(exe), exe.Length).TrimStart('"').Substring(1);
         }
 
-        //see https://codereview.stackexchange.com/a/112844
         public static string ToPascalCase(this string input)
         {
             if (input == null)
@@ -533,8 +547,7 @@ namespace GRYLibrary
                          .Select(word => word.Substring(0, 1).ToUpper() +
                                          word.Substring(1).ToLower());
 
-            string result = string.Concat(words);
-            return result;
+            return string.Concat(words);
         }
         public static string ToCamelCase(this string input)
         {
@@ -542,7 +555,6 @@ namespace GRYLibrary
             return char.ToLowerInvariant(pascalCase[0]) + pascalCase.Substring(1);
         }
 
-        //see https://stackoverflow.com/a/448225/3905529
         public static bool IsAllUpper(this string input)
         {
             for (int i = 0; i < input.Length; i++)
@@ -660,9 +672,7 @@ namespace GRYLibrary
                 return false;
             }
             string pathRoot = Path.GetPathRoot(path).Trim();
-            return pathRoot.Length <= 2 && pathRoot != "/"
-                ? false
-                : !(pathRoot == path && pathRoot.StartsWith(@"\\") && pathRoot.IndexOf('\\', 2) == -1);
+            return pathRoot.Length <= 2 && pathRoot != "/" ? false : !(pathRoot == path && pathRoot.StartsWith(@"\\") && pathRoot.IndexOf('\\', 2) == -1);
         }
         public static string GetAbsolutePath(string basePath, string relativePath)
         {
@@ -721,7 +731,6 @@ namespace GRYLibrary
         {
             return Directory.GetFiles(path).Length > 0;
         }
-        //see https://stackoverflow.com/a/9995303/3905529
         public static byte[] StringToByteArray(string hex)
         {
             if (hex.Length % 2 == 1)
@@ -770,7 +779,7 @@ namespace GRYLibrary
             }
             catch (Exception)
             {
-                //Not authenticated for unknown/other reasons if desired.
+                //Not authenticated for unknown/other reasons.
             }
             return isAuthenticated;
         }
@@ -871,27 +880,6 @@ namespace GRYLibrary
         public static string EnsurePathSEndsWithoutSlashOrBackslash(this string path)
         {
             return path.EnsurePathEndsWithoutSlash().EnsurePathEndsWithoutBackslash();
-        }
-
-        public readonly static byte[] BOM_UTF8 = new byte[] { 239, 187, 191 };
-        public static Encoding GuessEncodingOfByteArray(string file, Encoding asciiTreatment)
-        {
-            return GuessEncodingOfByteArray(File.ReadAllBytes(file), asciiTreatment);
-        }
-        /// <remarks>
-        /// This function comes with absolutely no warranty (as every function in the GRYLibrary). This function can not recognize the encoding every <paramref name="content"/> correctly. 
-        /// </remarks>
-        internal static Encoding GuessEncodingOfByteArray(byte[] content, Encoding asciiTreatment)
-        {
-            if (content.Length == 0)
-            {
-                return asciiTreatment;
-            }
-            if (StartsWith(content, BOM_UTF8))
-            {
-                return new UTF8Encoding(true);
-            }
-            throw new NotImplementedException();
         }
 
         public static bool StartsWith<T>(T[] entireArray, T[] start)
