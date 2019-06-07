@@ -15,6 +15,8 @@ using System.Threading.Tasks;
 using System.Threading;
 using System.DirectoryServices;
 using static GRYLibrary.Miscellaneous.TableGenerator;
+using System.Numerics;
+using System.Globalization;
 
 namespace GRYLibrary
 {
@@ -894,6 +896,10 @@ namespace GRYLibrary
 
         public static bool StartsWith<T>(T[] entireArray, T[] start)
         {
+            if (start.Count() > entireArray.Count())
+            {
+                return false;
+            }
             for (int i = 0; i < start.Length; i++)
             {
                 if (!entireArray[i].Equals(start[i]))
@@ -902,6 +908,49 @@ namespace GRYLibrary
                 }
             }
             return true;
+        }
+
+        public static string ByteArrayToHexString(byte[] value)
+        {
+            return BitConverter.ToString(value).Replace("-", string.Empty);
+        }
+
+        public static byte[] HexStringToByteArray(string hexString)
+        {
+            if (hexString.Length % 2 == 1)
+            {
+                hexString = "0" + hexString;
+            }
+            int inputLength = hexString.Length;
+            byte[] bytes = new byte[inputLength / 2];
+            for (int i = 0; i < inputLength; i += 2)
+            {
+                bytes[i / 2] = Convert.ToByte(hexString.Substring(i, 2), 16);
+            }
+            return bytes;
+        }
+        public static string IntegerToHexString(BigInteger input)
+        {
+            string result = input.ToString("X");
+            if (result.StartsWith("0"))
+            {
+                return result.Substring(1);
+            }
+            else
+            {
+                return result;
+            }
+        }
+        public static BigInteger HexStringToInteger(string input)
+        {
+            return BigInteger.Parse(input, NumberStyles.HexNumber);
+        }
+        public static T[] Concat<T>(T[] array1, T[] array2)
+        {
+            T[] result = new T[array1.Length + array2.Length];
+            array1.CopyTo(result, 0);
+            array2.CopyTo(result, array1.Length);
+            return result;
         }
     }
 }
