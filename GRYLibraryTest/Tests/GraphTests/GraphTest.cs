@@ -267,10 +267,10 @@ namespace GRYLibraryTest.Tests.GraphTests
         private DirectedGraph GetTestGraph()
         {
             DirectedGraph graph = new DirectedGraph();
-            Vertex v0 = new Vertex("v0");
-            Vertex v1 = new Vertex("v1");
-            Vertex v2 = new Vertex("v2");
-            Vertex v3 = new Vertex("v3");
+            Vertex v0 = new Vertex("Vertex_1");
+            Vertex v1 = new Vertex("Vertex_2");
+            Vertex v2 = new Vertex("Vertex_3");
+            Vertex v3 = new Vertex("Vertex_4");
             graph.AddEdge(new Edge(v0, v0, "e1"));
             graph.AddEdge(new Edge(v0, v1, "e2", 0.8));
             graph.AddEdge(new Edge(v1, v2, "e3"));

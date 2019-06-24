@@ -10,14 +10,14 @@ namespace GRYLibraryTest.Tests
         [TestMethod]
         public void ExtendedColorTest1()
         {
-            var color = new ExtendedColor();
+            ExtendedColor color = new ExtendedColor();
             Assert.AreEqual(0, color.ColorCode);
         }
         [TestMethod]
         public void ExtendedColorTest2()
         {
-            var color1 = new ExtendedColor(42);
-            var color2 = new ExtendedColor(42);
+            ExtendedColor color1 = new ExtendedColor(42);
+            ExtendedColor color2 = new ExtendedColor(42);
             Assert.AreEqual(color1, color2);
             Assert.AreEqual(color1.GetHashCode(), color2.GetHashCode());
         }
@@ -29,7 +29,7 @@ namespace GRYLibraryTest.Tests
             byte testValueG = 0;
             byte testValueB = 10;
 
-            var color = new ExtendedColor(testValueA,testValueR,testValueG,testValueB);
+            ExtendedColor color = new ExtendedColor(testValueA,testValueR,testValueG,testValueB);
             Assert.AreEqual(-922812406, color.ColorCode);
             Assert.AreEqual(testValueA, color.A);
             Assert.AreEqual(testValueR, color.R);

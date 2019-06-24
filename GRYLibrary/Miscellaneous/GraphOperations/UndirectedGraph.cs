@@ -9,16 +9,7 @@ namespace GRYLibrary.Miscellaneous.GraphOperations
         public static UndirectedGraph CreateByAdjacencyMatrix(double[,] adjacencyMatrix)
         {
             UndirectedGraph result = new UndirectedGraph();
-            Tuple<IList<Edge>, IList<Vertex>> items = result.ParseAdjacencyMatrix(adjacencyMatrix);
-            foreach (Vertex item in items.Item2)
-            {
-                result._Vertices.Add(item);
-            }
-            foreach (Edge item in items.Item1)
-            {
-                result._Edges.Add(item);
-            }
-            return result;
+            return (UndirectedGraph)FillByAdjacencyMatrix(result, adjacencyMatrix);
         }
         public override void Accept(IGraphVisitor visitor)
         {

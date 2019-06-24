@@ -13,6 +13,22 @@ namespace GRYLibrary.Miscellaneous.GraphOperations
     public abstract class Graph
     {
         public IList<Vertex> Vertices { get; private set; }
+
+        protected static Graph FillByAdjacencyMatrix(Graph grpah, double[,] adjacencyMatrix)
+        {
+            Tuple<IList<Edge>, IList<Vertex>> items = grpah.ParseAdjacencyMatrix(adjacencyMatrix);
+            foreach (Vertex item in items.Item2)
+            {
+                grpah._Vertices.Add(item);
+            }
+            foreach (Edge item in items.Item1)
+            {
+                grpah._Edges.Add(item);
+            }
+            grpah.SortVertices();
+            return grpah;
+        }
+
         protected ISet<Vertex> _Vertices = new HashSet<Vertex>();
         public IEnumerable<Edge> Edges { get { return this._Edges.ToList().AsReadOnly(); } }
         protected ISet<Edge> _Edges = new HashSet<Edge>();
@@ -101,8 +117,7 @@ namespace GRYLibrary.Miscellaneous.GraphOperations
             }
             this.SortVertices();
         }
-
-        private void SortVertices()
+        protected void SortVertices()
         {
             this.Vertices = this._Vertices.OrderBy(vertex => vertex.Name).ToList().AsReadOnly();
         }
@@ -223,7 +238,11 @@ namespace GRYLibrary.Miscellaneous.GraphOperations
                 return false;
             }
             Graph typedObj = obj as Graph;
-            return Utilities.TwoDimensionalArrayEquals(this.ToAdjacencyMatrix(), typedObj.ToAdjacencyMatrix()) && this.Vertices.SequenceEqual(typedObj.Vertices);
+            double[,] adjacencyMatrix1 = this.ToAdjacencyMatrix();
+            double[,] adjacencyMatrix2 = typedObj.ToAdjacencyMatrix();
+            bool arraysEquals = Utilities.TwoDimensionalArrayEquals(adjacencyMatrix1, adjacencyMatrix2);
+            bool verticesEquals = this.Vertices.SequenceEqual(typedObj.Vertices);
+            return arraysEquals &&verticesEquals;
         }
         public override int GetHashCode()
         {
