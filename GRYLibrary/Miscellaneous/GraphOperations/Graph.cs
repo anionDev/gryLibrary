@@ -12,7 +12,7 @@ namespace GRYLibrary.Miscellaneous.GraphOperations
     /// </remarks>
     public abstract class Graph
     {
-        public IEnumerable<Vertex> Vertices { get; private set; }
+        public IList<Vertex> Vertices { get; private set; }
         protected ISet<Vertex> _Vertices = new HashSet<Vertex>();
         public IEnumerable<Edge> Edges { get { return this._Edges.ToList().AsReadOnly(); } }
         protected ISet<Edge> _Edges = new HashSet<Edge>();
@@ -182,7 +182,7 @@ namespace GRYLibrary.Miscellaneous.GraphOperations
                 return false;
             }
             Graph typedObj = obj as Graph;
-            return Utilities.TwoDimensionalArrayEquals(this.ToAdjacencyMatrix(), typedObj.ToAdjacencyMatrix());
+            return Utilities.TwoDimensionalArrayEquals(this.ToAdjacencyMatrix(), typedObj.ToAdjacencyMatrix()) && this.Vertices.SequenceEqual(typedObj.Vertices);
         }
         public override int GetHashCode()
         {
