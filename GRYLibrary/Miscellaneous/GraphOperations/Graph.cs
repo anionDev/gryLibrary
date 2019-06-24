@@ -12,7 +12,7 @@ namespace GRYLibrary.Miscellaneous.GraphOperations
     /// </remarks>
     public abstract class Graph
     {
-        public IEnumerable<Vertex> Vertices { get { return this._Vertices.ToList().AsReadOnly(); } }
+        public IEnumerable<Vertex> Vertices { get; private set; }
         protected ISet<Vertex> _Vertices = new HashSet<Vertex>();
         public IEnumerable<Edge> Edges { get { return this._Edges.ToList().AsReadOnly(); } }
         protected ISet<Edge> _Edges = new HashSet<Edge>();
@@ -71,6 +71,7 @@ namespace GRYLibrary.Miscellaneous.GraphOperations
                 throw new Exception($"This graph does already have a vertex with the name {vertex.Name}.");
             }
             this._Vertices.Add(vertex);
+            this.SortVertices();
         }
         public void RemoveAllEdgesWithoutWeight()
         {
@@ -92,7 +93,14 @@ namespace GRYLibrary.Miscellaneous.GraphOperations
             {
                 this.RemoveEdge(edge);
             }
+            this.SortVertices();
         }
+
+        private void SortVertices()
+        {
+            this.Vertices = this._Vertices.OrderBy(vertex => vertex.Name).ToList().AsReadOnly();
+        }
+
         public bool ContainsSelfLoops()
         {
             foreach (Edge edge in this.Edges)
@@ -106,7 +114,7 @@ namespace GRYLibrary.Miscellaneous.GraphOperations
         }
         public double[,] ToAdjacencyMatrix()
         {
-            IList<Vertex> vertices = this._Vertices.ToList();
+            IList<Vertex> vertices = this.Vertices.ToList();
             int verticesCount = vertices.Count;
             double[,] result = new double[verticesCount, verticesCount];
             for (int i = 0; i < result.GetLength(0); i++)
@@ -162,7 +170,7 @@ namespace GRYLibrary.Miscellaneous.GraphOperations
         /// <remarks>
         /// This function ignores properties like <see cref="Graph.SelfLoopIsAllowed"/> or the name of the edges and vertices.
         /// </remarks>
-        public override bool Equals(object obj)//FIXME the return-method should not be dependent on the order of the edges and vertices in the internal properties of the graph.
+        public override bool Equals(object obj)
         {
             if (!this.GetType().Equals(obj.GetType()))
             {
