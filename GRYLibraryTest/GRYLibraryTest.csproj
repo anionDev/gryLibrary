@@ -60,6 +60,7 @@
     <Compile Include="Tests\FileSelectorTest.cs" />
     <Compile Include="Tests\GLogTest.cs" />
     <Compile Include="Tests\GraphTests\GraphTest.cs" />
+    <Compile Include="Tests\GraphTests\LargeGraphTests.cs" />
     <Compile Include="Tests\GraphTests\LoopTests.cs" />
     <Compile Include="Tests\NonPersistentInputHistoryListTest.cs" />
     <Compile Include="Tests\PlaylistTest.cs" />
