@@ -214,7 +214,20 @@ namespace GRYLibraryTest
             Assert.AreEqual(2, successorsOfv4.Count);
             Assert.IsTrue(new HashSet<Vertex>() { v3, v5 }.SetEquals(successorsOfv4));
         }
-
+        [TestMethod]
+        public void GraphTpAdjacencyMatrixTest()
+        {
+            DirectedGraph graph = null;
+            //TODO
+            double[,] adjacencyMatrix = new double[4, 4];
+            Assert.AreEqual(adjacencyMatrix, graph.ToAdjacencyMatrix());
+        }
+        public void AdjacencyMatrixToGraphTest()
+        {
+            double[,] adjacencyMatrix = new double[4, 4];
+            //TODO
+            Assert.AreEqual(adjacencyMatrix, DirectedGraph.CreateByAdjacencyMatrix(adjacencyMatrix));
+        }
     }
 
 }
