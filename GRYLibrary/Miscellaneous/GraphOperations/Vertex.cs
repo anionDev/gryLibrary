@@ -15,15 +15,15 @@ namespace GRYLibrary.Miscellaneous.GraphOperations
         {
             this.Name = name;
         }
-        public ISet<Vertex> GetSuccessors(Graph graph)
+        public ISet<Vertex> GetDirectSuccessors(Graph graph)
         {
-            return graph.Accept(new GetSuccessorsVisitor(this));
+            return graph.Accept(new GetDirectSuccessorsVisitor(this));
         }
-        private class GetSuccessorsVisitor : IGraphVisitor<ISet<Vertex>>
+        private class GetDirectSuccessorsVisitor : IGraphVisitor<ISet<Vertex>>
         {
             private readonly Vertex _Vertex;
 
-            public GetSuccessorsVisitor(Vertex vertex)
+            public GetDirectSuccessorsVisitor(Vertex vertex)
             {
                 this._Vertex = vertex;
             }
