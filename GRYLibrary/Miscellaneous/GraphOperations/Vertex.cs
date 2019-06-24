@@ -6,10 +6,10 @@ namespace GRYLibrary.Miscellaneous.GraphOperations
 {
     public class Vertex
     {
-        public string Name { get; set; } = string.Empty;
+        public string Name { get; set; }
         public IEnumerable<Edge> ConnectedEdges { get { return this._ConnectedEdges.ToList().AsReadOnly(); } }
         internal ISet<Edge> _ConnectedEdges = new HashSet<Edge>();
-        public Vertex(string name = "")
+        public Vertex(string name)
         {
             this.Name = name;
         }
@@ -74,7 +74,19 @@ namespace GRYLibrary.Miscellaneous.GraphOperations
                     throw new Exception($"The given {nameof(Vertex)} does not belong to the given {nameof(Graph)}.");
                 }
             }
-
+        }
+        public override bool Equals(object obj)
+        {
+            Vertex typedObject = obj as Vertex;
+            if (typedObject == null)
+            {
+                return false;
+            }
+            return this.Name.Equals(typedObject.Name);
+        }
+        public override int GetHashCode()
+        {
+            return this.Name.GetHashCode();
         }
     }
 }

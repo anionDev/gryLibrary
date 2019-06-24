@@ -44,9 +44,13 @@ namespace GRYLibrary.Miscellaneous.GraphOperations
             {
                 throw new Exception($"Self-loops are not allowed. Change the value of the {nameof(this.SelfLoopIsAllowed)}-property to allow this.");
             }
+            if (this.Edges.Where(existingEdge => existingEdge.Name.Equals(edge.Name)).Count() > 0)
+            {
+                throw new Exception($"This graph does already have an edge with the name {edge.Name}.");
+            }
             if (this.TryGetConnectionBetween(edge.Source, edge.Target, out _))
             {
-                throw new Exception("This graph does already have a connection which connects this vertices.");
+                throw new Exception($"This graph does already have an edge which connects {edge.Source.Name} and {edge.Target.Name}.");
             }
             this._Vertices.Add(edge.Source);
             this._Vertices.Add(edge.Target);
@@ -62,6 +66,10 @@ namespace GRYLibrary.Miscellaneous.GraphOperations
         }
         public void AddVertex(Vertex vertex)
         {
+            if (this.Vertices.Contains(vertex))
+            {
+                throw new Exception($"This graph does already have a vertex with the name {vertex.Name}.");
+            }
             this._Vertices.Add(vertex);
         }
         public void RemoveAllEdgesWithoutWeight()
@@ -129,7 +137,7 @@ namespace GRYLibrary.Miscellaneous.GraphOperations
             IList<Vertex> vertices = new List<Vertex>();
             for (int i = 0; i < adjacencyMatrix.GetLength(0); i++)
             {
-                Vertex newVertex = new Vertex("Vertex" + (i + 1).ToString());
+                Vertex newVertex = new Vertex("Vertex_" + (i + 1).ToString());
                 vertices.Add(newVertex);
             }
             IList<Edge> edges = new List<Edge>();
@@ -137,7 +145,7 @@ namespace GRYLibrary.Miscellaneous.GraphOperations
             {
                 for (int j = 0; j < adjacencyMatrix.GetLength(1); j++)
                 {
-                    Edge newEdge = new Edge(vertices[i], vertices[j]);
+                    Edge newEdge = new Edge(vertices[i], vertices[j], "Edge_" + (i + 1).ToString() + "_" + (j + 1).ToString());
                     newEdge.Weight = adjacencyMatrix[i, j];
                     edges.Add(newEdge);
                 }
@@ -148,7 +156,13 @@ namespace GRYLibrary.Miscellaneous.GraphOperations
         {
             throw new NotImplementedException();
         }
-        public override bool Equals(object obj)
+        /// <returns>
+        /// Returns true if and only if the adjacency-matrices of this and <paramref name="obj"/> are equal.
+        /// </returns>
+        /// <remarks>
+        /// This function ignores properties like <see cref="Graph.SelfLoopIsAllowed"/> or the name of the edges and vertices.
+        /// </remarks>
+        public override bool Equals(object obj)//FIXME the return-method should not be dependent on the order of the edges and vertices in the internal properties of the graph.
         {
             if (!this.GetType().Equals(obj.GetType()))
             {

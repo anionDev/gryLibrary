@@ -22,7 +22,7 @@ namespace GRYLibraryTest
         {
             Vertex v1 = new Vertex("v");
             Vertex v2 = new Vertex("v");
-            Assert.AreNotEqual(v1, v2);
+            Assert.AreEqual(v1, v2);
         }
         [TestMethod]
         public void SimpleEdgeTest()
@@ -34,15 +34,24 @@ namespace GRYLibraryTest
             Assert.AreEqual(v2, e1.Target);
             Assert.AreEqual("e", e1.Name);
             Assert.AreEqual(1.5, e1.Weight);
+            Edge e2 = new Edge(v1, v2, "e", 1.5);
+            Assert.AreEqual(e1, e2);
+            Edge e3 = new Edge(v1, v2, "e", 1.6);
+            Assert.AreNotEqual(e1, e3);
+            Edge e4 = new Edge(v2, v1, "e", 1.5);
+            Assert.AreEqual(e1, e4);
+            Edge e5 = new Edge(v1, new Vertex("v3"), "e", 1.5);
+            Assert.AreNotEqual(e1, e5);
+
         }
         [TestMethod]
         public void EdgeEquals()
         {
             Vertex v1 = new Vertex("v1");
             Vertex v2 = new Vertex("v2");
-            Edge e1 = new Edge(v1, v2);
-            Edge e21 = new Edge(v1, v2);
-            Edge e22 = new Edge(v2, v1);
+            Edge e1 = new Edge(v1, v2, "e1");
+            Edge e21 = new Edge(v1, v2, "e2");
+            Edge e22 = new Edge(v2, v1, "e3");
             Assert.AreEqual(e1, e1);
             Assert.AreNotEqual(e1, e21);
             Assert.AreNotEqual(e1, e22);
@@ -84,10 +93,10 @@ namespace GRYLibraryTest
             Assert.IsTrue(g.TryGetConnectionBetween(v1, v2, out e1Reloaded));
             Assert.AreEqual(e1, e1Reloaded);
 
-            Edge e42 = new Edge(v4, v5);
+            Edge e45 = new Edge(v4, v5, "e45");
             try
             {
-                g.AddEdge(e42);//edge this this source and target does already exist
+                g.AddEdge(e45);//edge this this source and target does already exist
                 Assert.Fail();
             }
             catch
@@ -95,7 +104,7 @@ namespace GRYLibraryTest
             }
 
             //test TryGetConnectionBetween with selfloop:
-            Edge eSelfLoop = new Edge(v1, v1);
+            Edge eSelfLoop = new Edge(v1, v1, "e11");
             g.AddEdge(eSelfLoop);
             Edge eSelfLoopReloaded;
             g.TryGetConnectionBetween(v1, v1, out eSelfLoopReloaded);
@@ -124,7 +133,7 @@ namespace GRYLibraryTest
             Assert.AreEqual(1, successorsOfv5.Count);
             Assert.AreEqual(v1, successorsOfv5.First());
 
-            Edge e43 = new Edge(v4, v3);
+            Edge e43 = new Edge(v4, v3, "e43");
             g.AddEdge(e43);
             ISet<Vertex> successorsOfv4 = v4.GetDirectSuccessors(g);
             Assert.AreEqual(2, successorsOfv4.Count);
@@ -172,10 +181,10 @@ namespace GRYLibraryTest
 
             Assert.AreEqual(e1Reloaded1, e1Reloaded2);
 
-            Edge e42 = new Edge(v5, v4);
+            Edge e54 = new Edge(v5, v4, "e54");
             try
             {
-                g.AddEdge(e42);//edge this this source and target does already exist
+                g.AddEdge(e54);//edge this this source and target does already exist
                 Assert.Fail();
             }
             catch
@@ -183,7 +192,7 @@ namespace GRYLibraryTest
             }
 
             //test TryGetConnectionBetween with selfloop:
-            Edge eSelfLoop = new Edge(v1, v1);
+            Edge eSelfLoop = new Edge(v1, v1, "e11");
             g.AddEdge(eSelfLoop);
             Edge eSelfLoopReloaded;
             g.TryGetConnectionBetween(v1, v1, out eSelfLoopReloaded);
