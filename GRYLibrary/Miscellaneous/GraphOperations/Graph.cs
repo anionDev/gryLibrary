@@ -19,6 +19,10 @@ namespace GRYLibrary.Miscellaneous.GraphOperations
 
         public abstract void Accept(IGraphVisitor visitor);
         public abstract T Accept<T>(IGraphVisitor<T> visitor);
+        public Graph()
+        {
+            this.SortVertices();
+        }
         public bool SelfLoopIsAllowed
         {
             get
