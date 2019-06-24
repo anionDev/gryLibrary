@@ -58,6 +58,7 @@ namespace GRYLibrary.Miscellaneous.GraphOperations
             }
             this._Vertices.Add(edge.Source);
             this._Vertices.Add(edge.Target);
+            this.SortVertices();
             this._Edges.Add(edge);
             edge.Source._ConnectedEdges.Add(edge);
             edge.Target._ConnectedEdges.Add(edge);
