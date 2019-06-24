@@ -1,6 +1,5 @@
 ﻿using GRYLibrary.Miscellaneous;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Collections.Generic;
 using static GRYLibrary.Miscellaneous.TableGenerator;
 
 namespace GRYLibraryTest

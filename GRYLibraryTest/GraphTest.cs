@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using GRYLibrary;
 using GRYLibrary.Miscellaneous.GraphOperations;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -217,19 +215,57 @@ namespace GRYLibraryTest
         [TestMethod]
         public void GraphTpAdjacencyMatrixTest()
         {
-            DirectedGraph graph = null;
-            //TODO
-            double[,] adjacencyMatrix = new double[4, 4];
-            //TODO
-            Assert.AreEqual(adjacencyMatrix, graph.ToAdjacencyMatrix());
+            DirectedGraph graph = this.GetTestGraph();
+            double[,] adjacencyMatrix = this.GetTestAdjacencyMatrix();
+            double[,] toAdjacencyMatrixResult = graph.ToAdjacencyMatrix();
+            Assert.IsTrue(Utilities.TwoDimensionalArrayEquals(adjacencyMatrix, toAdjacencyMatrixResult), $"Expected {Utilities.TwoDimensionalArrayToString(adjacencyMatrix)} but was {Utilities.TwoDimensionalArrayToString(toAdjacencyMatrixResult)}");
         }
+
+
+
+        [TestMethod]
         public void AdjacencyMatrixToGraphTest()
         {
-            DirectedGraph graph = null;
-            //TODO
+            DirectedGraph graph = this.GetTestGraph();
+            DirectedGraph createByAdjacencyMatrix = DirectedGraph.CreateByAdjacencyMatrix(this.GetTestAdjacencyMatrix());
+            Assert.IsTrue(graph.Equals(createByAdjacencyMatrix), $"Expected <{Utilities.TwoDimensionalArrayToString(graph.ToAdjacencyMatrix())}> but was <{Utilities.TwoDimensionalArrayToString(createByAdjacencyMatrix.ToAdjacencyMatrix())}>");
+        }
+        private double[,] GetTestAdjacencyMatrix()
+        {
             double[,] adjacencyMatrix = new double[4, 4];
-            //TODO
-            Assert.AreEqual(graph, DirectedGraph.CreateByAdjacencyMatrix(adjacencyMatrix));
+            adjacencyMatrix[0, 0] = 1;
+            adjacencyMatrix[0, 1] = 0.8;
+            adjacencyMatrix[0, 2] = 0;
+            adjacencyMatrix[0, 3] = 0;
+            adjacencyMatrix[1, 0] = 0;
+            adjacencyMatrix[1, 1] = 0;
+            adjacencyMatrix[1, 2] = 1;
+            adjacencyMatrix[1, 3] = 1;
+            adjacencyMatrix[2, 0] = 0.2;
+            adjacencyMatrix[2, 1] = 0;
+            adjacencyMatrix[2, 2] = 0;
+            adjacencyMatrix[2, 3] = 1;
+            adjacencyMatrix[3, 0] = 0;
+            adjacencyMatrix[3, 1] = 0;
+            adjacencyMatrix[3, 2] = 0;
+            adjacencyMatrix[3, 3] = 0;
+            return adjacencyMatrix;
+        }
+
+        private DirectedGraph GetTestGraph()
+        {
+            DirectedGraph graph = new DirectedGraph();
+            Vertex v0 = new Vertex("v0");
+            Vertex v1 = new Vertex("v1");
+            Vertex v2 = new Vertex("v2");
+            Vertex v3 = new Vertex("v3");
+            graph.AddEdge(new Edge(v0, v0, "e1"));
+            graph.AddEdge(new Edge(v0, v1, "e2", 0.8));
+            graph.AddEdge(new Edge(v1, v2, "e3"));
+            graph.AddEdge(new Edge(v1, v3, "e4"));
+            graph.AddEdge(new Edge(v2, v0, "e5", 0.2));
+            graph.AddEdge(new Edge(v2, v3, "e6"));
+            return graph;
         }
     }
 

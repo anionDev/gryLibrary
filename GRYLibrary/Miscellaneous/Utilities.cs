@@ -213,6 +213,15 @@ namespace GRYLibrary
                 DeleteContentOfFolder(folder);
             }
         }
+        public static string TwoDimensionalArrayToString<T>(T[,] array)
+        {
+            return string.Join(",", array.OfType<T>().Select((value, index) => new { value, index }).GroupBy(x => x.index / array.GetLength(1)).Select(x => $"{{{string.Join(",", x.Select(y => y.value))}}}"));
+        }
+
+        public static bool TwoDimensionalArrayEquals<T>(T[,] array1, T[,] array2)
+        {
+            return array1.Rank == array2.Rank && Enumerable.Range(0, array1.Rank).All(dimension => array1.GetLength(dimension) == array2.GetLength(dimension)) && array1.Cast<T>().SequenceEqual(array2.Cast<T>());
+        }
 
         public static void DeleteContentOfFolder(string folder)
         {

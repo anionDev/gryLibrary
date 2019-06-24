@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace GRYLibrary.Miscellaneous.GraphOperations
 {
@@ -148,6 +146,28 @@ namespace GRYLibrary.Miscellaneous.GraphOperations
         }
         public ISet<Cycle> GetCycles()
         {
+            throw new NotImplementedException();
+        }
+        public override bool Equals(object obj)
+        {
+            if (!this.GetType().Equals(obj.GetType()))
+            {
+                return false;
+            }
+            Graph typedObj = obj as Graph;
+            return Utilities.TwoDimensionalArrayEquals(this.ToAdjacencyMatrix(), typedObj.ToAdjacencyMatrix());
+        }
+        public override int GetHashCode()
+        {
+            return this.Vertices.Count().GetHashCode();
+        }
+        public bool TopologicalEquals(Graph otherGraph)
+        {
+            if (!this.GetType().Equals(otherGraph.GetType()))
+            {
+                throw new Exception($"Graphs of types {this.GetType().FullName} and {otherGraph.GetType().FullName} are not comparable.");
+            }
+            return false;
             throw new NotImplementedException();
         }
     }
