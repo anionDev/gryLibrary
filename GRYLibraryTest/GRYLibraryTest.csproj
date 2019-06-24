@@ -59,6 +59,7 @@
     <Compile Include="ExtendedColorTest.cs" />
     <Compile Include="FileSelectorTest.cs" />
     <Compile Include="GLogTest.cs" />
+    <Compile Include="GraphTest.cs" />
     <Compile Include="NonPersistentInputHistoryListTest.cs" />
     <Compile Include="PlaylistTest.cs" />
     <Compile Include="PropertyTest.cs" />
