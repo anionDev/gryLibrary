@@ -31,7 +31,7 @@ namespace GRYLibrary.Miscellaneous.GraphOperations
             }
             set
             {
-                if (!value && this.ContainsSelfLoops())
+                if (!value && this.ContainsOneOrMoreSelfLoops())
                 {
                     throw new Exception("Setting ContainsSelfLoops to false is not possible while the graph contains self-loops");
                 }
@@ -106,7 +106,7 @@ namespace GRYLibrary.Miscellaneous.GraphOperations
             this.Vertices = this._Vertices.OrderBy(vertex => vertex.Name).ToList().AsReadOnly();
         }
 
-        public bool ContainsSelfLoops()
+        public bool ContainsOneOrMoreSelfLoops()
         {
             foreach (Edge edge in this.Edges)
             {
@@ -116,6 +116,10 @@ namespace GRYLibrary.Miscellaneous.GraphOperations
                 }
             }
             return false;
+        }
+        public bool ContainsOneOrMoreLoops()
+        {
+            throw new NotImplementedException();
         }
         public double[,] ToAdjacencyMatrix()
         {
