@@ -220,13 +220,16 @@ namespace GRYLibraryTest
             DirectedGraph graph = null;
             //TODO
             double[,] adjacencyMatrix = new double[4, 4];
+            //TODO
             Assert.AreEqual(adjacencyMatrix, graph.ToAdjacencyMatrix());
         }
         public void AdjacencyMatrixToGraphTest()
         {
+            DirectedGraph graph = null;
+            //TODO
             double[,] adjacencyMatrix = new double[4, 4];
             //TODO
-            Assert.AreEqual(adjacencyMatrix, DirectedGraph.CreateByAdjacencyMatrix(adjacencyMatrix));
+            Assert.AreEqual(graph, DirectedGraph.CreateByAdjacencyMatrix(adjacencyMatrix));
         }
     }
 
