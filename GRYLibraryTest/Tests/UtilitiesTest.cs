@@ -1,7 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Linq;
 
-namespace GRYLibraryTest
+namespace GRYLibraryTest.Tests
 {
     [TestClass]
     public class UtilitiesTest

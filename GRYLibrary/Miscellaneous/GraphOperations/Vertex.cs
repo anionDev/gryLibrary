@@ -17,6 +17,7 @@ namespace GRYLibrary.Miscellaneous.GraphOperations
         {
             return graph.Accept(new GetDirectSuccessorsVisitor(this));
         }
+        public int Degree { get { return this._ConnectedEdges.Count; } }
         private class GetDirectSuccessorsVisitor : IGraphVisitor<ISet<Vertex>>
         {
             private readonly Vertex _Vertex;

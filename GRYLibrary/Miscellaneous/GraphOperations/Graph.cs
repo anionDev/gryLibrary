@@ -117,7 +117,7 @@ namespace GRYLibrary.Miscellaneous.GraphOperations
             }
             return false;
         }
-        public bool ContainsOneOrMoreLoops()
+        public bool ContainsOneOrMoreCycles()
         {
             throw new NotImplementedException();
         }
@@ -192,14 +192,58 @@ namespace GRYLibrary.Miscellaneous.GraphOperations
         {
             return this.Vertices.Count().GetHashCode();
         }
-        public bool TopologicalEquals(Graph otherGraph)
+        public bool IsSubgraph(Graph subgraph, out IDictionary<Vertex, Vertex> mappingFromSubgraphToThisGraph)
+        {
+            throw new NotImplementedException();
+        }
+        public bool IsSubgraphOf(Graph graph, out IDictionary<Vertex, Vertex> mappingFromgraphToThisGraph)
+        {
+            IDictionary<Vertex, Vertex> mappingFromSubgraphToThisGraph;
+            bool result = graph.IsSubgraph(this, out mappingFromSubgraphToThisGraph);
+            if (result)
+            {
+                mappingFromgraphToThisGraph = mappingFromSubgraphToThisGraph.ToDictionary(keyValuePair => keyValuePair.Value, keyValuePair => keyValuePair.Key);
+            }
+            else
+            {
+                mappingFromgraphToThisGraph = null;
+            }
+            return result;
+        }
+        public bool IsIsomorphic(Graph otherGraph, out IDictionary<Vertex, Vertex> bijectionFromOtherGraphToThisGraph)
         {
             if (!this.GetType().Equals(otherGraph.GetType()))
             {
                 throw new Exception($"Graphs of types {this.GetType().FullName} and {otherGraph.GetType().FullName} are not comparable.");
             }
-            return false;
+            if (this._Vertices.Count != otherGraph._Vertices.Count || this.Edges.Count() != otherGraph.Edges.Count())
+            {
+                bijectionFromOtherGraphToThisGraph = null;
+                return false;
+            }
             throw new NotImplementedException();
+        }
+        public bool HasHamiltonianCycle(out Cycle result)
+        {
+            //TODO implement an algorithm which is more performant
+            foreach (Cycle cycle in this.GetCycles())
+            {
+                if (cycle.Edges.Count == this._Vertices.Count)
+                {
+                    result = cycle;
+                    return true;
+                }
+            }
+            result = null;
+            return false;
+        }
+        public int GetMinimumDegree()
+        {
+            return this.Vertices.Max(vertex => vertex.Degree);
+        }
+        public int GetMaximumDegree()
+        {
+            return this.Vertices.Min(vertex => vertex.Degree);
         }
     }
     public interface IGraphVisitor

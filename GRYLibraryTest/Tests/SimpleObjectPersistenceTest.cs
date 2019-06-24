@@ -5,7 +5,7 @@ using System.Linq;
 using System.Numerics;
 using System.Text;
 
-namespace GRYLibraryTest
+namespace GRYLibraryTest.Tests
 {
     [TestClass]
     public class SimpleObjectPersistenceTest

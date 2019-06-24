@@ -4,7 +4,7 @@ using GRYLibrary;
 using GRYLibrary.Miscellaneous.GraphOperations;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace GRYLibraryTest
+namespace GRYLibraryTest.Tests.GraphTests
 {
     [TestClass]
     public class GraphTest
@@ -111,6 +111,8 @@ namespace GRYLibraryTest
             Assert.AreEqual(eSelfLoop, eSelfLoopReloaded);
             Assert.AreEqual(5, g.Vertices.Count());
             Assert.AreEqual(6, g.Edges.Count());
+            Assert.AreEqual(2, g.GetMinimumDegree());
+            Assert.AreEqual(3, g.GetMaximumDegree());
 
             try
             {

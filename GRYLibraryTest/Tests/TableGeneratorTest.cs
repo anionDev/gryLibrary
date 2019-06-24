@@ -2,7 +2,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using static GRYLibrary.Miscellaneous.TableGenerator;
 
-namespace GRYLibraryTest
+namespace GRYLibraryTest.Tests
 {
     [TestClass]
     public class TableGeneratorTest

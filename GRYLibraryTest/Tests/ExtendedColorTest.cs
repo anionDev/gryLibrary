@@ -2,7 +2,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Windows.Media;
 
-namespace GRYLibraryTest
+namespace GRYLibraryTest.Tests
 {
     [TestClass]
    public class ExtendedColorTest

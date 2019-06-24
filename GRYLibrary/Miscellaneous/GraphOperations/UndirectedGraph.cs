@@ -28,7 +28,10 @@ namespace GRYLibrary.Miscellaneous.GraphOperations
         {
             return visitor.Handle(this);
         }
-
+        public bool IsConnected()
+        {
+            throw new NotImplementedException();
+        }
 
         public override bool TryGetConnectionBetween(Vertex vertex1, Vertex vertex2, out Edge connection)
         {
