@@ -8,6 +8,9 @@ using System.Threading.Tasks;
 
 namespace GRYLibraryTest.Tests.GraphTests
 {
+    /// <summary>
+    /// Contains complex graph tests
+    /// </summary>
     [TestClass]
     public class LoopTests
     {
@@ -18,10 +21,21 @@ namespace GRYLibraryTest.Tests.GraphTests
             Assert.IsTrue(graph.ContainsOneOrMoreCycles());
             Assert.IsFalse(graph.ContainsOneOrMoreSelfLoops());
             Assert.IsTrue(graph.HasHamiltonianCycle(out _));
-            ISet<Cycle> cycles = graph.GetCycles();
+            ISet<Cycle> cycles = graph.GetAllCycles();
             Assert.AreEqual(1, cycles.Count);
         }
-        private DirectedGraph GetTestGraphWithSimpleLoop()
+        [TestMethod]
+        public void IsConnectedTest1()
+        {
+            Assert.IsTrue(this.GetTestGraphWithSimpleLoop().ToUndirectedGraph().IsConnected());
+        }
+            /// <returns>
+            /// Returns a graph with the following structure:
+            /// v0->v1->v2->v3->v4->v5
+            /// ^                   |
+            /// └-------------------┘
+            /// </returns>
+            private DirectedGraph GetTestGraphWithSimpleLoop()
         {
             DirectedGraph graph = new DirectedGraph();
             Vertex v0 = new Vertex("v0");

@@ -4,6 +4,7 @@ using System.Linq;
 
 namespace GRYLibrary.Miscellaneous.GraphOperations
 {
+    [Serializable]
     public class Vertex
     {
         public string Name { get; set; }

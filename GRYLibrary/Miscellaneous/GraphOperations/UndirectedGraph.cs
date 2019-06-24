@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace GRYLibrary.Miscellaneous.GraphOperations
 {
@@ -28,9 +29,36 @@ namespace GRYLibrary.Miscellaneous.GraphOperations
         {
             return visitor.Handle(this);
         }
+        
         public bool IsConnected()
         {
-            throw new NotImplementedException();
+            if (this._Vertices.Count == 0)
+            {
+                throw new Exception("No vertices available.");
+            }
+            Vertex startVertex = this._Vertices.First();
+            Dictionary<Vertex, bool> visited = new Dictionary<Vertex, bool>();
+            foreach (Vertex vertex in this._Vertices)
+            {
+                visited.Add(vertex, false);
+            }
+            List<Vertex> nextOnes = new List<Vertex>();
+            nextOnes.Add(startVertex);
+            visited[startVertex] = true;
+            while (nextOnes.Count != 0)
+            {
+                List<Vertex> nextNextOnes = new List<Vertex>();
+                foreach (Vertex nextOne in nextOnes)
+                {
+                    if (!visited[nextOne])
+                    {
+                        visited[nextOne] = true;
+                        nextNextOnes.AddRange(nextOne.GetDirectSuccessors(this).Where(s => !visited[s]).ToList());
+                    }
+                }
+                nextOnes = nextNextOnes;
+            }
+            return visited.ContainsValue(false);
         }
 
         public override bool TryGetConnectionBetween(Vertex vertex1, Vertex vertex2, out Edge connection)

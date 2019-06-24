@@ -119,7 +119,8 @@ namespace GRYLibrary.Miscellaneous.GraphOperations
         }
         public bool ContainsOneOrMoreCycles()
         {
-            throw new NotImplementedException();
+            //TODO implement an algorithm which is more performant
+            return GetAllCycles().Count > 0;
         }
         public double[,] ToAdjacencyMatrix()
         {
@@ -169,8 +170,12 @@ namespace GRYLibrary.Miscellaneous.GraphOperations
             }
             return new Tuple<IList<Edge>, IList<Vertex>>(edges, vertices);
         }
-        public ISet<Cycle> GetCycles()
+        public ISet<Cycle> GetAllCycles()
         {
+            if (this._Edges.Count == 0)
+            {
+                return new HashSet<Cycle>();
+            }
             throw new NotImplementedException();
         }
         /// <returns>
@@ -226,7 +231,7 @@ namespace GRYLibrary.Miscellaneous.GraphOperations
         public bool HasHamiltonianCycle(out Cycle result)
         {
             //TODO implement an algorithm which is more performant
-            foreach (Cycle cycle in this.GetCycles())
+            foreach (Cycle cycle in this.GetAllCycles())
             {
                 if (cycle.Edges.Count == this._Vertices.Count)
                 {
@@ -239,11 +244,11 @@ namespace GRYLibrary.Miscellaneous.GraphOperations
         }
         public int GetMinimumDegree()
         {
-            return this.Vertices.Max(vertex => vertex.Degree);
+            return this.Vertices.Min(vertex => vertex.Degree);
         }
         public int GetMaximumDegree()
         {
-            return this.Vertices.Min(vertex => vertex.Degree);
+            return this.Vertices.Max(vertex => vertex.Degree);
         }
     }
     public interface IGraphVisitor

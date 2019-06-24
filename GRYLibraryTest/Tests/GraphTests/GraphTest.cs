@@ -6,6 +6,9 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace GRYLibraryTest.Tests.GraphTests
 {
+    /// <summary>
+    /// Contains simple graph tests
+    /// </summary>
     [TestClass]
     public class GraphTest
     {

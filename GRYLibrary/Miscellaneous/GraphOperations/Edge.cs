@@ -1,5 +1,8 @@
-﻿namespace GRYLibrary.Miscellaneous.GraphOperations
+﻿using System;
+
+namespace GRYLibrary.Miscellaneous.GraphOperations
 {
+    [Serializable]
     public class Edge
     {
         public string Name { get; set; }

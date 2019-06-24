@@ -29,7 +29,20 @@ namespace GRYLibrary.Miscellaneous.GraphOperations
         {
             return visitor.Handle(this);
         }
-
+        
+        public UndirectedGraph ToUndirectedGraph()
+        {
+            UndirectedGraph result = new UndirectedGraph();
+            foreach (Vertex vertex in this._Vertices)
+            {
+                result.AddVertex(vertex.DeepClone());
+            }
+            foreach (Edge edge in this._Edges)
+            {
+                result.AddEdge(edge.DeepClone());
+            }
+            return result;
+        }
         public override bool TryGetConnectionBetween(Vertex vertex1, Vertex vertex2, out Edge connection)
         {
             foreach (Edge edge in this._Edges)

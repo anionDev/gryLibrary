@@ -44,7 +44,7 @@ namespace GRYLibraryTest.Tests
 
                 Assert.AreEqual(testObject, sop2.Object);
                 string expectedXMLValue = @"<?xml version=""1.0"" encoding=""utf-8""?>
-<SimpleObjectPersistenceTest.SerializeTestClass xmlns:i=""http://www.w3.org/2001/XMLSchema-instance"" xmlns=""http://schemas.datacontract.org/2004/07/GRYLibraryTest"">
+<SimpleObjectPersistenceTest.SerializeTestClass xmlns:i=""http://www.w3.org/2001/XMLSchema-instance"" xmlns=""http://schemas.datacontract.org/2004/07/GRYLibraryTest.Tests"">
   <ListTest xmlns:d2p1=""http://schemas.microsoft.com/2003/10/Serialization/Arrays"">
     <d2p1:boolean>true</d2p1:boolean>
     <d2p1:boolean>false</d2p1:boolean>
