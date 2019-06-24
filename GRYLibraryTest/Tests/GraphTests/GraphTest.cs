@@ -134,13 +134,13 @@ namespace GRYLibraryTest.Tests.GraphTests
             Assert.AreEqual(5, g.Vertices.Count());
             Assert.AreEqual(5, g.Edges.Count());
 
-            ISet<Vertex> successorsOfv5 = v5.GetDirectSuccessors(g);
+            ISet<Vertex> successorsOfv5 = g.GetDirectSuccessors(v5);
             Assert.AreEqual(1, successorsOfv5.Count);
             Assert.AreEqual(v1, successorsOfv5.First());
 
             Edge e43 = new Edge(v4, v3, "e43");
             g.AddEdge(e43);
-            ISet<Vertex> successorsOfv4 = v4.GetDirectSuccessors(g);
+            ISet<Vertex> successorsOfv4 = g.GetDirectSuccessors(v4);
             Assert.AreEqual(2, successorsOfv4.Count);
             Assert.IsTrue(new HashSet<Vertex>() { v3, v5 }.SetEquals(successorsOfv4));
         }
@@ -222,7 +222,7 @@ namespace GRYLibraryTest.Tests.GraphTests
             Assert.AreEqual(5, g.Vertices.Count());
             Assert.AreEqual(5, g.Edges.Count());
 
-            ISet<Vertex> successorsOfv4 = v4.GetDirectSuccessors(g);
+            ISet<Vertex> successorsOfv4 = g.GetDirectSuccessors(v4);
             Assert.AreEqual(2, successorsOfv4.Count);
             Assert.IsTrue(new HashSet<Vertex>() { v3, v5 }.SetEquals(successorsOfv4));
         }
@@ -234,8 +234,6 @@ namespace GRYLibraryTest.Tests.GraphTests
             double[,] toAdjacencyMatrixResult = graph.ToAdjacencyMatrix();
             Assert.IsTrue(Utilities.TwoDimensionalArrayEquals(adjacencyMatrix, toAdjacencyMatrixResult), $"Expected {Utilities.TwoDimensionalArrayToString(adjacencyMatrix)} but was {Utilities.TwoDimensionalArrayToString(toAdjacencyMatrixResult)}");
         }
-
-
 
         [TestMethod]
         public void AdjacencyMatrixToGraphTest()

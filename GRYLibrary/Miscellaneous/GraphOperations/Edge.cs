@@ -35,5 +35,9 @@ namespace GRYLibrary.Miscellaneous.GraphOperations
         {
             return this.Name.GetHashCode();
         }
+        public override string ToString()
+        {
+            return this.Name;
+        }
     }
 }

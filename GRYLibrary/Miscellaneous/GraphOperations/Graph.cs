@@ -23,6 +23,7 @@ namespace GRYLibrary.Miscellaneous.GraphOperations
         {
             this.SortVertices();
         }
+        public abstract ISet<Vertex> GetDirectSuccessors(Vertex vertex);
         public bool SelfLoopIsAllowed
         {
             get
@@ -120,8 +121,39 @@ namespace GRYLibrary.Miscellaneous.GraphOperations
         public bool ContainsOneOrMoreCycles()
         {
             //TODO implement an algorithm which is more performant
-            return GetAllCycles().Count > 0;
+            return this.GetAllCycles().Count > 0;
         }
+        public bool IsConnected()
+        {
+            if (this._Vertices.Count == 0)
+            {
+                throw new Exception("No vertices available.");
+            }
+            Vertex startVertex = this._Vertices.First();
+            Dictionary<Vertex, bool> visited = new Dictionary<Vertex, bool>();
+            foreach (Vertex vertex in this._Vertices)
+            {
+                visited.Add(vertex, false);
+            }
+            List<Vertex> nextOnes = new List<Vertex>();
+            nextOnes.Add(startVertex);
+            visited[startVertex] = true;
+            while (nextOnes.Count != 0)
+            {
+                List<Vertex> nextNextOnes = new List<Vertex>();
+                foreach (Vertex nextOne in nextOnes)
+                {
+                    if (!visited[nextOne])
+                    {
+                        visited[nextOne] = true;
+                        nextNextOnes.AddRange(this.GetDirectSuccessors(nextOne).Where(s => !visited[s]).ToList());
+                    }
+                }
+                nextOnes = nextNextOnes;
+            }
+            return visited.ContainsValue(false);
+        }
+
         public double[,] ToAdjacencyMatrix()
         {
             IList<Vertex> vertices = this.Vertices.ToList();

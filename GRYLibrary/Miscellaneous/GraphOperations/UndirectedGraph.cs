@@ -29,7 +29,7 @@ namespace GRYLibrary.Miscellaneous.GraphOperations
         {
             return visitor.Handle(this);
         }
-        
+
         public bool IsConnected()
         {
             if (this._Vertices.Count == 0)
@@ -53,14 +53,43 @@ namespace GRYLibrary.Miscellaneous.GraphOperations
                     if (!visited[nextOne])
                     {
                         visited[nextOne] = true;
-                        nextNextOnes.AddRange(nextOne.GetDirectSuccessors(this).Where(s => !visited[s]).ToList());
+                        nextNextOnes.AddRange(this.GetDirectSuccessors(nextOne).Where(s => !visited[s]).ToList());
                     }
                 }
                 nextOnes = nextNextOnes;
             }
             return visited.ContainsValue(false);
         }
-
+        /// <returns>Returns a set of all vertices which have a connection to this vertex in this graph.</returns>
+        /// <remarks>
+        /// If this graph contains a selfloop with this vertex then the result-set will also contain this vertex.
+        /// The runtime of this function is &lt;=O(|this.Edges|).
+        /// </remarks>
+        public override ISet<Vertex> GetDirectSuccessors(Vertex vertex)
+        {
+            HashSet<Vertex> result = new HashSet<Vertex>();
+            foreach (Edge edge in vertex.ConnectedEdges)
+            {
+                bool sourceIsThis = edge.Source.Equals(vertex);
+                bool targetIsThis = edge.Target.Equals(vertex);
+                if (sourceIsThis && targetIsThis)
+                {
+                    result.Add(vertex);
+                }
+                else
+                {
+                    if (sourceIsThis)
+                    {
+                        result.Add(edge.Target);
+                    }
+                    if (targetIsThis)
+                    {
+                        result.Add(edge.Source);
+                    }
+                }
+            }
+            return result;
+        }
         public override bool TryGetConnectionBetween(Vertex vertex1, Vertex vertex2, out Edge connection)
         {
             foreach (Edge edge in this._Edges)

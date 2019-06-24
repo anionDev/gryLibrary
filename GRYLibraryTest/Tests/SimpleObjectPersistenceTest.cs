@@ -76,7 +76,7 @@ namespace GRYLibraryTest.Tests
             }
         }
         #region TestClass
-        public class SerializeTestClass : SerializeTestBaseClass, SerializeTestInterface
+        public class SerializeTestClass : SerializeTestBaseClass, ISerializeTestInterface
         {
             public string TestStringFromInterface { get; set; }
             public double TestDouble { get; set; }
@@ -119,7 +119,7 @@ namespace GRYLibraryTest.Tests
                 return this.TestDouble.GetHashCode();
             }
         }
-        public interface SerializeTestInterface
+        public interface ISerializeTestInterface
         {
             string TestStringFromInterface { get; set; }
         }
