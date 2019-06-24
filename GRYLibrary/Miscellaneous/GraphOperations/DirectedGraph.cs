@@ -32,12 +32,12 @@ namespace GRYLibrary.Miscellaneous.GraphOperations
         {
             return visitor.Handle(this);
         }
-        
+
         public override bool TryGetConnectionBetween(Vertex vertex1, Vertex vertex2, out Edge connection)
         {
             foreach (Edge edge in this._Edges)
             {
-                if (vertex1.Equals(vertex2))
+                if (edge.Source.Equals(vertex1) && edge.Target.Equals(vertex2))
                 {
                     connection = edge;
                     return true;

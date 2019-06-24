@@ -46,17 +46,21 @@ namespace GRYLibrary.Miscellaneous.GraphOperations
             {
                 throw new Exception($"Self-loops are not allowed. Change the value of the {nameof(this.SelfLoopIsAllowed)}-property to allow this.");
             }
-            if (!this.TryGetConnectionBetween(edge.Source, edge.Target, out _))
+            if (this.TryGetConnectionBetween(edge.Source, edge.Target, out _))
             {
                 throw new Exception("This graph does already have a connection which connects this vertices.");
             }
             this._Vertices.Add(edge.Source);
             this._Vertices.Add(edge.Target);
             this._Edges.Add(edge);
+            edge.Source._ConnectedEdges.Add(edge);
+            edge.Target._ConnectedEdges.Add(edge);
         }
         public void RemoveEdge(Edge edge)
         {
             this._Edges.Remove(edge);
+            edge.Source._ConnectedEdges.Remove(edge);
+            edge.Target._ConnectedEdges.Remove(edge);
         }
         public void AddVertex(Vertex vertex)
         {

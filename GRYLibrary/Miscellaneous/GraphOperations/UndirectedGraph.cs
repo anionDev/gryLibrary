@@ -37,7 +37,7 @@ namespace GRYLibrary.Miscellaneous.GraphOperations
         {
             foreach (Edge edge in this._Edges)
             {
-                if (vertex1.Equals(vertex2) || vertex2.Equals(vertex1))
+                if ((edge.Source.Equals(vertex1) && edge.Target.Equals(vertex2)) || (edge.Target.Equals(vertex1) && edge.Source.Equals(vertex2)))
                 {
                     connection = edge;
                     return true;
