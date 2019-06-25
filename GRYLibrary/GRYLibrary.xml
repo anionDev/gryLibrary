@@ -4,6 +4,34 @@
         <name>GRYLibrary</name>
     </assembly>
     <members>
+        <member name="P:GRYLibrary.Miscellaneous.GraphOperations.Edge.Source">
+            <remarks>
+            In the context of <see cref="T:GRYLibrary.Miscellaneous.GraphOperations.UndirectedGraph"/>-objects it does not matter which <see cref="T:GRYLibrary.Miscellaneous.GraphOperations.Vertex"/>- object is marked as <see cref="P:GRYLibrary.Miscellaneous.GraphOperations.Edge.Source"/> and which is marked as <see cref="P:GRYLibrary.Miscellaneous.GraphOperations.Edge.Target"/>.
+            </remarks>
+        </member>
+        <member name="P:GRYLibrary.Miscellaneous.GraphOperations.Edge.Target">
+            <remarks>
+            In the context of <see cref="T:GRYLibrary.Miscellaneous.GraphOperations.UndirectedGraph"/>-objects it does not matter which <see cref="T:GRYLibrary.Miscellaneous.GraphOperations.Vertex"/>- object is marked as <see cref="P:GRYLibrary.Miscellaneous.GraphOperations.Edge.Source"/> and which is marked as <see cref="P:GRYLibrary.Miscellaneous.GraphOperations.Edge.Target"/>.
+            </remarks>
+        </member>
+        <member name="T:GRYLibrary.Miscellaneous.GraphOperations.Graph">
+            <summary>
+            Represents a graph
+            </summary>
+            <remarks>
+            This graph does not support two edges between the same two vertices.
+            </remarks>
+        </member>
+        <member name="M:GRYLibrary.Miscellaneous.GraphOperations.Graph.AddEdge(GRYLibrary.Miscellaneous.GraphOperations.Edge)">
+            <remarks>
+            This function will also add the vertices which are connected by <paramref name="edge"/> to the list of vertices of this graph.
+            </remarks>
+        </member>
+        <member name="M:GRYLibrary.Miscellaneous.GraphOperations.Graph.RemoveVertex(GRYLibrary.Miscellaneous.GraphOperations.Vertex)">
+            <remarks>
+            This function will also remove the edges which have a connection to this <paramref name="vertex"/> from the list of edges of this graph.
+            </remarks>
+        </member>
         <member name="T:GRYLibrary.Miscellaneous.Semaphore">
             <summary>
             Represents a threadsafe semaphore
@@ -93,11 +121,6 @@
             <param name="authenticationProtocol"></param>
             <param name="authentificationServerName">Represents the (LDAP-)server. The format must be with leading slashs, e. g. "//MyServer.com".</param>
             <returns>Returns true if and only if <paramref name="password"/> is the correct password for the user with the name <paramref name="username"/></returns>
-        </member>
-        <member name="M:GRYLibrary.Utilities.GuessEncodingOfByteArray(System.Byte[],System.Text.Encoding)">
-            <remarks>
-            This function comes with absolutely no warranty (as every function in the GRYLibrary). This function can not recognize the encoding every <paramref name="content"/> correctly. 
-            </remarks>
         </member>
         <member name="T:GRYLibrary.SimpleGenericXMLSerializer`1">
             <summary>

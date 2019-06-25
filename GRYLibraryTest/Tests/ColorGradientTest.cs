@@ -1,7 +1,7 @@
 ﻿using GRYLibrary;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace GRYLibraryTest
+namespace GRYLibraryTest.Tests
 {
     [TestClass]
     public class ColorGradientTest
