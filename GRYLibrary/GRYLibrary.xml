@@ -4,6 +4,19 @@
         <name>GRYLibrary</name>
     </assembly>
     <members>
+        <member name="M:GRYLibrary.Miscellaneous.GraphOperations.DirectedGraph.GetDirectSuccessors(GRYLibrary.Miscellaneous.GraphOperations.Vertex)">
+            <returns>Returns a set of all vertices which are a direct successor of this vertex in this graph.</returns>
+            <remarks>If this graph contains a selfloop with this vertex then the result-set will also contain this vertex.
+            The runtime of this function is &lt;=O(|this.Edges|).
+            </remarks>
+        </member>
+        <member name="M:GRYLibrary.Miscellaneous.GraphOperations.DirectedGraph.GetDirectPredecessors(GRYLibrary.Miscellaneous.GraphOperations.Vertex)">
+            <returns>Returns a set of all vertices which are a direct predecessor of this vertex in this graph.</returns>
+            <remarks>
+            If this graph contains a selfloop with this vertex then the result-set will also contain this vertex.
+            The runtime of this function is &lt;=O(|this.Edges|).
+            </remarks>
+        </member>
         <member name="P:GRYLibrary.Miscellaneous.GraphOperations.Edge.Source">
             <remarks>
             In the context of <see cref="T:GRYLibrary.Miscellaneous.GraphOperations.UndirectedGraph"/>-objects it does not matter which <see cref="T:GRYLibrary.Miscellaneous.GraphOperations.Vertex"/>- object is marked as <see cref="P:GRYLibrary.Miscellaneous.GraphOperations.Edge.Source"/> and which is marked as <see cref="P:GRYLibrary.Miscellaneous.GraphOperations.Edge.Target"/>.
@@ -30,6 +43,21 @@
         <member name="M:GRYLibrary.Miscellaneous.GraphOperations.Graph.RemoveVertex(GRYLibrary.Miscellaneous.GraphOperations.Vertex)">
             <remarks>
             This function will also remove the edges which have a connection to this <paramref name="vertex"/> from the list of edges of this graph.
+            </remarks>
+        </member>
+        <member name="M:GRYLibrary.Miscellaneous.GraphOperations.Graph.Equals(System.Object)">
+            <returns>
+            Returns true if and only if the adjacency-matrices of this and <paramref name="obj"/> are equal.
+            </returns>
+            <remarks>
+            This function ignores properties like <see cref="P:GRYLibrary.Miscellaneous.GraphOperations.Graph.SelfLoopIsAllowed"/> or the name of the edges and vertices.
+            </remarks>
+        </member>
+        <member name="M:GRYLibrary.Miscellaneous.GraphOperations.UndirectedGraph.GetDirectSuccessors(GRYLibrary.Miscellaneous.GraphOperations.Vertex)">
+            <returns>Returns a set of all vertices which have a connection to this vertex in this graph.</returns>
+            <remarks>
+            If this graph contains a selfloop with this vertex then the result-set will also contain this vertex.
+            The runtime of this function is &lt;=O(|this.Edges|).
             </remarks>
         </member>
         <member name="T:GRYLibrary.Miscellaneous.Semaphore">
