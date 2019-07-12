@@ -17,6 +17,7 @@ using System.DirectoryServices;
 using static GRYLibrary.Miscellaneous.TableGenerator;
 using System.Numerics;
 using System.Globalization;
+using System.Xml;
 
 namespace GRYLibrary
 {
@@ -528,7 +529,7 @@ namespace GRYLibrary
         }
         public static SimpleObjectPersistence<T> Persist<T>(this T @object, string file, Encoding encoding) where T : new()
         {
-            return new SimpleObjectPersistence<T>(file, encoding, @object);
+            return new SimpleObjectPersistence<T>(file, @object, new XmlWriterSettings() { Indent = true, Encoding = encoding });
         }
         public static SimpleObjectPersistence<T> Load<T>(this string file) where T : new()
         {
