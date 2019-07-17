@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Numerics;
 using System.Text;
 
@@ -11,7 +12,7 @@ namespace GRYLibrary.Miscellaneous
         public string DataAsHexString { get; }
         public ByteArray(byte[] value)
         {
-            this.Data = value;
+            this.Data = value ?? throw new Exception("No data for byte-array available.");
             this.DataAsHexString = Utilities.ByteArrayToHexString(this.Data);
         }
         public ByteArray CreateByHexString(string value)
@@ -30,11 +31,11 @@ namespace GRYLibrary.Miscellaneous
         {
             return new ByteArray(encoding.GetBytes(value));
         }
-        public string DataAsString()
+        public string DecodeToString()
         {
-            return this.DataAsString(DefaultEncoding);
+            return this.DecodeToString(DefaultEncoding);
         }
-        public string DataAsString(Encoding encoding)
+        public string DecodeToString(Encoding encoding)
         {
             return encoding.GetString(this.Data);
         }
@@ -58,6 +59,25 @@ namespace GRYLibrary.Miscellaneous
         public override int GetHashCode()
         {
             return this.Data.GetHashCode();
+        }
+        public bool StartsWith(ByteArray value)
+        {
+            if (value.Data.LongLength > this.Data.LongLength)
+            {
+                return false;
+            }
+            for (long i = 0; i < value.Data.LongLength; i++)
+            {
+                if (this.Data[i] != value.Data[i])
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+        public bool Contains(ByteArray value)
+        {
+          return !this.Data.Except(value.Data).Any(); 
         }
     }
 }
