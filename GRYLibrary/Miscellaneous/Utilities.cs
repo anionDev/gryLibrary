@@ -950,5 +950,12 @@ namespace GRYLibrary
             array2.CopyTo(result, array1.Length);
             return result;
         }
+        public static void Assert(bool condition, string message = "")
+        {
+            if (!condition)
+            {
+                throw new Exception("Assertion failed. Condition is false." + (string.IsNullOrWhiteSpace(message) ? string.Empty : " " + message));
+            }
+        }
     }
 }
