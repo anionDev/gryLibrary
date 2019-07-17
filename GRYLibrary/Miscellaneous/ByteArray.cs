@@ -77,7 +77,11 @@ namespace GRYLibrary.Miscellaneous
         }
         public bool Contains(ByteArray value)
         {
-          return !this.Data.Except(value.Data).Any(); 
+            if (value.Data.LongLength > this.Data.LongLength)
+            {
+                return false;
+            }
+            return Encoding.ASCII.GetString(this.Data).Contains(Encoding.ASCII.GetString(value.Data));
         }
     }
 }
