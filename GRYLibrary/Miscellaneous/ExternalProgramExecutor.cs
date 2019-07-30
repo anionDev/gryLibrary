@@ -50,6 +50,11 @@ namespace GRYLibrary
         /// </returns>
         public int StartConsoleApplicationInCurrentConsoleWindow()
         {
+            if (this.ExecutionState != ExecutionState.NotStarted)
+            {
+                throw new InvalidOperationException("This process was already started");
+            }
+            this.ExecutionState = ExecutionState.Running;
             string originalConsoleTitle = Console.Title;
             Process process = null;
             try
@@ -98,7 +103,6 @@ namespace GRYLibrary
                 process.Start();
                 process.BeginOutputReadLine();
                 process.BeginErrorReadLine();
-                this.ExecutionState = ExecutionState.Running;
                 if (this.TimeoutInMilliseconds.HasValue)
                 {
                     if (!process.WaitForExit(this.TimeoutInMilliseconds.Value))
