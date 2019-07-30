@@ -148,6 +148,7 @@ namespace GRYLibrary
             }
             if (!(program.Contains("/") || program.Contains("\\") || program.Contains(":")))
             {
+                int exitCode = 1;
                 string output = string.Empty;
                 using (Process process = new Process())
                 {
@@ -159,11 +160,15 @@ namespace GRYLibrary
                     StreamReader reader = process.StandardOutput;
                     output = reader.ReadToEnd();
                     process.WaitForExit();
+                    exitCode = process.ExitCode;
                 }
-                output = output.Replace("\r\n", string.Empty);
-                if (File.Exists(output))
+                if (exitCode == 0)
                 {
-                    return output;
+                    output = output.Replace("\r\n", string.Empty);
+                    if (File.Exists(output))
+                    {
+                        return output;
+                    }
                 }
             }
             throw new FileNotFoundException($"Program '{program}' can not be found");
