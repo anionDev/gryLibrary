@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace GRYLibrary.Miscellaneous.GraphOperations
 {
@@ -82,5 +83,21 @@ namespace GRYLibrary.Miscellaneous.GraphOperations
             return result;
         }
 
+        public override bool ContainsOneOrMoreCycles()
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool HasIncomingEdge(Vertex vertex)
+        {
+            foreach (Edge edge in vertex.ConnectedEdges)
+            {
+                if (edge.Target.Equals(edge))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
     }
 }

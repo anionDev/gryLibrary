@@ -94,5 +94,10 @@ namespace GRYLibrary.Miscellaneous.GraphOperations
             connection = null;
             return false;
         }
+
+        public override bool ContainsOneOrMoreCycles()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

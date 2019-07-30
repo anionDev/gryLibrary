@@ -32,5 +32,7 @@ namespace GRYLibrary.Miscellaneous.GraphOperations
         {
             return this.Name;
         }
+
+      
     }
 }

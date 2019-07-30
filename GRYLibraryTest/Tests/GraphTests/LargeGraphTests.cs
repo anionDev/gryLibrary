@@ -54,8 +54,8 @@ namespace GRYLibraryTest.Tests.GraphTests
         }
         private static DirectedGraph CreateDirectedGraph(IEnumerable<Edge> bigStructure)
         {
-            var result = new DirectedGraph();
-            foreach (var edge in bigStructure)
+            DirectedGraph result = new DirectedGraph();
+            foreach (Edge edge in bigStructure)
             {
                 result.AddEdge(edge);
             }
