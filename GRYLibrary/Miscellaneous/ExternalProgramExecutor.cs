@@ -120,6 +120,8 @@ namespace GRYLibrary
                     this.EnqueueInformation($"-----------------------------------------------------");
                 }
                 this.ExitCode = process.ExitCode;
+                this._AllStdErrLinesAsArray = this._AllStdErrLines.ToArray();
+                this._AllStdOutLinesAsArray = this._AllStdOutLines.ToArray();
                 this.ExecutionState = ExecutionState.Terminated;
                 return this.ExitCode;
             }
@@ -168,13 +170,14 @@ namespace GRYLibrary
         }
 
         private readonly IList<string> _AllStdErrLines = new List<string>();
+        private string[] _AllStdErrLinesAsArray;
         public string[] AllStdErrLines
         {
             get
             {
                 if (this.ExecutionState == ExecutionState.Terminated)
                 {
-                    return this._AllStdErrLines.ToArray();
+                    return this._AllStdErrLinesAsArray;
                 }
                 else
                 {
@@ -214,13 +217,14 @@ namespace GRYLibrary
             this._NotLoggedOutputLines.Enqueue(new Tuple<GRYLogLogLevel, string>(GRYLogLogLevel.Exception, data));
         }
         private readonly IList<string> _AllStdOutLines = new List<string>();
+        private string[] _AllStdOutLinesAsArray;
         public string[] AllStdOutLines
         {
             get
             {
                 if (this.ExecutionState == ExecutionState.Terminated)
                 {
-                    return this._AllStdOutLines.ToArray();
+                    return this._AllStdOutLinesAsArray;
                 }
                 else
                 {
