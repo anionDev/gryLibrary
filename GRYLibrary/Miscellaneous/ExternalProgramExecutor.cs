@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 
 namespace GRYLibrary
 {
@@ -29,6 +31,7 @@ namespace GRYLibrary
             this.PrintErrorsAsInformation = printErrorsAsInformation;
             this.TimeoutInMilliseconds = timeoutInMilliseconds;
         }
+        public ExecutionState ExecutionState { get; private set; } = ExecutionState.NotStarted;
         public bool LogOverhead { get; set; } = false;
         public GRYLog LogObject { get; set; }
         public string Arguments { get; set; }
@@ -95,6 +98,7 @@ namespace GRYLibrary
                 process.Start();
                 process.BeginOutputReadLine();
                 process.BeginErrorReadLine();
+                this.ExecutionState = ExecutionState.Running;
                 if (this.TimeoutInMilliseconds.HasValue)
                 {
                     if (!process.WaitForExit(this.TimeoutInMilliseconds.Value))
@@ -111,7 +115,9 @@ namespace GRYLibrary
                     this.EnqueueInformation($"Finished '{this.ProgramPathAndFile} {this.Arguments}'");
                     this.EnqueueInformation($"-----------------------------------------------------");
                 }
-                return process.ExitCode;
+                this.ExitCode = process.ExitCode;
+                this.ExecutionState = ExecutionState.Terminated;
+                return this.ExitCode;
             }
             finally
             {
@@ -157,13 +163,70 @@ namespace GRYLibrary
             throw new FileNotFoundException($"Program '{program}' can not be found");
         }
 
-        private void EnqueueError(string data)
+        private readonly IList<string> _AllStdErrLines = new List<string>();
+        public string[] AllStdErrLines
         {
-            this._NotLoggedOutputLines.Enqueue(new Tuple<GRYLogLogLevel, string>(GRYLogLogLevel.Exception, data));
+            get
+            {
+                if (this.ExecutionState == ExecutionState.Terminated)
+                {
+                    return this._AllStdErrLines.ToArray();
+                }
+                else
+                {
+                    throw new InvalidOperationException(this.GetInvalidOperationDueToNotTerminatedMessageByMembername(nameof(this.AllStdErrLines)));
+                }
+            }
         }
 
+        private string GetInvalidOperationDueToNotTerminatedMessageByMembername(string name)
+        {
+            return $"{name} is not available if the execution state is not terminated.";
+        }
+
+        private int _ExitCode;
+        public int ExitCode
+        {
+            get
+            {
+                if (this.ExecutionState == ExecutionState.Terminated)
+                {
+                    return this._ExitCode;
+                }
+                else
+                {
+                    throw new InvalidOperationException(this.GetInvalidOperationDueToNotTerminatedMessageByMembername(nameof(this.ExitCode)));
+                }
+            }
+            private set
+            {
+                this._ExitCode = value;
+            }
+        }
+
+        private void EnqueueError(string data)
+        {
+            this._AllStdErrLines.Add(data);
+            this._NotLoggedOutputLines.Enqueue(new Tuple<GRYLogLogLevel, string>(GRYLogLogLevel.Exception, data));
+        }
+        private readonly IList<string> _AllStdOutLines = new List<string>();
+        public string[] AllStdOutLines
+        {
+            get
+            {
+                if (this.ExecutionState == ExecutionState.Terminated)
+                {
+                    return this._AllStdOutLines.ToArray();
+                }
+                else
+                {
+                    throw new InvalidOperationException(this.GetInvalidOperationDueToNotTerminatedMessageByMembername(nameof(this.AllStdOutLines)));
+                }
+            }
+        }
         private void EnqueueInformation(string data)
         {
+            this._AllStdOutLines.Add(data);
             this._NotLoggedOutputLines.Enqueue(new Tuple<GRYLogLogLevel, string>(GRYLogLogLevel.Information, data));
         }
         private void LogOutput()
@@ -183,5 +246,11 @@ namespace GRYLibrary
                 }
             }
         }
+    }
+    public enum ExecutionState
+    {
+        NotStarted = 0,
+        Running = 1,
+        Terminated = 2
     }
 }
