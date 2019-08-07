@@ -2,7 +2,7 @@
 using GRYLibrary.GRYObjectSystem.Exceptions;
 using GRYLibrary.GRYObjectSystem.Meta.Property;
 
-namespace GRYLibraryTest
+namespace GRYLibraryTest.Tests
 {
     [TestClass]
     public class PropertyTest

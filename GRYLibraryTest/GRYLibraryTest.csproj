@@ -54,18 +54,21 @@
     <Reference Include="System.Numerics" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ColorGradientTest.cs" />
-    <Compile Include="ConcurrentTest.cs" />
-    <Compile Include="ExtendedColorTest.cs" />
-    <Compile Include="FileSelectorTest.cs" />
-    <Compile Include="GLogTest.cs" />
-    <Compile Include="NonPersistentInputHistoryListTest.cs" />
-    <Compile Include="PlaylistTest.cs" />
-    <Compile Include="PropertyTest.cs" />
+    <Compile Include="Tests\ColorGradientTest.cs" />
+    <Compile Include="Tests\ConcurrentTest.cs" />
+    <Compile Include="Tests\ExtendedColorTest.cs" />
+    <Compile Include="Tests\FileSelectorTest.cs" />
+    <Compile Include="Tests\GLogTest.cs" />
+    <Compile Include="Tests\GraphTests\GraphTest.cs" />
+    <Compile Include="Tests\GraphTests\LargeGraphTests.cs" />
+    <Compile Include="Tests\GraphTests\LoopTests.cs" />
+    <Compile Include="Tests\NonPersistentInputHistoryListTest.cs" />
+    <Compile Include="Tests\PlaylistTest.cs" />
+    <Compile Include="Tests\PropertyTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SimpleObjectPersistenceTest.cs" />
-    <Compile Include="TableGeneratorTest.cs" />
-    <Compile Include="UtilitiesTest.cs" />
+    <Compile Include="Tests\SimpleObjectPersistenceTest.cs" />
+    <Compile Include="Tests\TableGeneratorTest.cs" />
+    <Compile Include="Tests\UtilitiesTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

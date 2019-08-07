@@ -1,0 +1,3 @@
+[submodule "Submodules/scriptCollection"]
+	path = Submodules/scriptCollection
+	url = https://github.com/anionDev/scriptCollection.git
