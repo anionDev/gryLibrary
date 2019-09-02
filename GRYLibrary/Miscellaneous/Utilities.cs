@@ -957,5 +957,31 @@ namespace GRYLibrary
                 throw new Exception("Assertion failed. Condition is false." + (string.IsNullOrWhiteSpace(message) ? string.Empty : " " + message));
             }
         }
+        public static string[,] ReadCSVFile(string file, Encoding encoding, string separator = ";", bool ignoreFirstLine = false)
+        {
+            string[] lines = File.ReadAllLines(file, encoding);
+            List<List<string>> outterList = new List<List<string>>();
+            for (int i = 0; i < lines.Length - 1; i++)
+            {
+                if (!(i == 0 && ignoreFirstLine))
+                {
+                    string line = lines[i].Trim();
+                    if (!string.IsNullOrEmpty(line))
+                    {
+                        List<string> innerList = new List<string>();
+                        if (line.Contains(separator))
+                        {
+                            innerList.AddRange(line.Split(new string[] { separator }, StringSplitOptions.None));
+                        }
+                        else
+                        {
+                            innerList.Add(line);
+                        }
+                        outterList.Add(innerList);
+                    }
+                }
+            }
+            return JaggedArrayToTwoDimensionalArray(EnumerableOfEnumerableToJaggedArray(outterList));
+        }
     }
 }
