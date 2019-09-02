@@ -957,7 +957,7 @@ namespace GRYLibrary
                 throw new Exception("Assertion failed. Condition is false." + (string.IsNullOrWhiteSpace(message) ? string.Empty : " " + message));
             }
         }
-        public static string[,] ReadCSVFile(string file, Encoding encoding, string separator = ";", bool ignoreFirstLine = false)
+        public static string[,] ReadCSVFile(string file, string separator, bool ignoreFirstLine, Encoding encoding)
         {
             string[] lines = File.ReadAllLines(file, encoding);
             List<List<string>> outterList = new List<List<string>>();
