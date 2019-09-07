@@ -949,5 +949,16 @@ namespace GRYLibrary
             array2.CopyTo(result, array1.Length);
             return result;
         }
+        public static bool RunWithTimeout(this ThreadStart threadStart, TimeSpan timeout)
+        {
+            Thread workerThread = new Thread(threadStart);
+            workerThread.Start();
+            bool terminatedInGivenTimeSpan = workerThread.Join(timeout);
+            if (!terminatedInGivenTimeSpan)
+            {
+                workerThread.Abort();
+            }
+            return terminatedInGivenTimeSpan;
+        }
     }
 }
