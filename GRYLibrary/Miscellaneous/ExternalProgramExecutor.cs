@@ -17,7 +17,7 @@ namespace GRYLibrary
         }
         public static ExternalProgramExecutor Create(string programPathAndFile, string arguments, string workingDirectory = "", string title = "", bool printErrorsAsInformation = false, int? timeoutInMilliseconds = null)
         {
-            return CreateByLogFile(programPathAndFile, arguments, workingDirectory, string.Empty, title, printErrorsAsInformation, timeoutInMilliseconds);
+            return CreateByLogFile(programPathAndFile, arguments, string.Empty, workingDirectory, title, printErrorsAsInformation, timeoutInMilliseconds);
         }
         private ExternalProgramExecutor(string programPathAndFile, string arguments, string title, string workingDirectory, GRYLog logObject, bool printErrorsAsInformation, int? timeoutInMilliseconds)
         {
@@ -37,7 +37,12 @@ namespace GRYLibrary
         public string WorkingDirectory { get; set; }
         public int? TimeoutInMilliseconds { get; set; }
         public bool PrintErrorsAsInformation { get; set; }
-        private bool _StopLogOutputThread = false;
+        private bool _LogOutputThreadStopped = false;
+        private bool _Running = false;
+        public bool Running()
+        {
+            return _Running;
+        }
         private readonly ConcurrentQueue<Tuple<GRYLogLogLevel, string>> _NotLoggedOutputLines = new ConcurrentQueue<Tuple<GRYLogLogLevel, string>>();
         /// <summary>
         /// Starts the program which was set in the properties.
@@ -47,83 +52,90 @@ namespace GRYLibrary
         /// </returns>
         public int StartConsoleApplicationInCurrentConsoleWindow()
         {
-            string originalConsoleTitle = Console.Title;
-            Process process = null;
-            try
+            lock (this._NotLoggedOutputLines)
             {
+                string originalConsoleTitle = Console.Title;
+                Process process = null;
                 try
                 {
-                    Console.Title = this.Title;
-                }
-                finally
-                {
-                }
-                process = new Process
-                {
-                    StartInfo = new ProcessStartInfo(this.ResolvePathOfProgram(this.ProgramPathAndFile))
+                    try
                     {
-                        UseShellExecute = false,
-                        ErrorDialog = false,
-                        Arguments = this.Arguments,
-                        WorkingDirectory = this.WorkingDirectory,
-                        RedirectStandardOutput = true,
-                        RedirectStandardError = true
+                        Console.Title = this.Title;
                     }
-                };
-                process.OutputDataReceived += (object sender, DataReceivedEventArgs e) => this.EnqueueInformation(e.Data);
-                process.ErrorDataReceived += (object sender, DataReceivedEventArgs e) =>
-                {
-                    if (this.PrintErrorsAsInformation)
+                    catch
                     {
-                        this.EnqueueInformation(e.Data);
+                        Utilities.NoOperation();
+                    }
+                    process = new Process
+                    {
+                        StartInfo = new ProcessStartInfo(this.ResolvePathOfProgram(this.ProgramPathAndFile))
+                        {
+                            UseShellExecute = false,
+                            ErrorDialog = false,
+                            Arguments = this.Arguments,
+                            WorkingDirectory = this.WorkingDirectory,
+                            RedirectStandardOutput = true,
+                            RedirectStandardError = true
+                        }
+                    };
+                    process.OutputDataReceived += (object sender, DataReceivedEventArgs e) => this.EnqueueInformation(e.Data);
+                    process.ErrorDataReceived += (object sender, DataReceivedEventArgs e) =>
+                    {
+                        if (this.PrintErrorsAsInformation)
+                        {
+                            this.EnqueueInformation(e.Data);
+                        }
+                        else
+                        {
+                            this.EnqueueError(e.Data);
+                        }
+                    };
+                    this._LogOutputThreadStopped = false;
+                    SupervisedThread readLogItemsThread = SupervisedThread.Create(this.LogOutput);
+                    readLogItemsThread.Name = $"Logger-Thread for '{this.Title}' ({nameof(ExternalProgramExecutor)}({this.ProgramPathAndFile} {this.Arguments}))";
+                    readLogItemsThread.LogOverhead = this.LogOverhead;
+                    readLogItemsThread.Start();
+                    if (this.LogOverhead)
+                    {
+                        this.EnqueueInformation($"Start '{this.ProgramPathAndFile} {this.Arguments}' in '{this.WorkingDirectory}'");
+                    }
+                    process.Start();
+                    process.BeginOutputReadLine();
+                    process.BeginErrorReadLine();
+                    this._Running = true;
+                    if (this.TimeoutInMilliseconds.HasValue)
+                    {
+                        if (!process.WaitForExit(this.TimeoutInMilliseconds.Value))
+                        {
+                            process.Kill();
+                        }
                     }
                     else
                     {
-                        this.EnqueueError(e.Data);
+                        process.WaitForExit();
                     }
-                };
-                this._StopLogOutputThread = false;
-                SupervisedThread readLogItemsThread = SupervisedThread.Create(this.LogOutput);
-                readLogItemsThread.Name = $"Logger-Thread for '{this.Title}' ({nameof(ExternalProgramExecutor)}({this.ProgramPathAndFile} {this.Arguments}))";
-                readLogItemsThread.LogOverhead = false;
-                readLogItemsThread.Start();
-                if (this.LogOverhead)
-                {
-                    this.EnqueueInformation($"-----------------------------------------------------");
-                    this.EnqueueInformation($"Start '{this.ProgramPathAndFile} {this.Arguments}' in '{this.WorkingDirectory}'");
-                }
-                process.Start();
-                process.BeginOutputReadLine();
-                process.BeginErrorReadLine();
-                if (this.TimeoutInMilliseconds.HasValue)
-                {
-                    if (!process.WaitForExit(this.TimeoutInMilliseconds.Value))
+                    if (this.LogOverhead)
                     {
-                        process.Kill();
+                        this.EnqueueInformation($"Finished '{this.ProgramPathAndFile} {this.Arguments}'");
                     }
+                    return process.ExitCode;
                 }
-                else
+                finally
                 {
-                    process.WaitForExit();
-                }
-                if (this.LogOverhead)
-                {
-                    this.EnqueueInformation($"Finished '{this.ProgramPathAndFile} {this.Arguments}'");
-                    this.EnqueueInformation($"-----------------------------------------------------");
-                }
-                return process.ExitCode;
-            }
-            finally
-            {
-                try
-                {
-                    this._StopLogOutputThread = true;
-                    process?.Dispose();
-                    Console.Title = originalConsoleTitle;
-                }
-                catch
-                {
-                    Utilities.NoOperation();
+                    try
+                    {
+                        this._Running = false;
+                        while (!this._LogOutputThreadStopped)
+                        {
+                            System.Threading.Thread.Sleep(30);
+                        }
+                        process?.Dispose();
+                        Console.Title = originalConsoleTitle;
+                    }
+                    catch
+                    {
+                        Utilities.NoOperation();
+                    }
                 }
             }
         }
@@ -168,7 +180,7 @@ namespace GRYLibrary
         }
         private void LogOutput()
         {
-            while (!this._StopLogOutputThread)
+            while (Running() || this._NotLoggedOutputLines.Count > 0)
             {
                 if (this._NotLoggedOutputLines.TryDequeue(out Tuple<GRYLogLogLevel, string> logItem))
                 {
@@ -182,6 +194,7 @@ namespace GRYLibrary
                     }
                 }
             }
+            _LogOutputThreadStopped = true;
         }
     }
 }
