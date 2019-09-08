@@ -41,7 +41,7 @@ namespace GRYLibrary
         private bool _Running = false;
         public bool Running()
         {
-            return _Running;
+            return this._Running;
         }
         private readonly ConcurrentQueue<Tuple<GRYLogLogLevel, string>> _NotLoggedOutputLines = new ConcurrentQueue<Tuple<GRYLogLogLevel, string>>();
         /// <summary>
@@ -180,21 +180,27 @@ namespace GRYLibrary
         }
         private void LogOutput()
         {
-            while (Running() || this._NotLoggedOutputLines.Count > 0)
+            try
             {
-                if (this._NotLoggedOutputLines.TryDequeue(out Tuple<GRYLogLogLevel, string> logItem))
+                while (this.Running() || this._NotLoggedOutputLines.Count > 0)
                 {
-                    if (logItem.Item1.Equals(GRYLogLogLevel.Exception))
+                    if (this._NotLoggedOutputLines.TryDequeue(out Tuple<GRYLogLogLevel, string> logItem))
                     {
-                        this.LogObject?.Log(logItem.Item2);
-                    }
-                    if (logItem.Item1.Equals(GRYLogLogLevel.Information))
-                    {
-                        this.LogObject?.Log(logItem.Item2);
+                        if (logItem.Item1.Equals(GRYLogLogLevel.Exception))
+                        {
+                            this.LogObject?.Log(logItem.Item2);
+                        }
+                        if (logItem.Item1.Equals(GRYLogLogLevel.Information))
+                        {
+                            this.LogObject?.Log(logItem.Item2);
+                        }
                     }
                 }
             }
-            _LogOutputThreadStopped = true;
+            finally
+            {
+                this._LogOutputThreadStopped = true;
+            }
         }
     }
 }
