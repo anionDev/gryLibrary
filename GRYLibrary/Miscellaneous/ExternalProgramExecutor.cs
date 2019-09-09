@@ -137,7 +137,7 @@ namespace GRYLibrary
                     try
                     {
                         this._Running = false;
-                        while (!this._LogOutputThreadStopped)
+                        while (this._NotLoggedOutputLines.Count > 0)
                         {
                             System.Threading.Thread.Sleep(30);
                         }
