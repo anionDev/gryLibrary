@@ -282,7 +282,7 @@ namespace GRYLibrary
                 colorEnd = 0;
                 return;
             }
-            if (this.Configuration.Format == GRYLogLogFormat.OnlyMessage)
+            if (this.Configuration.Format == GRYLogLogFormat.GRYLogFormat)
             {
                 string part1 = "[" + momentOfLogEntry.ToString(this.Configuration.DateFormat) + "] [";
                 string part2 = this.GetPrefixInStringFormat(loglevel);
