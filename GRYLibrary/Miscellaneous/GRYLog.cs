@@ -261,7 +261,7 @@ namespace GRYLibrary
                     if (this.Configuration.PrintOutputInConsole && this.Configuration.LoggedMessageTypesInConsole.Contains(logLevel))
                     {
                         Console.Write(message.Substring(0, colorBegin));
-                        this.WriteWithColorToConsole(message.Substring(colorBegin, colorEnd), logLevel);
+                        this.WriteWithColorToConsole(message.Substring(colorBegin, colorEnd - colorBegin), logLevel);
                         Console.Write(message.Substring(colorEnd) + Environment.NewLine);
                     }
                 }
