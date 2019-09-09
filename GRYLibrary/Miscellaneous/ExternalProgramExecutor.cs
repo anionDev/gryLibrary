@@ -102,7 +102,6 @@ namespace GRYLibrary
                     SupervisedThread readLogItemsThread = SupervisedThread.Create(this.LogOutput);
                     readLogItemsThread.Name = $"Logger-Thread for '{this.Title}' ({nameof(ExternalProgramExecutor)}({this.ProgramPathAndFile} {this.Arguments}))";
                     readLogItemsThread.LogOverhead = this.LogOverhead;
-                    readLogItemsThread.Start();
                     if (this.LogOverhead)
                     {
                         this.EnqueueInformation($"Start '{this.ProgramPathAndFile} {this.Arguments}' in '{this.WorkingDirectory}'");
@@ -111,6 +110,7 @@ namespace GRYLibrary
                     process.BeginOutputReadLine();
                     process.BeginErrorReadLine();
                     this._Running = true;
+                    readLogItemsThread.Start();
                     if (this.TimeoutInMilliseconds.HasValue)
                     {
                         if (!process.WaitForExit(this.TimeoutInMilliseconds.Value))
