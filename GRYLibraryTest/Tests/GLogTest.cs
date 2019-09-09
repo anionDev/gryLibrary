@@ -15,7 +15,7 @@ namespace GRYLibraryTest.Tests
             try
             {
                 GRYLog logObject = GRYLog.Create(logFile);
-                logObject.Configuration.LogOverhead = false;
+                logObject.Configuration.Format = GRYLogLogFormat.OnlyMessage;
                 string file = logFile;
                 Assert.IsFalse(File.Exists(file));
                 string fileWithRelativePath = logFile;
@@ -41,7 +41,7 @@ namespace GRYLibraryTest.Tests
             try
             {
                 GRYLog logObject = GRYLog.Create(logFile);
-                logObject.Configuration.LogOverhead = false;
+                logObject.Configuration.Format = GRYLogLogFormat.OnlyMessage;
                 string file = logFile;
                 Assert.IsFalse(File.Exists(file));
                 string fileWithRelativePath = logFile;
