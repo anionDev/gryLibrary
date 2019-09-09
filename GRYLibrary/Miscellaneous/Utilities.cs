@@ -983,5 +983,16 @@ namespace GRYLibrary
             }
             return JaggedArrayToTwoDimensionalArray(EnumerableOfEnumerableToJaggedArray(outterList));
         }
+        public static bool RunWithTimeout(this ThreadStart threadStart, TimeSpan timeout)
+        {
+            Thread workerThread = new Thread(threadStart);
+            workerThread.Start();
+            bool terminatedInGivenTimeSpan = workerThread.Join(timeout);
+            if (!terminatedInGivenTimeSpan)
+            {
+                workerThread.Abort();
+            }
+            return terminatedInGivenTimeSpan;
+        }
     }
 }

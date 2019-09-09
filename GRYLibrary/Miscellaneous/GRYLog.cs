@@ -181,42 +181,50 @@ namespace GRYLibrary
             {
                 return;
             }
-
-            if (!this.ShouldBeLogged(logLevel))
-            {
-                return;
-            }
-            if (this.Configuration.PrintErrorsAsInformation && this.IsErrorLogLevel(logLevel))
-            {
-                logLevel = GRYLogLogLevel.Information;
-            }
-            if (this.IsErrorLogLevel(logLevel))
-            {
-                this._AmountOfErrors += 1;
-            }
-            if (this.IsWarningLogLevel(logLevel))
-            {
-                this._AmountOfWarnings += 1;
-            }
-            if (this.Configuration.ConvertTimeForLogentriesToUTCFormat)
-            {
-                momentOfLogEntry = momentOfLogEntry.ToUniversalTime();
-            }
             message = message.Trim();
             string originalMessage = message;
-            if (!string.IsNullOrEmpty(this.Configuration.Name))
-            {
-                message = "[" + this.Configuration.Name.Trim() + "] " + message;
-            }
-            if (this.Configuration.AddIdToEveryLogEntry)
-            {
-                message = "[" + this.GetLogItemId() + "] " + message;
-            }
-            string part1 = "[" + momentOfLogEntry.ToString(this.Configuration.DateFormat) + "] [";
-            string part2 = this.GetPrefixInStringFormat(logLevel);
-            string part3 = "] " + message;
             lock (_LockObject)
             {
+                if (message.Contains(Environment.NewLine) && this.Configuration.LogEveryLineOfLogEntryInNewLine)
+                {
+                    foreach (string line in message.Split(new string[] { Environment.NewLine }, StringSplitOptions.None))
+                    {
+                        this.Log(line, logLevel);
+                    }
+                    return;
+                }
+
+                if (!this.ShouldBeLogged(logLevel))
+                {
+                    return;
+                }
+                if (this.Configuration.PrintErrorsAsInformation && this.IsErrorLogLevel(logLevel))
+                {
+                    logLevel = GRYLogLogLevel.Information;
+                }
+                if (this.IsErrorLogLevel(logLevel))
+                {
+                    this._AmountOfErrors += 1;
+                }
+                if (this.IsWarningLogLevel(logLevel))
+                {
+                    this._AmountOfWarnings += 1;
+                }
+                if (this.Configuration.ConvertTimeForLogentriesToUTCFormat)
+                {
+                    momentOfLogEntry = momentOfLogEntry.ToUniversalTime();
+                }
+                if (!string.IsNullOrEmpty(this.Configuration.Name))
+                {
+                    message = "[" + this.Configuration.Name.Trim() + "] " + message;
+                }
+                if (this.Configuration.AddIdToEveryLogEntry)
+                {
+                    message = "[" + this.GetLogItemId() + "] " + message;
+                }
+                string part1 = "[" + momentOfLogEntry.ToString(this.Configuration.DateFormat) + "] [";
+                string part2 = this.GetPrefixInStringFormat(logLevel);
+                string part3 = "] " + message;
                 string textForLogFileAndEventViewer;
                 if (this.Configuration.LogOverhead)
                 {
@@ -274,18 +282,18 @@ namespace GRYLibrary
                         Console.WriteLine(originalMessage);
                     }
                 }
-            }
-            if (this.Configuration.DebugBreakMode && this.Configuration.DebugBreakLevel.Contains(logLevel) && Debugger.IsAttached)
-            {
-                Debugger.Break();
-            }
-            if (this.Configuration.LogOverhead)
-            {
-                NewLogItem?.Invoke(originalMessage, part1 + part2 + part3, logLevel);
-            }
-            else
-            {
-                NewLogItem?.Invoke(originalMessage, originalMessage, logLevel);
+                if (this.Configuration.DebugBreakMode && this.Configuration.DebugBreakLevel.Contains(logLevel) && Debugger.IsAttached)
+                {
+                    Debugger.Break();
+                }
+                if (this.Configuration.LogOverhead)
+                {
+                    NewLogItem?.Invoke(originalMessage, part1 + part2 + part3, logLevel);
+                }
+                else
+                {
+                    NewLogItem?.Invoke(originalMessage, originalMessage, logLevel);
+                }
             }
         }
 
@@ -342,7 +350,7 @@ namespace GRYLibrary
         }
         private string GetExceptionMessage(string message, Exception exception)
         {
-            string result = string.Empty;
+            string result = message;
             if (!(message.EndsWith(".") | message.EndsWith("?") | message.EndsWith(":") | message.EndsWith("!")))
             {
                 result = message + ".";
@@ -353,7 +361,7 @@ namespace GRYLibrary
             }
             if (this.Configuration.WriteExceptionStackTraceOfExceptionInLogEntry)
             {
-                result = result + " (Exception-details: " + exception.StackTrace.Replace(Environment.NewLine, " ") + ")";
+                result = result + " (Exception-details: " + exception.StackTrace + ")";
             }
             return result;
         }
@@ -564,6 +572,7 @@ namespace GRYLibrary
             this.CreateLogFileIfRequiredAndIfPossible = true;
             this.WriteToLogFileIfLogFileIsAvailable = true;
             this.PrintErrorsAsInformation = false;
+            this.LogEveryLineOfLogEntryInNewLine = false;
         }
         public string LogFile { get; set; }
         /// <summary>
@@ -621,6 +630,8 @@ namespace GRYLibrary
         public bool CreateLogFileIfRequiredAndIfPossible { get; set; }
 
         public static Encoding GRYLogConfigurationFileDefaultEncoding { get; set; } = new UTF8Encoding(false);
+        public bool LogEveryLineOfLogEntryInNewLine { get; set; }
+
         public static GRYLogConfiguration LoadConfiguration(string configurationFile, Encoding encoding)
         {
             return new SimpleObjectPersistence<GRYLogConfiguration>(configurationFile, encoding).Object;
