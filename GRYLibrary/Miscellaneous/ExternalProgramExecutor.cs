@@ -230,8 +230,11 @@ namespace GRYLibrary
 
         private void EnqueueError(string data)
         {
-            this._AllStdErrLines.Add(data);
-            this._NotLoggedOutputLines.Enqueue(new Tuple<GRYLogLogLevel, string>(GRYLogLogLevel.Exception, data));
+            if (data != null)
+            {
+                this._AllStdErrLines.Add(data);
+                this._NotLoggedOutputLines.Enqueue(new Tuple<GRYLogLogLevel, string>(GRYLogLogLevel.Exception, data));
+            }
         }
         private readonly IList<string> _AllStdOutLines = new List<string>();
         private string[] _AllStdOutLinesAsArray;
@@ -251,8 +254,11 @@ namespace GRYLibrary
         }
         private void EnqueueInformation(string data)
         {
-            this._AllStdOutLines.Add(data);
-            this._NotLoggedOutputLines.Enqueue(new Tuple<GRYLogLogLevel, string>(GRYLogLogLevel.Information, data));
+            if (data != null)
+            {
+                this._AllStdOutLines.Add(data);
+                this._NotLoggedOutputLines.Enqueue(new Tuple<GRYLogLogLevel, string>(GRYLogLogLevel.Information, data));
+            }
         }
         private void LogOutput()
         {
