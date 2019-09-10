@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 
 namespace GRYLibrary
 {
@@ -29,6 +31,7 @@ namespace GRYLibrary
             this.PrintErrorsAsInformation = printErrorsAsInformation;
             this.TimeoutInMilliseconds = timeoutInMilliseconds;
         }
+        public ExecutionState ExecutionState { get; private set; } = ExecutionState.NotStarted;
         public bool LogOverhead { get; set; } = false;
         public GRYLog LogObject { get; set; }
         public string Arguments { get; set; }
@@ -54,6 +57,11 @@ namespace GRYLibrary
         {
             lock (this._NotLoggedOutputLines)
             {
+                if (this.ExecutionState != ExecutionState.NotStarted)
+                {
+                    throw new InvalidOperationException("This process was already started");
+                }
+                this.ExecutionState = ExecutionState.Running;
                 string originalConsoleTitle = Console.Title;
                 Process process = null;
                 try
@@ -118,14 +126,18 @@ namespace GRYLibrary
                     {
                         this.EnqueueInformation($"Finished '{this.ProgramPathAndFile} {this.Arguments}'");
                     }
-                    return process.ExitCode;
+                    this.ExitCode = process.ExitCode;
+                    this._AllStdErrLinesAsArray = this._AllStdErrLines.ToArray();
+                    this._AllStdOutLinesAsArray = this._AllStdOutLines.ToArray();
+                    this.ExecutionState = ExecutionState.Terminated;
+                    return this.ExitCode;
                 }
                 finally
                 {
                     try
                     {
                         this._Running = false;
-                        while (!this._LogOutputThreadStopped)
+                        while (this._NotLoggedOutputLines.Count > 0)
                         {
                             System.Threading.Thread.Sleep(30);
                         }
@@ -148,6 +160,7 @@ namespace GRYLibrary
             }
             if (!(program.Contains("/") || program.Contains("\\") || program.Contains(":")))
             {
+                int exitCode = 1;
                 string output = string.Empty;
                 using (Process process = new Process())
                 {
@@ -159,23 +172,86 @@ namespace GRYLibrary
                     StreamReader reader = process.StandardOutput;
                     output = reader.ReadToEnd();
                     process.WaitForExit();
+                    exitCode = process.ExitCode;
                 }
-                output = output.Replace("\r\n", string.Empty);
-                if (File.Exists(output))
+                if (exitCode == 0)
                 {
-                    return output;
+                    output = output.Replace("\r\n", string.Empty);
+                    if (File.Exists(output))
+                    {
+                        return output;
+                    }
                 }
             }
             throw new FileNotFoundException($"Program '{program}' can not be found");
         }
 
-        private void EnqueueError(string data)
+        private readonly IList<string> _AllStdErrLines = new List<string>();
+        private string[] _AllStdErrLinesAsArray;
+        public string[] AllStdErrLines
         {
-            this._NotLoggedOutputLines.Enqueue(new Tuple<GRYLogLogLevel, string>(GRYLogLogLevel.Exception, data));
+            get
+            {
+                if (this.ExecutionState == ExecutionState.Terminated)
+                {
+                    return this._AllStdErrLinesAsArray;
+                }
+                else
+                {
+                    throw new InvalidOperationException(this.GetInvalidOperationDueToNotTerminatedMessageByMembername(nameof(this.AllStdErrLines)));
+                }
+            }
         }
 
+        private string GetInvalidOperationDueToNotTerminatedMessageByMembername(string name)
+        {
+            return $"{name} is not available if the execution state is not terminated.";
+        }
+
+        private int _ExitCode;
+        public int ExitCode
+        {
+            get
+            {
+                if (this.ExecutionState == ExecutionState.Terminated)
+                {
+                    return this._ExitCode;
+                }
+                else
+                {
+                    throw new InvalidOperationException(this.GetInvalidOperationDueToNotTerminatedMessageByMembername(nameof(this.ExitCode)));
+                }
+            }
+            private set
+            {
+                this._ExitCode = value;
+            }
+        }
+
+        private void EnqueueError(string data)
+        {
+            this._AllStdErrLines.Add(data);
+            this._NotLoggedOutputLines.Enqueue(new Tuple<GRYLogLogLevel, string>(GRYLogLogLevel.Exception, data));
+        }
+        private readonly IList<string> _AllStdOutLines = new List<string>();
+        private string[] _AllStdOutLinesAsArray;
+        public string[] AllStdOutLines
+        {
+            get
+            {
+                if (this.ExecutionState == ExecutionState.Terminated)
+                {
+                    return this._AllStdOutLinesAsArray;
+                }
+                else
+                {
+                    throw new InvalidOperationException(this.GetInvalidOperationDueToNotTerminatedMessageByMembername(nameof(this.AllStdOutLines)));
+                }
+            }
+        }
         private void EnqueueInformation(string data)
         {
+            this._AllStdOutLines.Add(data);
             this._NotLoggedOutputLines.Enqueue(new Tuple<GRYLogLogLevel, string>(GRYLogLogLevel.Information, data));
         }
         private void LogOutput()
@@ -202,5 +278,11 @@ namespace GRYLibrary
                 this._LogOutputThreadStopped = true;
             }
         }
+    }
+    public enum ExecutionState
+    {
+        NotStarted = 0,
+        Running = 1,
+        Terminated = 2
     }
 }

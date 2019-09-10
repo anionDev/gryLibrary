@@ -17,6 +17,7 @@ using System.DirectoryServices;
 using static GRYLibrary.Miscellaneous.TableGenerator;
 using System.Numerics;
 using System.Globalization;
+using System.Xml;
 
 namespace GRYLibrary
 {
@@ -528,7 +529,7 @@ namespace GRYLibrary
         }
         public static SimpleObjectPersistence<T> Persist<T>(this T @object, string file, Encoding encoding) where T : new()
         {
-            return new SimpleObjectPersistence<T>(file, encoding, @object);
+            return new SimpleObjectPersistence<T>(file, @object, new XmlWriterSettings() { Indent = true, Encoding = encoding });
         }
         public static SimpleObjectPersistence<T> Load<T>(this string file) where T : new()
         {
@@ -948,6 +949,39 @@ namespace GRYLibrary
             array1.CopyTo(result, 0);
             array2.CopyTo(result, array1.Length);
             return result;
+        }
+        public static void Assert(bool condition, string message = "")
+        {
+            if (!condition)
+            {
+                throw new Exception("Assertion failed. Condition is false." + (string.IsNullOrWhiteSpace(message) ? string.Empty : " " + message));
+            }
+        }
+        public static string[,] ReadCSVFile(string file, string separator, bool ignoreFirstLine, Encoding encoding)
+        {
+            string[] lines = File.ReadAllLines(file, encoding);
+            List<List<string>> outterList = new List<List<string>>();
+            for (int i = 0; i < lines.Length - 1; i++)
+            {
+                if (!(i == 0 && ignoreFirstLine))
+                {
+                    string line = lines[i].Trim();
+                    if (!string.IsNullOrEmpty(line))
+                    {
+                        List<string> innerList = new List<string>();
+                        if (line.Contains(separator))
+                        {
+                            innerList.AddRange(line.Split(new string[] { separator }, StringSplitOptions.None));
+                        }
+                        else
+                        {
+                            innerList.Add(line);
+                        }
+                        outterList.Add(innerList);
+                    }
+                }
+            }
+            return JaggedArrayToTwoDimensionalArray(EnumerableOfEnumerableToJaggedArray(outterList));
         }
         public static bool RunWithTimeout(this ThreadStart threadStart, TimeSpan timeout)
         {

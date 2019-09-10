@@ -133,11 +133,7 @@ namespace GRYLibrary.Miscellaneous.GraphOperations
             }
             return false;
         }
-        public bool ContainsOneOrMoreCycles()
-        {
-            //TODO implement an algorithm which is more performant
-            return this.GetAllCycles().Count > 0;
-        }
+        public abstract bool ContainsOneOrMoreCycles();
         public bool IsConnected()
         {
             if (this._Vertices.Count == 0)
@@ -219,9 +215,10 @@ namespace GRYLibrary.Miscellaneous.GraphOperations
         }
         public ISet<Cycle> GetAllCycles()
         {
+            ISet<Cycle> result = new HashSet<Cycle>();
             if (this._Edges.Count == 0)
             {
-                return new HashSet<Cycle>();
+                return result;
             }
             throw new NotImplementedException();
         }
@@ -242,7 +239,7 @@ namespace GRYLibrary.Miscellaneous.GraphOperations
             double[,] adjacencyMatrix2 = typedObj.ToAdjacencyMatrix();
             bool arraysEquals = Utilities.TwoDimensionalArrayEquals(adjacencyMatrix1, adjacencyMatrix2);
             bool verticesEquals = this.Vertices.SequenceEqual(typedObj.Vertices);
-            return arraysEquals &&verticesEquals;
+            return arraysEquals && verticesEquals;
         }
         public override int GetHashCode()
         {

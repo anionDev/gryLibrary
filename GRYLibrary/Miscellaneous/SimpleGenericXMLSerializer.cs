@@ -11,20 +11,13 @@ namespace GRYLibrary
     /// <typeparam name="T">The type of the object which should be serialized.</typeparam>
     public class SimpleGenericXMLSerializer<T>
     {
+        public XmlWriterSettings XMLWriterSettings { get; set; } = new XmlWriterSettings() { Indent = true, Encoding = new UTF8Encoding(false) };
         public string Serialize(T @object)
-        {
-            return this.Serialize(@object, new XmlWriterSettings() { Encoding = this.Encoding });
-        }
-        public string SerializeWithIndent(T @object)
-        {
-            return this.Serialize(@object, new XmlWriterSettings { Indent = true, Encoding = this.Encoding });
-        }
-        public string Serialize(T @object, XmlWriterSettings settings)
         {
             using (Stream stream = new MemoryStream())
             {
                 DataContractSerializer serializer = new DataContractSerializer(typeof(T));
-                using (XmlWriter xmlWriter = XmlWriter.Create(stream, settings))
+                using (XmlWriter xmlWriter = XmlWriter.Create(stream, this.XMLWriterSettings))
                 {
                     serializer.WriteObject(xmlWriter, @object);
                 }
@@ -33,12 +26,15 @@ namespace GRYLibrary
                 return streamReader.ReadToEnd();
             }
         }
-        public Encoding Encoding { get; set; } = new UTF8Encoding(false);
         public T Deserialize(string xml)
+        {
+            return this.Deserialize(xml, new UTF8Encoding(false));
+        }
+        public T Deserialize(string xml, Encoding encoding)
         {
             using (Stream stream = new MemoryStream())
             {
-                byte[] data = this.Encoding.GetBytes(xml);
+                byte[] data = encoding.GetBytes(xml);
                 stream.Write(data, 0, data.Length);
                 stream.Position = 0;
                 DataContractSerializer deserializer = new DataContractSerializer(typeof(T));

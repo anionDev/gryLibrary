@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace GRYLibrary.Miscellaneous.GraphOperations
 {
@@ -82,5 +83,61 @@ namespace GRYLibrary.Miscellaneous.GraphOperations
             return result;
         }
 
+        public bool GetTopologicalSortedVertices(out IList<Vertex> order)
+        {
+            List<Vertex> l = new List<Vertex>();
+            ISet<Vertex> q = new HashSet<Vertex>(this.Vertices.Where((vertex) => !this.HasIncomingEdge(vertex)));
+            DirectedGraph g = this.DeepClone();
+            while (q.Count != 0)
+            {
+                Vertex n = q.First();
+                q.Remove(n);
+                l.Add(n);
+                foreach (Edge e in n.ConnectedEdges)
+                {
+                    Vertex m;
+                    if (e.Source.Equals(n))
+                    {
+                        m = e.Target;
+                    }
+                    else
+                    {
+                        m = e.Source;
+                    }
+                    g.RemoveEdge(e);
+                    if (!this.HasIncomingEdge(m))
+                    {
+                        q.Add(m);
+                    }
+                }
+            }
+            if (g.Edges.Count() > 0)
+            {
+                order = l;
+                return true;
+            }
+            else
+            {
+                order = null;
+                return false;
+            };
+
+        }
+        public override bool ContainsOneOrMoreCycles()
+        {
+            return this.GetTopologicalSortedVertices(out IList<Vertex> _);
+        }
+
+        public bool HasIncomingEdge(Vertex vertex)
+        {
+            foreach (Edge edge in vertex.ConnectedEdges)
+            {
+                if (edge.Target.Equals(edge))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
     }
 }
