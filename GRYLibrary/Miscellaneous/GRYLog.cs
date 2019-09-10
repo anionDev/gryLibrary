@@ -261,7 +261,7 @@ namespace GRYLibrary
                     if (this.Configuration.PrintOutputInConsole && this.Configuration.LoggedMessageTypesInConsole.Contains(logLevel))
                     {
                         Console.Write(message.Substring(0, colorBegin));
-                        this.WriteWithColorToConsole(message.Substring(colorBegin, colorEnd), logLevel);
+                        this.WriteWithColorToConsole(message.Substring(colorBegin, colorEnd - colorBegin), logLevel);
                         Console.Write(message.Substring(colorEnd) + Environment.NewLine);
                     }
                 }
@@ -282,7 +282,7 @@ namespace GRYLibrary
                 colorEnd = 0;
                 return;
             }
-            if (this.Configuration.Format == GRYLogLogFormat.OnlyMessage)
+            if (this.Configuration.Format == GRYLogLogFormat.GRYLogFormat)
             {
                 string part1 = "[" + momentOfLogEntry.ToString(this.Configuration.DateFormat) + "] [";
                 string part2 = this.GetPrefixInStringFormat(loglevel);
