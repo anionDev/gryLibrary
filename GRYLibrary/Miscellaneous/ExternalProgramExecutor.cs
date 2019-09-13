@@ -38,9 +38,9 @@ namespace GRYLibrary
         public string ProgramPathAndFile { get; set; }
         public string Title { get; set; }
         public string WorkingDirectory { get; set; }
+        public bool ThrowErrorIfExitCodeIsNotZero { get; set; } = false;
         public int? TimeoutInMilliseconds { get; set; }
         public bool PrintErrorsAsInformation { get; set; }
-        private bool _LogOutputThreadStopped = false;
         private bool _Running = false;
         public bool Running()
         {
@@ -98,7 +98,6 @@ namespace GRYLibrary
                             this.EnqueueError(e.Data);
                         }
                     };
-                    this._LogOutputThreadStopped = false;
                     SupervisedThread readLogItemsThread = SupervisedThread.Create(this.LogOutput);
                     readLogItemsThread.Name = $"Logger-Thread for '{this.Title}' ({nameof(ExternalProgramExecutor)}({this.ProgramPathAndFile} {this.Arguments}))";
                     readLogItemsThread.LogOverhead = this.LogOverhead;
@@ -130,7 +129,14 @@ namespace GRYLibrary
                     this._AllStdErrLinesAsArray = this._AllStdErrLines.ToArray();
                     this._AllStdOutLinesAsArray = this._AllStdOutLines.ToArray();
                     this.ExecutionState = ExecutionState.Terminated;
-                    return this.ExitCode;
+                    if (this.ThrowErrorIfExitCodeIsNotZero && this.ExitCode != 0)
+                    {
+                        throw new Exception($"'{this.WorkingDirectory}>{this.ProgramPathAndFile} {this.Arguments}' had exitcode {this.ExitCode.ToString()}.");
+                    }
+                    else
+                    {
+                        return this.ExitCode;
+                    }
                 }
                 finally
                 {
@@ -262,26 +268,19 @@ namespace GRYLibrary
         }
         private void LogOutput()
         {
-            try
+            while (this.Running() || this._NotLoggedOutputLines.Count > 0)
             {
-                while (this.Running() || this._NotLoggedOutputLines.Count > 0)
+                if (this._NotLoggedOutputLines.TryDequeue(out Tuple<GRYLogLogLevel, string> logItem))
                 {
-                    if (this._NotLoggedOutputLines.TryDequeue(out Tuple<GRYLogLogLevel, string> logItem))
+                    if (logItem.Item1.Equals(GRYLogLogLevel.Exception))
                     {
-                        if (logItem.Item1.Equals(GRYLogLogLevel.Exception))
-                        {
-                            this.LogObject?.Log(logItem.Item2);
-                        }
-                        if (logItem.Item1.Equals(GRYLogLogLevel.Information))
-                        {
-                            this.LogObject?.Log(logItem.Item2);
-                        }
+                        this.LogObject?.Log(logItem.Item2);
+                    }
+                    if (logItem.Item1.Equals(GRYLogLogLevel.Information))
+                    {
+                        this.LogObject?.Log(logItem.Item2);
                     }
                 }
-            }
-            finally
-            {
-                this._LogOutputThreadStopped = true;
             }
         }
     }
