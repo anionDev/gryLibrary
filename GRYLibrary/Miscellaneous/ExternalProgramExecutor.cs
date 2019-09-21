@@ -68,7 +68,10 @@ namespace GRYLibrary
                 {
                     try
                     {
-                        Console.Title = this.Title;
+                        if (!string.IsNullOrWhiteSpace(this.Title))
+                        {
+                            Console.Title = this.Title;
+                        }
                     }
                     catch
                     {
@@ -148,7 +151,10 @@ namespace GRYLibrary
                             System.Threading.Thread.Sleep(30);
                         }
                         process?.Dispose();
-                        Console.Title = originalConsoleTitle;
+                        if (!string.IsNullOrWhiteSpace(this.Title))
+                        {
+                            Console.Title = originalConsoleTitle;
+                        }
                     }
                     catch
                     {
