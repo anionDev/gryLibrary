@@ -134,7 +134,7 @@ namespace GRYLibrary
                     this.ExecutionState = ExecutionState.Terminated;
                     if (this.ThrowErrorIfExitCodeIsNotZero && this.ExitCode != 0)
                     {
-                        throw new Exception($"'{this.WorkingDirectory}>{this.ProgramPathAndFile} {this.Arguments}' had exitcode {this.ExitCode.ToString()}.");
+                        throw new UnexpectedExitCodeException($"'{this.WorkingDirectory}>{this.ProgramPathAndFile} {this.Arguments}' had exitcode {this.ExitCode.ToString()}.", this);
                     }
                     else
                     {
@@ -295,5 +295,13 @@ namespace GRYLibrary
         NotStarted = 0,
         Running = 1,
         Terminated = 2
+    }
+    public class UnexpectedExitCodeException : Exception
+    {
+        public ExternalProgramExecutor ExecutedProgram { get; }
+        public UnexpectedExitCodeException(string message, ExternalProgramExecutor externalProgramExecutor) : base(message)
+        {
+            this.ExecutedProgram = externalProgramExecutor;
+        }
     }
 }
