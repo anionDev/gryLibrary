@@ -994,5 +994,9 @@ namespace GRYLibrary
             }
             return terminatedInGivenTimeSpan;
         }
+        public static string ResolveToFullPath(this string relativePath, string baseDirectory)
+        {
+            return Path.GetFullPath(new Uri(Path.Combine(baseDirectory, relativePath)).LocalPath);
+        }
     }
 }
