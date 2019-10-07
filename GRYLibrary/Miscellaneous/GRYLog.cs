@@ -23,7 +23,6 @@ namespace GRYLibrary
     }
     public class GRYLog : IDisposable
     {
-        private readonly EventLog _EventLog;
         public GRYLogConfiguration Configuration { get; set; }
         private readonly static object _LockObject = new object();
         private readonly bool _Initialized = false;
@@ -45,10 +44,6 @@ namespace GRYLibrary
             {
                 this.StartFileWatcherForConfigurationFile(configurationFile);
             }
-            this._EventLog = new EventLog(this.Configuration.ApplicationNameForWindowsEventViewer)
-            {
-                Source = this.Configuration.NameOfSourceForWindowsEventViewer
-            };
             this._Initialized = true;
         }
         public static GRYLog Create()
@@ -254,20 +249,12 @@ namespace GRYLibrary
                         }
                         File.AppendAllLines(this.Configuration.LogFile, new string[] { message }, this.Configuration.EncodingForLogfile);
                     }
-                    if (this.Configuration.WriteLogEntriesToWindowsEventViewer && this.Configuration.LoggedMessageTypesInWindowsEventViewer.Contains(logLevel))
-                    {
-                        this._EventLog.WriteEntry(message, this.GetEventType(logLevel));
-                    }
                     if (this.Configuration.PrintOutputInConsole && this.Configuration.LoggedMessageTypesInConsole.Contains(logLevel))
                     {
                         Console.Write(message.Substring(0, colorBegin));
                         this.WriteWithColorToConsole(message.Substring(colorBegin, colorEnd - colorBegin), logLevel);
                         Console.Write(message.Substring(colorEnd) + Environment.NewLine);
                     }
-                }
-                if (this.Configuration.DebugBreakMode && this.Configuration.DebugBreakLevel.Contains(logLevel) && Debugger.IsAttached)
-                {
-                    Debugger.Break();
                 }
                 NewLogItem?.Invoke(originalMessage, message, logLevel);
             }
@@ -314,39 +301,7 @@ namespace GRYLibrary
 
         private bool ShouldBeLogged(GRYLogLogLevel logLevel)
         {
-            return this.Configuration.LoggedMessageTypesInLogFile.Contains(logLevel)
-                 || this.Configuration.LoggedMessageTypesInWindowsEventViewer.Contains(logLevel)
-                 || this.Configuration.LoggedMessageTypesInConsole.Contains(logLevel)
-                 || this.Configuration.DebugBreakLevel.Contains(logLevel);
-        }
-
-        private EventLogEntryType GetEventType(GRYLogLogLevel logLevel)
-        {
-            if (logLevel == GRYLogLogLevel.Information)
-            {
-                return EventLogEntryType.Information;
-            }
-            if (logLevel == GRYLogLogLevel.Critical)
-            {
-                return EventLogEntryType.Error;
-            }
-            if (logLevel == GRYLogLogLevel.Exception)
-            {
-                return EventLogEntryType.Error;
-            }
-            if (logLevel == GRYLogLogLevel.Warning)
-            {
-                return EventLogEntryType.Warning;
-            }
-            if (logLevel == GRYLogLogLevel.Debug)
-            {
-                return EventLogEntryType.Information;
-            }
-            if (logLevel == GRYLogLogLevel.Verbose)
-            {
-                return EventLogEntryType.Information;
-            }
-            throw new KeyNotFoundException();
+            return this.Configuration.LoggedMessageTypesInLogFile.Contains(logLevel) || this.Configuration.LoggedMessageTypesInConsole.Contains(logLevel);
         }
 
         private string GetLogItemId()
@@ -519,7 +474,6 @@ namespace GRYLibrary
 
         public void Dispose()
         {
-            this._EventLog.Dispose();
             if (this._Watcher != null)
             {
                 this._Watcher.Dispose();
@@ -533,16 +487,10 @@ namespace GRYLibrary
         public GRYLogConfiguration()
         {
             this.Enabled = true;
-            this.DebugBreakMode = false;
             this.LogFile = string.Empty;
             this.ConvertTimeForLogentriesToUTCFormat = false;
-            this.WriteLogEntriesToWindowsEventViewer = false;
             this.EncodingForLogfile = new UTF8Encoding(false);
-            this.DebugBreakLevel = new List<GRYLogLogLevel>() { GRYLogLogLevel.Exception, GRYLogLogLevel.Critical };
             this.DateFormat = "yyyy-MM-dd HH:mm:ss";
-            this.LoggedMessageTypesInConsole = new List<GRYLogLogLevel>();
-            this.LoggedMessageTypesInLogFile = new List<GRYLogLogLevel>();
-            this.LoggedMessageTypesInWindowsEventViewer = new List<GRYLogLogLevel>();
             this.InformationPrefix = "Information";
             this.ErrorPrefix = "Error";
             this.DebugPrefix = "Debug";
@@ -556,24 +504,24 @@ namespace GRYLibrary
             this.WriteExceptionStackTraceOfExceptionInLogEntry = true;
             this.StoreErrorsInErrorQueueInsteadOfLoggingThem = false;
             this.PrintOutputInConsole = true;
-            this.ColorForDebug = ConsoleColor.DarkBlue;
-            this.ColorForError = ConsoleColor.Red;
+            this.ColorForDebug = ConsoleColor.Cyan;
+            this.ColorForVerbose = ConsoleColor.DarkGreen;
             this.ColorForInfo = ConsoleColor.Green;
             this.ColorForWarning = ConsoleColor.DarkYellow;
-            this.ColorForVerbose = ConsoleColor.Blue;
-            this.ColorForCritical = ConsoleColor.DarkRed;
+            this.ColorForError = ConsoleColor.DarkRed;
+            this.ColorForCritical = ConsoleColor.Red;
             this.LogItemIdLength = 8;
             this.Name = string.Empty;
-            this.LoggedMessageTypesInConsole.Add(GRYLogLogLevel.Exception);
-            this.LoggedMessageTypesInConsole.Add(GRYLogLogLevel.Warning);
+            this.LoggedMessageTypesInConsole = new List<GRYLogLogLevel>();
             this.LoggedMessageTypesInConsole.Add(GRYLogLogLevel.Information);
+            this.LoggedMessageTypesInConsole.Add(GRYLogLogLevel.Warning);
+            this.LoggedMessageTypesInConsole.Add(GRYLogLogLevel.Exception);
             this.LoggedMessageTypesInConsole.Add(GRYLogLogLevel.Critical);
-            this.LoggedMessageTypesInLogFile.Add(GRYLogLogLevel.Exception);
-            this.LoggedMessageTypesInLogFile.Add(GRYLogLogLevel.Warning);
+            this.LoggedMessageTypesInLogFile = new List<GRYLogLogLevel>();
             this.LoggedMessageTypesInLogFile.Add(GRYLogLogLevel.Information);
+            this.LoggedMessageTypesInLogFile.Add(GRYLogLogLevel.Warning);
+            this.LoggedMessageTypesInLogFile.Add(GRYLogLogLevel.Exception);
             this.LoggedMessageTypesInLogFile.Add(GRYLogLogLevel.Critical);
-            this.NameOfSourceForWindowsEventViewer = string.Empty;
-            this.ApplicationNameForWindowsEventViewer = string.Empty;
             this.ReloadConfigurationWhenSourceFileWillBeChanged = true;
             this.CreateLogFileIfRequiredAndIfPossible = true;
             this.WriteToLogFileIfLogFileIsAvailable = true;
@@ -585,13 +533,6 @@ namespace GRYLibrary
         /// If this value is false then changing this value in the configuration-file has no effect.
         /// </summary>
         public bool ReloadConfigurationWhenSourceFileWillBeChanged { get; set; }
-        /// <summary>
-        /// If true then <see cref="Debugger.Break"/> will be executed every time a logentry will be created whose loglevel is contained in <see cref="GRYLogConfiguration.DebugBreakLevel"/>. This feature is for debugging-purposes only.
-        /// </summary>
-        /// <remarks>
-        /// Caution: Do not enable this function in productive-mode unless you know exactly what you are doing! Applications typically crash if <see cref="Debugger.Break"/> will be executed and no debugger is attached. For that reason this function is disabled by default.
-        /// </remarks>
-        public bool DebugBreakMode { get; set; }
         public bool Enabled { get; set; }
         public Encoding EncodingForLogfile { get; set; }
         public string InformationPrefix { get; set; }
@@ -606,15 +547,12 @@ namespace GRYLibrary
         public string Name { get; set; }
         public bool StoreErrorsInErrorQueueInsteadOfLoggingThem { get; set; }
         public bool PrintOutputInConsole { get; set; }
-        public bool WriteLogEntriesToWindowsEventViewer { get; set; }
         public bool WriteExceptionMessageOfExceptionInLogEntry { get; set; }
         public bool WriteExceptionStackTraceOfExceptionInLogEntry { get; set; }
         public int MaximalLengthOfPrefixes { get; set; }
         public string DateFormat { get; set; }
-        public IList<GRYLogLogLevel> DebugBreakLevel { get; set; }
         public IList<GRYLogLogLevel> LoggedMessageTypesInConsole { get; set; }
         public IList<GRYLogLogLevel> LoggedMessageTypesInLogFile { get; set; }
-        public IList<GRYLogLogLevel> LoggedMessageTypesInWindowsEventViewer { get; set; }
         public ConsoleColor ColorForInfo { get; set; }
         public ConsoleColor ColorForWarning { get; set; }
         public ConsoleColor ColorForError { get; set; }
@@ -623,8 +561,6 @@ namespace GRYLibrary
         public ConsoleColor ColorForCritical { get; set; }
         public GRYLogLogFormat Format { get; set; }
         public bool ConvertTimeForLogentriesToUTCFormat { get; set; }
-        public string ApplicationNameForWindowsEventViewer { get; set; }
-        public string NameOfSourceForWindowsEventViewer { get; set; }
         public bool WriteToLogFileIfLogFileIsAvailable { get; set; }
         public bool CreateLogFileIfRequiredAndIfPossible { get; set; }
 
@@ -641,10 +577,7 @@ namespace GRYLibrary
         }
         public static void SavedConfiguration(string configurationFile, GRYLogConfiguration configuration, Encoding encoding)
         {
-            new SimpleObjectPersistence<GRYLogConfiguration>(configurationFile, encoding)
-            {
-                Object = configuration
-            }.SaveObject();
+            new SimpleObjectPersistence<GRYLogConfiguration>(configurationFile, encoding) { Object = configuration }.SaveObject();
         }
         public static void SavedConfiguration(string configurationFile, GRYLogConfiguration configuration)
         {

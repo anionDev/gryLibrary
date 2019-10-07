@@ -68,7 +68,10 @@ namespace GRYLibrary
                 {
                     try
                     {
-                        Console.Title = this.Title;
+                        if (!string.IsNullOrWhiteSpace(this.Title))
+                        {
+                            Console.Title = this.Title;
+                        }
                     }
                     catch
                     {
@@ -131,7 +134,7 @@ namespace GRYLibrary
                     this.ExecutionState = ExecutionState.Terminated;
                     if (this.ThrowErrorIfExitCodeIsNotZero && this.ExitCode != 0)
                     {
-                        throw new Exception($"'{this.WorkingDirectory}>{this.ProgramPathAndFile} {this.Arguments}' had exitcode {this.ExitCode.ToString()}.");
+                        throw new UnexpectedExitCodeException($"'{this.WorkingDirectory}>{this.ProgramPathAndFile} {this.Arguments}' had exitcode {this.ExitCode.ToString()}.", this);
                     }
                     else
                     {
@@ -148,7 +151,10 @@ namespace GRYLibrary
                             System.Threading.Thread.Sleep(30);
                         }
                         process?.Dispose();
-                        Console.Title = originalConsoleTitle;
+                        if (!string.IsNullOrWhiteSpace(this.Title))
+                        {
+                            Console.Title = originalConsoleTitle;
+                        }
                     }
                     catch
                     {
@@ -289,5 +295,13 @@ namespace GRYLibrary
         NotStarted = 0,
         Running = 1,
         Terminated = 2
+    }
+    public class UnexpectedExitCodeException : Exception
+    {
+        public ExternalProgramExecutor ExecutedProgram { get; }
+        public UnexpectedExitCodeException(string message, ExternalProgramExecutor externalProgramExecutor) : base(message)
+        {
+            this.ExecutedProgram = externalProgramExecutor;
+        }
     }
 }

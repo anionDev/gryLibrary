@@ -138,7 +138,11 @@ namespace GRYLibrary.Miscellaneous.GraphOperations
         {
             if (this._Vertices.Count == 0)
             {
-                throw new Exception("No vertices available.");
+                throw new InvalidOperationException("No vertices available.");
+            }
+            if (this._Vertices.Count == 1)
+            {
+                return true;
             }
             Vertex startVertex = this._Vertices.First();
             Dictionary<Vertex, bool> visited = new Dictionary<Vertex, bool>();
@@ -146,23 +150,23 @@ namespace GRYLibrary.Miscellaneous.GraphOperations
             {
                 visited.Add(vertex, false);
             }
-            List<Vertex> nextOnes = new List<Vertex>();
+            HashSet<Vertex> nextOnes = new HashSet<Vertex>();
             nextOnes.Add(startVertex);
             visited[startVertex] = true;
             while (nextOnes.Count != 0)
             {
-                List<Vertex> nextNextOnes = new List<Vertex>();
+                HashSet<Vertex> nextNextOnes = new HashSet<Vertex>();
                 foreach (Vertex nextOne in nextOnes)
                 {
                     if (!visited[nextOne])
                     {
                         visited[nextOne] = true;
-                        nextNextOnes.AddRange(this.GetDirectSuccessors(nextOne).Where(s => !visited[s]).ToList());
+                        nextNextOnes.UnionWith(this.GetDirectSuccessors(nextOne).Where(s => !visited[s]));
                     }
                 }
                 nextOnes = nextNextOnes;
             }
-            return visited.ContainsValue(false);
+            return !visited.ContainsValue(false);
         }
 
         public double[,] ToAdjacencyMatrix()

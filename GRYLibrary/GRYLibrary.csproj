@@ -70,6 +70,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Miscellaneous\ByteArray.cs" />
+    <Compile Include="Miscellaneous\CacheDictionaryStore.cs" />
     <Compile Include="Miscellaneous\GraphOperations\Cycle.cs" />
     <Compile Include="Miscellaneous\GraphOperations\DirectedGraph.cs" />
     <Compile Include="Miscellaneous\GraphOperations\Edge.cs" />
