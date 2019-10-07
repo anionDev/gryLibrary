@@ -74,6 +74,34 @@
             </summary>
             <typeparam name="T">The type of the object which should be persisted.</typeparam>
         </member>
+        <member name="M:GRYLibrary.SimpleObjectPersistence`1.#ctor(System.String)">
+            <summary>
+            Loads an object from <paramref name="file"/> which will be stored in <see cref="P:GRYLibrary.SimpleObjectPersistence`1.Object"/>. UTF-8 will be used as encoding.
+            </summary>
+            <param name="file">filename with full path</param>
+        </member>
+        <member name="M:GRYLibrary.SimpleObjectPersistence`1.#ctor(System.String,System.Text.Encoding)">
+            <summary>
+            Loads an object from <paramref name="file"/> which will be stored in <see cref="P:GRYLibrary.SimpleObjectPersistence`1.Object"/>.
+            </summary>
+            <param name="file">filename with full path</param>
+            <param name="encoding">Encoding which should be used to load <paramref name="file"/></param>
+        </member>
+        <member name="M:GRYLibrary.SimpleObjectPersistence`1.#ctor(System.String,`0)">
+            <summary>
+            Stores <paramref name="object"/> in <see cref="P:GRYLibrary.SimpleObjectPersistence`1.Object"/> and in <paramref name="file"/>. UTF-8 will be used as encoding.
+            </summary>
+            <param name="file">filename with full path</param>
+            <param name="object">object which should be saved</param>
+        </member>
+        <member name="M:GRYLibrary.SimpleObjectPersistence`1.#ctor(System.String,`0,System.Xml.XmlWriterSettings)">
+            <summary>
+            Stores <paramref name="object"/> in <see cref="P:GRYLibrary.SimpleObjectPersistence`1.Object"/> and in <paramref name="file"/>.
+            </summary>
+            <param name="file">filename with full path</param>
+            <param name="object">object which should be saved</param>
+            <param name="xmlWriterSettings">settings for writing <paramref name="object"/> to the disk</param>
+        </member>
         <member name="P:GRYLibrary.GRYObjectSystem.Meta.Property.Property`1.History">
             <summary>
             The history contains all T-objects which where set as value for <see cref="P:GRYLibrary.GRYObjectSystem.Meta.Property.Property`1.Value"/> with the <see cref="T:System.DateTime"/> when they were set.
@@ -90,24 +118,6 @@
         <member name="P:GRYLibrary.GRYLogConfiguration.ReloadConfigurationWhenSourceFileWillBeChanged">
             <summary>
             If this value is false then changing this value in the configuration-file has no effect.
-            </summary>
-        </member>
-        <member name="P:GRYLibrary.GRYLogConfiguration.DebugBreakMode">
-            <summary>
-            If true then <see cref="M:System.Diagnostics.Debugger.Break"/> will be executed every time a logentry will be created whose loglevel is contained in <see cref="P:GRYLibrary.GRYLogConfiguration.DebugBreakLevel"/>. This feature is for debugging-purposes only.
-            </summary>
-            <remarks>
-            Caution: Do not enable this function in productive-mode unless you know exactly what you are doing! Applications typically crash if <see cref="M:System.Diagnostics.Debugger.Break"/> will be executed and no debugger is attached. For that reason this function is disabled by default.
-            </remarks>
-        </member>
-        <member name="P:GRYLibrary.GRYLogConfiguration.AddIdToEveryLogEntry">
-            <summary>
-            If true then every log-entry gets a random id. This function is disabled by default.
-            </summary>
-        </member>
-        <member name="P:GRYLibrary.GRYLogConfiguration.LogOverhead">
-            <summary>
-            If true then overhead like date/time will be added to every log-entry.
             </summary>
         </member>
         <member name="T:GRYLibrary.PercentValue">
