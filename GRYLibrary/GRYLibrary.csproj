@@ -110,6 +110,9 @@
     <Compile Include="Miscellaneous\SupervisedThread.cs" />
     <Compile Include="Miscellaneous\Utilities.cs" />
     <Compile Include="Miscellaneous\SimpleGenericXMLSerializer.cs" />
+    <Compile Include="SimpleCommunicationWrapper\Client.cs" />
+    <Compile Include="SimpleCommunicationWrapper\CommunicationParticipant.cs" />
+    <Compile Include="SimpleCommunicationWrapper\Server.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config">
