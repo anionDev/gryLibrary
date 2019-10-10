@@ -111,6 +111,10 @@
     <Compile Include="Miscellaneous\Utilities.cs" />
     <Compile Include="Miscellaneous\SimpleGenericXMLSerializer.cs" />
     <Compile Include="SimpleCommunicationWrapper\Client.cs" />
+    <Compile Include="SimpleCommunicationWrapper\CommunicationObject\CommunicationObject.cs" />
+    <Compile Include="SimpleCommunicationWrapper\CommunicationObject\EncryptedObject.cs" />
+    <Compile Include="SimpleCommunicationWrapper\CommunicationObject\InitializationRequest.cs" />
+    <Compile Include="SimpleCommunicationWrapper\CommunicationObject\InizializationAnswer.cs" />
     <Compile Include="SimpleCommunicationWrapper\CommunicationParticipant.cs" />
     <Compile Include="SimpleCommunicationWrapper\Server.cs" />
   </ItemGroup>

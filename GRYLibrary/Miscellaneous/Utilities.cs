@@ -18,6 +18,7 @@ using static GRYLibrary.Miscellaneous.TableGenerator;
 using System.Numerics;
 using System.Globalization;
 using System.Xml;
+using System.Security.Cryptography;
 
 namespace GRYLibrary
 {
@@ -998,5 +999,22 @@ namespace GRYLibrary
         {
             return Path.GetFullPath(new Uri(Path.Combine(baseDirectory, relativePath)).LocalPath);
         }
+        public static byte[] DecryptAsymmetrical(byte[] content, string privateKey)
+        {
+            throw new NotImplementedException();
+        }
+        public static byte[] EncryptAsymmetrical(byte[] content, string publicKey)
+        {
+            throw new NotImplementedException();
+        }
+        public static byte[] DecryptSymmetrical(byte[] content, string key)
+        {
+            throw new NotImplementedException();
+        }
+        public static byte[] EncryptSymmetrical(byte[] content, string key)
+        {
+            throw new NotImplementedException();
+        }
+
     }
 }

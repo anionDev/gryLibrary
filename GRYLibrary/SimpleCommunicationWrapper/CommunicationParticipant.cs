@@ -1,26 +1,34 @@
 ﻿using System;
+using System.Text;
+
 namespace GRYLibrary.SimpleCommunicationWrapper
 {
     public abstract class CommunicationParticipant
     {
+        protected Encoding Encoding = new UTF8Encoding(false);
         public string ServerAddress { get; set; }
         public int ServerPort { get; set; }
-        public string PublicKeyOfCounterpart { get; set; }
-        public string OwnPrivateKey { get; set; }
-        public CommunicationParticipant(string serverAddress, int serverPort, string publicKeyOfCounterpart, string ownPrivateKey)
+        public CommunicationParticipant(string serverAddress, int serverPort)
         {
             this.ServerAddress = serverAddress;
             this.ServerPort = serverPort;
-            this.PublicKeyOfCounterpart = publicKeyOfCounterpart;
-            this.OwnPrivateKey = ownPrivateKey;
         }
-        protected byte[] Decrypt(byte[] content, string privateKey)
+
+        protected byte[] DecryptAsymmetrical(byte[] content, string privateKey)
         {
-            throw new NotImplementedException();
+            return DecryptAsymmetrical(content, privateKey);
         }
-        protected byte[] Encrypt(byte[] content, string publicKe)
+        protected byte[] EncryptAsymmetrical(byte[] content, string publicKey)
         {
-            throw new NotImplementedException();
+            return DecryptAsymmetrical(content, publicKey);
+        }
+        protected byte[] DecryptSymmetrical(byte[] content, string key)
+        {
+            return Utilities.DecryptSymmetrical(content, key);
+        }
+        protected byte[] EncryptSymmetrical(byte[] content, string key)
+        {
+            return Utilities.EncryptSymmetrical(content, key);
         }
 
     }
