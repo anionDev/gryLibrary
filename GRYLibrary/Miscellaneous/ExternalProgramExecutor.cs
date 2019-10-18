@@ -280,7 +280,7 @@ namespace GRYLibrary
                 {
                     if (logItem.Item1.Equals(GRYLogLogLevel.Exception))
                     {
-                        this.LogObject?.Log(logItem.Item2);
+                        this.LogObject?.Log(logItem.Item2, GRYLogLogLevel.Exception);
                     }
                     if (logItem.Item1.Equals(GRYLogLogLevel.Information))
                     {

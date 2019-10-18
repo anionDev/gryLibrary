@@ -33,17 +33,20 @@ namespace GRYLibrary
         private FileSystemWatcher _Watcher;
         private GRYLog(GRYLogConfiguration configuration, string configurationFile)
         {
-            if (string.IsNullOrWhiteSpace(configuration.LogFile) && configuration.CreateLogFileIfRequiredAndIfPossible)
+            lock (_LockObject)
             {
-                configuration.WriteToLogFileIfLogFileIsAvailable = false;
+                if (string.IsNullOrWhiteSpace(configuration.LogFile) && configuration.CreateLogFileIfRequiredAndIfPossible)
+                {
+                    configuration.WriteToLogFileIfLogFileIsAvailable = false;
+                }
+                this._ConsoleDefaultColor = Console.ForegroundColor;
+                this.Configuration = configuration;
+                if (this.Configuration.ReloadConfigurationWhenSourceFileWillBeChanged && File.Exists(configurationFile))
+                {
+                    this.StartFileWatcherForConfigurationFile(configurationFile);
+                }
+                this._Initialized = true;
             }
-            this._ConsoleDefaultColor = Console.ForegroundColor;
-            this.Configuration = configuration;
-            if (this.Configuration.ReloadConfigurationWhenSourceFileWillBeChanged && File.Exists(configurationFile))
-            {
-                this.StartFileWatcherForConfigurationFile(configurationFile);
-            }
-            this._Initialized = true;
         }
         public static GRYLog Create()
         {
@@ -160,23 +163,23 @@ namespace GRYLibrary
         public void Log(string message, GRYLogLogLevel logLevel)
         {
             DateTime momentOfLogEntry = DateTime.Now;
-            if (!this._Initialized)
-            {
-                return;
-            }
-            if (!this.CheckEnabled())
-            {
-                return;
-            }
-
-            if (!this.LineShouldBePrinted(message))
-            {
-                return;
-            }
-            message = message.Trim();
-            string originalMessage = message;
             lock (_LockObject)
             {
+                if (!this._Initialized)
+                {
+                    return;
+                }
+                if (!this.CheckEnabled())
+                {
+                    return;
+                }
+
+                if (!this.LineShouldBePrinted(message))
+                {
+                    return;
+                }
+                message = message.Trim();
+                string originalMessage = message;
                 if (message.Contains(Environment.NewLine) && this.Configuration.LogEveryLineOfLogEntryInNewLine)
                 {
                     foreach (string line in message.Split(new string[] { Environment.NewLine }, StringSplitOptions.None))
@@ -215,45 +218,47 @@ namespace GRYLibrary
                 this.FormatMessage(message, momentOfLogEntry, logLevel, out string formattedMessage, out int colorBegin, out int colorEnd, out ConsoleColor color);
                 message = formattedMessage;
 
-                lock (_LockObject)
+                bool writeToLogFileIfLogFileIsAvailable = this.Configuration.WriteToLogFileIfLogFileIsAvailable;
+                bool logLevelMatches = this.Configuration.LoggedMessageTypesInLogFile.Contains(logLevel);
+                bool logFileExists = File.Exists(this.Configuration.LogFile);
+                bool createLogFile = this.Configuration.CreateLogFileIfRequiredAndIfPossible;
+                bool writeToLogFile = writeToLogFileIfLogFileIsAvailable && logLevelMatches && (logFileExists || createLogFile);
+                if (writeToLogFile)
                 {
-                    if (this.Configuration.WriteToLogFileIfLogFileIsAvailable && this.Configuration.LoggedMessageTypesInLogFile.Contains(logLevel) && (File.Exists(this.Configuration.LogFile) || this.Configuration.CreateLogFileIfRequiredAndIfPossible))
+                    if (this.Configuration.LogFile == null)
                     {
-                        if (this.Configuration.LogFile == null)
+                        throw new NullReferenceException($"LogFile is null");
+                    }
+                    if (!File.Exists(this.Configuration.LogFile))
+                    {
+                        if (this.Configuration.CreateLogFileIfRequiredAndIfPossible)
                         {
-                            throw new NullReferenceException($"LogFile is null");
-                        }
-                        if (!File.Exists(this.Configuration.LogFile))
-                        {
-                            if (this.Configuration.CreateLogFileIfRequiredAndIfPossible)
+                            if (string.IsNullOrWhiteSpace(this.Configuration.LogFile))
                             {
-                                if (string.IsNullOrWhiteSpace(this.Configuration.LogFile))
-                                {
-                                    throw new FileNotFoundException($"LogFile '{this.Configuration.LogFile}' is no valid file-path");
-                                }
-                                else
-                                {
-                                    string directoryOfLogFile = Path.GetDirectoryName(this.Configuration.LogFile);
-                                    if (!(string.IsNullOrWhiteSpace(directoryOfLogFile) || Directory.Exists(directoryOfLogFile)))
-                                    {
-                                        Directory.CreateDirectory(directoryOfLogFile);
-                                    }
-                                    Utilities.EnsureFileExists(this.Configuration.LogFile);
-                                }
+                                throw new FileNotFoundException($"LogFile '{this.Configuration.LogFile}' is no valid file-path");
                             }
                             else
                             {
-                                throw new FileNotFoundException($"LogFile '{this.Configuration.LogFile}' is not available.");
+                                string directoryOfLogFile = Path.GetDirectoryName(this.Configuration.LogFile);
+                                if (!(string.IsNullOrWhiteSpace(directoryOfLogFile) || Directory.Exists(directoryOfLogFile)))
+                                {
+                                    Directory.CreateDirectory(directoryOfLogFile);
+                                }
+                                Utilities.EnsureFileExists(this.Configuration.LogFile);
                             }
                         }
-                        File.AppendAllLines(this.Configuration.LogFile, new string[] { message }, this.Configuration.EncodingForLogfile);
+                        else
+                        {
+                            throw new FileNotFoundException($"LogFile '{this.Configuration.LogFile}' is not available.");
+                        }
                     }
-                    if (this.Configuration.PrintOutputInConsole && this.Configuration.LoggedMessageTypesInConsole.Contains(logLevel))
-                    {
-                        Console.Write(message.Substring(0, colorBegin));
-                        this.WriteWithColorToConsole(message.Substring(colorBegin, colorEnd - colorBegin), logLevel);
-                        Console.Write(message.Substring(colorEnd) + Environment.NewLine);
-                    }
+                    File.AppendAllLines(this.Configuration.LogFile, new string[] { message }, this.Configuration.EncodingForLogfile);
+                }
+                if (this.Configuration.PrintOutputInConsole && this.Configuration.LoggedMessageTypesInConsole.Contains(logLevel))
+                {
+                    Console.Write(message.Substring(0, colorBegin));
+                    this.WriteWithColorToConsole(message.Substring(colorBegin, colorEnd - colorBegin), logLevel);
+                    Console.Write(message.Substring(colorEnd) + Environment.NewLine);
                 }
                 NewLogItem?.Invoke(originalMessage, message, logLevel);
             }
@@ -504,7 +509,7 @@ namespace GRYLibrary
             this.StoreErrorsInErrorQueueInsteadOfLoggingThem = false;
             this.PrintOutputInConsole = true;
             this.ColorForDebug = ConsoleColor.Cyan;
-            this.ColorForVerbose = ConsoleColor.DarkGreen;
+            this.ColorForVerbose = ConsoleColor.Blue;
             this.ColorForInfo = ConsoleColor.Green;
             this.ColorForWarning = ConsoleColor.DarkYellow;
             this.ColorForError = ConsoleColor.DarkRed;
