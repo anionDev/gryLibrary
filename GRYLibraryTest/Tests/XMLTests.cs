@@ -11,7 +11,7 @@ namespace GRYLibraryTest.Tests
         [TestMethod]
         public void TestXSDValidator_Test1()
         {
-            string testDataFolder = Path.Combine("TestData", "XMLValidator", "Test1");
+            string testDataFolder = Path.Combine("TestData", "XSDValidator", "Test1");
             string testXSD1File = Path.Combine(testDataFolder, "TestXSD1.xsd");
             string testXML1_MatchsXSD1 = Path.Combine(testDataFolder, "TestXML1_MatchsXSD1.xml");
             string testXML2_MatchsXSD1Not = Path.Combine(testDataFolder, "TestXML2_MatchsXSD1Not.xml");

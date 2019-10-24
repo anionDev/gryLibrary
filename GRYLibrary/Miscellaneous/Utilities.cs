@@ -1040,18 +1040,32 @@ namespace GRYLibrary
                 return false;
             }
         }
+        public static readonly XmlWriterSettings ApplyXSLTToXMLXMLWriterDefaultSettings = new XmlWriterSettings() { Indent = true, Encoding = new UTF8Encoding(false), OmitXmlDeclaration = true, IndentChars = "    " };
+        public static readonly string ApplyXSLTToXMLXMLWriterDefaultXMLDeclaration = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n";
         public static string ApplyXSLTToXML(string xml, string xslt)
         {
+            return ApplyXSLTToXML(xml, xslt, ApplyXSLTToXMLXMLWriterDefaultXMLDeclaration, ApplyXSLTToXMLXMLWriterDefaultSettings);
+        }
+        public static string ApplyXSLTToXML(string xml, string xslt, string xmlDeclaration)
+        {
+            return ApplyXSLTToXML(xml, xslt, xmlDeclaration, ApplyXSLTToXMLXMLWriterDefaultSettings);
+        }
+        public static string ApplyXSLTToXML(string xml, string xslt, XmlWriterSettings applyXSLTToXMLXMLWriterDefaultSettings)
+        {
+            return ApplyXSLTToXML(xml, xslt, ApplyXSLTToXMLXMLWriterDefaultXMLDeclaration, applyXSLTToXMLXMLWriterDefaultSettings);
+        }
+        public static string ApplyXSLTToXML(string xml, string xslt, string xmlDeclaration, XmlWriterSettings applyXSLTToXMLXMLWriterDefaultSettings)
+        {
             XslCompiledTransform myXslTrans = new XslCompiledTransform();
-            myXslTrans.Load(XmlReader.Create(new StringReader(xml)));
+            myXslTrans.Load(XmlReader.Create(new StringReader(xslt)));
             using (StringWriter stringWriter = new StringWriter())
             {
-                using (XmlWriter xmlWriter = XmlWriter.Create(stringWriter))
+                using (XmlWriter xmlWriter = XmlWriter.Create(stringWriter, applyXSLTToXMLXMLWriterDefaultSettings))
                 {
-                    myXslTrans.Transform(XmlReader.Create(new StringReader(xslt)), xmlWriter);
+                    myXslTrans.Transform(XmlReader.Create(new StringReader(xml)), xmlWriter);
 
                 }
-                return stringWriter.ToString();
+                return xmlDeclaration + stringWriter.ToString();
             }
         }
     }

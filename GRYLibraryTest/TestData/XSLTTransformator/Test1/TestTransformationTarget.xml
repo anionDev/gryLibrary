@@ -1,4 +1,5 @@
-﻿<MyDocument>
+﻿<?xml version="1.0" encoding="utf-8"?>
+<MyDocument>
     <property xyz="abc">
         <type>x1</type>
         <property1>x2</property1>
