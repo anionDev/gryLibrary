@@ -15,13 +15,12 @@ namespace GRYLibraryTest.Tests
             string testXSD1File = Path.Combine(testDataFolder, "TestXSD1.xsd");
             string testXML1_MatchsXSD1 = Path.Combine(testDataFolder, "TestXML1_MatchsXSD1.xml");
             string testXML2_MatchsXSD1Not = Path.Combine(testDataFolder, "TestXML2_MatchsXSD1Not.xml");
-            string testTargetNamespace = "mynamespace";
 
             string xmlWorking = File.ReadAllText(testXML1_MatchsXSD1, _FileEncoding);
             string xmlNotWorking = File.ReadAllText(testXML2_MatchsXSD1Not, _FileEncoding);
             string xsd = File.ReadAllText(testXSD1File, _FileEncoding);
-            Assert.IsTrue(GRYLibrary.Utilities.ValidateXMLAgainstXSD(xmlWorking, xsd, testTargetNamespace, out _));
-            Assert.IsFalse(GRYLibrary.Utilities.ValidateXMLAgainstXSD(xmlNotWorking, xsd, testTargetNamespace, out _));
+            Assert.IsTrue(GRYLibrary.Utilities.ValidateXMLAgainstXSD(xmlWorking, xsd, out _));
+            Assert.IsFalse(GRYLibrary.Utilities.ValidateXMLAgainstXSD(xmlNotWorking, xsd, out _));
         }
         [TestMethod]
         public void TestXSLTValidator_Test1()

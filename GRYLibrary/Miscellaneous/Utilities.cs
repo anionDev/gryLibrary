@@ -1017,17 +1017,16 @@ namespace GRYLibrary
         {
             throw new NotImplementedException();
         }
-        public static bool ValidateXMLAgainstXSD(string xml, string xsd, string targetNamespace, out IList<object> errorMessages)
+        public static bool ValidateXMLAgainstXSD(string xml, string xsd, out IList<object> errorMessages)
         {
             try
             {
-                XmlSchemaSet schemas = new XmlSchemaSet();
                 XmlSchemaSet schemaSet = new XmlSchemaSet();
-                schemaSet.Add(targetNamespace, XmlReader.Create(new StringReader(xsd)));
+                schemaSet.Add(null, XmlReader.Create(new StringReader(xsd)));
                 XDocument xDocument = XDocument.Parse(xml);
                 List<object> errorMessagesList = new List<object>();
 
-                xDocument.Validate(schemas, (o, eventArgument) =>
+                xDocument.Validate(schemaSet, (o, eventArgument) =>
                 {
                     errorMessagesList.Add(eventArgument);
                 });
@@ -1040,6 +1039,7 @@ namespace GRYLibrary
                 return false;
             }
         }
+
         public static readonly XmlWriterSettings ApplyXSLTToXMLXMLWriterDefaultSettings = new XmlWriterSettings() { Indent = true, Encoding = new UTF8Encoding(false), OmitXmlDeclaration = true, IndentChars = "    " };
         public static readonly string ApplyXSLTToXMLXMLWriterDefaultXMLDeclaration = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n";
         public static string ApplyXSLTToXML(string xml, string xslt)
