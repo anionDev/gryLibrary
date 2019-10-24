@@ -74,9 +74,15 @@
     <Compile Include="Tests\XMLTests.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="TestData\XSLTTransformator\Test1\TestTransformationSource.xml" />
-    <Content Include="TestData\XSLTTransformator\Test1\TestTransformationTarget.xml" />
-    <Content Include="TestData\XSLTTransformator\Test1\TestXSLT1.xslt" />
+    <Content Include="TestData\XSLTTransformator\Test1\TestTransformationSource.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="TestData\XSLTTransformator\Test1\TestTransformationTarget.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="TestData\XSLTTransformator\Test1\TestXSLT1.xslt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <None Include="packages.config" />
     <Content Include="TestData\XSDValidator\Test1\TestXML2_MatchsXSD1Not.xml">
       <SubType>Designer</SubType>
