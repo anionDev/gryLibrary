@@ -18,7 +18,9 @@ using static GRYLibrary.Miscellaneous.TableGenerator;
 using System.Numerics;
 using System.Globalization;
 using System.Xml;
-using System.Security.Cryptography;
+using System.Xml.Schema;
+using System.Xml.Linq;
+using System.Xml.Xsl;
 
 namespace GRYLibrary
 {
@@ -1015,6 +1017,42 @@ namespace GRYLibrary
         {
             throw new NotImplementedException();
         }
+        public static bool ValidateXMLAgainstXSD(string xml, string xsd, string targetNamespace, out IList<object> errorMessages)
+        {
+            try
+            {
+                XmlSchemaSet schemas = new XmlSchemaSet();
+                XmlSchemaSet schemaSet = new XmlSchemaSet();
+                schemaSet.Add(targetNamespace, XmlReader.Create(new StringReader(xsd)));
+                XDocument xDocument = XDocument.Parse(xml);
+                List<object> errorMessagesList = new List<object>();
 
+                xDocument.Validate(schemas, (o, eventArgument) =>
+                {
+                    errorMessagesList.Add(eventArgument);
+                });
+                errorMessages = errorMessagesList;
+                return errorMessages.Count == 0;
+            }
+            catch (Exception e)
+            {
+                errorMessages = new List<object>() { e };
+                return false;
+            }
+        }
+        public static string ApplyXSLTToXML(string xml, string xslt)
+        {
+            XslCompiledTransform myXslTrans = new XslCompiledTransform();
+            myXslTrans.Load(XmlReader.Create(new StringReader(xml)));
+            using (StringWriter stringWriter = new StringWriter())
+            {
+                using (XmlWriter xmlWriter = XmlWriter.Create(stringWriter))
+                {
+                    myXslTrans.Transform(XmlReader.Create(new StringReader(xslt)), xmlWriter);
+
+                }
+                return stringWriter.ToString();
+            }
+        }
     }
 }

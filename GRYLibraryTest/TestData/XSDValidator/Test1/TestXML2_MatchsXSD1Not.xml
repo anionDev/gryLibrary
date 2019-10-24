@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<MyRootItem xmlns="mynamespace"
+                 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                 xsi:schemaLocation="http://www.w3schools.com ./TestXSD1.xsd">
+    <MySubElement>
+        value
+    </MySubElement>
+    <WrongSubElement>
+        value2
+    </WrongSubElement>
+</MyRootItem>
