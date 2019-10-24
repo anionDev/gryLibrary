@@ -308,10 +308,6 @@ namespace GRYLibrary
             return this.Configuration.LoggedMessageTypesInLogFile.Contains(logLevel) || this.Configuration.LoggedMessageTypesInConsole.Contains(logLevel);
         }
 
-        private string GetLogItemId()
-        {
-            return Guid.NewGuid().ToString().Replace("-", string.Empty).Substring(0, this.Configuration.LogItemIdLength);
-        }
         private string GetExceptionMessage(string message, Exception exception)
         {
             string result = message;

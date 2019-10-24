@@ -782,8 +782,10 @@ namespace GRYLibrary
             bool isAuthenticated = false;
             try
             {
-                DirectoryEntry entry = new DirectoryEntry(authenticationProtocol + ":" + authentificationServerName, username, password);
-                object nativeObject = entry.NativeObject;
+                using (DirectoryEntry entry = new DirectoryEntry(authenticationProtocol + ":" + authentificationServerName, username, password))
+                {
+                    object nativeObject = entry.NativeObject;
+                }
                 isAuthenticated = true;
             }
             catch (DirectoryServicesCOMException)

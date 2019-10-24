@@ -14,18 +14,20 @@ namespace GRYLibraryTest.Tests
             Utilities.EnsureFileDoesNotExist(logFile);
             try
             {
-                GRYLog logObject = GRYLog.Create(logFile);
-                logObject.Configuration.Format = GRYLogLogFormat.OnlyMessage;
-                string file = logFile;
-                Assert.IsFalse(File.Exists(file));
-                string fileWithRelativePath = logFile;
-                logObject.Configuration.LogFile = fileWithRelativePath;
-                Assert.AreEqual(fileWithRelativePath, logObject.Configuration.LogFile);
-                Assert.IsFalse(File.Exists(fileWithRelativePath));
-                string testContent = "test";
-                logObject.Log(testContent);
-                Assert.IsTrue(File.Exists(fileWithRelativePath));
-                Assert.AreEqual(testContent + System.Environment.NewLine, File.ReadAllText(logFile));
+                using (GRYLog logObject = GRYLog.Create(logFile))
+                {
+                    logObject.Configuration.Format = GRYLogLogFormat.OnlyMessage;
+                    string file = logFile;
+                    Assert.IsFalse(File.Exists(file));
+                    string fileWithRelativePath = logFile;
+                    logObject.Configuration.LogFile = fileWithRelativePath;
+                    Assert.AreEqual(fileWithRelativePath, logObject.Configuration.LogFile);
+                    Assert.IsFalse(File.Exists(fileWithRelativePath));
+                    string testContent = "test";
+                    logObject.Log(testContent);
+                    Assert.IsTrue(File.Exists(fileWithRelativePath));
+                    Assert.AreEqual(testContent + System.Environment.NewLine, File.ReadAllText(logFile));
+                }
             }
             finally
             {
@@ -40,18 +42,20 @@ namespace GRYLibraryTest.Tests
             Utilities.EnsureFileDoesNotExist(logFile);
             try
             {
-                GRYLog logObject = GRYLog.Create(logFile);
-                logObject.Configuration.Format = GRYLogLogFormat.OnlyMessage;
-                string file = logFile;
-                Assert.IsFalse(File.Exists(file));
-                string fileWithRelativePath = logFile;
-                logObject.Configuration.LogFile = fileWithRelativePath;
-                Assert.AreEqual(fileWithRelativePath, logObject.Configuration.LogFile);
-                Assert.IsFalse(File.Exists(fileWithRelativePath));
-                string testContent = "test";
-                logObject.Log(testContent);
-                Assert.IsTrue(File.Exists(fileWithRelativePath));
-                Assert.AreEqual(testContent + System.Environment.NewLine, File.ReadAllText(logFile));
+                using (GRYLog logObject = GRYLog.Create(logFile))
+                {
+                    logObject.Configuration.Format = GRYLogLogFormat.OnlyMessage;
+                    string file = logFile;
+                    Assert.IsFalse(File.Exists(file));
+                    string fileWithRelativePath = logFile;
+                    logObject.Configuration.LogFile = fileWithRelativePath;
+                    Assert.AreEqual(fileWithRelativePath, logObject.Configuration.LogFile);
+                    Assert.IsFalse(File.Exists(fileWithRelativePath));
+                    string testContent = "test";
+                    logObject.Log(testContent);
+                    Assert.IsTrue(File.Exists(fileWithRelativePath));
+                    Assert.AreEqual(testContent + System.Environment.NewLine, File.ReadAllText(logFile));
+                }
             }
             finally
             {

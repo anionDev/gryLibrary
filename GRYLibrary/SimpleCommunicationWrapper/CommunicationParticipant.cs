@@ -15,11 +15,11 @@ namespace GRYLibrary.SimpleCommunicationWrapper
 
         protected byte[] DecryptAsymmetrical(byte[] content, string privateKey)
         {
-            return DecryptAsymmetrical(content, privateKey);
+            return this.DecryptAsymmetrical(content, privateKey);
         }
         protected byte[] EncryptAsymmetrical(byte[] content, string publicKey)
         {
-            return DecryptAsymmetrical(content, publicKey);
+            return this.DecryptAsymmetrical(content, publicKey);
         }
         protected byte[] DecryptSymmetrical(byte[] content, string key)
         {

@@ -6,7 +6,7 @@ namespace GRYLibrary.SimpleCommunicationWrapper
 {
     public class Server : CommunicationParticipant
     {
-        private IDictionary<string/*clientAddress*/, string/*secretSharedWithThisClient*/> _SharedSecrets = new Dictionary<string, string>();
+        private readonly IDictionary<string/*clientAddress*/, string/*secretSharedWithThisClient*/> _SharedSecrets = new Dictionary<string, string>();
         public Func<byte[], byte[]> CalculateAnswerFunction { get; set; }
         public string PrivateKey { get; set; }
         public Server(string serverAddress, int serverPort, Func<byte[], byte[]> calculateAnswerFunction, string privateKey) : base(serverAddress, serverPort)
@@ -26,7 +26,7 @@ namespace GRYLibrary.SimpleCommunicationWrapper
                 throw new NotImplementedException();
             }
         }
-        private ICommunicationObjectVisitor<CommunicationObject.CommunicationObject> _AnswerVisitor = null;
+        private readonly ICommunicationObjectVisitor<CommunicationObject.CommunicationObject> _AnswerVisitor = null;
         private class AnswerVisitor : ICommunicationObjectVisitor<CommunicationObject.CommunicationObject/*Answer-object*/>
         {
             private readonly Server _Server;

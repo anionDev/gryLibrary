@@ -15,7 +15,7 @@ namespace GRYLibrary.SimpleCommunicationWrapper
         {
             return this.SendDataToServer(new EncryptedObject(this.EncryptSymmetrical(content, this.GetSharedSecret()))).Accept(this._AnswerVisitor);
         }
-        private ICommunicationObjectVisitor<byte[]> _AnswerVisitor = new AnswerVisitor();
+        private readonly ICommunicationObjectVisitor<byte[]> _AnswerVisitor = new AnswerVisitor();
 
         private class AnswerVisitor : ICommunicationObjectVisitor<byte[]>
         {

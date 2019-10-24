@@ -7,7 +7,7 @@ namespace GRYLibraryTest.Tests
     [TestClass]
     public class XMLTests
     {
-        Encoding _FileEncoding = new UTF8Encoding(false);
+        private readonly Encoding _FileEncoding = new UTF8Encoding(false);
         [TestMethod]
         public void TestXSDValidator_Test1()
         {
@@ -16,9 +16,9 @@ namespace GRYLibraryTest.Tests
             string testXML1_MatchsXSD1 = Path.Combine(testDataFolder, "TestXML1_MatchsXSD1.xml");
             string testXML2_MatchsXSD1Not = Path.Combine(testDataFolder, "TestXML2_MatchsXSD1Not.xml");
 
-            string xmlWorking = File.ReadAllText(testXML1_MatchsXSD1, _FileEncoding);
-            string xmlNotWorking = File.ReadAllText(testXML2_MatchsXSD1Not, _FileEncoding);
-            string xsd = File.ReadAllText(testXSD1File, _FileEncoding);
+            string xmlWorking = File.ReadAllText(testXML1_MatchsXSD1, this._FileEncoding);
+            string xmlNotWorking = File.ReadAllText(testXML2_MatchsXSD1Not, this._FileEncoding);
+            string xsd = File.ReadAllText(testXSD1File, this._FileEncoding);
             Assert.IsTrue(GRYLibrary.Utilities.ValidateXMLAgainstXSD(xmlWorking, xsd, out _));
             Assert.IsFalse(GRYLibrary.Utilities.ValidateXMLAgainstXSD(xmlNotWorking, xsd, out _));
         }
@@ -29,9 +29,9 @@ namespace GRYLibraryTest.Tests
             string testSource = Path.Combine(testDataFolder, "TestTransformationSource.xml");
             string testTarget = Path.Combine(testDataFolder, "TestTransformationTarget.xml");
             string testXSLT = Path.Combine(testDataFolder, "TestXSLT1.xslt");
-            string xmlSource = File.ReadAllText(testSource, _FileEncoding);
-            string xmlTarget = File.ReadAllText(testTarget, _FileEncoding);
-            string xslt = File.ReadAllText(testXSLT, _FileEncoding);
+            string xmlSource = File.ReadAllText(testSource, this._FileEncoding);
+            string xmlTarget = File.ReadAllText(testTarget, this._FileEncoding);
+            string xslt = File.ReadAllText(testXSLT, this._FileEncoding);
             Assert.AreEqual(xmlTarget, GRYLibrary.Utilities.ApplyXSLTToXML(xmlSource, xslt));
         }
     }

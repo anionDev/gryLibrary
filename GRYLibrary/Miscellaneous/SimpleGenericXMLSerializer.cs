@@ -22,8 +22,10 @@ namespace GRYLibrary
                     serializer.WriteObject(xmlWriter, @object);
                 }
                 stream.Seek(0, SeekOrigin.Begin);
-                StreamReader streamReader = new StreamReader(stream);
-                return streamReader.ReadToEnd();
+                using (StreamReader streamReader = new StreamReader(stream))
+                {
+                    return streamReader.ReadToEnd();
+                }
             }
         }
         public T Deserialize(string xml)
