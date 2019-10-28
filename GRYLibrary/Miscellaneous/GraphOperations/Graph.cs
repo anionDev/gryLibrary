@@ -233,7 +233,40 @@ namespace GRYLibrary.Miscellaneous.GraphOperations
             throw new NotImplementedException();
             return result;
         }
-
+        public void DepthFirstSearch(Action<IList<Edge>> customAction)
+        {
+            DepthFirstSearch(customAction, this.Vertices.First());
+        }
+        public void DepthFirstSearch(Action<IList<Edge>> customAction, Vertex startVertex)
+        {
+            if (!this.Vertices.Contains(startVertex))
+            {
+                throw new Exception($"Vertex '{startVertex}' is not contained in this graph.");
+            }
+            Dictionary<Vertex, bool> dictionary = new Dictionary<Vertex, bool>();
+            foreach (Vertex vertex in this.Vertices)
+            {
+                dictionary.Add(vertex, false);
+            }
+            DepthFirstSearch(customAction, startVertex, dictionary, new List<Edge>());
+        }
+        private void DepthFirstSearch(Action<IList<Edge>> customAction, Vertex currentVertex, IDictionary<Vertex, bool> visitedMap, IList<Edge> currentPath)
+        {
+            if (!visitedMap[currentVertex])
+            {
+                visitedMap[currentVertex] = true;
+                foreach (Edge edge in this.Edges)
+                {
+                    if (edge.Source.Equals(currentVertex) && !visitedMap[edge.Target])
+                    {
+                        List<Edge> path = new List<Edge>(currentPath);
+                        path.Add(edge);
+                        customAction(path);
+                        DepthFirstSearch(customAction, edge.Target, visitedMap, path);
+                    }
+                }
+            }
+        }
         /// <returns>
         /// Returns true if and only if the adjacency-matrices of this and <paramref name="obj"/> are equal.
         /// </returns>
