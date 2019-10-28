@@ -230,6 +230,7 @@ namespace GRYLibrary.Miscellaneous.GraphOperations
         public ISet<Cycle> GetAllCyclesThroughASpecificVertex(Vertex vertex)
         {
             ISet<Cycle> result = new HashSet<Cycle>();
+            throw new NotImplementedException();
             return result;
         }
 
