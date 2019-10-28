@@ -16,6 +16,10 @@ namespace GRYLibrary.Miscellaneous.GraphOperations
             {
                 throw new System.Exception("A cycle can not contain two equal edges.");
             }
+            if (!edges.First().Source.Equals(edges.Last().Target))
+            {
+                throw new System.Exception("Edge-list does not represent a cycle.");
+            }
             int indexOfLowestEdge = 0;
             for (int i = 0; i < edges.Count; i++)
             {

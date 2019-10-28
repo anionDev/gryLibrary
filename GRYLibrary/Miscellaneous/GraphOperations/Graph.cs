@@ -222,7 +222,7 @@ namespace GRYLibrary.Miscellaneous.GraphOperations
             ISet<Cycle> result = new HashSet<Cycle>();
             foreach (Vertex vertex in this.Vertices)
             {
-                result.UnionWith(GetAllCyclesThroughASpecificVertex(vertex));
+                result.UnionWith(this.GetAllCyclesThroughASpecificVertex(vertex));
             }
             return result;
         }
@@ -241,7 +241,7 @@ namespace GRYLibrary.Miscellaneous.GraphOperations
         }
         public void DepthFirstSearch(Action<IList<Edge>> customAction)
         {
-            DepthFirstSearch(customAction, this.Vertices.First());
+            this.DepthFirstSearch(customAction, this.Vertices.First());
         }
         public void DepthFirstSearch(Action<IList<Edge>> customAction, Vertex startVertex)
         {
@@ -254,25 +254,32 @@ namespace GRYLibrary.Miscellaneous.GraphOperations
             {
                 dictionary.Add(vertex, false);
             }
-            DepthFirstSearch(customAction, startVertex, dictionary, new List<Edge>());
+            this.DepthFirstSearch(customAction, startVertex, dictionary, new List<Edge>());
         }
         private void DepthFirstSearch(Action<IList<Edge>> customAction, Vertex currentVertex, IDictionary<Vertex, bool> visitedMap, IList<Edge> currentPath)
         {
             if (!visitedMap[currentVertex])
             {
                 visitedMap[currentVertex] = true;
-                foreach (Edge edge in this.Edges)
+                ISet<Vertex> directSuccessors = this.GetDirectSuccessors(currentVertex);
+                foreach (Vertex successor in directSuccessors)
                 {
-                    if (edge.Source.Equals(currentVertex) && !visitedMap[edge.Target])
+                    if (!visitedMap[successor])
                     {
                         List<Edge> path = new List<Edge>(currentPath);
-                        path.Add(edge);
+                        if (this.TryGetEdge(currentVertex, successor, out Edge edge))
+                        {
+                            path.Add(edge);
+                        }
                         customAction(path);
-                        DepthFirstSearch(customAction, edge.Target, visitedMap, path);
+                        this.DepthFirstSearch(customAction, successor, visitedMap, path);
                     }
                 }
             }
         }
+
+        public abstract bool TryGetEdge(Vertex source, Vertex target, out Edge edge);
+
         /// <returns>
         /// Returns true if and only if the adjacency-matrices of this and <paramref name="obj"/> are equal.
         /// </returns>

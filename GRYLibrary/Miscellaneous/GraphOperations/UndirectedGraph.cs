@@ -67,5 +67,19 @@ namespace GRYLibrary.Miscellaneous.GraphOperations
         {
             throw new NotImplementedException();
         }
+
+        public override bool TryGetEdge(Vertex source, Vertex target, out Edge result)
+        {
+            foreach (Edge edge in this.Edges)
+            {
+                if ((edge.Source.Equals(source) && edge.Target.Equals(target)) || (edge.Source.Equals(target) && edge.Target.Equals(source)))
+                {
+                    result = edge;
+                    return true;
+                }
+            }
+            result = null;
+            return false;
+        }
     }
 }

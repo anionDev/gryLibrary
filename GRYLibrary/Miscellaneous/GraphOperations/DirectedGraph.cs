@@ -138,5 +138,19 @@ namespace GRYLibrary.Miscellaneous.GraphOperations
             }
             return false;
         }
+
+        public override bool TryGetEdge(Vertex source, Vertex target, out Edge result)
+        {
+            foreach (Edge edge in this.Edges)
+            {
+                if (edge.Source.Equals(source) && edge.Target.Equals(target))
+                {
+                    result = edge;
+                    return true;
+                }
+            }
+            result = null;
+            return false;
+        }
     }
 }

@@ -40,7 +40,7 @@ namespace GRYLibraryTest.Tests.GraphTests
             Edge e10 = new Edge(f, c, nameof(e10)); graph.AddEdge(e10);
 
             ISet<Cycle> expectedCycles = new HashSet<Cycle>();
-            expectedCycles.Add(new Cycle(new Edge[] { e01, e02, e03, e04, e05, e06, e07, e08, e09, e10 }.ToList()));
+            expectedCycles.Add(new Cycle(new Edge[] { e01, e02, e03, e04, e05, e06, e07, e08 }.ToList()));
             expectedCycles.Add(new Cycle(new Edge[] { e01, e09, e07, e08 }.ToList()));
             expectedCycles.Add(new Cycle(new Edge[] { e03, e04, e05, e10 }.ToList()));
 
