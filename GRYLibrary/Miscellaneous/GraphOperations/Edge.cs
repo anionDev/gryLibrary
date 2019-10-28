@@ -25,11 +25,11 @@ namespace GRYLibrary.Miscellaneous.GraphOperations
         public override bool Equals(object obj)
         {
             Edge typedObject = obj as Edge;
-            if (typedObject == null)
+            if (typedObject is null)
             {
                 return false;
             }
-            return this.Name.Equals(typedObject.Name) && this.Weight.Equals(typedObject.Weight) && (this.Source.Equals(typedObject.Source) && this.Target.Equals(typedObject.Target)|| this.Source.Equals(typedObject.Target) && this.Target.Equals(typedObject.Source));
+            return this == typedObject;
         }
         public override int GetHashCode()
         {
@@ -40,5 +40,21 @@ namespace GRYLibrary.Miscellaneous.GraphOperations
             return this.Name;
         }
 
+        public static bool operator <(Edge obj1, Edge obj2)
+        {
+            return string.Compare(obj1.Name, obj2.Name) < 0;
+        }
+        public static bool operator >(Edge obj1, Edge obj2)
+        {
+            return !(obj1 == obj2) & !(obj1 < obj2);
+        }
+        public static bool operator ==(Edge obj1, Edge obj2)
+        {
+            return obj1.Name.Equals(obj2.Name);
+        }
+        public static bool operator !=(Edge obj1, Edge obj2)
+        {
+            return !(obj1 == obj2);
+        }
     }
 }

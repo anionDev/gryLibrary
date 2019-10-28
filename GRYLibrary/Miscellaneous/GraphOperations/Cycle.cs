@@ -6,6 +6,29 @@ namespace GRYLibrary.Miscellaneous.GraphOperations
     public class Cycle
     {
         public IList<Edge> Edges { get; private set; } = new List<Edge>();
+        public Cycle(IList<Edge> edges)
+        {
+            if (edges.Count == 0)
+            {
+                throw new System.Exception("A cycle can not be empty.");
+            }
+            if (new HashSet<Edge>(edges).Count < edges.Count)
+            {
+                throw new System.Exception("A cycle can not contain two equal edges.");
+            }
+            int indexOfLowestEdge = 0;
+            for (int i = 0; i < edges.Count; i++)
+            {
+                if (edges[i] < edges[indexOfLowestEdge])
+                {
+                    indexOfLowestEdge = i;
+                }
+            }
+            for (int i = 0; i < edges.Count; i++)
+            {
+                this.Edges.Add(edges[(i + indexOfLowestEdge) % edges.Count]);
+            }
+        }
         public override bool Equals(object obj)
         {
             Cycle cycle = obj as Cycle;
@@ -13,19 +36,7 @@ namespace GRYLibrary.Miscellaneous.GraphOperations
             {
                 return false;
             }
-            if (!this.Edges.Count.Equals(cycle.Edges.Count))
-            {
-                return false;
-            }
-            if (this.Edges.Count == 0)
-            {
-                return true;
-            }
-            if (!cycle.Edges.Contains(this.Edges.First()))
-            {
-                return false;
-            }
-            return this.CheckOrder(this.Edges, cycle.Edges) || this.CheckOrder(this.Edges, cycle.Edges.Reverse().ToList());
+            return this.Edges.SequenceEqual(cycle.Edges);
         }
 
         private bool CheckOrder(IList<Edge> list1, IList<Edge> list2)
