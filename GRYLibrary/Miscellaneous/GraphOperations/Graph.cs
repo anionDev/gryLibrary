@@ -220,12 +220,19 @@ namespace GRYLibrary.Miscellaneous.GraphOperations
         public ISet<Cycle> GetAllCycles()
         {
             ISet<Cycle> result = new HashSet<Cycle>();
-            if (this._Edges.Count == 0)
+            foreach (Vertex vertex in this.Vertices)
             {
-                return result;
+                result.UnionWith(GetAllCyclesThroughASpecificVertex(vertex));
             }
-            throw new NotImplementedException();
+            return result;
         }
+
+        public ISet<Cycle> GetAllCyclesThroughASpecificVertex(Vertex vertex)
+        {
+            ISet<Cycle> result = new HashSet<Cycle>();
+            return result;
+        }
+
         /// <returns>
         /// Returns true if and only if the adjacency-matrices of this and <paramref name="obj"/> are equal.
         /// </returns>
