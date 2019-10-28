@@ -31,7 +31,6 @@ namespace GRYLibraryTest.Tests.GraphTests
             cycleInternalOrder.Add(edge4);
 
             Assert.IsTrue(cycle.Edges.SequenceEqual(cycleInternalOrder));
-
+        }
         }
     }
-}

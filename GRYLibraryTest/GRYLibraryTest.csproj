@@ -60,6 +60,7 @@
     <Compile Include="Tests\ExtendedColorTest.cs" />
     <Compile Include="Tests\FileSelectorTest.cs" />
     <Compile Include="Tests\GLogTest.cs" />
+    <Compile Include="Tests\GraphTests\CycleFinderTest.cs" />
     <Compile Include="Tests\GraphTests\CycleTest.cs" />
     <Compile Include="Tests\GraphTests\EdgeTest.cs" />
     <Compile Include="Tests\GraphTests\GraphTest.cs" />
