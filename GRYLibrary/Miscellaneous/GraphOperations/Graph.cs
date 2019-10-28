@@ -229,21 +229,53 @@ namespace GRYLibrary.Miscellaneous.GraphOperations
 
         public ISet<Cycle> GetAllCyclesThroughASpecificVertex(Vertex vertex)
         {
-            ISet<Cycle> result = new HashSet<Cycle>();
-            this.DepthFirstSearch((currentPath) =>
-            {
-                if (currentPath.First().Source.Equals(currentPath.Last().Target))
-                {
-                    result.Add(new Cycle(currentPath));
-                }
-            }, vertex);
-            return result;
+            throw new NotImplementedException();
         }
-        public void DepthFirstSearch(Action<IList<Edge>> customAction)
+        public void BreadthFirstSearch(Action<Vertex, IList<Edge>> customAction)
+        {
+            this.BreadthFirstSearch(customAction, this.Vertices.First());
+        }
+        public void BreadthFirstSearch(Action<Vertex, IList<Edge>> customAction, Vertex startVertex)
+        {
+            if (!this.Vertices.Contains(startVertex))
+            {
+                throw new Exception($"Vertex '{startVertex}' is not contained in this graph.");
+            }
+            Dictionary<Vertex, bool> dictionary = new Dictionary<Vertex, bool>();
+            foreach (Vertex vertex in this.Vertices)
+            {
+                dictionary.Add(vertex, false);
+            }
+            this.BreadthFirstSearch(customAction, startVertex, new List<Edge>());
+        }
+        private void BreadthFirstSearch(Action<Vertex, IList<Edge>> customAction, Vertex startVertex, IList<Edge> currentPath)
+        {
+            Dictionary<Vertex, bool> visitedMap = new Dictionary<Vertex, bool>();
+            Queue<Vertex> queue = new Queue<Vertex>();
+            visitedMap[startVertex] = true;
+            customAction(startVertex, currentPath);
+            queue.Enqueue(startVertex);
+            while (queue.Count != 0)
+            {
+                Vertex currentVertex = queue.Dequeue();
+                ISet<Vertex> directSuccessors = this.GetDirectSuccessors(currentVertex);
+                foreach (Vertex successor in directSuccessors)
+                {
+                    if (!visitedMap[successor])
+                    {
+                        visitedMap[successor] = true;
+                        customAction(successor, null/*TODO*/);
+                        queue.Enqueue(successor);
+                    }
+                }
+            }
+
+        }
+        public void DepthFirstSearch(Action<Vertex, IList<Edge>> customAction)
         {
             this.DepthFirstSearch(customAction, this.Vertices.First());
         }
-        public void DepthFirstSearch(Action<IList<Edge>> customAction, Vertex startVertex)
+        public void DepthFirstSearch(Action<Vertex, IList<Edge>> customAction, Vertex startVertex)
         {
             if (!this.Vertices.Contains(startVertex))
             {
@@ -256,11 +288,12 @@ namespace GRYLibrary.Miscellaneous.GraphOperations
             }
             this.DepthFirstSearch(customAction, startVertex, dictionary, new List<Edge>());
         }
-        private void DepthFirstSearch(Action<IList<Edge>> customAction, Vertex currentVertex, IDictionary<Vertex, bool> visitedMap, IList<Edge> currentPath)
+        private void DepthFirstSearch(Action<Vertex, IList<Edge>> customAction, Vertex currentVertex, IDictionary<Vertex, bool> visitedMap, IList<Edge> currentPath)
         {
             if (!visitedMap[currentVertex])
             {
                 visitedMap[currentVertex] = true;
+                customAction(currentVertex, currentPath);
                 ISet<Vertex> directSuccessors = this.GetDirectSuccessors(currentVertex);
                 foreach (Vertex successor in directSuccessors)
                 {
@@ -271,7 +304,10 @@ namespace GRYLibrary.Miscellaneous.GraphOperations
                         {
                             path.Add(edge);
                         }
-                        customAction(path);
+                        else
+                        {
+                            throw new Exception("Edge not found.");
+                        }
                         this.DepthFirstSearch(customAction, successor, visitedMap, path);
                     }
                 }
