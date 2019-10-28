@@ -246,26 +246,31 @@ namespace GRYLibrary.Miscellaneous.GraphOperations
             {
                 dictionary.Add(vertex, false);
             }
-            this.BreadthFirstSearch(customAction, startVertex, new List<Edge>());
-        }
-        private void BreadthFirstSearch(Action<Vertex, IList<Edge>> customAction, Vertex startVertex, IList<Edge> currentPath)
-        {
             Dictionary<Vertex, bool> visitedMap = new Dictionary<Vertex, bool>();
-            Queue<Vertex> queue = new Queue<Vertex>();
+            Queue<Tuple<Vertex, IList<Edge>>> queue = new Queue<Tuple<Vertex, IList<Edge>>>();
             visitedMap[startVertex] = true;
-            customAction(startVertex, currentPath);
-            queue.Enqueue(startVertex);
+            customAction(startVertex, new List<Edge>());
+            queue.Enqueue(new Tuple<Vertex, IList<Edge>>(startVertex, new List<Edge>()));
             while (queue.Count != 0)
             {
-                Vertex currentVertex = queue.Dequeue();
-                ISet<Vertex> directSuccessors = this.GetDirectSuccessors(currentVertex);
+                Tuple<Vertex, IList<Edge>> currentVertex = queue.Dequeue();
+                ISet<Vertex> directSuccessors = this.GetDirectSuccessors(currentVertex.Item1);
                 foreach (Vertex successor in directSuccessors)
                 {
                     if (!visitedMap[successor])
                     {
                         visitedMap[successor] = true;
-                        customAction(successor, null/*TODO*/);
-                        queue.Enqueue(successor);
+                        List<Edge> path = new List<Edge>(currentVertex.Item2);
+                        if (this.TryGetEdge(currentVertex.Item1, successor, out Edge edge))
+                        {
+                            path.Add(edge);
+                        }
+                        else
+                        {
+                            throw new Exception("Edge not found.");
+                        }
+                        customAction(successor, path);
+                        queue.Enqueue(new Tuple<Vertex, IList<Edge>>(startVertex, path));
                     }
                 }
             }
