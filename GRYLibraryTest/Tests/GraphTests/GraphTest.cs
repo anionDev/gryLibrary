@@ -40,11 +40,11 @@ namespace GRYLibraryTest.Tests.GraphTests
             Edge e2 = new Edge(v1, v2, "e", 1.5);
             Assert.AreEqual(e1, e2);
             Edge e3 = new Edge(v1, v2, "e", 1.6);
-            Assert.AreNotEqual(e1, e3);
+            Assert.AreEqual(e1, e3);
             Edge e4 = new Edge(v2, v1, "e", 1.5);
             Assert.AreEqual(e1, e4);
             Edge e5 = new Edge(v1, new Vertex("v3"), "e", 1.5);
-            Assert.AreNotEqual(e1, e5);
+            Assert.AreEqual(e1, e5);
 
         }
         [TestMethod]

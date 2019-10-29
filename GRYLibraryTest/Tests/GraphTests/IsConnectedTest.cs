@@ -28,7 +28,15 @@ namespace GRYLibraryTest.Tests.GraphTests
             Assert.IsFalse(graph.IsConnected());
             graph.AddEdge(new Edge(v1, v2, "e1"));
             Assert.IsTrue(graph.IsConnected());
-            graph.AddEdge(new Edge(v2, v1, "e2"));
+            try
+            {
+                graph.AddEdge(new Edge(v2, v1, "e2"));
+                Assert.IsTrue(false, "This graph does already have an edge which connects v2 and v1.");
+            }
+            catch
+            {
+                //ok
+            }
             Assert.IsTrue(graph.IsConnected());
         }
     }

@@ -11,9 +11,10 @@ namespace GRYLibraryTest.Tests.GraphTests
         [TestMethod]
         public void TestConstructor()
         {
+            Vertex v1 = new Vertex(nameof(v1));
             Edge edge1 = new Edge(null, null, "e1");
-            Edge edge2 = new Edge(null, null, "e2");
-            Edge edge3 = new Edge(null, null, "e3");
+            Edge edge2 = new Edge(null, v1, "e2");
+            Edge edge3 = new Edge(v1, null, "e3");
             Edge edge4 = new Edge(null, null, "e4");
 
             List<Edge> cycleItems = new List<Edge>();

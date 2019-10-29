@@ -1,8 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace GRYLibrary.Miscellaneous.GraphOperations
 {
+    [Serializable]
     public class DirectedGraph : Graph
     {
         public static DirectedGraph CreateByAdjacencyMatrix(double[,] adjacencyMatrix)

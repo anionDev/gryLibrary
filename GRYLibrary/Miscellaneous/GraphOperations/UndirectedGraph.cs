@@ -3,6 +3,7 @@ using System.Collections.Generic;
 
 namespace GRYLibrary.Miscellaneous.GraphOperations
 {
+    [Serializable]
     public class UndirectedGraph : Graph
     {
         public static UndirectedGraph CreateByAdjacencyMatrix(double[,] adjacencyMatrix)

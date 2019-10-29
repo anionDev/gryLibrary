@@ -69,6 +69,7 @@
     <Compile Include="Tests\GraphTests\IsConnectedTest.cs" />
     <Compile Include="Tests\GraphTests\LargeGraphTests.cs" />
     <Compile Include="Tests\GraphTests\LoopTests.cs" />
+    <Compile Include="Tests\GraphTests\TestGraphs.cs" />
     <Compile Include="Tests\NonPersistentInputHistoryListTest.cs" />
     <Compile Include="Tests\PlaylistTest.cs" />
     <Compile Include="Tests\PropertyTest.cs" />

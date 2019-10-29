@@ -10,6 +10,7 @@ namespace GRYLibrary.Miscellaneous.GraphOperations
     /// <remarks>
     /// This graph does not support two edges between the same two vertices.
     /// </remarks>
+    [Serializable]
     public abstract class Graph
     {
         public IList<Vertex> Vertices { get; private set; }
@@ -150,22 +151,7 @@ namespace GRYLibrary.Miscellaneous.GraphOperations
             {
                 visited.Add(vertex, false);
             }
-            HashSet<Vertex> nextOnes = new HashSet<Vertex>();
-            nextOnes.Add(startVertex);
-            visited[startVertex] = true;
-            while (nextOnes.Count != 0)
-            {
-                HashSet<Vertex> nextNextOnes = new HashSet<Vertex>();
-                foreach (Vertex nextOne in nextOnes)
-                {
-                    if (!visited[nextOne])
-                    {
-                        visited[nextOne] = true;
-                        nextNextOnes.UnionWith(this.GetDirectSuccessors(nextOne).Where(s => !visited[s]));
-                    }
-                }
-                nextOnes = nextNextOnes;
-            }
+            this.DepthFirstSearch((v, l) => visited[v] = true);
             return !visited.ContainsValue(false);
         }
 
@@ -252,12 +238,11 @@ namespace GRYLibrary.Miscellaneous.GraphOperations
             {
                 throw new Exception($"Vertex '{startVertex}' is not contained in this graph.");
             }
-            Dictionary<Vertex, bool> dictionary = new Dictionary<Vertex, bool>();
+            Dictionary<Vertex, bool> visitedMap = new Dictionary<Vertex, bool>();
             foreach (Vertex vertex in this.Vertices)
             {
-                dictionary.Add(vertex, false);
+                visitedMap.Add(vertex, false);
             }
-            Dictionary<Vertex, bool> visitedMap = new Dictionary<Vertex, bool>();
             Queue<Tuple<Vertex, IList<Edge>>> queue = new Queue<Tuple<Vertex, IList<Edge>>>();
             visitedMap[startVertex] = true;
             customAction(startVertex, new List<Edge>());
