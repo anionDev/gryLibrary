@@ -42,6 +42,22 @@ namespace GRYLibrary
         public int? TimeoutInMilliseconds { get; set; }
         public bool PrintErrorsAsInformation { get; set; }
         private bool _Running = false;
+        private TimeSpan _ExecutionDuration = default;
+        public TimeSpan ExecutionDuration
+        {
+            get
+            {
+                if (this.ExecutionState == ExecutionState.Terminated)
+                {
+                    return this._ExecutionDuration;
+                }
+                else
+                {
+                    throw new InvalidOperationException(this.GetInvalidOperationDueToNotTerminatedMessageByMembername(nameof(this.ExecutionDuration)));
+                }
+            }
+            private set { this._ExecutionDuration = value; }
+        }
         public bool Running()
         {
             return this._Running;
@@ -108,6 +124,8 @@ namespace GRYLibrary
                     {
                         this.EnqueueInformation($"Start '{this.ProgramPathAndFile} {this.Arguments}' in '{this.WorkingDirectory}'");
                     }
+                    Stopwatch stopWatch = new Stopwatch();
+                    stopWatch.Start();
                     process.Start();
                     process.BeginOutputReadLine();
                     process.BeginErrorReadLine();
@@ -124,6 +142,8 @@ namespace GRYLibrary
                     {
                         process.WaitForExit();
                     }
+                    stopWatch.Stop();
+                    this.ExecutionDuration = stopWatch.Elapsed;
                     if (this.LogOverhead)
                     {
                         this.EnqueueInformation($"Finished '{this.ProgramPathAndFile} {this.Arguments}'");
@@ -217,7 +237,7 @@ namespace GRYLibrary
 
         private string GetInvalidOperationDueToNotTerminatedMessageByMembername(string name)
         {
-            return $"{name} is not available if the execution state is not terminated.";
+            return $"'{name}' is not available if the execution state is not '{nameof(ExecutionState.Terminated)}'.";
         }
 
         private int _ExitCode;
@@ -287,6 +307,24 @@ namespace GRYLibrary
                         this.LogObject?.Log(logItem.Item2);
                     }
                 }
+            }
+        }
+
+        public string GetResult()
+        {
+            if (this.ExecutionState == ExecutionState.Terminated)
+            {
+                string result = $"{nameof(ExternalProgramExecutor)}-summary:";
+                result = result + Environment.NewLine + $"Executed program: {this.WorkingDirectory}>{this.ProgramPathAndFile} {this.Arguments}";
+                result = result + Environment.NewLine + $"Exit-code: {this.ExitCode}";
+                result = result + Environment.NewLine + $"Execution-duration: {this.ExecutionDuration.ToString("d'd 'h'h 'm'm 's's'")} ({this.ExecutionDuration.TotalSeconds.ToString()} seconds total)";
+                result = result + Environment.NewLine + $"StdOut:" + Environment.NewLine + string.Join(Environment.NewLine + "    ", this.AllStdOutLines);
+                result = result + Environment.NewLine + $"StdErr:" + Environment.NewLine + string.Join(Environment.NewLine + "    ", this.AllStdErrLines);
+                return result;
+            }
+            else
+            {
+                throw new InvalidOperationException(this.GetInvalidOperationDueToNotTerminatedMessageByMembername(nameof(this.GetResult)));
             }
         }
     }
