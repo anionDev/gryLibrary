@@ -25,5 +25,5 @@ namespace GRYLibraryTest.Tests.GraphTests
         {
             Assert.IsTrue(TestGraphs.GetTestGraphWithSimpleLoop().ToUndirectedGraph().IsConnected());
         }
-          }
+    }
 }
