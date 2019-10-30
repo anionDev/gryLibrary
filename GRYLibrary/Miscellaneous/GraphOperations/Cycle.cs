@@ -89,7 +89,7 @@ namespace GRYLibrary.Miscellaneous.GraphOperations
             {
                 if (i == 0)
                 {
-                    if (!edgeToVertexFunction(edges[0]).Equals(edges[edges.Count].Target))
+                    if (!edgeToVertexFunction(edges[0]).Equals(edges[edges.Count-1].Target))
                     {
                         return false;
                     }
