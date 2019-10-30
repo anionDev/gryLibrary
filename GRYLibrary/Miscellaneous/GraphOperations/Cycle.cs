@@ -62,5 +62,47 @@ namespace GRYLibrary.Miscellaneous.GraphOperations
         {
             return this.Edges.Count.GetHashCode();
         }
+
+        public static bool RepresentsCycle(IList<Edge> edges)
+        {
+            if (edges.Count > 0)
+            {
+                if (!CheckIfEdgesAreCyclic(edges, (edge) => edge.Source))
+                {
+                    return false;
+                }
+                if (!CheckIfEdgesAreCyclic(edges, (edge) => edge.Target))
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                return false;
+            }
+            return true;
+        }
+
+        private static bool CheckIfEdgesAreCyclic(IList<Edge> edges, Func<Edge, Vertex> edgeToVertexFunction)
+        {
+            for (int i = 0; i < edges.Count; i++)
+            {
+                if (i == 0)
+                {
+                    if (!edgeToVertexFunction(edges[0]).Equals(edges[edges.Count].Target))
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    if (!edgeToVertexFunction(edges[i]).Equals(edges[i - 1].Target))
+                    {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
     }
 }

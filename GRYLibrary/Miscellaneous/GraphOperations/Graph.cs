@@ -206,7 +206,10 @@ namespace GRYLibrary.Miscellaneous.GraphOperations
         public ISet<Cycle> GetAllCycles()
         {
             ISet<Cycle> result = new HashSet<Cycle>();
-            result.UnionWith(this.GetAllCyclesThroughASpecificVertex(this.Vertices.First()));
+            foreach (Vertex vertex in this.Vertices)
+            {
+                result.UnionWith(this.GetAllCyclesThroughASpecificVertex(vertex));
+            }
             return result;
         }
 
@@ -215,18 +218,14 @@ namespace GRYLibrary.Miscellaneous.GraphOperations
             ISet<Cycle> result = new HashSet<Cycle>();
             this.DepthFirstSearch((currentPath, edges) =>
             {
-                foreach (Cycle cycle in GetAllCyclesInEdgeList(edges))
+                if (Cycle.RepresentsCycle(edges))
                 {
-                    result.Add(cycle);
+                    result.Add(new Cycle(edges));
                 }
             });
             return result;
         }
 
-        private IEnumerable<Cycle> GetAllCyclesInEdgeList(IList<Edge> edges)
-        {
-            throw new NotImplementedException();
-        }
 
         public void BreadthFirstSearch(Action<Vertex, IList<Edge>> customAction)
         {
