@@ -245,15 +245,8 @@ namespace GRYLibrary.Miscellaneous.GraphOperations
         }
         public void BreadthFirstSearch(Action<Vertex, IList<Edge>> customAction, Vertex startVertex)
         {
-            if (!this.Vertices.Contains(startVertex))
-            {
-                throw new Exception($"Vertex '{startVertex}' is not contained in this graph.");
-            }
-            Dictionary<Vertex, bool> visitedMap = new Dictionary<Vertex, bool>();
-            foreach (Vertex vertex in this.Vertices)
-            {
-                visitedMap.Add(vertex, false);
-            }
+            Dictionary<Vertex, bool> visitedMap;
+            Check(startVertex, out visitedMap);
             Queue<Tuple<Vertex, IList<Edge>>> queue = new Queue<Tuple<Vertex, IList<Edge>>>();
             visitedMap[startVertex] = true;
             customAction(startVertex, new List<Edge>());
@@ -261,8 +254,7 @@ namespace GRYLibrary.Miscellaneous.GraphOperations
             while (queue.Count != 0)
             {
                 Tuple<Vertex, IList<Edge>> currentVertex = queue.Dequeue();
-                ISet<Vertex> directSuccessors = this.GetDirectSuccessors(currentVertex.Item1);
-                foreach (Vertex successor in directSuccessors)
+                foreach (Vertex successor in this.GetDirectSuccessors(currentVertex.Item1))
                 {
                     if (!visitedMap[successor])
                     {
@@ -283,48 +275,83 @@ namespace GRYLibrary.Miscellaneous.GraphOperations
             }
 
         }
+
+        private void Check(Vertex startVertex, out Dictionary<Vertex, bool> visitedMap)
+        {
+            if (!this.Vertices.Contains(startVertex))
+            {
+                throw new Exception($"Vertex '{startVertex}' is not contained in this graph.");
+            }
+            visitedMap = new Dictionary<Vertex, bool>();
+            foreach (Vertex vertex in this.Vertices)
+            {
+                visitedMap.Add(vertex, false);
+            }
+        }
+
         public void DepthFirstSearch(Action<Vertex, IList<Edge>> customAction)
         {
             this.DepthFirstSearch(customAction, this.Vertices.First());
         }
         public void DepthFirstSearch(Action<Vertex, IList<Edge>> customAction, Vertex startVertex)
         {
-            if (!this.Vertices.Contains(startVertex))
+            Dictionary<Vertex, bool> visitedMap;
+            Check(startVertex, out visitedMap);
+            Stack<Vertex> stack = new Stack<Vertex>();
+            stack.Push(startVertex);
+            while (stack.Count > 0)
             {
-                throw new Exception($"Vertex '{startVertex}' is not contained in this graph.");
-            }
-            Dictionary<Vertex, bool> dictionary = new Dictionary<Vertex, bool>();
-            foreach (Vertex vertex in this.Vertices)
-            {
-                dictionary.Add(vertex, false);
-            }
-            this.DepthFirstSearch(customAction, startVertex, dictionary, new List<Edge>());
-        }
-        private void DepthFirstSearch(Action<Vertex, IList<Edge>> customAction, Vertex currentVertex, IDictionary<Vertex, bool> visitedMap, IList<Edge> currentPath)
-        {
-            if (!visitedMap[currentVertex])
-            {
-                visitedMap[currentVertex] = true;
-                customAction(currentVertex, currentPath);
-                ISet<Vertex> directSuccessors = this.GetDirectSuccessors(currentVertex);
-                foreach (Vertex successor in directSuccessors)
+                Vertex currentVertex = stack.Pop();
+                if (!visitedMap[currentVertex])
                 {
-                    if (!visitedMap[successor])
+                    visitedMap[currentVertex] = true;
+                    customAction(currentVertex, null);
+                    foreach (Vertex w in this.GetDirectSuccessors(currentVertex))
                     {
-                        List<Edge> path = new List<Edge>(currentPath);
-                        if (this.TryGetEdge(currentVertex, successor, out Edge edge))
-                        {
-                            path.Add(edge);
-                        }
-                        else
-                        {
-                            throw new Exception("Edge not found.");
-                        }
-                        this.DepthFirstSearch(customAction, successor, visitedMap, path);
+                        stack.Push(w);
                     }
                 }
             }
         }
+
+        //public void DepthFirstSearch(Action<Vertex, IList<Edge>> customAction, Vertex startVertex)
+        //    {
+        //        if (!this.Vertices.Contains(startVertex))
+        //    {
+        //        throw new Exception($"Vertex '{startVertex}' is not contained in this graph.");
+        //    }
+        //    Dictionary<Vertex, bool> dictionary = new Dictionary<Vertex, bool>();
+        //    foreach (Vertex vertex in this.Vertices)
+        //    {
+        //        dictionary.Add(vertex, false);
+        //    }
+        //    this.DepthFirstSearch(customAction, startVertex, dictionary, new List<Edge>());
+        //}
+        //private void DepthFirstSearch(Action<Vertex, IList<Edge>> customAction, Vertex currentVertex, IDictionary<Vertex, bool> visitedMap, IList<Edge> currentPath)
+        //{
+        //    if (!visitedMap[currentVertex])
+        //    {
+        //        visitedMap[currentVertex] = true;
+        //        customAction(currentVertex, currentPath);
+        //        ISet<Vertex> directSuccessors = this.GetDirectSuccessors(currentVertex);
+        //        foreach (Vertex successor in directSuccessors)
+        //        {
+        //            if (!visitedMap[successor])
+        //            {
+        //                List<Edge> path = new List<Edge>(currentPath);
+        //                if (this.TryGetEdge(currentVertex, successor, out Edge edge))
+        //                {
+        //                    path.Add(edge);
+        //                }
+        //                else
+        //                {
+        //                    throw new Exception("Edge not found.");
+        //                }
+        //                this.DepthFirstSearch(customAction, successor, visitedMap, path);
+        //            }
+        //        }
+        //    }
+        //}
 
         public abstract bool TryGetEdge(Vertex source, Vertex target, out Edge edge);
 
