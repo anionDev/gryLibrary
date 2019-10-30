@@ -36,19 +36,6 @@ namespace GRYLibrary.Miscellaneous.GraphOperations
             }
             return result;
         }
-        public override bool TryGetConnectionBetween(Vertex vertex1, Vertex vertex2, out Edge connection)
-        {
-            foreach (Edge edge in this._Edges)
-            {
-                if (edge.Source.Equals(vertex1) && edge.Target.Equals(vertex2))
-                {
-                    connection = edge;
-                    return true;
-                }
-            }
-            connection = null;
-            return false;
-        }
         /// <returns>Returns a set of all vertices which are a direct successor of this vertex in this graph.</returns>
         /// <remarks>If this graph contains a selfloop with this vertex then the result-set will also contain this vertex.
         /// The runtime of this function is &lt;=O(|this.Edges|).

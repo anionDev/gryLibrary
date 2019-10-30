@@ -82,7 +82,7 @@ namespace GRYLibrary.Miscellaneous.GraphOperations
             {
                 throw new Exception($"This graph does already have an edge with the name {edge.Name}.");
             }
-            if (this.TryGetConnectionBetween(edge.Source, edge.Target, out _))
+            if (this.TryGetEdge(edge.Source, edge.Target, out _))
             {
                 throw new Exception($"This graph does already have an edge which connects {edge.Source.Name} and {edge.Target.Name}.");
             }
@@ -176,7 +176,7 @@ namespace GRYLibrary.Miscellaneous.GraphOperations
             {
                 for (int j = 0; j < result.GetLength(1); j++)
                 {
-                    if (this.TryGetConnectionBetween(vertices[i], vertices[j], out Edge connection))
+                    if (this.TryGetEdge(vertices[i], vertices[j], out Edge connection))
                     {
                         result[i, j] = connection.Weight;
                     }
@@ -189,7 +189,6 @@ namespace GRYLibrary.Miscellaneous.GraphOperations
             return result;
         }
 
-        public abstract bool TryGetConnectionBetween(Vertex vertex1, Vertex vertex2, out Edge connection);
 
         protected Tuple<IList<Edge>, IList<Vertex>> ParseAdjacencyMatrix(double[,] adjacencyMatrix)
         {
@@ -246,20 +245,30 @@ namespace GRYLibrary.Miscellaneous.GraphOperations
         public void BreadthFirstSearch(Action<Vertex, IList<Edge>> customAction, Vertex startVertex)
         {
             InitializeSearchAndDoSomeChecks(startVertex, out Dictionary<Vertex, bool> visitedMap);
-            Queue<Vertex> queue = new Queue<Vertex>();
+            Queue<Tuple<Vertex, IList<Edge>>> queue = new Queue<Tuple<Vertex, IList<Edge>>>();
             visitedMap[startVertex] = true;
-            customAction(startVertex, null/*TODO*/);
-            queue.Enqueue(startVertex);
+            var initialList = new List<Edge>();
+            customAction(startVertex, initialList);
+            queue.Enqueue(new Tuple<Vertex, IList<Edge>>(startVertex, initialList));
             while (queue.Count != 0)
             {
-                Vertex currentVertex = queue.Dequeue();
-                foreach (Vertex successor in this.GetDirectSuccessors(currentVertex))
+                Tuple<Vertex, IList<Edge>> currentVertex = queue.Dequeue();
+                foreach (Vertex successor in this.GetDirectSuccessors(currentVertex.Item1))
                 {
                     if (!visitedMap[successor])
                     {
                         visitedMap[successor] = true;
-                        customAction(successor, null/*TODO*/);
-                        queue.Enqueue(successor);
+                        List<Edge> successorPath = currentVertex.Item2.ToList();
+                        if (TryGetEdge(currentVertex.Item1, successor, out Edge edge))
+                        {
+                            successorPath.Add(edge);
+                        }
+                        else
+                        {
+                            throw new Exception();//todo improve exception and its message
+                        }
+                        customAction(successor, successorPath);
+                        queue.Enqueue(new Tuple<Vertex, IList<Edge>>(successor, successorPath));
                     }
                 }
             }
@@ -291,18 +300,27 @@ namespace GRYLibrary.Miscellaneous.GraphOperations
         public void DepthFirstSearch(Action<Vertex, IList<Edge>> customAction, Vertex startVertex)
         {
             InitializeSearchAndDoSomeChecks(startVertex, out Dictionary<Vertex, bool> visitedMap);
-            Stack<Vertex> stack = new Stack<Vertex>();
-            stack.Push(startVertex);
+            Stack<Tuple<Vertex, IList<Edge>>> stack = new Stack<Tuple<Vertex, IList<Edge>>>();
+            stack.Push(new Tuple<Vertex, IList<Edge>>(startVertex, new List<Edge>()));
             while (stack.Count > 0)
             {
-                Vertex currentVertex = stack.Pop();
-                if (!visitedMap[currentVertex])
+                Tuple<Vertex, IList<Edge>> currentVertex = stack.Pop();
+                if (!visitedMap[currentVertex.Item1])
                 {
-                    visitedMap[currentVertex] = true;
-                    customAction(currentVertex, null/*TODO*/);
-                    foreach (Vertex successors in this.GetDirectSuccessors(currentVertex))
+                    visitedMap[currentVertex.Item1] = true;
+                    customAction(currentVertex.Item1, currentVertex.Item2);
+                    foreach (Vertex successor in this.GetDirectSuccessors(currentVertex.Item1))
                     {
-                        stack.Push(successors);
+                        List<Edge> successorPath = currentVertex.Item2.ToList();
+                        if (TryGetEdge(currentVertex.Item1, successor, out Edge edge))
+                        {
+                            successorPath.Add(edge);
+                        }
+                        else
+                        {
+                            throw new Exception();//todo improve exception and its message
+                        }
+                        stack.Push(new Tuple<Vertex, IList<Edge>>(successor, successorPath));
                     }
                 }
             }

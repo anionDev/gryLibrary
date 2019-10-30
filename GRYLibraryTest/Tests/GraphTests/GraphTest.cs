@@ -93,7 +93,7 @@ namespace GRYLibraryTest.Tests.GraphTests
 
             //test TryGetConnectionBetween:
             Edge e1Reloaded;
-            Assert.IsTrue(g.TryGetConnectionBetween(v1, v2, out e1Reloaded));
+            Assert.IsTrue(g.TryGetEdge(v1, v2, out e1Reloaded));
             Assert.AreEqual(e1, e1Reloaded);
 
             Edge e45 = new Edge(v4, v5, "e45");
@@ -110,7 +110,7 @@ namespace GRYLibraryTest.Tests.GraphTests
             Edge eSelfLoop = new Edge(v1, v1, "e11");
             g.AddEdge(eSelfLoop);
             Edge eSelfLoopReloaded;
-            g.TryGetConnectionBetween(v1, v1, out eSelfLoopReloaded);
+            g.TryGetEdge(v1, v1, out eSelfLoopReloaded);
             Assert.AreEqual(eSelfLoop, eSelfLoopReloaded);
             Assert.AreEqual(5, g.Vertices.Count());
             Assert.AreEqual(6, g.Edges.Count());
@@ -128,7 +128,7 @@ namespace GRYLibraryTest.Tests.GraphTests
             Assert.IsTrue(g.SelfLoopIsAllowed);
 
             g.RemoveEdge(eSelfLoop);
-            Assert.IsFalse(g.TryGetConnectionBetween(v1, v1, out _));
+            Assert.IsFalse(g.TryGetEdge(v1, v1, out _));
             g.SelfLoopIsAllowed = false;
             Assert.IsFalse(g.SelfLoopIsAllowed);
             Assert.AreEqual(5, g.Vertices.Count());
@@ -176,12 +176,12 @@ namespace GRYLibraryTest.Tests.GraphTests
             Assert.AreEqual(5, g.Edges.Count());
             Assert.AreEqual(2, v1.ConnectedEdges.Count());
 
-            //test TryGetConnectionBetween:
+            //test TryGetEdge:
             Edge e1Reloaded1;
-            Assert.IsTrue(g.TryGetConnectionBetween(v1, v2, out e1Reloaded1));
+            Assert.IsTrue(g.TryGetEdge(v1, v2, out e1Reloaded1));
             Assert.AreEqual(e1, e1Reloaded1);
             Edge e1Reloaded2;
-            Assert.IsTrue(g.TryGetConnectionBetween(v2, v1, out e1Reloaded2));
+            Assert.IsTrue(g.TryGetEdge(v2, v1, out e1Reloaded2));
             Assert.AreEqual(e1, e1Reloaded2);
 
             Assert.AreEqual(e1Reloaded1, e1Reloaded2);
@@ -200,7 +200,7 @@ namespace GRYLibraryTest.Tests.GraphTests
             Edge eSelfLoop = new Edge(v1, v1, "e11");
             g.AddEdge(eSelfLoop);
             Edge eSelfLoopReloaded;
-            g.TryGetConnectionBetween(v1, v1, out eSelfLoopReloaded);
+            g.TryGetEdge(v1, v1, out eSelfLoopReloaded);
             Assert.AreEqual(eSelfLoop, eSelfLoopReloaded);
             Assert.AreEqual(5, g.Vertices.Count());
             Assert.AreEqual(6, g.Edges.Count());
@@ -216,7 +216,7 @@ namespace GRYLibraryTest.Tests.GraphTests
             Assert.IsTrue(g.SelfLoopIsAllowed);
 
             g.RemoveEdge(eSelfLoop);
-            Assert.IsFalse(g.TryGetConnectionBetween(v1, v1, out _));
+            Assert.IsFalse(g.TryGetEdge(v1, v1, out _));
             g.SelfLoopIsAllowed = false;
             Assert.IsFalse(g.SelfLoopIsAllowed);
             Assert.AreEqual(5, g.Vertices.Count());

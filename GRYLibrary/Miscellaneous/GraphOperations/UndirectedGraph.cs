@@ -50,25 +50,6 @@ namespace GRYLibrary.Miscellaneous.GraphOperations
             }
             return result;
         }
-        public override bool TryGetConnectionBetween(Vertex vertex1, Vertex vertex2, out Edge connection)
-        {
-            foreach (Edge edge in this._Edges)
-            {
-                if ((edge.Source.Equals(vertex1) && edge.Target.Equals(vertex2)) || (edge.Target.Equals(vertex1) && edge.Source.Equals(vertex2)))
-                {
-                    connection = edge;
-                    return true;
-                }
-            }
-            connection = null;
-            return false;
-        }
-
-        public override bool ContainsOneOrMoreCycles()
-        {
-            throw new NotImplementedException();
-        }
-
         public override bool TryGetEdge(Vertex source, Vertex target, out Edge result)
         {
             foreach (Edge edge in this.Edges)
@@ -82,5 +63,10 @@ namespace GRYLibrary.Miscellaneous.GraphOperations
             result = null;
             return false;
         }
+        public override bool ContainsOneOrMoreCycles()
+        {
+            throw new NotImplementedException();
+        }
+
     }
 }
