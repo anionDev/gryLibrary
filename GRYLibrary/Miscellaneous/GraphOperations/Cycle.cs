@@ -12,27 +12,15 @@ namespace GRYLibrary.Miscellaneous.GraphOperations
         {
             if (edges.Count == 0)
             {
-                throw new System.Exception("A cycle can not be empty.");
+                throw new Exception("A cycle can not be empty.");
             }
             if (new HashSet<Edge>(edges).Count < edges.Count)
             {
-                throw new System.Exception("A cycle can not contain two equal edges.");
+                throw new Exception("A cycle can not contain two equal edges.");
             }
-            if (!edges.First().Source.Equals(edges.Last().Target))
+            if (!RepresentsCycle(edges))
             {
-                throw new System.Exception("Edge-list does not represent a cycle.");
-            }
-            int indexOfLowestEdge = 0;
-            for (int i = 0; i < edges.Count; i++)
-            {
-                if (edges[i] < edges[indexOfLowestEdge])
-                {
-                    indexOfLowestEdge = i;
-                }
-            }
-            for (int i = 0; i < edges.Count; i++)
-            {
-                this.Edges.Add(edges[(i + indexOfLowestEdge) % edges.Count]);
+                throw new Exception("The given edge-list is not cyclic.");
             }
         }
         public override bool Equals(object obj)
@@ -44,20 +32,6 @@ namespace GRYLibrary.Miscellaneous.GraphOperations
             }
             return this.Edges.SequenceEqual(cycle.Edges);
         }
-
-        private bool CheckOrder(IList<Edge> list1, IList<Edge> list2)
-        {
-            int indexOfFirstElementInFirstListInSecondList = list2.IndexOf(list1.First());
-            for (int i = 0; i < list1.Count; i++)
-            {
-                if (!list1[i].Equals(list2[(i + indexOfFirstElementInFirstListInSecondList) % list1.Count]))
-                {
-                    return false;
-                }
-            }
-            return true;
-        }
-
         public override int GetHashCode()
         {
             return this.Edges.Count.GetHashCode();
@@ -67,17 +41,9 @@ namespace GRYLibrary.Miscellaneous.GraphOperations
         {
             if (edges.Count > 0)
             {
-                if (!CheckIfEdgesAreCyclic(edges))
-                {
-                    return false;
-                }
                 List<Edge> reversedList = edges.ToList();
                 reversedList.Reverse();
-                if (!CheckIfEdgesAreCyclic(reversedList))
-                {
-                    return false;
-                }
-                return true;
+                return CheckIfEdgesAreCyclic(edges) || CheckIfEdgesAreCyclic(reversedList);
             }
             else
             {
