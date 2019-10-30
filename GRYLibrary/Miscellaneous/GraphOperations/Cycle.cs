@@ -67,11 +67,13 @@ namespace GRYLibrary.Miscellaneous.GraphOperations
         {
             if (edges.Count > 0)
             {
-                if (!CheckIfEdgesAreCyclic(edges, (edge) => edge.Source))
+                if (!CheckIfEdgesAreCyclic(edges))
                 {
                     return false;
                 }
-                if (!CheckIfEdgesAreCyclic(edges, (edge) => edge.Target))
+                List<Edge> reversedList = edges.ToList();
+                reversedList.Reverse();
+                if (!CheckIfEdgesAreCyclic(reversedList))
                 {
                     return false;
                 }
@@ -83,20 +85,20 @@ namespace GRYLibrary.Miscellaneous.GraphOperations
             }
         }
 
-        private static bool CheckIfEdgesAreCyclic(IList<Edge> edges, Func<Edge, Vertex> edgeToVertexFunction)
+        private static bool CheckIfEdgesAreCyclic(IList<Edge> edges)
         {
             for (int i = 0; i < edges.Count; i++)
             {
                 if (i == 0)
                 {
-                    if (!edgeToVertexFunction(edges[0]).Equals(edges[edges.Count - 1].Target))
+                    if (!edges[0].Source.Equals(edges[edges.Count - 1].Target))
                     {
                         return false;
                     }
                 }
                 else
                 {
-                    if (!edgeToVertexFunction(edges[i]).Equals(edges[i - 1].Target))
+                    if (!edges[i].Source.Equals(edges[i - 1].Target))
                     {
                         return false;
                     }
