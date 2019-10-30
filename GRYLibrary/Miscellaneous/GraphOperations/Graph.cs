@@ -30,6 +30,18 @@ namespace GRYLibrary.Miscellaneous.GraphOperations
             return grpah;
         }
 
+        public Vertex GetVertexByName(string vertexName)
+        {
+            foreach (Vertex vertex in this.Vertices)
+            {
+                if (vertex.Name.Equals(vertexName))
+                {
+                    return vertex;
+                }
+            }
+            throw new KeyNotFoundException();
+        }
+
         protected ISet<Vertex> _Vertices = new HashSet<Vertex>();
         public IEnumerable<Edge> Edges { get { return this._Edges.ToList().AsReadOnly(); } }
         protected ISet<Edge> _Edges = new HashSet<Edge>();
@@ -213,7 +225,7 @@ namespace GRYLibrary.Miscellaneous.GraphOperations
             return result;
         }
 
-        private ISet<Cycle> GetAllCyclesThroughASpecificVertex(Vertex vertex)
+        public ISet<Cycle> GetAllCyclesThroughASpecificVertex(Vertex vertex)
         {
             ISet<Cycle> result = new HashSet<Cycle>();
             this.DepthFirstSearch((currentPath, edges) =>
@@ -265,7 +277,7 @@ namespace GRYLibrary.Miscellaneous.GraphOperations
                             throw new Exception("Edge not found.");
                         }
                         customAction(successor, path);
-                        queue.Enqueue(new Tuple<Vertex, IList<Edge>>(startVertex, path));
+                        queue.Enqueue(new Tuple<Vertex, IList<Edge>>(successor, path));
                     }
                 }
             }

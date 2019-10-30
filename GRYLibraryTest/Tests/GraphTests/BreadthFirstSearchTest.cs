@@ -9,7 +9,7 @@ namespace GRYLibraryTest.Tests.GraphTests
     public class BreadthFirstSearchTest
     {
         [TestMethod]
-        public void TestSimpleSearch()
+        public void TestSimpleBreadthFirstSearch()
         {
             int i = 0;
             List<int> order = new List<int>();
@@ -17,7 +17,7 @@ namespace GRYLibraryTest.Tests.GraphTests
             g.BreadthFirstSearch((v, edges) =>
             {
                 i = i + 1;
-                order.Add(i);
+                order.Add(int.Parse(v.Name.Replace("v",string.Empty)));
             });
             Assert.AreEqual(1, order[0]);
             Assert.IsTrue(new HashSet<int>(new int[] { 2, 3, 4 }).SetEquals(new int[] { order[1], order[2], order[3] }));

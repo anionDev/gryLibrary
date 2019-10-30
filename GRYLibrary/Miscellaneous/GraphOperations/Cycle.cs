@@ -75,12 +75,12 @@ namespace GRYLibrary.Miscellaneous.GraphOperations
                 {
                     return false;
                 }
+                return true;
             }
             else
             {
                 return false;
             }
-            return true;
         }
 
         private static bool CheckIfEdgesAreCyclic(IList<Edge> edges, Func<Edge, Vertex> edgeToVertexFunction)
@@ -89,7 +89,7 @@ namespace GRYLibrary.Miscellaneous.GraphOperations
             {
                 if (i == 0)
                 {
-                    if (!edgeToVertexFunction(edges[0]).Equals(edges[edges.Count-1].Target))
+                    if (!edgeToVertexFunction(edges[0]).Equals(edges[edges.Count - 1].Target))
                     {
                         return false;
                     }
