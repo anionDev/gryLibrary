@@ -299,7 +299,7 @@ namespace GRYLibrary.Miscellaneous.GraphOperations
                 if (!visitedMap[currentVertex])
                 {
                     visitedMap[currentVertex] = true;
-                    customAction(currentVertex, null);
+                    customAction(currentVertex, null/*TODO*/);
                     foreach (Vertex successors in this.GetDirectSuccessors(currentVertex))
                     {
                         stack.Push(successors);
