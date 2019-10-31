@@ -310,6 +310,8 @@ namespace GRYLibrary
             }
         }
 
+        /// <returns>Returns a summary of the executed program with its error-code, console-outputs, etc.</returns>
+        /// <remarks>This summary is designed for readability and not for a further program-controlled processing of the data. For that purpose please read out the properties of this object.</remarks>
         public string GetResult()
         {
             if (this.ExecutionState == ExecutionState.Terminated)
