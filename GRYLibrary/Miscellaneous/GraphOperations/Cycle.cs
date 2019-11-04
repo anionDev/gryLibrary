@@ -22,6 +22,7 @@ namespace GRYLibrary.Miscellaneous.GraphOperations
             {
                 throw new Exception("The given edge-list is not cyclic.");
             }
+            this.Edges = edges;
         }
         public override bool Equals(object obj)
         {
@@ -64,10 +65,18 @@ namespace GRYLibrary.Miscellaneous.GraphOperations
                 }
                 else
                 {
-                    if (!edges[i].Source.Equals(edges[i - 1].Target))
+                    try
+                    {
+  if (!edges[i].Source.Equals(edges[i - 1].Target))
                     {
                         return false;
                     }
+                    }
+                    catch
+                    {
+
+                    }
+                  
                 }
             }
             return true;

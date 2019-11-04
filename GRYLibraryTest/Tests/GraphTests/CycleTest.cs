@@ -12,10 +12,13 @@ namespace GRYLibraryTest.Tests.GraphTests
         public void TestConstructor()
         {
             Vertex v1 = new Vertex(nameof(v1));
-            Edge edge1 = new Edge(null, null, "e1");
-            Edge edge2 = new Edge(null, v1, "e2");
-            Edge edge3 = new Edge(v1, null, "e3");
-            Edge edge4 = new Edge(null, null, "e4");
+            Vertex v2 = new Vertex(nameof(v2));
+            Vertex v3 = new Vertex(nameof(v3));
+            Vertex v4 = new Vertex(nameof(v4));
+            Edge edge1 = new Edge(v3, v4, "e1");
+            Edge edge2 = new Edge(v4, v1, "e2");
+            Edge edge3 = new Edge(v1, v2, "e3");
+            Edge edge4 = new Edge(v2, v3, "e4");
 
             List<Edge> cycleItems = new List<Edge>();
             cycleItems.Add(edge3);
@@ -26,10 +29,10 @@ namespace GRYLibraryTest.Tests.GraphTests
             Cycle cycle = new Cycle(cycleItems);
 
             List<Edge> cycleInternalOrder = new List<Edge>();
-            cycleInternalOrder.Add(edge1);
-            cycleInternalOrder.Add(edge2);
             cycleInternalOrder.Add(edge3);
             cycleInternalOrder.Add(edge4);
+            cycleInternalOrder.Add(edge1);
+            cycleInternalOrder.Add(edge2);
 
             Assert.IsTrue(cycle.Edges.SequenceEqual(cycleInternalOrder));
         }
