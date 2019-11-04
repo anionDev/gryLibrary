@@ -239,6 +239,34 @@ namespace GRYLibrary
                 subDirectoryInfo.Delete(true);
             }
         }
+
+        internal static bool TryResolvePathByPathVariable(string program, out string programWithFullPath)
+        {
+            programWithFullPath = null;
+
+            string[] knownExtension = new string[] { ".exe", ".cmd" };
+            string paths = Environment.ExpandEnvironmentVariables("%PATH%");
+            foreach (string path in paths.Split(';'))
+            {
+
+                foreach (string combined in GetCombinations(path, knownExtension, program))
+                {
+                    if (File.Exists(combined))
+                    {
+                        programWithFullPath = combined;
+                    }
+                }
+            }
+            return programWithFullPath != null;
+
+        }
+
+        private static IEnumerable<string> GetCombinations(string path, string[] knownExtension, string program)
+        {
+            //if program ="myprogram" then knownExtension={".exe",".cmd"} then return {"myprogram.exe","myprogram.cmd"} 
+            throw new NotImplementedException();
+        }
+
         public static void MoveContentOfFoldersAcrossVolumes(string sourceFolder, string targetFolder, FileSelector fileSelector, bool deleteAlreadyExistingFilesWithoutCopy = false)
         {
             MoveContentOfFoldersAcrossVolumes(sourceFolder, targetFolder, fileSelector, (exception) => { }, deleteAlreadyExistingFilesWithoutCopy);

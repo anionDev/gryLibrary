@@ -183,7 +183,6 @@ namespace GRYLibrary
                 }
             }
         }
-        private static readonly string WherePath = @"C:\Windows\System32\where.exe";
         private string ResolvePathOfProgram(string program)
         {
             if (File.Exists(program))
@@ -192,27 +191,9 @@ namespace GRYLibrary
             }
             if (!(program.Contains("/") || program.Contains("\\") || program.Contains(":")))
             {
-                int exitCode = 1;
-                string output = string.Empty;
-                using (Process process = new Process())
+                if (Utilities.TryResolvePathByPathVariable(program, out string programWithFullPath))
                 {
-                    process.StartInfo.FileName = WherePath;
-                    process.StartInfo.Arguments = program;
-                    process.StartInfo.UseShellExecute = false;
-                    process.StartInfo.RedirectStandardOutput = true;
-                    process.Start();
-                    StreamReader reader = process.StandardOutput;
-                    output = reader.ReadToEnd();
-                    process.WaitForExit();
-                    exitCode = process.ExitCode;
-                }
-                if (exitCode == 0)
-                {
-                    output = output.Replace("\r\n", string.Empty);
-                    if (File.Exists(output))
-                    {
-                        return output;
-                    }
+                    return programWithFullPath;
                 }
             }
             throw new FileNotFoundException($"Program '{program}' can not be found");
