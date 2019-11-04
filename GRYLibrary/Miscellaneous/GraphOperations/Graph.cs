@@ -227,13 +227,7 @@ namespace GRYLibrary.Miscellaneous.GraphOperations
         public ISet<Cycle> GetAllCyclesThroughASpecificVertex(Vertex vertex)
         {
             ISet<Cycle> result = new HashSet<Cycle>();
-            this.DepthFirstSearch((currentPath, edges) =>
-            {
-                if (Cycle.RepresentsCycle(edges))
-                {
-                    result.Add(new Cycle(edges));
-                }
-            });
+            throw new NotImplementedException();
             return result;
         }
 
