@@ -21,6 +21,13 @@ namespace GRYLibraryTest.Tests.GraphTests
             Assert.AreEqual(1, cycles.Count);
         }
         [TestMethod]
+        public void HasOneOrMoreCycleTest()
+        {
+            DirectedGraph graph = TestGraphs.GetTestGraphWithoutLoop2();
+            Assert.IsFalse(graph.ContainsOneOrMoreCycles());
+            Assert.IsFalse(graph.ContainsOneOrMoreSelfLoops());
+        }
+        [TestMethod]
         public void IsConnectedTest1()
         {
             Assert.IsTrue(TestGraphs.GetTestGraphWithSimpleLoop().ToUndirectedGraph().IsConnected());

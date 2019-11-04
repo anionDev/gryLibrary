@@ -17,12 +17,34 @@ namespace GRYLibraryTest.Tests.GraphTests
             Vertex v1 = new Vertex("v1");
             Vertex v2 = new Vertex("v2");
             Vertex v3 = new Vertex("v3");
-            graph.AddEdge(new Edge(v0, v0, "e1"));
-            graph.AddEdge(new Edge(v0, v1, "e2", 0.8));
-            graph.AddEdge(new Edge(v1, v2, "e3"));
-            graph.AddEdge(new Edge(v1, v3, "e4"));
-            graph.AddEdge(new Edge(v2, v0, "e5", 0.2));
-            graph.AddEdge(new Edge(v2, v3, "e6"));
+            Vertex v4 = new Vertex("v4");
+            Vertex v5 = new Vertex("v5");
+            graph.AddEdge(new Edge(v0, v1, "e1"));
+            graph.AddEdge(new Edge(v1, v2, "e2"));
+            graph.AddEdge(new Edge(v2, v3, "e3"));
+            graph.AddEdge(new Edge(v3, v4, "e4"));
+            graph.AddEdge(new Edge(v4, v5, "e5"));
+            graph.AddEdge(new Edge(v5, v0, "e6"));
+            return graph;
+        }
+        /// <returns>
+        /// Returns a graph with the following structure:
+        /// v0->v1->v2->v3->v4->v5
+        /// </returns>
+        internal static DirectedGraph GetTestGraphWithoutLoop2()
+        {
+            DirectedGraph graph = new DirectedGraph();
+            Vertex v0 = new Vertex("v0");
+            Vertex v1 = new Vertex("v1");
+            Vertex v2 = new Vertex("v2");
+            Vertex v3 = new Vertex("v3");
+            Vertex v4 = new Vertex("v4");
+            Vertex v5 = new Vertex("v5");
+            graph.AddEdge(new Edge(v0, v1, "e1"));
+            graph.AddEdge(new Edge(v1, v2, "e2"));
+            graph.AddEdge(new Edge(v2, v3, "e3"));
+            graph.AddEdge(new Edge(v3, v4, "e4"));
+            graph.AddEdge(new Edge(v4, v5, "e5"));
             return graph;
         }
 
