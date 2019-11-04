@@ -243,7 +243,6 @@ namespace GRYLibrary
         internal static bool TryResolvePathByPathVariable(string program, out string programWithFullPath)
         {
             programWithFullPath = null;
-
             string[] knownExtension = new string[] { ".exe", ".cmd" };
             string paths = Environment.ExpandEnvironmentVariables("%PATH%");
             foreach (string path in paths.Split(';'))
@@ -261,10 +260,22 @@ namespace GRYLibrary
 
         }
 
-        private static IEnumerable<string> GetCombinations(string path, string[] knownExtension, string program)
+        private static IEnumerable<string> GetCombinations(string path, string[] knownExtensions, string program)
         {
-            //if program ="myprogram" then knownExtension={".exe",".cmd"} then return {"myprogram.exe","myprogram.cmd"} 
-            throw new NotImplementedException();
+            string programToLower = program.ToLower();
+            foreach (string extension in knownExtensions)
+            {
+                if (programToLower.EndsWith(extension))
+                {
+                    return new string[] { Path.Combine(path, programToLower) };
+                }
+            }
+            List<string> result = new List<string>();
+            foreach (string extension in knownExtensions)
+            {
+                result.Add(Path.Combine(path, program + extension));
+            }
+            return result;
         }
 
         public static void MoveContentOfFoldersAcrossVolumes(string sourceFolder, string targetFolder, FileSelector fileSelector, bool deleteAlreadyExistingFilesWithoutCopy = false)
