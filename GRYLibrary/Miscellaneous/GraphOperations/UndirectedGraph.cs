@@ -63,10 +63,6 @@ namespace GRYLibrary.Miscellaneous.GraphOperations
             result = null;
             return false;
         }
-        public override bool ContainsOneOrMoreCycles()
-        {
-            throw new NotImplementedException();
-        }
 
     }
 }

@@ -146,7 +146,25 @@ namespace GRYLibrary.Miscellaneous.GraphOperations
             }
             return false;
         }
-        public abstract bool ContainsOneOrMoreCycles();
+        public bool ContainsOneOrMoreCycles()
+        {
+            foreach (Vertex vertex in this.Vertices)
+            {
+                bool containsCycle = false;
+                this.DepthFirstSearch((currentVertex, edges) =>
+                {
+                    if (currentVertex.Equals(vertex) && edges.Count > 0)
+                    {
+                        containsCycle = true;
+                    }
+                }, vertex);
+                if (containsCycle)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
         public bool IsConnected()
         {
             if (this._Vertices.Count == 0)
@@ -238,7 +256,7 @@ namespace GRYLibrary.Miscellaneous.GraphOperations
         }
         public void BreadthFirstSearch(Action<Vertex, IList<Edge>> customAction, Vertex startVertex)
         {
-            InitializeSearchAndDoSomeChecks(startVertex, out Dictionary<Vertex, bool> visitedMap);
+            this.InitializeSearchAndDoSomeChecks(startVertex, out Dictionary<Vertex, bool> visitedMap);
             Queue<Tuple<Vertex, IList<Edge>>> queue = new Queue<Tuple<Vertex, IList<Edge>>>();
             visitedMap[startVertex] = true;
             var initialList = new List<Edge>();
@@ -253,7 +271,7 @@ namespace GRYLibrary.Miscellaneous.GraphOperations
                     {
                         visitedMap[successor] = true;
                         List<Edge> successorPath = currentVertex.Item2.ToList();
-                        if (TryGetEdge(currentVertex.Item1, successor, out Edge edge))
+                        if (this.TryGetEdge(currentVertex.Item1, successor, out Edge edge))
                         {
                             successorPath.Add(edge);
                         }
@@ -267,11 +285,6 @@ namespace GRYLibrary.Miscellaneous.GraphOperations
                 }
             }
 
-        }
-
-        private IList<Edge> GetPathFromTraversalMap(Dictionary<Vertex, Vertex> traversalMap, Vertex startVertex)
-        {
-            throw new NotImplementedException();
         }
 
         private void InitializeSearchAndDoSomeChecks(Vertex startVertex, out Dictionary<Vertex, bool> visitedMap)
@@ -293,7 +306,7 @@ namespace GRYLibrary.Miscellaneous.GraphOperations
         }
         public void DepthFirstSearch(Action<Vertex, IList<Edge>> customAction, Vertex startVertex)
         {
-            InitializeSearchAndDoSomeChecks(startVertex, out Dictionary<Vertex, bool> visitedMap);
+            this.InitializeSearchAndDoSomeChecks(startVertex, out Dictionary<Vertex, bool> visitedMap);
             Stack<Tuple<Vertex, IList<Edge>>> stack = new Stack<Tuple<Vertex, IList<Edge>>>();
             stack.Push(new Tuple<Vertex, IList<Edge>>(startVertex, new List<Edge>()));
             while (stack.Count > 0)
@@ -306,7 +319,7 @@ namespace GRYLibrary.Miscellaneous.GraphOperations
                     foreach (Vertex successor in this.GetDirectSuccessors(currentVertex.Item1))
                     {
                         List<Edge> successorPath = currentVertex.Item2.ToList();
-                        if (TryGetEdge(currentVertex.Item1, successor, out Edge edge))
+                        if (this.TryGetEdge(currentVertex.Item1, successor, out Edge edge))
                         {
                             successorPath.Add(edge);
                         }
