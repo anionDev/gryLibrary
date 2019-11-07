@@ -22,6 +22,8 @@ namespace GRYLibrary.Miscellaneous
     /// </remarks>
     public sealed class RedundantIdler
     {
+        //TODO change the identification for first/second intance to a system that does not compare process-names:
+        //If you start MyProgram.exe twice manually then both of them should run independently and have their own backup-instance.
         private RedundantIdler() { }
 
         public static int? ProcessIdOfBackupProcess { get; private set; } = null;
@@ -81,8 +83,5 @@ namespace GRYLibrary.Miscellaneous
                 throw new System.Exception("No backup-instance available which could be closed.");
             }
         }
-
-        //TODO change the identification for first/second intance to a system that does not compare process-names:
-        //If you start MyProgram.exe twice manually then both of them should run independently and have their own backup-instance.
     }
 }
