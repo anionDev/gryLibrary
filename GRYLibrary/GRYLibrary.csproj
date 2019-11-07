@@ -77,6 +77,7 @@
     <Compile Include="Miscellaneous\GraphOperations\Graph.cs" />
     <Compile Include="Miscellaneous\GraphOperations\UndirectedGraph.cs" />
     <Compile Include="Miscellaneous\GraphOperations\Vertex.cs" />
+    <Compile Include="Miscellaneous\RedundantIdler.cs" />
     <Compile Include="Miscellaneous\Semaphore.cs" />
     <Compile Include="Miscellaneous\SimpleObjectPersistence.cs" />
     <Compile Include="GRYObjectSystem\Meta\Attribute.cs" />
