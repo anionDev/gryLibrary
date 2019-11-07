@@ -23,6 +23,8 @@ namespace GRYLibrary.Miscellaneous
     public sealed class RedundantIdler
     {
         private RedundantIdler() { }
+
+        public static int? ProcessIdOfBackupProcess { get; private set; } = null;
         public static void WaitUntilExecutionIsRequired()
         {
             if (ThisProgramIsTheOnlyInstance())
@@ -53,6 +55,7 @@ namespace GRYLibrary.Miscellaneous
             })
             {
                 backupProcess.Start();
+                ProcessIdOfBackupProcess = backupProcess.Id;
             }
         }
 
@@ -67,10 +70,17 @@ namespace GRYLibrary.Miscellaneous
             return Process.GetProcessesByName(currentProcessName).Length;
         }
 
-        // TODO Allow the first instance to terminate the second instance in a clean way:
-        //public static void TerminateSecondInstance(){
-        //    throw new System.NotImplementedException();
-        //}
+        public static void TerminateSecondInstance()
+        {
+            if (ProcessIdOfBackupProcess.HasValue && Process.GetProcessById(ProcessIdOfBackupProcess.Value) != null)
+            {
+                Process.GetProcessById(ProcessIdOfBackupProcess.Value).Kill();
+            }
+            else
+            {
+                throw new System.Exception("No backup-instance available which could be closed.");
+            }
+        }
 
         //TODO change the identification for first/second intance to a system that does not compare process-names:
         //If you start MyProgram.exe twice manually then both of them should run independently and have their own backup-instance.
