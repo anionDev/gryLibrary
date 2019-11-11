@@ -68,6 +68,57 @@ namespace GRYLibrary
             return Icon.FromHandle(intPtr);
         }
 
+        public static void ReplaceUnderscoresInFolderTransitively(string folder, IDictionary<string, string> replacements)
+        {
+            Action<string, object> replaceInFile = (string file, object obj) => { string newFileName = RenameFileIfRequired(file, replacements); ReplaceUnderscoresInFile(newFileName, replacements); };
+            Action<string, object> replaceInDirectory = (string directory, object obj) => { RenameFolderIfRequired(directory, replacements); };
+            ForEachFileAndDirectoryTransitively(folder, replaceInDirectory, replaceInFile);
+        }
+
+        private static string RenameFileIfRequired(string file, IDictionary<string, string> replacements)
+        {
+            string originalFilename = Path.GetFileName(file);
+            string newFilename = ReplaceUnderscores(originalFilename, replacements);
+            if (!newFilename.Equals(originalFilename))
+            {
+                File.Move(file, newFilename);
+            }
+            return newFilename;
+        }
+
+        private static string RenameFolderIfRequired(string folder, IDictionary<string, string> replacements)
+        {
+            string originalFoldername = new DirectoryInfo(folder).Name;
+            string newFoldername = ReplaceUnderscores(originalFoldername, replacements);
+            if (!newFoldername.Equals(originalFoldername))
+            {
+                Directory.Move(originalFoldername, newFoldername);
+            }
+            return newFoldername;
+        }
+
+        public static string ReplaceUnderscores(string @string, IDictionary<string, string> replacements)
+        {
+            foreach (KeyValuePair<string, string> replacement in replacements)
+            {
+                @string = @string.Replace($"__{replacement.Key}__", replacement.Value);
+            }
+            return @string;
+        }
+
+        public static void ReplaceUnderscoresInFile(string file, IDictionary<string, string> replacements)
+        {
+            ReplaceUnderscoresInFile(file, replacements, new UTF8Encoding(false));
+        }
+        public static void ReplaceUnderscoresInFile(string file, IDictionary<string, string> replacements, Encoding encoding)
+        {
+            string originalContent = File.ReadAllText(file);
+            string replacedContent = ReplaceUnderscores(originalContent, replacements);
+            if (!originalContent.Equals(replacedContent))
+            {
+                File.WriteAllText(file, replacedContent, encoding);
+            }
+        }
         public static void WriteToConsoleAsASCIITable(IList<IList<string>> columns)
         {
             string[] table = TableGenerator.Generate(JaggedArrayToTwoDimensionalArray(EnumerableOfEnumerableToJaggedArray(columns)), new ASCIITable());
