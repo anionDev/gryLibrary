@@ -70,7 +70,7 @@ namespace GRYLibrary
 
         public static void ReplaceUnderscoresInFolderTransitively(string folder, IDictionary<string, string> replacements)
         {
-            Action<string, object> replaceInFile = (string file, object obj) => { string newFileName = RenameFileIfRequired(file, replacements); ReplaceUnderscoresInFile(newFileName, replacements); };
+            Action<string, object> replaceInFile = (string file, object obj) => { string newFileWithPath = RenameFileIfRequired(file, replacements); ReplaceUnderscoresInFile(newFileWithPath, replacements); };
             Action<string, object> replaceInDirectory = (string directory, object obj) => { RenameFolderIfRequired(directory, replacements); };
             ForEachFileAndDirectoryTransitively(folder, replaceInDirectory, replaceInFile);
         }
@@ -79,22 +79,24 @@ namespace GRYLibrary
         {
             string originalFilename = Path.GetFileName(file);
             string newFilename = ReplaceUnderscores(originalFilename, replacements);
+            string result = Path.Combine(Path.GetDirectoryName(file), newFilename);
             if (!newFilename.Equals(originalFilename))
             {
-                File.Move(file, newFilename);
+                File.Move(file, result);
             }
-            return newFilename;
+            return result;
         }
 
         private static string RenameFolderIfRequired(string folder, IDictionary<string, string> replacements)
         {
             string originalFoldername = new DirectoryInfo(folder).Name;
             string newFoldername = ReplaceUnderscores(originalFoldername, replacements);
+            string result = Path.Combine(Path.GetDirectoryName(folder), newFoldername);
             if (!newFoldername.Equals(originalFoldername))
             {
-                Directory.Move(originalFoldername, newFoldername);
+                Directory.Move(originalFoldername, result);
             }
-            return newFoldername;
+            return result;
         }
 
         public static string ReplaceUnderscores(string @string, IDictionary<string, string> replacements)
@@ -112,7 +114,7 @@ namespace GRYLibrary
         }
         public static void ReplaceUnderscoresInFile(string file, IDictionary<string, string> replacements, Encoding encoding)
         {
-            string originalContent = File.ReadAllText(file);
+            string originalContent = File.ReadAllText(file, encoding);
             string replacedContent = ReplaceUnderscores(originalContent, replacements);
             if (!originalContent.Equals(replacedContent))
             {
