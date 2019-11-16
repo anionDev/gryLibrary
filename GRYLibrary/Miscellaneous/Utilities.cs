@@ -149,6 +149,20 @@ namespace GRYLibrary
 
             return result;
         }
+
+        /// <returns>
+        /// Returns a new <see cref="Guid"/> whose value in the last block is incremented
+        /// </returns>
+        public static Guid IncrementGuid(Guid id, long valueToIncrement = 1)
+        {
+            return IncrementGuid(id, new BigInteger(valueToIncrement));
+        }
+        public static Guid IncrementGuid(Guid id, BigInteger valueToIncrement)
+        {
+            BigInteger value = BigInteger.Parse(id.ToString("N"), NumberStyles.HexNumber);
+            return Guid.Parse((value + valueToIncrement).ToString("X").PadLeft(32, '0'));
+        }
+
         public static IEnumerable<IEnumerable<T>> JaggedArrayToEnumerableOfEnumerable<T>(T[][] items)
         {
             List<List<T>> result = new List<List<T>>();

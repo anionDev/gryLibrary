@@ -1,5 +1,8 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
+using System.Globalization;
 using System.Linq;
+using System.Numerics;
 
 namespace GRYLibraryTest.Tests
 {
@@ -96,6 +99,38 @@ namespace GRYLibraryTest.Tests
             {
                 GRYLibrary.Utilities.EnsureDirectoryDoesNotExist(baseDir);
             }
+        }
+        [TestMethod]
+        public void IncrementGuidTest1()
+        {
+            string input = "5fe3eb8e-39dc-469c-a9cd-ea740e90d338";
+            Guid inputId = Guid.Parse(input);
+            Guid result = GRYLibrary.Utilities.IncrementGuid(inputId);
+            Assert.AreEqual("5fe3eb8e-39dc-469c-a9cd-ea740e90d339", result.ToString());
+        }
+        [TestMethod]
+        public void IncrementGuidTest2()
+        {
+            string input = "0003eb8e-39dc-469c-a9cd-00740e90d338";
+            Guid inputId = Guid.Parse(input);
+            Guid result = GRYLibrary.Utilities.IncrementGuid(inputId);
+            Assert.AreEqual("0003eb8e-39dc-469c-a9cd-00740e90d339", result.ToString());
+        }
+        [TestMethod]
+        public void IncrementGuidTest3()
+        {
+            string input = "0003eb8e-39dc-469c-a9cd-90740e90d338";
+            Guid inputId = Guid.Parse(input);
+            Guid result = GRYLibrary.Utilities.IncrementGuid(inputId, BigInteger.Parse("100000000000", NumberStyles.HexNumber));
+            Assert.AreEqual("0003eb8e-39dc-469c-a9cd-a0740e90d338", result.ToString());
+        }
+        [TestMethod]
+        public void IncrementGuidTest4()
+        {
+            string input = "5fe3eb8e-39dc-469c-a9cd-ea740e90d338";
+            Guid inputId = Guid.Parse(input);
+            Guid result = GRYLibrary.Utilities.IncrementGuid(inputId);
+            Assert.AreNotEqual(input, result.ToString());
         }
     }
 }
