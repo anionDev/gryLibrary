@@ -244,9 +244,7 @@ namespace GRYLibrary.Miscellaneous.GraphOperations
 
         public ISet<Cycle> GetAllCyclesThroughASpecificVertex(Vertex vertex)
         {
-            ISet<Cycle> result = new HashSet<Cycle>();
             throw new NotImplementedException();
-            return result;
         }
 
 
@@ -259,7 +257,7 @@ namespace GRYLibrary.Miscellaneous.GraphOperations
             this.InitializeSearchAndDoSomeChecks(startVertex, out Dictionary<Vertex, bool> visitedMap);
             Queue<Tuple<Vertex, IList<Edge>>> queue = new Queue<Tuple<Vertex, IList<Edge>>>();
             visitedMap[startVertex] = true;
-            var initialList = new List<Edge>();
+            List<Edge> initialList = new List<Edge>();
             customAction(startVertex, initialList);
             queue.Enqueue(new Tuple<Vertex, IList<Edge>>(startVertex, initialList));
             while (queue.Count != 0)

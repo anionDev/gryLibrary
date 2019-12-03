@@ -401,7 +401,7 @@ namespace GRYLibrary
         {
             return this.Configuration.Enabled;
         }
-        public void ExecuteAndLog(Action action, string nameOfAction, bool ignoreExceptions = false)
+        public void ExecuteAndLog(Action action, string nameOfAction, bool preventThrowingExceptions = false)
         {
             this.Log($"Action '{nameOfAction}' will be started now.", GRYLogLogLevel.Information);
             try
@@ -411,7 +411,7 @@ namespace GRYLibrary
             catch (Exception exception)
             {
                 this.Log($"An exception occurred while executing action '{nameOfAction}'.", GRYLogLogLevel.Exception, exception);
-                if (!ignoreExceptions)
+                if (!preventThrowingExceptions)
                 {
                     throw;
                 }
