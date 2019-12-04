@@ -125,8 +125,16 @@ namespace GRYLibrary
                         this.EnqueueInformation($"Start '{this.ProgramPathAndFile} {this.Arguments}' in '{this.WorkingDirectory}'");
                     }
                     Stopwatch stopWatch = new Stopwatch();
+                    string executionInfoAsString = $"{ this.WorkingDirectory }>{ this.ProgramPathAndFile } { this.Arguments }";
                     stopWatch.Start();
-                    process.Start();
+                    try
+                    {
+                        process.Start();
+                    }
+                    catch (Exception exception)
+                    {
+                        throw new Exception($"Exception occurred while start execution '{executionInfoAsString}'", exception);
+                    }
                     process.BeginOutputReadLine();
                     process.BeginErrorReadLine();
                     this._Running = true;
@@ -154,7 +162,7 @@ namespace GRYLibrary
                     this.ExecutionState = ExecutionState.Terminated;
                     if (this.ThrowErrorIfExitCodeIsNotZero && this.ExitCode != 0)
                     {
-                        throw new UnexpectedExitCodeException($"'{this.WorkingDirectory}>{this.ProgramPathAndFile} {this.Arguments}' had exitcode {this.ExitCode.ToString()}.", this);
+                        throw new UnexpectedExitCodeException($"'{executionInfoAsString}' had exitcode {this.ExitCode.ToString()}.", this);
                     }
                     else
                     {
