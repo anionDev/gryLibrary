@@ -29,5 +29,9 @@ namespace GRYLibrary.Miscellaneous
         {
             this._Cache.Remove(item);
         }
+        public bool ContainsKey(TKey key)
+        {
+            return this._Cache.ContainsKey(key);
+        }
     }
 }
