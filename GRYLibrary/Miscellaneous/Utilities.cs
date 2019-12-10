@@ -405,11 +405,6 @@ namespace GRYLibrary
             ForEachFileAndDirectoryTransitively(sourceFolder, (str, obj) => { }, (sourceFile, @object) => fileAction(sourceFile, @object), false, null, null);
         }
 
-        public static bool IsHexDigit(this char @char)
-        {
-            return (@char >= '0' && @char <= '9') || (@char >= 'a' && @char <= 'f') || (@char >= 'A' && @char <= 'F');
-        }
-
         public static void ForEachFileAndDirectoryTransitively(string directory, Action<string, object> directoryAction, Action<string, object> fileAction, bool ignoreErrors = false, object argumentForFileAction = null, object argumentForDirectoryAction = null)
         {
             foreach (string file in Directory.GetFiles(directory))
@@ -676,6 +671,16 @@ namespace GRYLibrary
         {
             string pascalCase = input.ToPascalCase();
             return char.ToLowerInvariant(pascalCase[0]) + pascalCase.Substring(1);
+        }
+
+        private static Regex OneOrMoreHexSigns = new Regex(@"^[0-9a-f]+$");
+        public static bool IsHexString(string result)
+        {
+            return OneOrMoreHexSigns.Match(result.ToLower()).Success;
+        }
+        public static bool IsHexDigit(this char @char)
+        {
+            return (@char >= '0' && @char <= '9') || (@char >= 'a' && @char <= 'f') || (@char >= 'A' && @char <= 'F');
         }
 
         public static bool IsAllUpper(this string input)
