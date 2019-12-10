@@ -1185,5 +1185,73 @@ namespace GRYLibrary
                 return xmlDeclaration + stringWriter.ToString();
             }
         }
+        public static void MountVolume(Guid volumeId, string mountPath)
+        {
+            ExternalProgramExecutor externalProgramExecutor = ExternalProgramExecutor.Create("mountvol", $"{mountPath} \\\\?\\Volume{{{volumeId.ToString()}}}\\");
+            externalProgramExecutor.ThrowErrorIfExitCodeIsNotZero = true;
+            externalProgramExecutor.LogObject.Configuration.PrintOutputInConsole = false;
+            externalProgramExecutor.StartConsoleApplicationInCurrentConsoleWindow();
+        }
+        public static ISet<Guid> GetAvailableVolumeIds()
+        {
+            ExternalProgramExecutor externalProgramExecutor = ExternalProgramExecutor.Create("mountvol", string.Empty);
+            externalProgramExecutor.ThrowErrorIfExitCodeIsNotZero = true;
+            externalProgramExecutor.LogObject.Configuration.PrintOutputInConsole = false;
+            externalProgramExecutor.StartConsoleApplicationInCurrentConsoleWindow();
+            HashSet<Guid> result = new HashSet<Guid>();
+            foreach (string rawLine in externalProgramExecutor.AllStdOutLines)
+            {
+                string line = rawLine.Trim(); //line is "\\?\Volume{80aa12de-7392-4051-8cd2-f28bf56dc9d3}\"
+                string prefix = "\\\\?\\Volume{";
+                if (line.StartsWith(prefix))
+                {
+                    line = line.Substring(prefix.Length);//remove "\\?\Volume{"
+                    line = line.Substring(line.Length - 2);//remove "}\"
+                    result.Add(Guid.Parse(line));
+                }
+            }
+            return result;
+        }
+        public static ISet<string> GetMountPaths(Guid volumeId)
+        {
+            HashSet<string> result = new HashSet<string>();
+            ExternalProgramExecutor externalProgramExecutor = ExternalProgramExecutor.Create("mountvol", string.Empty);
+            externalProgramExecutor.ThrowErrorIfExitCodeIsNotZero = true;
+            externalProgramExecutor.LogObject.Configuration.PrintOutputInConsole = false;
+            externalProgramExecutor.StartConsoleApplicationInCurrentConsoleWindow();
+            for (int i = 0; i < externalProgramExecutor.AllStdOutLines.Length; i++)
+            {
+                string line = externalProgramExecutor.AllStdOutLines[i].Trim();
+                if (line.StartsWith($"\\\\?\\Volume{{{volumeId.ToString()}}}\\"))
+                {
+                    int j = i;
+                    do
+                    {
+                        j += 1;
+                        string mountPath = externalProgramExecutor.AllStdOutLines[j].Trim();
+                        if (Directory.Exists(mountPath))
+                        {
+                            result.Add(mountPath);
+                        }
+                    } while (!string.IsNullOrWhiteSpace(externalProgramExecutor.AllStdOutLines[j]));
+                    return result;
+                }
+            }
+            return result;
+        }
+        public static void DismountAllMountPointsOfVolume(Guid volumeId)
+        {
+            foreach (string mountPoint in GetMountPaths(volumeId))
+            {
+                DismountVolume(mountPoint);
+            }
+        }
+        public static void DismountVolume(string mountPath)
+        {
+            ExternalProgramExecutor externalProgramExecutor = ExternalProgramExecutor.Create("mountvol", $"{mountPath} /d");
+            externalProgramExecutor.ThrowErrorIfExitCodeIsNotZero = true;
+            externalProgramExecutor.LogObject.Configuration.PrintOutputInConsole = false;
+            externalProgramExecutor.StartConsoleApplicationInCurrentConsoleWindow();
+        }
     }
 }
