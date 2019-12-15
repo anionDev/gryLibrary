@@ -60,6 +60,26 @@
             The runtime of this function is &lt;=O(|this.Edges|).
             </remarks>
         </member>
+        <member name="T:GRYLibrary.Miscellaneous.RedundantIdler">
+            <summary>
+            This type is a helper to start a backup program in a very simple way:
+            In the First line of the entry-point of your program (e.g. "Main()" in Program.cs) you simply call "<see cref="T:GRYLibrary.Miscellaneous.RedundantIdler"/>.<see cref="M:GRYLibrary.Miscellaneous.RedundantIdler.WaitUntilExecutionIsRequired"/>();".
+            This will start a second instance of the program with the same working-directory and same arguments. This second instance waits and does nothing until the first instance of the
+            program terminated. When the first instance of the program terminated the second instance will now be treated as first instance so it starts a new backup-instance and runs
+            the program quite normally.
+            </summary>
+            <example>
+            The name of your program is MyProgram.exe. MyProgram.exe provides an important service. So when you start this program you want to ensure that MyProgram.exe is always running
+            even if MyProgram.exe crashes or someone kills MyProgram.exe.
+            To have an easy way which ensures that MyProgram.exe will always be restarted if it will be terminated for any reason is using <see cref="T:GRYLibrary.Miscellaneous.RedundantIdler"/>.
+            <see cref="T:GRYLibrary.Miscellaneous.RedundantIdler"/> starts a second instance which sleeps/waits exactly until the first instance is terminated.
+            </example>
+            <remarks>
+            To identify if a program using <see cref="T:GRYLibrary.Miscellaneous.RedundantIdler"/> is the first or the second instance only the name of the process will be compared. <see cref="T:GRYLibrary.Miscellaneous.RedundantIdler"/> does only work if
+            there is always exactly one process running on the computer which the name of the process which is using <see cref="T:GRYLibrary.Miscellaneous.RedundantIdler"/>.
+            Currently there is no clean way to terminate both processes.
+            </remarks>
+        </member>
         <member name="T:GRYLibrary.Miscellaneous.Semaphore">
             <summary>
             Represents a threadsafe semaphore
@@ -115,6 +135,10 @@
             Returns the exit-code of the executed program.
             </returns>
         </member>
+        <member name="M:GRYLibrary.ExternalProgramExecutor.GetResult">
+            <returns>Returns a summary of the executed program with its error-code, console-outputs, etc.</returns>
+            <remarks>This summary is designed for readability and not for a further program-controlled processing of the data. For that purpose please read out the properties of this object.</remarks>
+        </member>
         <member name="P:GRYLibrary.GRYLogConfiguration.ReloadConfigurationWhenSourceFileWillBeChanged">
             <summary>
             If this value is false then changing this value in the configuration-file has no effect.
@@ -124,6 +148,11 @@
             <summary>
             Represents a number between 0 and 1.
             </summary>
+        </member>
+        <member name="M:GRYLibrary.Utilities.IncrementGuid(System.Guid,System.Int64)">
+            <returns>
+            Returns a new <see cref="T:System.Guid"/> whose value in the last block is incremented
+            </returns>
         </member>
         <member name="M:GRYLibrary.Utilities.MoveContentOfFoldersAcrossVolumes(System.String,System.String,System.Func{System.String,System.Boolean},System.Action{System.Exception},System.Boolean)">
             <summary>
