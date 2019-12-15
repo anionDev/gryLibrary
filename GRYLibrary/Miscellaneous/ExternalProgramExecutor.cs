@@ -78,7 +78,14 @@ namespace GRYLibrary
                     throw new InvalidOperationException("This process was already started");
                 }
                 this.ExecutionState = ExecutionState.Running;
-                string originalConsoleTitle = Console.Title;
+                string originalConsoleTitle = null;
+                try
+                {
+                    originalConsoleTitle = Console.Title;
+                }
+                catch
+                {
+                }
                 Process process = null;
                 try
                 {
@@ -179,9 +186,15 @@ namespace GRYLibrary
                             System.Threading.Thread.Sleep(30);
                         }
                         process?.Dispose();
-                        if (!string.IsNullOrWhiteSpace(this.Title))
+                        if (originalConsoleTitle != null)
                         {
-                            Console.Title = originalConsoleTitle;
+                            try
+                            {
+                                Console.Title = originalConsoleTitle;
+                            }
+                            catch
+                            {
+                            }
                         }
                     }
                     catch

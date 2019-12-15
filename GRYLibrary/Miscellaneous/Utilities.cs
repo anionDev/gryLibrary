@@ -1199,15 +1199,26 @@ namespace GRYLibrary
             externalProgramExecutor.LogObject.Configuration.PrintOutputInConsole = false;
             externalProgramExecutor.StartConsoleApplicationInCurrentConsoleWindow();
             HashSet<Guid> result = new HashSet<Guid>();
-            foreach (string rawLine in externalProgramExecutor.AllStdOutLines)
+            for (int i = 0; i < externalProgramExecutor.AllStdOutLines.Length - 1; i++)
             {
-                string line = rawLine.Trim(); //line is "\\?\Volume{80aa12de-7392-4051-8cd2-f28bf56dc9d3}\"
-                string prefix = "\\\\?\\Volume{";
-                if (line.StartsWith(prefix))
+                string rawLine = externalProgramExecutor.AllStdOutLines[i];
+                try
                 {
-                    line = line.Substring(prefix.Length);//remove "\\?\Volume{"
-                    line = line.Substring(line.Length - 2);//remove "}\"
-                    result.Add(Guid.Parse(line));
+                    string line = rawLine.Trim(); //line looks like "\\?\Volume{80aa12de-7392-4051-8cd2-f28bf56dc9d3}\"
+                    string prefix = "\\\\?\\Volume{";
+                    if (line.StartsWith(prefix))
+                    {
+                        line = line.Substring(prefix.Length);//remove "\\?\Volume{"
+                        line = line.Substring(0, line.Length - 2);//remove "}\"
+                        string nextLine = externalProgramExecutor.AllStdOutLines[i + 1].Trim();
+                        if (Directory.Exists(nextLine) || nextLine.StartsWith("***"))
+                        {
+                            result.Add(Guid.Parse(line));
+                        }
+                    }
+                }
+                catch
+                {
                 }
             }
             return result;
