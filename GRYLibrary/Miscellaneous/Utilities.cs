@@ -1185,9 +1185,13 @@ namespace GRYLibrary
                 return xmlDeclaration + stringWriter.ToString();
             }
         }
-        public static void MountVolume(Guid volumeId, string mountPath)
+        public static void AddMountPointForVolume(Guid volumeId, string mountPoint)
         {
-            ExternalProgramExecutor externalProgramExecutor = ExternalProgramExecutor.Create("mountvol", $"{mountPath} \\\\?\\Volume{{{volumeId.ToString()}}}\\");
+            if (mountPoint.Length > 4)
+            {
+                EnsureDirectoryExists(mountPoint);
+            }
+            ExternalProgramExecutor externalProgramExecutor = ExternalProgramExecutor.Create("mountvol", $"{mountPoint} \\\\?\\Volume{{{volumeId.ToString()}}}\\");
             externalProgramExecutor.ThrowErrorIfExitCodeIsNotZero = true;
             externalProgramExecutor.CreateWindow = false;
             externalProgramExecutor.LogObject.Configuration.PrintOutputInConsole = false;
@@ -1221,11 +1225,12 @@ namespace GRYLibrary
                 }
                 catch
                 {
+                    NoOperation();
                 }
             }
             return result;
         }
-        public static ISet<string> GetMountPaths(Guid volumeId)
+        public static ISet<string> GetMountPoints(Guid volumeId)
         {
             HashSet<string> result = new HashSet<string>();
             ExternalProgramExecutor externalProgramExecutor = ExternalProgramExecutor.Create("mountvol", string.Empty);
@@ -1253,20 +1258,42 @@ namespace GRYLibrary
             }
             return result;
         }
-        public static void DismountAllMountPointsOfVolume(Guid volumeId)
+        public static void RemoveAllMountPointsOfVolume(Guid volumeId)
         {
-            foreach (string mountPoint in GetMountPaths(volumeId))
+            foreach (string mountPoint in GetMountPoints(volumeId))
             {
-                DismountVolume(mountPoint);
+                RemoveMountPointOfVolume(mountPoint);
             }
         }
-        public static void DismountVolume(string mountPath)
+        public static void RemoveMountPointOfVolume(string mountPoint)
         {
-            ExternalProgramExecutor externalProgramExecutor = ExternalProgramExecutor.Create("mountvol", $"{mountPath} /d");
+            if (mountPoint.Length > 4)
+            {
+                EnsureDirectoryDoesNotExist(mountPoint);
+            }
+            ExternalProgramExecutor externalProgramExecutor = ExternalProgramExecutor.Create("mountvol", $"{mountPoint} /d");
             externalProgramExecutor.ThrowErrorIfExitCodeIsNotZero = true;
             externalProgramExecutor.CreateWindow = false;
             externalProgramExecutor.LogObject.Configuration.PrintOutputInConsole = false;
             externalProgramExecutor.StartConsoleApplicationInCurrentConsoleWindow();
+        }
+        public static Guid GetVolumeIdByMountPoint(string mountPoint)
+        {
+            if (!mountPoint.EndsWith("\\"))
+            {
+                mountPoint = mountPoint + "\\";
+            }
+            foreach (Guid volumeId in GetAvailableVolumeIds())
+            {
+                foreach (string currentMountPoint in GetMountPoints(volumeId))
+                {
+                    if (currentMountPoint.Equals(mountPoint))
+                    {
+                        return volumeId;
+                    }
+                }
+            }
+            throw new KeyNotFoundException($"No volume could be found which provides the volume accessible at {mountPoint}");
         }
     }
 }
