@@ -36,6 +36,7 @@ namespace GRYLibrary
         public GRYLog LogObject { get; set; }
         public string Arguments { get; set; }
         public string ProgramPathAndFile { get; set; }
+        public bool CreateWindow { get; set; } = true;
         public string Title { get; set; }
         public string WorkingDirectory { get; set; }
         public bool ThrowErrorIfExitCodeIsNotZero { get; set; } = false;
@@ -100,18 +101,18 @@ namespace GRYLibrary
                     {
                         Utilities.NoOperation();
                     }
-                    process = new Process
+                    ProcessStartInfo StartInfo = new ProcessStartInfo(this.ResolvePathOfProgram(this.ProgramPathAndFile))
                     {
-                        StartInfo = new ProcessStartInfo(this.ResolvePathOfProgram(this.ProgramPathAndFile))
-                        {
-                            UseShellExecute = false,
-                            ErrorDialog = false,
-                            Arguments = this.Arguments,
-                            WorkingDirectory = this.WorkingDirectory,
-                            RedirectStandardOutput = true,
-                            RedirectStandardError = true
-                        }
+                        UseShellExecute = false,
+                        ErrorDialog = false,
+                        Arguments = this.Arguments,
+                        WorkingDirectory = this.WorkingDirectory,
+                        RedirectStandardOutput = true,
+                        RedirectStandardError = true
                     };
+                    StartInfo.CreateNoWindow = !this.CreateWindow;
+                    process = new Process();
+                    process.StartInfo = StartInfo;
                     process.OutputDataReceived += (object sender, DataReceivedEventArgs e) => this.EnqueueInformation(e.Data);
                     process.ErrorDataReceived += (object sender, DataReceivedEventArgs e) =>
                     {

@@ -1189,6 +1189,7 @@ namespace GRYLibrary
         {
             ExternalProgramExecutor externalProgramExecutor = ExternalProgramExecutor.Create("mountvol", $"{mountPath} \\\\?\\Volume{{{volumeId.ToString()}}}\\");
             externalProgramExecutor.ThrowErrorIfExitCodeIsNotZero = true;
+            externalProgramExecutor.CreateWindow = false;
             externalProgramExecutor.LogObject.Configuration.PrintOutputInConsole = false;
             externalProgramExecutor.StartConsoleApplicationInCurrentConsoleWindow();
         }
@@ -1196,6 +1197,7 @@ namespace GRYLibrary
         {
             ExternalProgramExecutor externalProgramExecutor = ExternalProgramExecutor.Create("mountvol", string.Empty);
             externalProgramExecutor.ThrowErrorIfExitCodeIsNotZero = true;
+            externalProgramExecutor.CreateWindow = false;
             externalProgramExecutor.LogObject.Configuration.PrintOutputInConsole = false;
             externalProgramExecutor.StartConsoleApplicationInCurrentConsoleWindow();
             HashSet<Guid> result = new HashSet<Guid>();
@@ -1228,6 +1230,7 @@ namespace GRYLibrary
             HashSet<string> result = new HashSet<string>();
             ExternalProgramExecutor externalProgramExecutor = ExternalProgramExecutor.Create("mountvol", string.Empty);
             externalProgramExecutor.ThrowErrorIfExitCodeIsNotZero = true;
+            externalProgramExecutor.CreateWindow = false;
             externalProgramExecutor.LogObject.Configuration.PrintOutputInConsole = false;
             externalProgramExecutor.StartConsoleApplicationInCurrentConsoleWindow();
             for (int i = 0; i < externalProgramExecutor.AllStdOutLines.Length; i++)
@@ -1261,6 +1264,7 @@ namespace GRYLibrary
         {
             ExternalProgramExecutor externalProgramExecutor = ExternalProgramExecutor.Create("mountvol", $"{mountPath} /d");
             externalProgramExecutor.ThrowErrorIfExitCodeIsNotZero = true;
+            externalProgramExecutor.CreateWindow = false;
             externalProgramExecutor.LogObject.Configuration.PrintOutputInConsole = false;
             externalProgramExecutor.StartConsoleApplicationInCurrentConsoleWindow();
         }
