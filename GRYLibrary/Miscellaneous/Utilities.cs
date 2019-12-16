@@ -70,8 +70,8 @@ namespace GRYLibrary
 
         public static void ReplaceUnderscoresInFolderTransitively(string folder, IDictionary<string, string> replacements)
         {
-            Action<string, object> replaceInFile = (string file, object obj) => { string newFileWithPath = RenameFileIfRequired(file, replacements); ReplaceUnderscoresInFile(newFileWithPath, replacements); };
-            Action<string, object> replaceInDirectory = (string directory, object obj) => { RenameFolderIfRequired(directory, replacements); };
+            void replaceInFile(string file, object obj) { string newFileWithPath = RenameFileIfRequired(file, replacements); ReplaceUnderscoresInFile(newFileWithPath, replacements); }
+            void replaceInDirectory(string directory, object obj) { RenameFolderIfRequired(directory, replacements); }
             ForEachFileAndDirectoryTransitively(folder, replaceInDirectory, replaceInFile);
         }
 
@@ -345,6 +345,10 @@ namespace GRYLibrary
             return result;
         }
 
+        public static void MoveContentOfFoldersAcrossVolumes(string sourceFolder, string targetFolder)
+        {
+            MoveContentOfFoldersAcrossVolumes(sourceFolder, targetFolder, FileSelector.FilesInFolder(sourceFolder, true));
+        }
         public static void MoveContentOfFoldersAcrossVolumes(string sourceFolder, string targetFolder, FileSelector fileSelector, bool deleteAlreadyExistingFilesWithoutCopy = false)
         {
             MoveContentOfFoldersAcrossVolumes(sourceFolder, targetFolder, fileSelector, (exception) => { }, deleteAlreadyExistingFilesWithoutCopy);
