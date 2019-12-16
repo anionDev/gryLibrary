@@ -1230,6 +1230,15 @@ namespace GRYLibrary
             }
             return result;
         }
+        public static ISet<string> GetAllMountPointsOfAllAvailableVolumes()
+        {
+            HashSet<string> result = new HashSet<string>();
+            foreach(Guid volumeId in GetAvailableVolumeIds())
+            {
+                result.UnionWith(GetMountPoints(volumeId));
+            }
+            return result;
+        }
         public static ISet<string> GetMountPoints(Guid volumeId)
         {
             HashSet<string> result = new HashSet<string>();
