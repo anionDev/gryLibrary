@@ -94,7 +94,7 @@ namespace GRYLibrary
             string result = Path.Combine(Path.GetDirectoryName(folder), newFoldername);
             if (!newFoldername.Equals(originalFoldername))
             {
-                Directory.Move(originalFoldername, result);
+                Directory.Move(folder, result);
             }
             return result;
         }
@@ -1185,6 +1185,46 @@ namespace GRYLibrary
                 return xmlDeclaration + stringWriter.ToString();
             }
         }
+        public static readonly Encoding FormatXMLFile_DefaultEncoding = new UTF8Encoding(false);
+        public static readonly XmlWriterSettings FormatXMLFile_DefaultXmlWriterSettings = new XmlWriterSettings() { Indent = true, IndentChars = "    " };
+        public static void FormatXMLFile(string file)
+        {
+            FormatXMLFile(file, FormatXMLFile_DefaultEncoding, FormatXMLFile_DefaultXmlWriterSettings);
+        }
+        public static void FormatXMLFile(string file, Encoding encoding)
+        {
+            FormatXMLFile(file, encoding, FormatXMLFile_DefaultXmlWriterSettings);
+        }
+        public static void FormatXMLFile(string file, XmlWriterSettings settings)
+        {
+            FormatXMLFile(file, FormatXMLFile_DefaultEncoding, settings);
+        }
+        public static void FormatXMLFile(string file, Encoding encoding, XmlWriterSettings settings)
+        {
+            File.WriteAllText(file, FormatXMLString(File.ReadAllText(file), settings), encoding);
+        }
+        public static string FormatXMLString(string xmlString)
+        {
+            return FormatXMLString(xmlString, FormatXMLFile_DefaultXmlWriterSettings);
+        }
+        public static string FormatXMLString(string xmlString, XmlWriterSettings settings)
+        {
+            using (MemoryStream memoryStream = new MemoryStream())
+            {
+                using (XmlWriter xmlWriter = XmlWriter.Create(memoryStream, settings))
+                {
+                    XmlDocument document = new XmlDocument();
+                    document.LoadXml(xmlString);
+                    xmlWriter.Flush();
+                    memoryStream.Flush();
+                    memoryStream.Position = 0;
+                    using (StreamReader streamReader = new StreamReader(memoryStream))
+                    {
+                        return streamReader.ReadToEnd();
+                    }
+                }
+            }
+        }
         public static void AddMountPointForVolume(Guid volumeId, string mountPoint)
         {
             if (mountPoint.Length > 4)
@@ -1233,7 +1273,7 @@ namespace GRYLibrary
         public static ISet<string> GetAllMountPointsOfAllAvailableVolumes()
         {
             HashSet<string> result = new HashSet<string>();
-            foreach(Guid volumeId in GetAvailableVolumeIds())
+            foreach (Guid volumeId in GetAvailableVolumeIds())
             {
                 result.UnionWith(GetMountPoints(volumeId));
             }
