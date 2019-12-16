@@ -673,7 +673,7 @@ namespace GRYLibrary
             return char.ToLowerInvariant(pascalCase[0]) + pascalCase.Substring(1);
         }
 
-        private static Regex OneOrMoreHexSigns = new Regex(@"^[0-9a-f]+$");
+        private static readonly Regex OneOrMoreHexSigns = new Regex(@"^[0-9a-f]+$");
         public static bool IsHexString(string result)
         {
             return OneOrMoreHexSigns.Match(result.ToLower()).Success;
