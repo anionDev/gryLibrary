@@ -1227,7 +1227,7 @@ namespace GRYLibrary
         }
         public static void AddMountPointForVolume(Guid volumeId, string mountPoint)
         {
-            if (mountPoint.Length > 4)
+            if (mountPoint.Length > 3)
             {
                 EnsureDirectoryExists(mountPoint);
             }
@@ -1316,15 +1316,15 @@ namespace GRYLibrary
         }
         public static void RemoveMountPointOfVolume(string mountPoint)
         {
-            if (mountPoint.Length > 4)
-            {
-                EnsureDirectoryDoesNotExist(mountPoint);
-            }
             ExternalProgramExecutor externalProgramExecutor = ExternalProgramExecutor.Create("mountvol", $"{mountPoint} /d");
             externalProgramExecutor.ThrowErrorIfExitCodeIsNotZero = true;
             externalProgramExecutor.CreateWindow = false;
             externalProgramExecutor.LogObject.Configuration.PrintOutputInConsole = false;
             externalProgramExecutor.StartConsoleApplicationInCurrentConsoleWindow();
+            if (mountPoint.Length > 3)
+            {
+                EnsureDirectoryDoesNotExist(mountPoint);
+            }
         }
         public static Guid GetVolumeIdByMountPoint(string mountPoint)
         {
