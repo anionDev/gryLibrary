@@ -87,14 +87,22 @@ namespace GRYLibrary
             return result;
         }
 
-        private static string RenameFolderIfRequired(string folder, IDictionary<string, string> replacements)
+        private static string RenameFolderIfRequired(string folder, IDictionary<string, string> replacements, bool IntegrateContentIfTargetFolderAlreadyExists = true)
         {
             string originalFoldername = new DirectoryInfo(folder).Name;
             string newFoldername = ReplaceUnderscores(originalFoldername, replacements);
             string result = Path.Combine(Path.GetDirectoryName(folder), newFoldername);
             if (!newFoldername.Equals(originalFoldername))
             {
-                Directory.Move(folder, result);
+                if (Directory.Exists(result))
+                {
+                    MoveContentOfFoldersAcrossVolumes(folder, result);
+                    DeleteFolder(folder);
+                }
+                else
+                {
+                    Directory.Move(folder, result);
+                }
             }
             return result;
         }
