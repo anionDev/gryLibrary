@@ -36,7 +36,16 @@ namespace GRYLibrary
         /// </summary>
         /// <param name="file">filename with full path</param>
         /// <param name="object">object which should be saved</param>
-        public SimpleObjectPersistence(string file, T @object) : this(file, @object, new XmlWriterSettings() { Indent = true, Encoding = new UTF8Encoding(false) })
+        public SimpleObjectPersistence(string file, T @object) : this(file,new UTF8Encoding(false), @object)
+        {
+        }
+        /// <summary>
+        /// Stores <paramref name="object"/> in <see cref="Object"/> and in <paramref name="file"/>.
+        /// </summary>
+        /// <param name="file">filename with full path</param>
+        /// <param name="encoding">Encoding which should be used to save <paramref name="file"/></param>
+        /// <param name="object">object which should be saved</param>
+        public SimpleObjectPersistence(string file,Encoding encoding, T @object) : this(file, @object, new XmlWriterSettings() { Indent = true, Encoding = encoding })
         {
         }
         /// <summary>
