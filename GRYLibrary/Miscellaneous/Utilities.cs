@@ -242,11 +242,6 @@ namespace GRYLibrary
         {
             return string.Format("{{{0}}}", string.Join(", ", types.Select((type) => type.Name)));
         }
-        public static string GetCommandLineArgumentWithoutProgramPath()
-        {
-            string executableFile = Environment.GetCommandLineArgs()[0];
-            return Environment.CommandLine.Remove(Environment.CommandLine.IndexOf(executableFile), executableFile.Length).TrimStart('"').Substring(1).Trim();
-        }
         public static void CopyFolderAcrossVolumes(string sourceFolder, string destinationFolder)
         {
             EnsureDirectoryExists(destinationFolder);
@@ -655,12 +650,27 @@ namespace GRYLibrary
         {
             return new SimpleObjectPersistence<T>(file, encoding);
         }
-
+        /// <returns>Returns the command line arguments of the current executed program.</returns>
+        /// <remarks>It is guaranteed that the result does not have leading or trailing whitespaces.</remarks>
         public static string GetCommandLineArguments()
         {
-            string exe = Environment.GetCommandLineArgs()[0];
             string rawCmd = Environment.CommandLine;
-            return rawCmd.Remove(rawCmd.IndexOf(exe), exe.Length).TrimStart('"').Substring(1);
+            string[] args = Environment.GetCommandLineArgs();
+            if (args.Count() == 1)
+            {
+                return string.Empty;
+            }
+            string exe = args[0];
+            string quotedExe = "\"" + exe + "\"";
+            if (rawCmd.StartsWith(exe))
+            {
+                rawCmd = rawCmd.Substring(exe.Length + 1);
+            }
+            else if (rawCmd.StartsWith(quotedExe))
+            {
+                rawCmd = rawCmd.Substring(quotedExe.Length + 1);
+            }
+            return rawCmd.Trim();
         }
 
         public static string ToPascalCase(this string input)
