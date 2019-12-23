@@ -401,9 +401,9 @@ namespace GRYLibrary
         {
             return this.Configuration.Enabled;
         }
-        public void ExecuteAndLog(Action action, string nameOfAction, bool preventThrowingExceptions = false)
+        public void ExecuteAndLog(Action action, string nameOfAction, bool preventThrowingExceptions = false, GRYLogLogLevel logLevelForOverhead = GRYLogLogLevel.Verbose)
         {
-            this.Log($"Action '{nameOfAction}' will be started now.", GRYLogLogLevel.Information);
+            this.Log($"Action '{nameOfAction}' will be started now.", logLevelForOverhead);
             try
             {
                 action();
@@ -418,13 +418,13 @@ namespace GRYLibrary
             }
             finally
             {
-                this.Log($"Action '{nameOfAction}' finished.", GRYLogLogLevel.Information);
+                this.Log($"Action '{nameOfAction}' finished.", logLevelForOverhead);
             }
         }
-        public void ExecuteAndLog<TParameter>(Action<TParameter> action, string nameOfAction, TParameter argument)
+        public void ExecuteAndLog<TParameter>(Action<TParameter> action, string nameOfAction, TParameter argument, bool preventThrowingExceptions = false, GRYLogLogLevel logLevelForOverhead = GRYLogLogLevel.Verbose)
         {
             string argumentAsString = argument.ToString();
-            this.Log($"Action '{nameOfAction}({argumentAsString})' will be started now.");
+            this.Log($"Action '{nameOfAction}({argumentAsString})' will be started now.", logLevelForOverhead);
             try
             {
                 action(argument);
@@ -432,16 +432,19 @@ namespace GRYLibrary
             catch (Exception exception)
             {
                 this.Log($"An exception occurred while executing action '{nameOfAction}({argumentAsString})'.", GRYLogLogLevel.Exception, exception);
-                throw;
+                if (!preventThrowingExceptions)
+                {
+                    throw;
+                }
             }
             finally
             {
-                this.Log($"Action '{nameOfAction}({argumentAsString})' finished.");
+                this.Log($"Action '{nameOfAction}({argumentAsString})' finished.", logLevelForOverhead);
             }
         }
-        public TResult ExecuteAndLog<TResult>(Func<TResult> action, string nameOfAction)
+        public TResult ExecuteAndLog<TResult>(Func<TResult> action, string nameOfAction, bool preventThrowingExceptions = false, GRYLogLogLevel logLevelForOverhead = GRYLogLogLevel.Verbose, TResult defaultValue = default)
         {
-            this.Log($"Action '{nameOfAction}' will be started now.");
+            this.Log($"Action '{nameOfAction}' will be started now.", logLevelForOverhead);
             try
             {
                 return action();
@@ -449,17 +452,24 @@ namespace GRYLibrary
             catch (Exception exception)
             {
                 this.Log($"An exception occurred while executing action '{nameOfAction}'.", GRYLogLogLevel.Exception, exception);
-                throw;
+                if (preventThrowingExceptions)
+                {
+                    return defaultValue;
+                }
+                else
+                {
+                    throw;
+                }
             }
             finally
             {
-                this.Log($"Action '{nameOfAction}' finished.");
+                this.Log($"Action '{nameOfAction}' finished.", logLevelForOverhead);
             }
         }
-        public TOut ExecuteAndLog<TParameter, TOut>(Func<TParameter, TOut> action, string nameOfAction, TParameter argument)
+        public TResult ExecuteAndLog<TParameter, TResult>(Func<TParameter, TResult> action, string nameOfAction, TParameter argument, bool preventThrowingExceptions = false, GRYLogLogLevel logLevelForOverhead = GRYLogLogLevel.Verbose, TResult defaultValue = default)
         {
             string argumentAsString = argument.ToString();
-            this.Log($"Action '{nameOfAction}({argumentAsString})' will be started now.");
+            this.Log($"Action '{nameOfAction}({argumentAsString})' will be started now.", logLevelForOverhead);
             try
             {
                 return action(argument);
@@ -467,11 +477,18 @@ namespace GRYLibrary
             catch (Exception exception)
             {
                 this.Log($"An exception occurred while executing action '{nameOfAction}({argumentAsString})'.", GRYLogLogLevel.Exception, exception);
-                throw;
+                if (preventThrowingExceptions)
+                {
+                    return defaultValue;
+                }
+                else
+                {
+                    throw;
+                }
             }
             finally
             {
-                this.Log($"Action '{nameOfAction}({argumentAsString})' finished.");
+                this.Log($"Action '{nameOfAction}({argumentAsString})' finished.", logLevelForOverhead);
             }
         }
 
