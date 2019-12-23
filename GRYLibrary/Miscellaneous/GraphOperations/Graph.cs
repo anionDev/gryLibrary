@@ -337,7 +337,7 @@ namespace GRYLibrary.Miscellaneous.GraphOperations
         /// Returns true if and only if the adjacency-matrices of this and <paramref name="obj"/> are equal.
         /// </returns>
         /// <remarks>
-        /// This function ignores properties like <see cref="Graph.SelfLoopIsAllowed"/> or the name of the edges and vertices.
+        /// This function ignores properties like <see cref="SelfLoopIsAllowed"/> or the name of the edges and vertices.
         /// </remarks>
         public override bool Equals(object obj)
         {
