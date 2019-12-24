@@ -1098,8 +1098,12 @@ namespace GRYLibrary
         public static string[,] ReadCSVFile(string file, string separator, bool ignoreFirstLine, Encoding encoding)
         {
             string[] lines = File.ReadAllLines(file, encoding);
+            if (lines.Length == 0)
+            {
+                return new string[,] { };
+            }
             List<List<string>> outterList = new List<List<string>>();
-            for (int i = 0; i < lines.Length - 1; i++)
+            for (int i = 0; i < lines.Length; i++)
             {
                 if (!(i == 0 && ignoreFirstLine))
                 {
