@@ -114,6 +114,14 @@
             <param name="file">filename with full path</param>
             <param name="object">object which should be saved</param>
         </member>
+        <member name="M:GRYLibrary.SimpleObjectPersistence`1.#ctor(System.String,System.Text.Encoding,`0)">
+            <summary>
+            Stores <paramref name="object"/> in <see cref="P:GRYLibrary.SimpleObjectPersistence`1.Object"/> and in <paramref name="file"/>.
+            </summary>
+            <param name="file">filename with full path</param>
+            <param name="encoding">Encoding which should be used to save <paramref name="file"/></param>
+            <param name="object">object which should be saved</param>
+        </member>
         <member name="M:GRYLibrary.SimpleObjectPersistence`1.#ctor(System.String,`0,System.Xml.XmlWriterSettings)">
             <summary>
             Stores <paramref name="object"/> in <see cref="P:GRYLibrary.SimpleObjectPersistence`1.Object"/> and in <paramref name="file"/>.
@@ -178,6 +186,10 @@
             <returns>The result of the first finished <paramref name="functions"/>-method.</returns>
             <exception cref="T:System.ArgumentException">If <paramref name="functions"/> is empty.</exception>
             <exception cref="T:System.Exception">If every <paramref name="functions"/>-method throws an exception.</exception>
+        </member>
+        <member name="M:GRYLibrary.Utilities.GetCommandLineArguments">
+            <returns>Returns the command line arguments of the current executed program.</returns>
+            <remarks>It is guaranteed that the result does not have leading or trailing whitespaces.</remarks>
         </member>
         <member name="M:GRYLibrary.Utilities.IsAuthenticated(System.String,System.String,System.String,System.String)">
             <summary>

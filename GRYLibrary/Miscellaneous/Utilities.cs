@@ -315,15 +315,21 @@ namespace GRYLibrary
             programWithFullPath = null;
             string[] knownExtension = new string[] { ".exe", ".cmd" };
             string paths = Environment.ExpandEnvironmentVariables("%PATH%");
+            bool @break = false;
             foreach (string path in paths.Split(';'))
             {
-
                 foreach (string combined in GetCombinations(path, knownExtension, program))
                 {
                     if (File.Exists(combined))
                     {
                         programWithFullPath = combined;
+                        @break = true;
+                        break;
                     }
+                }
+                if (@break)
+                {
+                    break;
                 }
             }
             return programWithFullPath != null;
