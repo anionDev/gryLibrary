@@ -1,6 +1,6 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using GRYLibrary.GRYObjectSystem.Exceptions;
-using GRYLibrary.GRYObjectSystem.Meta.Property;
+﻿using GRYLibrary.Miscellaneous;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 
 namespace GRYLibraryTest.Tests
 {
@@ -25,7 +25,7 @@ namespace GRYLibraryTest.Tests
             {
                 property.Value = null;
             }
-            catch (InvalidArgumentException)
+            catch (ArgumentException)
             {
                 //expected
             }
@@ -35,5 +35,5 @@ namespace GRYLibraryTest.Tests
             Assert.AreEqual(object2, currentHistoy.Pop().Value);
             Assert.AreEqual(object1, currentHistoy.Pop().Value);
         }
-        }
     }
+}

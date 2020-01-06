@@ -1,10 +1,9 @@
 ﻿using GRYLibrary.Event;
-using GRYLibrary.GRYProperty.Other;
 using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 
-namespace GRYLibrary.GRYProperty
+namespace GRYLibrary.Miscellaneous
 {
     public interface IProperty
     {
@@ -162,5 +161,17 @@ namespace GRYLibrary.GRYProperty
             }
             throw new Exception("Value was not set at moment " + dateTime.ToString("yyyy/MM/dd HH:mm:ss"));
         }
+    }
+    public class PropertyChangedEvengArgument<T>
+    {
+        internal PropertyChangedEvengArgument(T oldValue, T newValue, DateTime changeMoment)
+        {
+            this.OldValue = oldValue;
+            this.NewValue = newValue;
+            this.ChangeMoment = changeMoment;
+        }
+        public T OldValue { get; }
+        public T NewValue { get; }
+        public DateTime ChangeMoment { get; }
     }
 }

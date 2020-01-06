@@ -100,9 +100,7 @@
     <Compile Include="Miscellaneous\TupleWithValueComparisonEquals.cs" />
     <Compile Include="Miscellaneous\WriteableTuple.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="GRYProperty\Exceptions\SetNotAllowedException.cs" />
-    <Compile Include="GRYProperty\Property.cs" />
-    <Compile Include="GRYProperty\Other\PropertyChangedEvengArgument.cs" />
+    <Compile Include="Miscellaneous\Property.cs" />
     <Compile Include="Miscellaneous\SupervisedThread.cs" />
     <Compile Include="Miscellaneous\Utilities.cs" />
     <Compile Include="Miscellaneous\SimpleGenericXMLSerializer.cs" />
