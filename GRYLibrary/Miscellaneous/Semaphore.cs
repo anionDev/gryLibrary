@@ -1,4 +1,4 @@
-﻿using GRYLibrary.GRYObjectSystem.Meta.Property;
+﻿using GRYLibrary.GRYProperty;
 using System;
 
 namespace GRYLibrary.Miscellaneous

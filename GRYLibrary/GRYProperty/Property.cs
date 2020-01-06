@@ -1,16 +1,15 @@
 ﻿using GRYLibrary.Event;
-using GRYLibrary.GRYObjectSystem.Exceptions;
-using GRYLibrary.GRYObjectSystem.Other;
+using GRYLibrary.GRYProperty.Other;
 using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 
-namespace GRYLibrary.GRYObjectSystem.Meta.Property
+namespace GRYLibrary.GRYProperty
 {
     public interface IProperty
     {
         string PropertyName { get; set; }
-        System.Type PropertyValueType { get; }
+        Type PropertyValueType { get; }
     }
     [DataContract]
     public class Property<T> : EventSender<Property<T>, PropertyChangedEvengArgument<T>>, IProperty
@@ -97,7 +96,7 @@ namespace GRYLibrary.GRYObjectSystem.Meta.Property
         {
             if ((value == null) && !this.AllowNullAsValue)
             {
-                throw new InvalidArgumentException("New value can not be null!");
+                throw new ArgumentException("null is not allowed as value");
             }
             T oldValue = this.Value;
             T newValue = value;
