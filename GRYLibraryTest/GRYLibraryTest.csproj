@@ -59,7 +59,7 @@
     <Compile Include="Tests\ConcurrentTest.cs" />
     <Compile Include="Tests\ExtendedColorTest.cs" />
     <Compile Include="Tests\FileSelectorTest.cs" />
-    <Compile Include="Tests\GLogTest.cs" />
+    <Compile Include="Tests\GRYLogTest.cs" />
     <Compile Include="Tests\GraphTests\BreadthFirstSearchTest.cs" />
     <Compile Include="Tests\GraphTests\CycleFinderTest.cs" />
     <Compile Include="Tests\GraphTests\CycleTest.cs" />

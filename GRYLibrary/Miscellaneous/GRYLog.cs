@@ -617,13 +617,13 @@ namespace GRYLibrary
         {
             return LoadConfiguration(configurationFile, GRYLogConfigurationFileDefaultEncoding);
         }
-        public static void SavedConfiguration(string configurationFile, GRYLogConfiguration configuration, Encoding encoding)
+        public static void SaveConfiguration(string configurationFile, GRYLogConfiguration configuration, Encoding encoding)
         {
             new SimpleObjectPersistence<GRYLogConfiguration>(configurationFile, encoding) { Object = configuration }.SaveObject();
         }
-        public static void SavedConfiguration(string configurationFile, GRYLogConfiguration configuration)
+        public static void SaveConfiguration(string configurationFile, GRYLogConfiguration configuration)
         {
-            SavedConfiguration(configurationFile, configuration, GRYLogConfigurationFileDefaultEncoding);
+            SaveConfiguration(configurationFile, configuration, GRYLogConfigurationFileDefaultEncoding);
         }
     }
 }
