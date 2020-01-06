@@ -499,8 +499,30 @@ namespace GRYLibrary
                 this._Watcher.Dispose();
             }
         }
+        public IDisposable UseSubNamespace(string subnamespace)
+        {
+            return new GRYLogSubNamespaceProvider(this, subnamespace);
+        }
     }
+    public class GRYLogSubNamespaceProvider : IDisposable
+    {
+        private GRYLog _LogObject;
+        private string _SubNamespace;
+        public string _OriginalNamespace;
 
+        public GRYLogSubNamespaceProvider(GRYLog logObject, string subnamespace)
+        {
+            this._LogObject = logObject;
+            this._SubNamespace = subnamespace;
+            this._OriginalNamespace = this._LogObject.Configuration.Name;
+            this._LogObject.Configuration.Name = $"{this._LogObject.Configuration.Name}.{_SubNamespace}";
+        }
+
+        public void Dispose()
+        {
+            this._LogObject.Configuration.Name = this._OriginalNamespace;
+        }
+    }
 
     public class GRYLogConfiguration
     {

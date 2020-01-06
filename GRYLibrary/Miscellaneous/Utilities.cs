@@ -315,15 +315,21 @@ namespace GRYLibrary
             programWithFullPath = null;
             string[] knownExtension = new string[] { ".exe", ".cmd" };
             string paths = Environment.ExpandEnvironmentVariables("%PATH%");
+            bool @break = false;
             foreach (string path in paths.Split(';'))
             {
-
                 foreach (string combined in GetCombinations(path, knownExtension, program))
                 {
                     if (File.Exists(combined))
                     {
                         programWithFullPath = combined;
+                        @break = true;
+                        break;
                     }
+                }
+                if (@break)
+                {
+                    break;
                 }
             }
             return programWithFullPath != null;
@@ -1098,8 +1104,12 @@ namespace GRYLibrary
         public static string[,] ReadCSVFile(string file, string separator, bool ignoreFirstLine, Encoding encoding)
         {
             string[] lines = File.ReadAllLines(file, encoding);
+            if (lines.Length == 0)
+            {
+                return new string[,] { };
+            }
             List<List<string>> outterList = new List<List<string>>();
-            for (int i = 0; i < lines.Length - 1; i++)
+            for (int i = 0; i < lines.Length; i++)
             {
                 if (!(i == 0 && ignoreFirstLine))
                 {
