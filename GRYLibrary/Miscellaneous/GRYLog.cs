@@ -67,11 +67,12 @@ namespace GRYLibrary
 
         private void StartFileWatcherForConfigurationFile(string configurationFile)
         {
+            configurationFile = Utilities.ResolveToFullPath(configurationFile);
             this._Watcher = new FileSystemWatcher
             {
-                Path = configurationFile,
+                Path = Path.GetDirectoryName(configurationFile),
+                Filter = Path.GetFileName(configurationFile),
                 NotifyFilter = NotifyFilters.LastWrite,
-                Filter = "*.*"
             };
             this._Watcher.Changed += new FileSystemEventHandler((object sender, FileSystemEventArgs eventArgs) =>
             {
@@ -82,7 +83,7 @@ namespace GRYLibrary
                 }
                 catch (Exception exception)
                 {
-                    this.Log("Could not reload Configuration", GRYLogLogLevel.Exception, exception);
+                    this.Log($"Could not reload Configuration of {nameof(GRYLog)} stored in {configurationFile}", GRYLogLogLevel.Exception, exception);
                 }
                 finally
                 {
@@ -252,7 +253,12 @@ namespace GRYLibrary
                             throw new FileNotFoundException($"LogFile '{this.Configuration.LogFile}' is not available.");
                         }
                     }
-                    File.AppendAllLines(this.Configuration.LogFile, new string[] { message }, this.Configuration.EncodingForLogfile);
+                    string messageForFile = message;
+                    if (!Utilities.FileIsEmpty(this.Configuration.LogFile))
+                    {
+                        messageForFile = Environment.NewLine + messageForFile;
+                    }
+                    File.AppendAllText(this.Configuration.LogFile, messageForFile, Encoding.GetEncoding(this.Configuration.EncodingForLogfile));
                 }
                 if (this.Configuration.PrintOutputInConsole && this.Configuration.LoggedMessageTypesInConsole.Contains(logLevel))
                 {
@@ -352,14 +358,7 @@ namespace GRYLibrary
             {
                 result = this.Configuration.VerbosePrefix;
             }
-            if (result.Length > this.Configuration.MaximalLengthOfPrefixes)
-            {
-                return result.Substring(0, this.Configuration.MaximalLengthOfPrefixes);
-            }
-            else
-            {
-                return result;
-            }
+            return result;
         }
 
         private void WriteWithColorToConsole(string message, GRYLogLogLevel logLevel)
@@ -515,7 +514,7 @@ namespace GRYLibrary
             this._LogObject = logObject;
             this._SubNamespace = subnamespace;
             this._OriginalNamespace = this._LogObject.Configuration.Name;
-            this._LogObject.Configuration.Name = $"{this._LogObject.Configuration.Name}.{_SubNamespace}";
+            this._LogObject.Configuration.Name = $"{this._LogObject.Configuration.Name}.{this._SubNamespace}";
         }
 
         public void Dispose()
@@ -531,7 +530,7 @@ namespace GRYLibrary
             this.Enabled = true;
             this.LogFile = string.Empty;
             this.ConvertTimeForLogentriesToUTCFormat = false;
-            this.EncodingForLogfile = new UTF8Encoding(false);
+            this.EncodingForLogfile = "utf-8";
             this.DateFormat = "yyyy-MM-dd HH:mm:ss";
             this.InformationPrefix = "Information";
             this.ErrorPrefix = "Error";
@@ -539,7 +538,6 @@ namespace GRYLibrary
             this.WarningPrefix = "Warning";
             this.VerbosePrefix = "Verbose";
             this.CriticalPrefix = "Critical";
-            this.MaximalLengthOfPrefixes = 30;
             this.Format = GRYLogLogFormat.GRYLogFormat;
             this.PrintEmptyLines = false;
             this.WriteExceptionMessageOfExceptionInLogEntry = true;
@@ -554,12 +552,12 @@ namespace GRYLibrary
             this.ColorForCritical = ConsoleColor.Red;
             this.LogItemIdLength = 8;
             this.Name = string.Empty;
-            this.LoggedMessageTypesInConsole = new List<GRYLogLogLevel>();
+            this.LoggedMessageTypesInConsole = new HashSet<GRYLogLogLevel>();
             this.LoggedMessageTypesInConsole.Add(GRYLogLogLevel.Information);
             this.LoggedMessageTypesInConsole.Add(GRYLogLogLevel.Warning);
             this.LoggedMessageTypesInConsole.Add(GRYLogLogLevel.Exception);
             this.LoggedMessageTypesInConsole.Add(GRYLogLogLevel.Critical);
-            this.LoggedMessageTypesInLogFile = new List<GRYLogLogLevel>();
+            this.LoggedMessageTypesInLogFile = new HashSet<GRYLogLogLevel>();
             this.LoggedMessageTypesInLogFile.Add(GRYLogLogLevel.Information);
             this.LoggedMessageTypesInLogFile.Add(GRYLogLogLevel.Warning);
             this.LoggedMessageTypesInLogFile.Add(GRYLogLogLevel.Exception);
@@ -576,7 +574,7 @@ namespace GRYLibrary
         /// </summary>
         public bool ReloadConfigurationWhenSourceFileWillBeChanged { get; set; }
         public bool Enabled { get; set; }
-        public Encoding EncodingForLogfile { get; set; }
+        public string EncodingForLogfile { get; set; }
         public string InformationPrefix { get; set; }
         public string WarningPrefix { get; set; }
         public string ErrorPrefix { get; set; }
@@ -591,10 +589,9 @@ namespace GRYLibrary
         public bool PrintOutputInConsole { get; set; }
         public bool WriteExceptionMessageOfExceptionInLogEntry { get; set; }
         public bool WriteExceptionStackTraceOfExceptionInLogEntry { get; set; }
-        public int MaximalLengthOfPrefixes { get; set; }
         public string DateFormat { get; set; }
-        public IList<GRYLogLogLevel> LoggedMessageTypesInConsole { get; set; }
-        public IList<GRYLogLogLevel> LoggedMessageTypesInLogFile { get; set; }
+        public HashSet<GRYLogLogLevel> LoggedMessageTypesInConsole { get; set; }
+        public HashSet<GRYLogLogLevel> LoggedMessageTypesInLogFile { get; set; }
         public ConsoleColor ColorForInfo { get; set; }
         public ConsoleColor ColorForWarning { get; set; }
         public ConsoleColor ColorForError { get; set; }
@@ -605,25 +602,15 @@ namespace GRYLibrary
         public bool ConvertTimeForLogentriesToUTCFormat { get; set; }
         public bool WriteToLogFileIfLogFileIsAvailable { get; set; }
         public bool CreateLogFileIfRequiredAndIfPossible { get; set; }
-
-        public static Encoding GRYLogConfigurationFileDefaultEncoding { get; set; } = new UTF8Encoding(false);
         public bool LogEveryLineOfLogEntryInNewLine { get; set; }
 
-        public static GRYLogConfiguration LoadConfiguration(string configurationFile, Encoding encoding)
-        {
-            return new SimpleObjectPersistence<GRYLogConfiguration>(configurationFile, encoding).Object;
-        }
         public static GRYLogConfiguration LoadConfiguration(string configurationFile)
         {
-            return LoadConfiguration(configurationFile, GRYLogConfigurationFileDefaultEncoding);
-        }
-        public static void SaveConfiguration(string configurationFile, GRYLogConfiguration configuration, Encoding encoding)
-        {
-            new SimpleObjectPersistence<GRYLogConfiguration>(configurationFile, encoding) { Object = configuration }.SaveObject();
+            return Utilities.LoadFromDisk<GRYLogConfiguration>(configurationFile).Object;
         }
         public static void SaveConfiguration(string configurationFile, GRYLogConfiguration configuration)
         {
-            SaveConfiguration(configurationFile, configuration, GRYLogConfigurationFileDefaultEncoding);
+            Utilities.PersistToDisk(configuration, configurationFile);
         }
     }
 }

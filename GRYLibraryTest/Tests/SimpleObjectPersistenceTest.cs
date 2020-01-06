@@ -19,16 +19,16 @@ namespace GRYLibraryTest.Tests
                 Utilities.EnsureFileDoesNotExist(file);
 
                 Encoding encoding = new UTF8Encoding(false);
-                SimpleObjectPersistence<SerializeTestClass> sop1 = new SimpleObjectPersistence<SerializeTestClass>(file, encoding);
+                SimpleObjectPersistence<SerializeTestClass> sop1 = SimpleObjectPersistence<SerializeTestClass>.CreateByFile(file);
 
                 SerializeTestClass testObject = SerializeTestClass.CreateTestObject();
                 sop1.Object = testObject;
-                sop1.SaveObject();
+                sop1.SaveObjectToFile();
 
                 string content = System.IO.File.ReadAllText(file, encoding);
 
-                SimpleObjectPersistence<SerializeTestClass> sop2 = new SimpleObjectPersistence<SerializeTestClass>(file, encoding);
-
+                SimpleObjectPersistence<SerializeTestClass> sop2 = SimpleObjectPersistence<SerializeTestClass>.CreateByFile(file);
+                sop2.LoadObjectFromFile();
 
                 Assert.AreEqual(3, sop2.Object.ListTest.Count);
                 Assert.AreEqual(true, sop2.Object.ListTest[0]);
@@ -40,34 +40,25 @@ namespace GRYLibraryTest.Tests
                 Assert.AreEqual(22 / (double)7, sop2.Object.TestDouble);
                 Assert.AreEqual(5, sop2.Object.TestDouble2);
                 Assert.AreEqual("y", sop2.Object.TestStringFromInterface);
-                Assert.AreEqual(BigInteger.Parse("29996224275833"), sop2.Object.TestBigInteger);
 
                 Assert.AreEqual(testObject, sop2.Object);
                 string expectedXMLValue = @"<?xml version=""1.0"" encoding=""utf-8""?>
-<SimpleObjectPersistenceTest.SerializeTestClass xmlns:i=""http://www.w3.org/2001/XMLSchema-instance"" xmlns=""http://schemas.datacontract.org/2004/07/GRYLibraryTest.Tests"">
-  <ListTest xmlns:d2p1=""http://schemas.microsoft.com/2003/10/Serialization/Arrays"">
-    <d2p1:boolean>true</d2p1:boolean>
-    <d2p1:boolean>false</d2p1:boolean>
-    <d2p1:boolean>true</d2p1:boolean>
+<SerializeTestClass xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:xsd=""http://www.w3.org/2001/XMLSchema"">
+  <ListTest>
+    <boolean>true</boolean>
+    <boolean>false</boolean>
+    <boolean>true</boolean>
   </ListTest>
   <TestAttribute>
+    <TestString1>encodingtest: áä?&lt;👍你好</TestString1>
     <TestAttribute1>
-      <TestAttribute1 i:nil=""true"" />
       <TestString1>x</TestString1>
     </TestAttribute1>
-    <TestString1>encodingtest: áä?&lt;👍你好</TestString1>
   </TestAttribute>
-  <TestBigInteger xmlns:d2p1=""http://schemas.datacontract.org/2004/07/System.Numerics"">
-    <d2p1:_bits xmlns:d3p1=""http://schemas.microsoft.com/2003/10/Serialization/Arrays"">
-      <d3p1:unsignedInt>172680569</d3p1:unsignedInt>
-      <d3p1:unsignedInt>6984</d3p1:unsignedInt>
-    </d2p1:_bits>
-    <d2p1:_sign>1</d2p1:_sign>
-  </TestBigInteger>
+  <TestStringFromInterface>y</TestStringFromInterface>
   <TestDouble>3.1428571428571428</TestDouble>
   <TestDouble2>5</TestDouble2>
-  <TestStringFromInterface>y</TestStringFromInterface>
-</SimpleObjectPersistenceTest.SerializeTestClass>";
+</SerializeTestClass>";
                 Assert.AreEqual(expectedXMLValue, content);
             }
             finally
@@ -81,7 +72,6 @@ namespace GRYLibraryTest.Tests
             public string TestStringFromInterface { get; set; }
             public double TestDouble { get; set; }
             public double? TestDouble2 { get; set; }
-            public BigInteger TestBigInteger { get; set; }
 
             public static SerializeTestClass CreateTestObject()
             {
@@ -98,7 +88,6 @@ namespace GRYLibraryTest.Tests
                 result.TestDouble = 22 / (double)7;
                 result.TestDouble2 = 5;
                 result.TestStringFromInterface = "y";
-                result.TestBigInteger = BigInteger.Parse("29996224275833");
 
                 return result;
             }
@@ -111,7 +100,6 @@ namespace GRYLibraryTest.Tests
                 SerializeTestClass typedObject = obj as SerializeTestClass;
                 return this.TestStringFromInterface.Equals(typedObject.TestStringFromInterface)
                     && this.TestDouble.Equals(typedObject.TestDouble)
-                    && this.TestBigInteger.Equals(typedObject.TestBigInteger)
                     && this.TestDouble2.Equals(typedObject.TestDouble2);
             }
             public override int GetHashCode()
@@ -125,7 +113,7 @@ namespace GRYLibraryTest.Tests
         }
         public class SerializeTestBaseClass
         {
-            public IList<bool> ListTest { get; set; }
+            public List<bool> ListTest { get; set; }
             public SerializeTestAttributeClass TestAttribute { get; set; }
             public SerializeTestBaseClass()
             {

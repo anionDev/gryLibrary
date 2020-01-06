@@ -640,21 +640,17 @@ namespace GRYLibrary
         {
             set.UnionWith(newItems);
         }
-        public static SimpleObjectPersistence<T> Persist<T>(this T @object, string file) where T : new()
+        public static SimpleObjectPersistence<T> PersistToDisk<T>(this T @object, string file) where T : new()
         {
-            return @object.Persist(file, new UTF8Encoding(false));
+            SimpleObjectPersistence<T> result = SimpleObjectPersistence<T>.CreateByObjectAndFile(@object, file);
+            result.SaveObjectToFile();
+            return result;
         }
-        public static SimpleObjectPersistence<T> Persist<T>(this T @object, string file, Encoding encoding) where T : new()
+        public static SimpleObjectPersistence<T> LoadFromDisk<T>(this string file) where T : new()
         {
-            return new SimpleObjectPersistence<T>(file, @object, new XmlWriterSettings() { Indent = true, Encoding = encoding });
-        }
-        public static SimpleObjectPersistence<T> Load<T>(this string file) where T : new()
-        {
-            return new SimpleObjectPersistence<T>(file);
-        }
-        public static SimpleObjectPersistence<T> Load<T>(this string file, Encoding encoding) where T : new()
-        {
-            return new SimpleObjectPersistence<T>(file, encoding);
+            SimpleObjectPersistence<T> result = SimpleObjectPersistence<T>.CreateByFile(file);
+            result.LoadObjectFromFile();
+            return result;
         }
         /// <returns>Returns the command line arguments of the current executed program.</returns>
         /// <remarks>It is guaranteed that the result does not have leading or trailing whitespaces.</remarks>
@@ -1141,6 +1137,10 @@ namespace GRYLibrary
                 workerThread.Abort();
             }
             return terminatedInGivenTimeSpan;
+        }
+        public static string ResolveToFullPath(this string relativePath)
+        {
+            return ResolveToFullPath(relativePath, Directory.GetCurrentDirectory());
         }
         public static string ResolveToFullPath(this string relativePath, string baseDirectory)
         {

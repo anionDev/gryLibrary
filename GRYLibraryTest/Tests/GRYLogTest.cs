@@ -1,6 +1,8 @@
 ﻿using GRYLibrary;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using System.IO;
+using System.Text;
 
 namespace GRYLibraryTest.Tests
 {
@@ -66,19 +68,50 @@ namespace GRYLibraryTest.Tests
         public void TestLogFileWithConfigurationchangeOnRuntime()
         {
             string configurationFile = "log.configuration";
+            string logFile1 = "log1.log";
+            string logFile2 = "log2.log";
             GRYLogConfiguration configuration = new GRYLogConfiguration();
-            configuration.LogFile = "log.log";
+            Utilities.EnsureFileDoesNotExist(logFile1);
+            Utilities.EnsureFileDoesNotExist(logFile2);
+            Utilities.EnsureFileDoesNotExist(configurationFile);
+            configuration.LogFile = logFile1;
+            configuration.Format = GRYLogLogFormat.OnlyMessage;
             GRYLogConfiguration.SaveConfiguration(configurationFile, configuration);
+            UTF8Encoding encoding = new UTF8Encoding(false);
             try
             {
                 using (GRYLog logObject = GRYLog.CreateByConfigurationFile(configurationFile))
                 {
                     //TODO
+                    logObject.Log("test1", GRYLogLogLevel.Information);//will be logged
+                    logObject.Log("test2", GRYLogLogLevel.Verbose);//will not be logged because verbose is not contained in LoggedMessageTypesInLogFile by default
+                    Assert.AreEqual("test1", File.ReadAllText(logFile1, encoding));
+
+                    GRYLogConfiguration reloadedConfiguration = GRYLogConfiguration.LoadConfiguration(configurationFile);
+                    reloadedConfiguration.LoggedMessageTypesInLogFile.Add(GRYLogLogLevel.Verbose);
+                    GRYLogConfiguration.SaveConfiguration(configurationFile, reloadedConfiguration);
+
+                    System.Threading.Thread.Sleep(1000);//wait until config is reloaded
+
+                    logObject.Log("test3", GRYLogLogLevel.Verbose);// will be logged
+                    Assert.AreEqual("test1" + Environment.NewLine + "test3", File.ReadAllText(logFile1, encoding));
+
+                    reloadedConfiguration = GRYLogConfiguration.LoadConfiguration(configurationFile);
+                    reloadedConfiguration.LogFile = logFile2;
+                    GRYLogConfiguration.SaveConfiguration(configurationFile, reloadedConfiguration);
+
+                    System.Threading.Thread.Sleep(1000);//wait until config is reloaded
+
+                    logObject.Log("test4", GRYLogLogLevel.Verbose);// will be logged
+                    Assert.AreEqual("test1" + Environment.NewLine + "test3", File.ReadAllText(logFile1, encoding));
+                    Assert.AreEqual("test4", File.ReadAllText(logFile2, encoding));
                 }
             }
             finally
             {
-                Utilities.EnsureFileDoesNotExist(configuration.LogFile);
+                Utilities.EnsureFileDoesNotExist(logFile1);
+                Utilities.EnsureFileDoesNotExist(logFile2);
+                Utilities.EnsureFileDoesNotExist(configurationFile);
             }
         }
     }
