@@ -1,6 +1,5 @@
 ﻿using GRYLibrary;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Windows.Media;
 
 namespace GRYLibraryTest.Tests
 {
@@ -38,7 +37,6 @@ namespace GRYLibraryTest.Tests
             Assert.AreEqual(System.Drawing.Color.FromArgb(testValueA,testValueR,testValueG,testValueB), color.DrawingColor);
             Assert.AreEqual("C8FF000A", color.GetARGBString());
             Assert.AreEqual("FF000A", color.GetRGBString());
-            Assert.AreEqual(Color.FromArgb(testValueA, testValueR, testValueG, testValueB), color.MediaColor);
             Assert.AreEqual("ExtendedColor(A=200,R=255,G=0,B=10)", color.ToString());
         }
     }

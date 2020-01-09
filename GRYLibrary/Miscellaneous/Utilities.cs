@@ -3,8 +3,6 @@ using GRYLibrary.Miscellaneous;
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Drawing;
-using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
@@ -13,7 +11,6 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Threading;
-using System.DirectoryServices;
 using static GRYLibrary.Miscellaneous.TableGenerator;
 using System.Numerics;
 using System.Globalization;
@@ -61,13 +58,6 @@ namespace GRYLibrary
         {
             //nothing to do
         }
-        public static Icon ToIcon(this Bitmap bitmap)
-        {
-            bitmap.MakeTransparent(Color.White);
-            IntPtr intPtr = bitmap.GetHicon();
-            return Icon.FromHandle(intPtr);
-        }
-
         public static void ReplaceUnderscoresInFolderTransitively(string folder, IDictionary<string, string> replacements)
         {
             void replaceInFile(string file, object obj) { string newFileWithPath = RenameFileIfRequired(file, replacements); ReplaceUnderscoresInFile(newFileWithPath, replacements); }
@@ -444,17 +434,6 @@ namespace GRYLibrary
                         throw;
                     }
                 }
-            }
-        }
-
-        public static DateTime GetDateTakenFromImage(string file)
-        {
-            using (FileStream fileStream = new FileStream(file, FileMode.Open, FileAccess.Read))
-            using (Image image = Image.FromStream(fileStream, false, false))
-            {
-                PropertyItem propItem = image.GetPropertyItem(36867);
-                string dateTaken = new Regex(":").Replace(new UTF8Encoding(false).GetString(propItem.Value), "-", 2);
-                return DateTime.Parse(dateTaken);
             }
         }
 
@@ -904,35 +883,6 @@ namespace GRYLibrary
             File.WriteAllText(file, string.Empty, Encoding.ASCII);
         }
 
-        /// <summary>
-        /// Authenticates a user against an active directory.
-        /// </summary>
-        /// <param name="username">Represents the name of the desired user. It can be "MyUsername" or optionally "Domain\MyUsername."</param>
-        /// <param name="password">Represents the password to authenticate <paramref name="username"/>.</param>
-        /// <param name="authenticationProtocol"></param>
-        /// <param name="authentificationServerName">Represents the (LDAP-)server. The format must be with leading slashs, e. g. "//MyServer.com".</param>
-        /// <returns>Returns true if and only if <paramref name="password"/> is the correct password for the user with the name <paramref name="username"/></returns>
-        public static bool IsAuthenticated(string authentificationServerName, string username, string password, string authenticationProtocol = "LDAP")
-        {
-            bool isAuthenticated = false;
-            try
-            {
-                using (DirectoryEntry entry = new DirectoryEntry(authenticationProtocol + ":" + authentificationServerName, username, password))
-                {
-                    object nativeObject = entry.NativeObject;
-                }
-                isAuthenticated = true;
-            }
-            catch (DirectoryServicesCOMException)
-            {
-                //Not authenticated. Reason can be found in exception if desired
-            }
-            catch (Exception)
-            {
-                //Not authenticated for unknown/other reasons.
-            }
-            return isAuthenticated;
-        }
         private const char Slash = '/';
         private const char Backslash = '\\';
         public static string EnsurePathStartsWithSlash(this string path)

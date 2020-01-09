@@ -12,8 +12,6 @@
         public byte G { get; }
         public byte B { get; }
         public System.Drawing.Color DrawingColor { get; }
-        public System.Windows.Media.Brush Brush { get; }
-        public System.Windows.Media.Color MediaColor { get; }
         public int ColorCode { get; }
 
         public ExtendedColor() : this(0)
@@ -29,10 +27,8 @@
         {
             this.ColorCode = colorCode;
             this.DrawingColor = System.Drawing.Color.FromArgb(this.ColorCode);
-            this.MediaColor = System.Windows.Media.Color.FromArgb(this.DrawingColor.A, this.DrawingColor.R, this.DrawingColor.G, this.DrawingColor.B);
             this._ARGBStringValue = this.ColorCode.ToString("X8");
             this._RGBStringValue = this.DrawingColor.R.ToString("X2") + this.DrawingColor.G.ToString("X2") + this.DrawingColor.B.ToString("X2");
-            this.Brush = new System.Windows.Media.SolidColorBrush(this.MediaColor);
             this.A = this.DrawingColor.A;
             this.R = this.DrawingColor.R;
             this.G = this.DrawingColor.G;

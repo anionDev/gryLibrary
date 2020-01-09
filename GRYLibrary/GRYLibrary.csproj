@@ -1,140 +1,16 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{28BCAAAF-65CA-4458-B5E7-27BDDEBA54CB}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>GRYLibrary</RootNamespace>
-    <AssemblyName>GRYLibrary</AssemblyName>
-    <TargetFrameworkVersion>v4.7.1</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile />
+    <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <LangVersion>7.3</LangVersion>
-    <DocumentationFile>bin\Debug\GRYLibrary.xml</DocumentationFile>
-    <NoWarn>CS1591</NoWarn>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <LangVersion>7.3</LangVersion>
-    <DocumentationFile>bin\Release\GRYLibrary.xml</DocumentationFile>
-    <NoWarn>CS1591</NoWarn>
-    <DebugSymbols>true</DebugSymbols>
-  </PropertyGroup>
-  <PropertyGroup>
-    <ApplicationManifest>app.manifest</ApplicationManifest>
-  </PropertyGroup>
+
   <ItemGroup>
-    <Reference Include="Microsoft.Extensions.DependencyInjection.Abstractions, Version=3.1.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Extensions.DependencyInjection.Abstractions.3.1.0\lib\netstandard2.0\Microsoft.Extensions.DependencyInjection.Abstractions.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.Extensions.Logging.Abstractions, Version=3.1.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Extensions.Logging.Abstractions.3.1.0\lib\netstandard2.0\Microsoft.Extensions.Logging.Abstractions.dll</HintPath>
-    </Reference>
-    <Reference Include="PresentationCore" />
-    <Reference Include="System" />
-    <Reference Include="System.Collections.Immutable, Version=1.2.3.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Collections.Immutable.1.5.0\lib\netstandard2.0\System.Collections.Immutable.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Core" />
-    <Reference Include="System.DirectoryServices" />
-    <Reference Include="System.Drawing" />
-    <Reference Include="System.Numerics" />
-    <Reference Include="System.Runtime.Extensions, Version=4.1.1.1, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Runtime.Extensions.4.3.1\lib\net462\System.Runtime.Extensions.dll</HintPath>
-      <Private>True</Private>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="System.Runtime.Serialization" />
-    <Reference Include="System.ValueTuple, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.ValueTuple.4.5.0\lib\net47\System.ValueTuple.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Web" />
-    <Reference Include="System.Windows.Forms" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Net.Http" />
-    <Reference Include="System.Xml" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="3.1.0" />
+    <PackageReference Include="System.Collections.Immutable" Version="1.7.0" />
   </ItemGroup>
+
   <ItemGroup>
-    <Compile Include="Miscellaneous\ByteArray.cs" />
-    <Compile Include="Miscellaneous\CacheDictionaryStore.cs" />
-    <Compile Include="Miscellaneous\GraphOperations\Cycle.cs" />
-    <Compile Include="Miscellaneous\GraphOperations\DirectedGraph.cs" />
-    <Compile Include="Miscellaneous\GraphOperations\Edge.cs" />
-    <Compile Include="Miscellaneous\GraphOperations\Graph.cs" />
-    <Compile Include="Miscellaneous\GraphOperations\UndirectedGraph.cs" />
-    <Compile Include="Miscellaneous\GraphOperations\Vertex.cs" />
-    <Compile Include="Miscellaneous\RedundantIdler.cs" />
-    <Compile Include="Miscellaneous\Semaphore.cs" />
-    <Compile Include="Miscellaneous\SimpleObjectPersistence.cs" />
-    <Compile Include="Miscellaneous\ColorGradient.cs" />
-    <Compile Include="Event\Argument.cs" />
-    <Compile Include="Event\EventSender.cs" />
-    <Compile Include="Event\IObserver.cs" />
-    <Compile Include="Miscellaneous\ExtendedColor.cs" />
-    <Compile Include="Miscellaneous\ExternalProgramExecutor.cs" />
-    <Compile Include="Miscellaneous\FileSelector.cs" />
-    <Compile Include="Miscellaneous\GRYLog.cs" />
-    <Compile Include="Miscellaneous\NonPersistentInputHistoryList.cs" />
-    <Compile Include="Miscellaneous\PercentValue.cs" />
-    <Compile Include="Miscellaneous\Playlists\AbstractPlaylistHandler.cs" />
-    <Compile Include="Miscellaneous\Playlists\ConcretePlaylistHandler\M3UHandler.cs" />
-    <Compile Include="Miscellaneous\Playlists\ConcretePlaylistHandler\PLSHandler.cs" />
-    <Compile Include="Miscellaneous\SimpleStreamMultiplier.cs" />
-    <Compile Include="Miscellaneous\StreamMixer.cs" />
-    <Compile Include="Miscellaneous\TableGenerator.cs" />
-    <Compile Include="Miscellaneous\TaskQueue.cs" />
-    <Compile Include="Miscellaneous\TupleWithValueComparisonEquals.cs" />
-    <Compile Include="Miscellaneous\WriteableTuple.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Miscellaneous\Property.cs" />
-    <Compile Include="Miscellaneous\SupervisedThread.cs" />
-    <Compile Include="Miscellaneous\Utilities.cs" />
-    <Compile Include="Miscellaneous\SimpleGenericXMLSerializer.cs" />
-    <Compile Include="SimpleCommunicationWrapper\Client.cs" />
-    <Compile Include="SimpleCommunicationWrapper\CommunicationObject\CommunicationObject.cs" />
-    <Compile Include="SimpleCommunicationWrapper\CommunicationObject\EncryptedObject.cs" />
-    <Compile Include="SimpleCommunicationWrapper\CommunicationObject\InitializationRequest.cs" />
-    <Compile Include="SimpleCommunicationWrapper\CommunicationObject\InizializationAnswer.cs" />
-    <Compile Include="SimpleCommunicationWrapper\CommunicationParticipant.cs" />
-    <Compile Include="SimpleCommunicationWrapper\Server.cs" />
+    <Folder Include="Properties\" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="App.config">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="app.manifest" />
-    <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup />
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <PropertyGroup>
-    <PostBuildEvent>if $(ConfigurationName) == Release copy $(ProjectDir)\bin\release\GRYLibrary.xml $(ProjectDir)GRYLibrary.xml</PostBuildEvent>
-  </PropertyGroup>
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
+
 </Project>
