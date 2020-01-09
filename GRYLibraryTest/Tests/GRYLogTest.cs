@@ -1,4 +1,5 @@
 ﻿using GRYLibrary;
+using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.IO;
@@ -83,17 +84,17 @@ namespace GRYLibraryTest.Tests
                 using (GRYLog logObject = GRYLog.CreateByConfigurationFile(configurationFile))
                 {
                     //TODO
-                    logObject.Log("test1", GRYLogLogLevel.Information);//will be logged
-                    logObject.Log("test2", GRYLogLogLevel.Verbose);//will not be logged because verbose is not contained in LoggedMessageTypesInLogFile by default
+                    logObject.Log("test1", LogLevel.Information);//will be logged
+                    logObject.Log("test2", LogLevel.Debug);//will not be logged because verbose is not contained in LoggedMessageTypesInLogFile by default
                     Assert.AreEqual("test1", File.ReadAllText(logFile1, encoding));
 
                     GRYLogConfiguration reloadedConfiguration = GRYLogConfiguration.LoadConfiguration(configurationFile);
-                    reloadedConfiguration.LoggedMessageTypesInLogFile.Add(GRYLogLogLevel.Verbose);
+                    reloadedConfiguration.LogLevelsForLogFile.Add(LogLevel.Debug);
                     GRYLogConfiguration.SaveConfiguration(configurationFile, reloadedConfiguration);
 
                     System.Threading.Thread.Sleep(1000);//wait until config is reloaded
 
-                    logObject.Log("test3", GRYLogLogLevel.Verbose);// will be logged
+                    logObject.Log("test3", LogLevel.Debug);// will be logged
                     Assert.AreEqual("test1" + Environment.NewLine + "test3", File.ReadAllText(logFile1, encoding));
 
                     reloadedConfiguration = GRYLogConfiguration.LoadConfiguration(configurationFile);
@@ -102,7 +103,7 @@ namespace GRYLibraryTest.Tests
 
                     System.Threading.Thread.Sleep(1000);//wait until config is reloaded
 
-                    logObject.Log("test4", GRYLogLogLevel.Verbose);// will be logged
+                    logObject.Log("test4", LogLevel.Debug);// will be logged
                     Assert.AreEqual("test1" + Environment.NewLine + "test3", File.ReadAllText(logFile1, encoding));
                     Assert.AreEqual("test4", File.ReadAllText(logFile2, encoding));
                 }

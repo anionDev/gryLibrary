@@ -1,26 +1,21 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Xml;
+using System.Xml.Schema;
+using System.Xml.Serialization;
 
 namespace GRYLibrary
 {
-    public enum GRYLogLogLevel : int
-    {
-        Critical = 0,
-        Exception = 1,
-        Warning = 2,
-        Information = 3,
-        Verbose = 4,
-        Debug = 5
-    }
     public enum GRYLogLogFormat : int
     {
         OnlyMessage = 0,
         GRYLogFormat = 1,
         DateOnly = 2
     }
-    public class GRYLog : IDisposable
+    public class GRYLog : IDisposable, ILogger
     {
         public GRYLogConfiguration Configuration { get; set; }
         private readonly static object _LockObject = new object();
@@ -29,7 +24,7 @@ namespace GRYLibrary
         private int _AmountOfWarnings = 0;
         private readonly ConsoleColor _ConsoleDefaultColor;
         public event NewLogItemEventHandler NewLogItem;
-        public delegate void NewLogItemEventHandler(string message, string fullMessage, GRYLogLogLevel level);
+        public delegate void NewLogItemEventHandler(string message, string fullMessage, LogLevel level);
         private FileSystemWatcher _Watcher;
         private GRYLog(GRYLogConfiguration configuration, string configurationFile)
         {
@@ -83,7 +78,7 @@ namespace GRYLibrary
                 }
                 catch (Exception exception)
                 {
-                    this.Log($"Could not reload Configuration of {nameof(GRYLog)} stored in {configurationFile}", GRYLogLogLevel.Exception, exception);
+                    this.Log($"Could not reload Configuration of {nameof(GRYLog)} stored in {configurationFile}", LogLevel.Error, exception);
                 }
                 finally
                 {
@@ -103,8 +98,8 @@ namespace GRYLibrary
         }
         public void SummarizeLog()
         {
-            this.Log("Amount of occurred Errors and Criticals: " + this.GetAmountOfErrors().ToString(), GRYLogLogLevel.Information);
-            this.Log("Amount of occurred Warnings: " + this.GetAmountOfWarnings().ToString(), GRYLogLogLevel.Information);
+            this.Log("Amount of occurred Errors and Criticals: " + this.GetAmountOfErrors().ToString(), LogLevel.Information);
+            this.Log("Amount of occurred Warnings: " + this.GetAmountOfWarnings().ToString(), LogLevel.Information);
         }
 
         private bool LineShouldBePrinted(string message)
@@ -126,43 +121,47 @@ namespace GRYLibrary
 
         public void Log(Func<string> message)
         {
-            this.Log(message, GRYLogLogLevel.Information);
+            this.Log(message, LogLevel.Information);
         }
         public void LogByFunction(Func<string> message, Exception exception)
         {
-            this.Log(message, GRYLogLogLevel.Exception, exception);
+            this.Log(message, LogLevel.Error, exception);
         }
-        public void Log(Func<string> message, GRYLogLogLevel logLevel, Exception exception)
+        public void Log(Func<string> message, LogLevel logLevel, Exception exception)
         {
             this.Log(() => this.GetExceptionMessage(message(), exception), logLevel);
         }
-        public void Log(Func<string> message, GRYLogLogLevel logLevel)
+        public void Log(Func<string> message, LogLevel logLevel)
         {
             this.Log(message(), logLevel);
         }
 
         public void Log(string message)
         {
-            this.Log(message, GRYLogLogLevel.Information);
+            this.Log(message, LogLevel.Information);
         }
         public void Log(string message, Exception exception)
         {
-            this.Log(message, GRYLogLogLevel.Exception, exception);
+            this.Log(message, LogLevel.Error, exception);
         }
         public void Log(Exception exception)
         {
-            this.Log(GRYLogLogLevel.Exception, exception);
+            this.Log(LogLevel.Error, exception);
         }
-        public void Log(GRYLogLogLevel logLevel, Exception exception)
+        public void Log(LogLevel logLevel, Exception exception)
         {
             this.Log("An exception occurred", logLevel, exception);
         }
-        public void Log(string message, GRYLogLogLevel logLevel, Exception exception)
+        public void Log(string message, LogLevel logLevel, Exception exception)
         {
             this.Log(this.GetExceptionMessage(message, exception), logLevel);
         }
-        public void Log(string message, GRYLogLogLevel logLevel)
+        public void Log(string message, LogLevel logLevel)
         {
+            if (LogLevel.None == logLevel)
+            {
+                return;
+            }
             DateTime momentOfLogEntry = DateTime.Now;
             lock (_LockObject)
             {
@@ -196,7 +195,7 @@ namespace GRYLibrary
                 }
                 if (this.Configuration.PrintErrorsAsInformation && this.IsErrorLogLevel(logLevel))
                 {
-                    logLevel = GRYLogLogLevel.Information;
+                    logLevel = LogLevel.Information;
                 }
                 if (this.IsErrorLogLevel(logLevel))
                 {
@@ -213,14 +212,14 @@ namespace GRYLibrary
                 message = message.Trim();
                 if (!string.IsNullOrEmpty(this.Configuration.Name))
                 {
-                    message = "[" + this.Configuration.Name.Trim() + "] " + message;
+                    message = $"[{ this.Configuration.Name.Trim()}] {message}";
                 }
 
                 this.FormatMessage(message, momentOfLogEntry, logLevel, out string formattedMessage, out int colorBegin, out int colorEnd, out ConsoleColor color);
                 message = formattedMessage;
 
                 bool writeToLogFileIfLogFileIsAvailable = this.Configuration.WriteToLogFileIfLogFileIsAvailable;
-                bool logLevelMatches = this.Configuration.LoggedMessageTypesInLogFile.Contains(logLevel);
+                bool logLevelMatches = this.Configuration.LogLevelsForLogFile.Contains(logLevel);
                 bool logFileExists = File.Exists(this.Configuration.LogFile);
                 bool createLogFile = this.Configuration.CreateLogFileIfRequiredAndIfPossible;
                 bool writeToLogFile = writeToLogFileIfLogFileIsAvailable && logLevelMatches && (logFileExists || createLogFile);
@@ -260,7 +259,7 @@ namespace GRYLibrary
                     }
                     File.AppendAllText(this.Configuration.LogFile, messageForFile, Encoding.GetEncoding(this.Configuration.EncodingForLogfile));
                 }
-                if (this.Configuration.PrintOutputInConsole && this.Configuration.LoggedMessageTypesInConsole.Contains(logLevel))
+                if (this.Configuration.PrintOutputInConsole && this.Configuration.LogLevelsForConsoleOutput.Contains(logLevel))
                 {
                     Console.Write(message.Substring(0, colorBegin));
                     this.WriteWithColorToConsole(message.Substring(colorBegin, colorEnd - colorBegin), logLevel);
@@ -269,9 +268,9 @@ namespace GRYLibrary
                 NewLogItem?.Invoke(originalMessage, message, logLevel);
             }
         }
-        private void FormatMessage(string message, DateTime momentOfLogEntry, GRYLogLogLevel loglevel, out string formattedMessage, out int colorBegin, out int colorEnd, out ConsoleColor color)
+        private void FormatMessage(string message, DateTime momentOfLogEntry, LogLevel loglevel, out string formattedMessage, out int colorBegin, out int colorEnd, out ConsoleColor color)
         {
-            color = this.GetColorByType(loglevel);
+            color = this.Configuration.LoggedMessageTypesConfiguration[loglevel].ConsoleColor;
             if (this.Configuration.Format == GRYLogLogFormat.OnlyMessage)
             {
                 formattedMessage = message;
@@ -282,7 +281,7 @@ namespace GRYLibrary
             if (this.Configuration.Format == GRYLogLogFormat.GRYLogFormat)
             {
                 string part1 = "[" + momentOfLogEntry.ToString(this.Configuration.DateFormat) + "] [";
-                string part2 = this.GetPrefixInStringFormat(loglevel);
+                string part2 = this.Configuration.LoggedMessageTypesConfiguration[loglevel].CustomText;
                 string part3 = "] " + message;
                 formattedMessage = part1 + part2 + part3;
                 colorBegin = part1.Length;
@@ -299,19 +298,19 @@ namespace GRYLibrary
             throw new KeyNotFoundException();
         }
 
-        private bool IsWarningLogLevel(GRYLogLogLevel logLevel)
+        private bool IsWarningLogLevel(LogLevel logLevel)
         {
-            return logLevel.Equals(GRYLogLogLevel.Warning);
+            return logLevel.Equals(LogLevel.Warning);
         }
 
-        private bool IsErrorLogLevel(GRYLogLogLevel logLevel)
+        private bool IsErrorLogLevel(LogLevel logLevel)
         {
-            return logLevel.Equals(GRYLogLogLevel.Exception) || logLevel.Equals(GRYLogLogLevel.Critical);
+            return logLevel.Equals(LogLevel.Error) || logLevel.Equals(LogLevel.Critical);
         }
 
-        private bool ShouldBeLogged(GRYLogLogLevel logLevel)
+        private bool ShouldBeLogged(LogLevel logLevel)
         {
-            return this.Configuration.LoggedMessageTypesInLogFile.Contains(logLevel) || this.Configuration.LoggedMessageTypesInConsole.Contains(logLevel);
+            return this.Configuration.LogLevelsForLogFile.Contains(logLevel) || this.Configuration.LogLevelsForConsoleOutput.Contains(logLevel);
         }
 
         private string GetExceptionMessage(string message, Exception exception)
@@ -331,76 +330,24 @@ namespace GRYLibrary
             }
             return result;
         }
-        private string GetPrefixInStringFormat(GRYLogLogLevel logLevel)
+        private void WriteWithColorToConsole(string message, LogLevel logLevel)
         {
-            string result = string.Empty;
-            if (logLevel == GRYLogLogLevel.Critical)
+            try
             {
-                result = this.Configuration.CriticalPrefix;
+                Console.ForegroundColor = this.Configuration.LoggedMessageTypesConfiguration[logLevel].ConsoleColor;
+                Console.Write(message);
             }
-            if (logLevel == GRYLogLogLevel.Exception)
+            finally
             {
-                result = this.Configuration.ErrorPrefix;
+                Console.ForegroundColor = this._ConsoleDefaultColor;
             }
-            if (logLevel == GRYLogLogLevel.Information)
-            {
-                result = this.Configuration.InformationPrefix;
-            }
-            if (logLevel == GRYLogLogLevel.Warning)
-            {
-                result = this.Configuration.WarningPrefix;
-            }
-            if (logLevel == GRYLogLogLevel.Debug)
-            {
-                result = this.Configuration.DebugPrefix;
-            }
-            if (logLevel == GRYLogLogLevel.Verbose)
-            {
-                result = this.Configuration.VerbosePrefix;
-            }
-            return result;
         }
 
-        private void WriteWithColorToConsole(string message, GRYLogLogLevel logLevel)
-        {
-            Console.ForegroundColor = this.GetColorByType(logLevel);
-            Console.Write(message);
-            Console.ForegroundColor = this._ConsoleDefaultColor;
-        }
-
-        private ConsoleColor GetColorByType(GRYLogLogLevel type)
-        {
-            if (type == GRYLogLogLevel.Critical)
-            {
-                return this.Configuration.ColorForCritical;
-            }
-            if (type == GRYLogLogLevel.Exception)
-            {
-                return this.Configuration.ColorForError;
-            }
-            if (type == GRYLogLogLevel.Information)
-            {
-                return this.Configuration.ColorForInfo;
-            }
-            if (type == GRYLogLogLevel.Warning)
-            {
-                return this.Configuration.ColorForWarning;
-            }
-            if (type == GRYLogLogLevel.Debug)
-            {
-                return this.Configuration.ColorForDebug;
-            }
-            if (type == GRYLogLogLevel.Verbose)
-            {
-                return this.Configuration.ColorForVerbose;
-            }
-            throw new Exception("Invalid LogLevel");
-        }
         private bool CheckEnabled()
         {
             return this.Configuration.Enabled;
         }
-        public void ExecuteAndLog(Action action, string nameOfAction, bool preventThrowingExceptions = false, GRYLogLogLevel logLevelForOverhead = GRYLogLogLevel.Verbose)
+        public void ExecuteAndLog(Action action, string nameOfAction, bool preventThrowingExceptions = false, LogLevel logLevelForOverhead = LogLevel.Debug)
         {
             this.Log($"Action '{nameOfAction}' will be started now.", logLevelForOverhead);
             try
@@ -409,7 +356,7 @@ namespace GRYLibrary
             }
             catch (Exception exception)
             {
-                this.Log($"An exception occurred while executing action '{nameOfAction}'.", GRYLogLogLevel.Exception, exception);
+                this.Log($"An exception occurred while executing action '{nameOfAction}'.", LogLevel.Error, exception);
                 if (!preventThrowingExceptions)
                 {
                     throw;
@@ -420,7 +367,7 @@ namespace GRYLibrary
                 this.Log($"Action '{nameOfAction}' finished.", logLevelForOverhead);
             }
         }
-        public void ExecuteAndLog<TParameter>(Action<TParameter> action, string nameOfAction, TParameter argument, bool preventThrowingExceptions = false, GRYLogLogLevel logLevelForOverhead = GRYLogLogLevel.Verbose)
+        public void ExecuteAndLog<TParameter>(Action<TParameter> action, string nameOfAction, TParameter argument, bool preventThrowingExceptions = false, LogLevel logLevelForOverhead = LogLevel.Debug)
         {
             string argumentAsString = argument.ToString();
             this.Log($"Action '{nameOfAction}({argumentAsString})' will be started now.", logLevelForOverhead);
@@ -430,7 +377,7 @@ namespace GRYLibrary
             }
             catch (Exception exception)
             {
-                this.Log($"An exception occurred while executing action '{nameOfAction}({argumentAsString})'.", GRYLogLogLevel.Exception, exception);
+                this.Log($"An exception occurred while executing action '{nameOfAction}({argumentAsString})'.", LogLevel.Error, exception);
                 if (!preventThrowingExceptions)
                 {
                     throw;
@@ -441,7 +388,7 @@ namespace GRYLibrary
                 this.Log($"Action '{nameOfAction}({argumentAsString})' finished.", logLevelForOverhead);
             }
         }
-        public TResult ExecuteAndLog<TResult>(Func<TResult> action, string nameOfAction, bool preventThrowingExceptions = false, GRYLogLogLevel logLevelForOverhead = GRYLogLogLevel.Verbose, TResult defaultValue = default)
+        public TResult ExecuteAndLog<TResult>(Func<TResult> action, string nameOfAction, bool preventThrowingExceptions = false, LogLevel logLevelForOverhead = LogLevel.Debug, TResult defaultValue = default)
         {
             this.Log($"Action '{nameOfAction}' will be started now.", logLevelForOverhead);
             try
@@ -450,7 +397,7 @@ namespace GRYLibrary
             }
             catch (Exception exception)
             {
-                this.Log($"An exception occurred while executing action '{nameOfAction}'.", GRYLogLogLevel.Exception, exception);
+                this.Log($"An exception occurred while executing action '{nameOfAction}'.", LogLevel.Error, exception);
                 if (preventThrowingExceptions)
                 {
                     return defaultValue;
@@ -465,7 +412,7 @@ namespace GRYLibrary
                 this.Log($"Action '{nameOfAction}' finished.", logLevelForOverhead);
             }
         }
-        public TResult ExecuteAndLog<TParameter, TResult>(Func<TParameter, TResult> action, string nameOfAction, TParameter argument, bool preventThrowingExceptions = false, GRYLogLogLevel logLevelForOverhead = GRYLogLogLevel.Verbose, TResult defaultValue = default)
+        public TResult ExecuteAndLog<TParameter, TResult>(Func<TParameter, TResult> action, string nameOfAction, TParameter argument, bool preventThrowingExceptions = false, LogLevel logLevelForOverhead = LogLevel.Debug, TResult defaultValue = default)
         {
             string argumentAsString = argument.ToString();
             this.Log($"Action '{nameOfAction}({argumentAsString})' will be started now.", logLevelForOverhead);
@@ -475,7 +422,7 @@ namespace GRYLibrary
             }
             catch (Exception exception)
             {
-                this.Log($"An exception occurred while executing action '{nameOfAction}({argumentAsString})'.", GRYLogLogLevel.Exception, exception);
+                this.Log($"An exception occurred while executing action '{nameOfAction}({argumentAsString})'.", LogLevel.Error, exception);
                 if (preventThrowingExceptions)
                 {
                     return defaultValue;
@@ -502,6 +449,22 @@ namespace GRYLibrary
         {
             return new GRYLogSubNamespaceProvider(this, subnamespace);
         }
+        #region ILogger-Implementation
+        public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool IsEnabled(LogLevel logLevel)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IDisposable BeginScope<TState>(TState state)
+        {
+            throw new NotImplementedException();
+        }
+        #endregion
     }
     public class GRYLogSubNamespaceProvider : IDisposable
     {
@@ -523,7 +486,7 @@ namespace GRYLibrary
         }
     }
 
-    public class GRYLogConfiguration
+    public class GRYLogConfiguration : IXmlSerializable
     {
         public GRYLogConfiguration()
         {
@@ -532,42 +495,35 @@ namespace GRYLibrary
             this.ConvertTimeForLogentriesToUTCFormat = false;
             this.EncodingForLogfile = "utf-8";
             this.DateFormat = "yyyy-MM-dd HH:mm:ss";
-            this.InformationPrefix = "Information";
-            this.ErrorPrefix = "Error";
-            this.DebugPrefix = "Debug";
-            this.WarningPrefix = "Warning";
-            this.VerbosePrefix = "Verbose";
-            this.CriticalPrefix = "Critical";
             this.Format = GRYLogLogFormat.GRYLogFormat;
             this.PrintEmptyLines = false;
             this.WriteExceptionMessageOfExceptionInLogEntry = true;
             this.WriteExceptionStackTraceOfExceptionInLogEntry = true;
             this.StoreErrorsInErrorQueueInsteadOfLoggingThem = false;
             this.PrintOutputInConsole = true;
-            this.ColorForDebug = ConsoleColor.Cyan;
-            this.ColorForVerbose = ConsoleColor.Blue;
-            this.ColorForInfo = ConsoleColor.Green;
-            this.ColorForWarning = ConsoleColor.DarkYellow;
-            this.ColorForError = ConsoleColor.DarkRed;
-            this.ColorForCritical = ConsoleColor.Red;
             this.LogItemIdLength = 8;
             this.Name = string.Empty;
-            this.LoggedMessageTypesInConsole = new HashSet<GRYLogLogLevel>();
-            this.LoggedMessageTypesInConsole.Add(GRYLogLogLevel.Information);
-            this.LoggedMessageTypesInConsole.Add(GRYLogLogLevel.Warning);
-            this.LoggedMessageTypesInConsole.Add(GRYLogLogLevel.Exception);
-            this.LoggedMessageTypesInConsole.Add(GRYLogLogLevel.Critical);
-            this.LoggedMessageTypesInLogFile = new HashSet<GRYLogLogLevel>();
-            this.LoggedMessageTypesInLogFile.Add(GRYLogLogLevel.Information);
-            this.LoggedMessageTypesInLogFile.Add(GRYLogLogLevel.Warning);
-            this.LoggedMessageTypesInLogFile.Add(GRYLogLogLevel.Exception);
-            this.LoggedMessageTypesInLogFile.Add(GRYLogLogLevel.Critical);
             this.ReloadConfigurationWhenSourceFileWillBeChanged = true;
             this.CreateLogFileIfRequiredAndIfPossible = true;
             this.WriteToLogFileIfLogFileIsAvailable = true;
             this.PrintErrorsAsInformation = false;
             this.LogEveryLineOfLogEntryInNewLine = false;
+            this.LoggedMessageTypesConfiguration.Add(LogLevel.Trace, new LoggedMessageTypeConfiguration() { CustomText = nameof(LogLevel.Trace), ConsoleColor = ConsoleColor.Gray });
+            this.LoggedMessageTypesConfiguration.Add(LogLevel.Debug, new LoggedMessageTypeConfiguration() { CustomText = nameof(LogLevel.Debug), ConsoleColor = ConsoleColor.Cyan });
+            this.LoggedMessageTypesConfiguration.Add(LogLevel.Information, new LoggedMessageTypeConfiguration() { CustomText = nameof(LogLevel.Information), ConsoleColor = ConsoleColor.DarkGreen });
+            this.LoggedMessageTypesConfiguration.Add(LogLevel.Warning, new LoggedMessageTypeConfiguration() { CustomText = nameof(LogLevel.Warning), ConsoleColor = ConsoleColor.DarkYellow });
+            this.LoggedMessageTypesConfiguration.Add(LogLevel.Error, new LoggedMessageTypeConfiguration() { CustomText = nameof(LogLevel.Error), ConsoleColor = ConsoleColor.Red });
+            this.LoggedMessageTypesConfiguration.Add(LogLevel.Critical, new LoggedMessageTypeConfiguration() { CustomText = nameof(LogLevel.Critical), ConsoleColor = ConsoleColor.DarkRed });
+            this.LogLevelsForConsoleOutput.Add(LogLevel.Information);
+            this.LogLevelsForLogFile.Add(LogLevel.Information);
+            this.LogLevelsForConsoleOutput.Add(LogLevel.Warning);
+            this.LogLevelsForLogFile.Add(LogLevel.Warning);
+            this.LogLevelsForConsoleOutput.Add(LogLevel.Error);
+            this.LogLevelsForLogFile.Add(LogLevel.Error);
+            this.LogLevelsForConsoleOutput.Add(LogLevel.Critical);
+            this.LogLevelsForLogFile.Add(LogLevel.Critical);
         }
+
         public string LogFile { get; set; }
         /// <summary>
         /// If this value is false then changing this value in the configuration-file has no effect.
@@ -575,12 +531,6 @@ namespace GRYLibrary
         public bool ReloadConfigurationWhenSourceFileWillBeChanged { get; set; }
         public bool Enabled { get; set; }
         public string EncodingForLogfile { get; set; }
-        public string InformationPrefix { get; set; }
-        public string WarningPrefix { get; set; }
-        public string ErrorPrefix { get; set; }
-        public string CriticalPrefix { get; set; }
-        public string DebugPrefix { get; set; }
-        public string VerbosePrefix { get; set; }
         public int LogItemIdLength { get; set; }
         public bool PrintEmptyLines { get; set; }
         public bool PrintErrorsAsInformation { get; set; }
@@ -590,14 +540,9 @@ namespace GRYLibrary
         public bool WriteExceptionMessageOfExceptionInLogEntry { get; set; }
         public bool WriteExceptionStackTraceOfExceptionInLogEntry { get; set; }
         public string DateFormat { get; set; }
-        public HashSet<GRYLogLogLevel> LoggedMessageTypesInConsole { get; set; }
-        public HashSet<GRYLogLogLevel> LoggedMessageTypesInLogFile { get; set; }
-        public ConsoleColor ColorForInfo { get; set; }
-        public ConsoleColor ColorForWarning { get; set; }
-        public ConsoleColor ColorForError { get; set; }
-        public ConsoleColor ColorForDebug { get; set; }
-        public ConsoleColor ColorForVerbose { get; set; }
-        public ConsoleColor ColorForCritical { get; set; }
+        public IDictionary<LogLevel, LoggedMessageTypeConfiguration> LoggedMessageTypesConfiguration { get; set; } = new Dictionary<LogLevel, LoggedMessageTypeConfiguration>();
+        public ISet<LogLevel> LogLevelsForConsoleOutput { get; set; } = new HashSet<LogLevel>();
+        public ISet<LogLevel> LogLevelsForLogFile { get; set; } = new HashSet<LogLevel>();
         public GRYLogLogFormat Format { get; set; }
         public bool ConvertTimeForLogentriesToUTCFormat { get; set; }
         public bool WriteToLogFileIfLogFileIsAvailable { get; set; }
@@ -611,6 +556,41 @@ namespace GRYLibrary
         public static void SaveConfiguration(string configurationFile, GRYLogConfiguration configuration)
         {
             Utilities.PersistToDisk(configuration, configurationFile);
+        }
+
+        public XmlSchema GetSchema()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void ReadXml(XmlReader reader)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void WriteXml(XmlWriter writer)
+        {
+            throw new NotImplementedException();
+        }
+    }
+    public class LoggedMessageTypeConfiguration : IXmlSerializable
+    {
+        public ConsoleColor ConsoleColor { get; set; }
+        public string CustomText { get; set; }
+
+        public XmlSchema GetSchema()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void ReadXml(XmlReader reader)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void WriteXml(XmlWriter writer)
+        {
+            throw new NotImplementedException();
         }
     }
 }

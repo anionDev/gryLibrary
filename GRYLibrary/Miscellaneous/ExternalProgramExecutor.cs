@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -63,7 +64,7 @@ namespace GRYLibrary
         {
             return this._Running;
         }
-        private readonly ConcurrentQueue<Tuple<GRYLogLogLevel, string>> _NotLoggedOutputLines = new ConcurrentQueue<Tuple<GRYLogLogLevel, string>>();
+        private readonly ConcurrentQueue<Tuple<LogLevel, string>> _NotLoggedOutputLines = new ConcurrentQueue<Tuple<LogLevel, string>>();
         /// <summary>
         /// Starts the program which was set in the properties.
         /// </summary>
@@ -268,7 +269,7 @@ namespace GRYLibrary
             if (data != null)
             {
                 this._AllStdErrLines.Add(data);
-                this._NotLoggedOutputLines.Enqueue(new Tuple<GRYLogLogLevel, string>(GRYLogLogLevel.Exception, data));
+                this._NotLoggedOutputLines.Enqueue(new Tuple<LogLevel, string>(LogLevel.Error, data));
             }
         }
         private readonly IList<string> _AllStdOutLines = new List<string>();
@@ -292,14 +293,14 @@ namespace GRYLibrary
             if (data != null)
             {
                 this._AllStdOutLines.Add(data);
-                this._NotLoggedOutputLines.Enqueue(new Tuple<GRYLogLogLevel, string>(GRYLogLogLevel.Information, data));
+                this._NotLoggedOutputLines.Enqueue(new Tuple<LogLevel, string>(LogLevel.Information, data));
             }
         }
         private void LogOutput()
         {
             while (this.Running() || this._NotLoggedOutputLines.Count > 0)
             {
-                if (this._NotLoggedOutputLines.TryDequeue(out Tuple<GRYLogLogLevel, string> logItem))
+                if (this._NotLoggedOutputLines.TryDequeue(out Tuple<LogLevel, string> logItem))
                 {
                     this.LogObject?.Log(logItem.Item2, logItem.Item1);
                 }
