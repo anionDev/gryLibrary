@@ -29,7 +29,7 @@ namespace GRYLibraryTest.Tests
                     string testContent = "test";
                     logObject.Log(testContent);
                     Assert.IsTrue(File.Exists(fileWithRelativePath));
-                    Assert.AreEqual(testContent + System.Environment.NewLine, File.ReadAllText(logFile));
+                    Assert.AreEqual(testContent, File.ReadAllText(logFile));
                 }
             }
             finally
@@ -57,7 +57,7 @@ namespace GRYLibraryTest.Tests
                     string testContent = "test";
                     logObject.Log(testContent);
                     Assert.IsTrue(File.Exists(fileWithRelativePath));
-                    Assert.AreEqual(testContent + System.Environment.NewLine, File.ReadAllText(logFile));
+                    Assert.AreEqual(testContent, File.ReadAllText(logFile));
                 }
             }
             finally
