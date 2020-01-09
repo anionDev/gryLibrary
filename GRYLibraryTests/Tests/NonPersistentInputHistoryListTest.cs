@@ -1,8 +1,9 @@
 ﻿
 using GRYLibrary;
+using GRYLibrary.Core;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace GRYLibraryTest.Tests
+namespace GRYLibrary.Tests
 {
     [TestClass]
     public class NonPersistentInputHistoryListTest

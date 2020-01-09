@@ -1,8 +1,8 @@
-﻿using GRYLibrary.Miscellaneous;
+﻿using GRYLibrary.Core;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using static GRYLibrary.Miscellaneous.TableGenerator;
+using static GRYLibrary.Core.TableGenerator;
 
-namespace GRYLibraryTest.Tests
+namespace GRYLibrary.Tests
 {
     [TestClass]
     public class TableGeneratorTest

@@ -1,6 +1,6 @@
-﻿using GRYLibrary;
-using GRYLibrary.Miscellaneous.Playlists;
-using GRYLibrary.Miscellaneous.Playlists.ConcretePlaylistHandler;
+﻿using GRYLibrary.Core;
+using GRYLibrary.Core.Playlists;
+using GRYLibrary.Core.Playlists.ConcretePlaylistHandler;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
@@ -8,7 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-namespace GRYLibraryTest.Tests
+namespace GRYLibrary.Tests
 {
     [TestClass]
     public class PlaylistTest

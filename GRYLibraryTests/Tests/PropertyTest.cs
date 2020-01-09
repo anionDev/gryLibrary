@@ -1,8 +1,8 @@
-﻿using GRYLibrary.Miscellaneous;
+﻿using GRYLibrary.Core;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 
-namespace GRYLibraryTest.Tests
+namespace GRYLibrary.Tests
 {
     [TestClass]
     public class PropertyTest

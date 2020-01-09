@@ -1,6 +1,6 @@
-﻿using GRYLibrary.Miscellaneous.GraphOperations;
+﻿using GRYLibrary.Core.GraphOperations;
 
-namespace GRYLibraryTest.Tests.GraphTests
+namespace GRYLibrary.Tests.GraphTests
 {
     internal class TestGraphs
     {

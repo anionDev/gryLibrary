@@ -1,10 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using GRYLibrary;
-using GRYLibrary.Miscellaneous.GraphOperations;
+using GRYLibrary.Core;
+using GRYLibrary.Core.GraphOperations;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace GRYLibraryTest.Tests.GraphTests
+namespace GRYLibrary.Tests.GraphTests
 {
     /// <summary>
     /// Contains simple graph tests

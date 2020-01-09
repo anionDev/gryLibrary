@@ -1,9 +1,9 @@
-﻿using GRYLibrary.Miscellaneous.GraphOperations;
+﻿using GRYLibrary.Core.GraphOperations;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
 
-namespace GRYLibraryTest.Tests.GraphTests
+namespace GRYLibrary.Tests.GraphTests
 {
 
     [TestClass]

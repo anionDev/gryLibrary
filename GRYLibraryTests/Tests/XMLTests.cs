@@ -1,8 +1,9 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using GRYLibrary.Core;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.IO;
 using System.Text;
 
-namespace GRYLibraryTest.Tests
+namespace GRYLibrary.Tests
 {
     [TestClass]
     public class XMLTests
@@ -19,8 +20,8 @@ namespace GRYLibraryTest.Tests
             string xmlWorking = File.ReadAllText(testXML1_MatchsXSD1, this._FileEncoding);
             string xmlNotWorking = File.ReadAllText(testXML2_MatchsXSD1Not, this._FileEncoding);
             string xsd = File.ReadAllText(testXSD1File, this._FileEncoding);
-            Assert.IsTrue(GRYLibrary.Utilities.ValidateXMLAgainstXSD(xmlWorking, xsd, out _));
-            Assert.IsFalse(GRYLibrary.Utilities.ValidateXMLAgainstXSD(xmlNotWorking, xsd, out _));
+            Assert.IsTrue(Utilities.ValidateXMLAgainstXSD(xmlWorking, xsd, out _));
+            Assert.IsFalse(Utilities.ValidateXMLAgainstXSD(xmlNotWorking, xsd, out _));
         }
         [TestMethod]
         public void TestXSLTValidator_Test1()
@@ -32,7 +33,7 @@ namespace GRYLibraryTest.Tests
             string xmlSource = File.ReadAllText(testSource, this._FileEncoding);
             string xmlTarget = File.ReadAllText(testTarget, this._FileEncoding);
             string xslt = File.ReadAllText(testXSLT, this._FileEncoding);
-            Assert.AreEqual(xmlTarget, GRYLibrary.Utilities.ApplyXSLTToXML(xmlSource, xslt));
+            Assert.AreEqual(xmlTarget, Utilities.ApplyXSLTToXML(xmlSource, xslt));
         }
     }
 }

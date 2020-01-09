@@ -1,9 +1,10 @@
 ﻿using GRYLibrary;
+using GRYLibrary.Core;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
 
-namespace GRYLibraryTest.Tests
+namespace GRYLibrary.Tests
 {
     [TestClass]
     public class ConcurrentTest

@@ -1,11 +1,12 @@
 ﻿using GRYLibrary;
+using GRYLibrary.Core;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using System.Text;
 
-namespace GRYLibraryTest.Tests
+namespace GRYLibrary.Tests
 {
     [TestClass]
     public class SimpleObjectPersistenceTest

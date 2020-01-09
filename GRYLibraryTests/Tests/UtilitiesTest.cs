@@ -1,10 +1,11 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using GRYLibrary.Core;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Globalization;
 using System.Linq;
 using System.Numerics;
 
-namespace GRYLibraryTest.Tests
+namespace GRYLibrary.Tests
 {
     [TestClass]
     public class UtilitiesTest
@@ -16,9 +17,9 @@ namespace GRYLibraryTest.Tests
             try
             {
                 Assert.IsFalse(System.IO.File.Exists(testFile));
-                GRYLibrary.Utilities.EnsureFileExists(testFile);
+                Utilities.EnsureFileExists(testFile);
                 Assert.IsTrue(System.IO.File.Exists(testFile));
-                GRYLibrary.Utilities.EnsureFileExists(testFile);
+                Utilities.EnsureFileExists(testFile);
                 Assert.IsTrue(System.IO.File.Exists(testFile));
             }
             finally
@@ -30,11 +31,11 @@ namespace GRYLibraryTest.Tests
         public void UtilitiesTestEnsureFileDoesNotExist()
         {
             string testFile = "file";
-            GRYLibrary.Utilities.EnsureFileExists(testFile);
+            Utilities.EnsureFileExists(testFile);
             Assert.IsTrue(System.IO.File.Exists(testFile));
-            GRYLibrary.Utilities.EnsureFileDoesNotExist(testFile);
+            Utilities.EnsureFileDoesNotExist(testFile);
             Assert.IsFalse(System.IO.File.Exists(testFile));
-            GRYLibrary.Utilities.EnsureFileDoesNotExist(testFile);
+            Utilities.EnsureFileDoesNotExist(testFile);
             Assert.IsFalse(System.IO.File.Exists(testFile));
         }
         [TestMethod]
@@ -44,9 +45,9 @@ namespace GRYLibraryTest.Tests
             try
             {
                 Assert.IsFalse(System.IO.Directory.Exists(testDir));
-                GRYLibrary.Utilities.EnsureDirectoryExists(testDir);
+                Utilities.EnsureDirectoryExists(testDir);
                 Assert.IsTrue(System.IO.Directory.Exists(testDir));
-                GRYLibrary.Utilities.EnsureDirectoryExists(testDir);
+                Utilities.EnsureDirectoryExists(testDir);
                 Assert.IsTrue(System.IO.Directory.Exists(testDir));
             }
             finally
@@ -58,11 +59,11 @@ namespace GRYLibraryTest.Tests
         public void UtilitiesTestEnsureDirectoryDoesNotExist()
         {
             string testDir = "dir";
-            GRYLibrary.Utilities.EnsureDirectoryExists(testDir);
+            Utilities.EnsureDirectoryExists(testDir);
             Assert.IsTrue(System.IO.Directory.Exists(testDir));
-            GRYLibrary.Utilities.EnsureDirectoryDoesNotExist(testDir);
+            Utilities.EnsureDirectoryDoesNotExist(testDir);
             Assert.IsFalse(System.IO.Directory.Exists(testDir));
-            GRYLibrary.Utilities.EnsureDirectoryDoesNotExist(testDir);
+            Utilities.EnsureDirectoryDoesNotExist(testDir);
             Assert.IsFalse(System.IO.Directory.Exists(testDir));
         }
         [TestMethod]
@@ -70,9 +71,9 @@ namespace GRYLibraryTest.Tests
         {
             string dir = "dir";
             string testFile = dir + "/file";
-            GRYLibrary.Utilities.EnsureFileExists(testFile, true);
+            Utilities.EnsureFileExists(testFile, true);
             Assert.IsTrue(System.IO.File.Exists(testFile));
-            GRYLibrary.Utilities.EnsureDirectoryDoesNotExist(dir);
+            Utilities.EnsureDirectoryDoesNotExist(dir);
             Assert.IsFalse(System.IO.Directory.Exists(testFile));
         }
         [TestMethod]
@@ -87,17 +88,17 @@ namespace GRYLibraryTest.Tests
             string file4 = baseDir + "dir3/file4";
             try
             {
-                GRYLibrary.Utilities.EnsureFileExists(file1, true);
-                GRYLibrary.Utilities.EnsureFileExists(file2, true);
-                GRYLibrary.Utilities.EnsureFileExists(file3, true);
-                GRYLibrary.Utilities.EnsureFileExists(file4, true);
+                Utilities.EnsureFileExists(file1, true);
+                Utilities.EnsureFileExists(file2, true);
+                Utilities.EnsureFileExists(file3, true);
+                Utilities.EnsureFileExists(file4, true);
 
-                System.Collections.Generic.IEnumerable<string> result = GRYLibrary.Utilities.GetFilesOfFolderRecursively(baseDir);
+                System.Collections.Generic.IEnumerable<string> result = Utilities.GetFilesOfFolderRecursively(baseDir);
                 Assert.AreEqual(4, result.Count());
             }
             finally
             {
-                GRYLibrary.Utilities.EnsureDirectoryDoesNotExist(baseDir);
+                Utilities.EnsureDirectoryDoesNotExist(baseDir);
             }
         }
         [TestMethod]
@@ -105,7 +106,7 @@ namespace GRYLibraryTest.Tests
         {
             string input = "5fe3eb8e-39dc-469c-a9cd-ea740e90d338";
             Guid inputId = Guid.Parse(input);
-            Guid result = GRYLibrary.Utilities.IncrementGuid(inputId);
+            Guid result = Utilities.IncrementGuid(inputId);
             Assert.AreEqual("5fe3eb8e-39dc-469c-a9cd-ea740e90d339", result.ToString());
         }
         [TestMethod]
@@ -113,7 +114,7 @@ namespace GRYLibraryTest.Tests
         {
             string input = "0003eb8e-39dc-469c-a9cd-00740e90d338";
             Guid inputId = Guid.Parse(input);
-            Guid result = GRYLibrary.Utilities.IncrementGuid(inputId);
+            Guid result = Utilities.IncrementGuid(inputId);
             Assert.AreEqual("0003eb8e-39dc-469c-a9cd-00740e90d339", result.ToString());
         }
         [TestMethod]
@@ -121,7 +122,7 @@ namespace GRYLibraryTest.Tests
         {
             string input = "0003eb8e-39dc-469c-a9cd-90740e90d338";
             Guid inputId = Guid.Parse(input);
-            Guid result = GRYLibrary.Utilities.IncrementGuid(inputId, BigInteger.Parse("100000000000", NumberStyles.HexNumber));
+            Guid result = Utilities.IncrementGuid(inputId, BigInteger.Parse("100000000000", NumberStyles.HexNumber));
             Assert.AreEqual("0003eb8e-39dc-469c-a9cd-a0740e90d338", result.ToString());
         }
         [TestMethod]
@@ -129,7 +130,7 @@ namespace GRYLibraryTest.Tests
         {
             string input = "5fe3eb8e-39dc-469c-a9cd-ea740e90d338";
             Guid inputId = Guid.Parse(input);
-            Guid result = GRYLibrary.Utilities.IncrementGuid(inputId);
+            Guid result = Utilities.IncrementGuid(inputId);
             Assert.AreNotEqual(input, result.ToString());
         }
     }

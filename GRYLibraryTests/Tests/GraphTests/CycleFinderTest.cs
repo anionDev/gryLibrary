@@ -1,9 +1,9 @@
-﻿using GRYLibrary.Miscellaneous.GraphOperations;
+﻿using GRYLibrary.Core.GraphOperations;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace GRYLibraryTest.Tests.GraphTests
+namespace GRYLibrary.Tests.GraphTests
 {
     //bookmark: ⭠⭢⭡⭣⭦⭧⭨⭩
     [TestClass]

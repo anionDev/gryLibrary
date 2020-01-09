@@ -1,11 +1,12 @@
 ﻿using GRYLibrary;
+using GRYLibrary.Core;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.IO;
 using System.Text;
 
-namespace GRYLibraryTest.Tests
+namespace GRYLibrary.Tests
 {
     [TestClass]
     public class GRYLogTest
