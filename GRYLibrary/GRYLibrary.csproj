@@ -2,6 +2,14 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <Authors>Marius Göcke</Authors>
+    <Company />
+    <Version>0.4.0</Version>
+    <Description>The GRYLibrary is a collection with some useful .NET classes and functions which are very easy (re)usable.</Description>
+    <Copyright>Copyright © 2020</Copyright>
+    <PackageLicenseExpression>LGPL-3.0-only</PackageLicenseExpression>
+    <PackageProjectUrl>https://aniondev.github.io/gryLibraryReference/Reference/index.html</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/anionDev/gryLibrary</RepositoryUrl>
   </PropertyGroup>
 
   <ItemGroup>
