@@ -1046,7 +1046,11 @@ namespace GRYLibrary.Core
                 throw new Exception("Assertion failed. Condition is false." + (string.IsNullOrWhiteSpace(message) ? string.Empty : " " + message));
             }
         }
-        public static string[,] ReadCSVFile(string file, string separator, bool ignoreFirstLine, Encoding encoding)
+        public static string[,] ReadCSVFile(string file, string separator = ";", bool ignoreFirstLine = false)
+        {
+            return ReadCSVFile(file, new UTF8Encoding(false), separator, ignoreFirstLine);
+        }
+        public static string[,] ReadCSVFile(string file, Encoding encoding, string separator = ";", bool ignoreFirstLine = false)
         {
             string[] lines = File.ReadAllLines(file, encoding);
             if (lines.Length == 0)

@@ -336,12 +336,15 @@ namespace GRYLibrary.Core
             }
         }
 
-        public void ExecuteAndLog(Action action, string nameOfAction, bool preventThrowingExceptions = false, LogLevel logLevelForOverhead = LogLevel.Debug)
+        public void ExecuteAndLog(Action action, string nameOfAction, bool preventThrowingExceptions = false, LogLevel logLevelForOverhead = LogLevel.Debug, string subNamespaceForLog = "")
         {
             this.Log($"Action '{nameOfAction}' will be started now.", logLevelForOverhead);
             try
             {
-                action();
+                using (this.UseSubNamespace(subNamespaceForLog))
+                {
+                    action();
+                }
             }
             catch (Exception exception)
             {
@@ -356,33 +359,15 @@ namespace GRYLibrary.Core
                 this.Log($"Action '{nameOfAction}' finished.", logLevelForOverhead);
             }
         }
-        public void ExecuteAndLog<TParameter>(Action<TParameter> action, string nameOfAction, TParameter argument, bool preventThrowingExceptions = false, LogLevel logLevelForOverhead = LogLevel.Debug)
-        {
-            string argumentAsString = argument.ToString();
-            this.Log($"Action '{nameOfAction}({argumentAsString})' will be started now.", logLevelForOverhead);
-            try
-            {
-                action(argument);
-            }
-            catch (Exception exception)
-            {
-                this.Log($"An exception occurred while executing action '{nameOfAction}({argumentAsString})'.", LogLevel.Error, exception);
-                if (!preventThrowingExceptions)
-                {
-                    throw;
-                }
-            }
-            finally
-            {
-                this.Log($"Action '{nameOfAction}({argumentAsString})' finished.", logLevelForOverhead);
-            }
-        }
-        public TResult ExecuteAndLog<TResult>(Func<TResult> action, string nameOfAction, bool preventThrowingExceptions = false, LogLevel logLevelForOverhead = LogLevel.Debug, TResult defaultValue = default)
+        public TResult ExecuteAndLog<TResult>(Func<TResult> action, string nameOfAction, bool preventThrowingExceptions = false, LogLevel logLevelForOverhead = LogLevel.Debug, TResult defaultValue = default, string subNamespaceForLog = "")
         {
             this.Log($"Action '{nameOfAction}' will be started now.", logLevelForOverhead);
             try
             {
-                return action();
+                using (this.UseSubNamespace(subNamespaceForLog))
+                {
+                    return action();
+                }
             }
             catch (Exception exception)
             {
@@ -401,31 +386,7 @@ namespace GRYLibrary.Core
                 this.Log($"Action '{nameOfAction}' finished.", logLevelForOverhead);
             }
         }
-        public TResult ExecuteAndLog<TParameter, TResult>(Func<TParameter, TResult> action, string nameOfAction, TParameter argument, bool preventThrowingExceptions = false, LogLevel logLevelForOverhead = LogLevel.Debug, TResult defaultValue = default)
-        {
-            string argumentAsString = argument.ToString();
-            this.Log($"Action '{nameOfAction}({argumentAsString})' will be started now.", logLevelForOverhead);
-            try
-            {
-                return action(argument);
-            }
-            catch (Exception exception)
-            {
-                this.Log($"An exception occurred while executing action '{nameOfAction}({argumentAsString})'.", LogLevel.Error, exception);
-                if (preventThrowingExceptions)
-                {
-                    return defaultValue;
-                }
-                else
-                {
-                    throw;
-                }
-            }
-            finally
-            {
-                this.Log($"Action '{nameOfAction}({argumentAsString})' finished.", logLevelForOverhead);
-            }
-        }
+
 
         public void Dispose()
         {
@@ -472,7 +433,20 @@ namespace GRYLibrary.Core
             this._LogObject = logObject;
             this._SubNamespace = subnamespace;
             this._OriginalNamespace = this._LogObject.Configuration.Name;
-            this._LogObject.Configuration.Name = $"{this._LogObject.Configuration.Name}.{this._SubNamespace}";
+            subnamespace = subnamespace.Trim();
+            if (!string.IsNullOrEmpty(subnamespace))
+            {
+                string prefix;
+                if (string.IsNullOrEmpty(this._LogObject.Configuration.Name))
+                {
+                    prefix = string.Empty;
+                }
+                else
+                {
+                    prefix = $"{this._LogObject.Configuration.Name}.";
+                }
+                this._LogObject.Configuration.Name = $"{prefix}{this._SubNamespace}";
+            }
         }
 
         public void Dispose()
