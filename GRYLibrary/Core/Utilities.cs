@@ -24,6 +24,7 @@ namespace GRYLibrary.Core
 {
     public static class Utilities
     {
+        #region Miscellaneous
         public static void Shuffle<T>(this IList<T> list)
         {
             Random random = new Random();
@@ -1335,6 +1336,22 @@ namespace GRYLibrary.Core
             }
             throw new KeyNotFoundException($"No volume could be found which provides the volume accessible at {mountPoint}");
         }
+        public static int Count(this IEnumerable source)
+        {
+            ICollection collection = source as ICollection;
+            if (collection != null)
+            {
+                return collection.Count;
+            }
+
+            int result = 0;
+            while (source.GetEnumerator().MoveNext())
+            {
+                result = result + 1;
+            }
+            return result;
+        }
+        #endregion
 
         #region GenericEquals
         /// <summary>
@@ -1397,6 +1414,10 @@ namespace GRYLibrary.Core
             {
                 return GenericArrayEquals((Array)firstObject, (Array)secondObject);
             }
+            else if (typeof(List<>).IsAssignableFrom(type))
+            {
+                return GenericListEquals((IEnumerable)firstObject, (IEnumerable)secondObject);
+            }
             else if (typeof(IList<>).IsAssignableFrom(type))
             {
                 return GenericListEquals((IEnumerable)firstObject, (IEnumerable)secondObject);
@@ -1405,22 +1426,43 @@ namespace GRYLibrary.Core
             {
                 return GenericListEquals((IList)firstObject, (IList)secondObject);
             }
+            else if (typeof(HashSet<>).IsAssignableFrom(type))
+            {
+                return GenericSetEquals((IEnumerable)firstObject, (IEnumerable)secondObject);
+            }
             else if (typeof(ISet<>).IsAssignableFrom(type))
             {
                 return GenericSetEquals((IEnumerable)firstObject, (IEnumerable)secondObject);
             }
-            else if (typeof(IDictionary).IsAssignableFrom(type))
+            else if (typeof(Dictionary<,>).IsAssignableFrom(type))
             {
-                return GenericDictionaryEquals((IDictionary)firstObject, (IDictionary)secondObject);
+                return GenericDictionaryEquals(ConvertToDictionary(firstObject), ConvertToDictionary(secondObject));
             }
             else if (typeof(IDictionary<,>).IsAssignableFrom(type))
             {
                 return GenericDictionaryEquals(ConvertToDictionary(firstObject), ConvertToDictionary(secondObject));
             }
+            else if (typeof(IDictionary).IsAssignableFrom(type))
+            {
+                return GenericDictionaryEquals((IDictionary)firstObject, (IDictionary)secondObject);
+            }
+            else if (typeof(IEnumerable<>).IsAssignableFrom(type))
+            {
+                return GenericEnumerableEquals((IEnumerable)firstObject, (IEnumerable)secondObject);
+            }
             else
             {
                 return firstObject.Equals(secondObject);
             }
+        }
+
+        private static bool GenericEnumerableEquals(IEnumerable firstObject, IEnumerable secondObject)
+        {
+            return GenericEnumerableEquals(firstObject.OfType<object>(), secondObject.OfType<object>());
+        }
+        private static bool GenericEnumerableEquals<T>(IEnumerable<T> firstObject, IEnumerable<T> secondObject)
+        {
+            return firstObject.Count() == secondObject.Count() && firstObject.Intersect(secondObject).Count() == secondObject.Count();
         }
 
         private static IDictionary ConvertToDictionary(/*IDictionary<,>*/object @object)
@@ -1540,12 +1582,133 @@ namespace GRYLibrary.Core
         }
         public static void GenericXMLSerializer(object @object, XmlWriter writer)
         {
+            foreach (PropertyInfo property in @object.GetType().GetProperties())
+            {
+                object value = property.GetValue(@object, null);
+                string propertyName = property.Name;
+                Type type = @object.GetType();
+                if (type.IsArray)
+                {
+                   SerializeArray(writer, property, value);
+                }
+                else if (typeof(List<>).IsAssignableFrom(type))
+                {
+                    throw new NotImplementedException();
+                }
+                else if (typeof(IList<>).IsAssignableFrom(type))
+                {
+                    SerializeList(writer, property, value);
+                }
+                else if (typeof(IList).IsAssignableFrom(type))
+                {
+                    throw new NotImplementedException();
+                }
+                else if (typeof(HashSet<>).IsAssignableFrom(type))
+                {
+                    throw new NotImplementedException();
+                }
+                else if (typeof(ISet<>).IsAssignableFrom(type))
+                {
+                    SerializeSet(writer, property, value);
+                }
+                else if (typeof(Dictionary<,>).IsAssignableFrom(type))
+                {
+                    throw new NotImplementedException();
+                }
+                else if (typeof(IDictionary<,>).IsAssignableFrom(type))
+                {
+                    SerializeDictionary(writer, property, value);
+                }
+                else if (typeof(IDictionary).IsAssignableFrom(type))
+                {
+                    throw new NotImplementedException();
+                }
+                else if (typeof(IEnumerable<>).IsAssignableFrom(type))
+                {
+                    SerializeList(writer, property, value);
+                }
+                else
+                {
+                    SerializeObject(writer, property, value);
+                }
+            }
+        }
+
+        private static void SerializeObject(XmlWriter writer, PropertyInfo property, object value)
+        {
+            throw new NotImplementedException();
+        }
+
+        private static void SerializeDictionary(XmlWriter writer, PropertyInfo property, object value)
+        {
+            throw new NotImplementedException();
+        }
+
+        private static void SerializeSet(XmlWriter writer, PropertyInfo property, object value)
+        {
+            throw new NotImplementedException();
+        }
+
+        private static void SerializeList(XmlWriter writer, PropertyInfo property, object value)
+        {
+            throw new NotImplementedException();
+        }
+
+        private static void SerializeArray(XmlWriter writer, PropertyInfo propertyName, object value)
+        {
             throw new NotImplementedException();
         }
 
         public static void GenericXMLDeserializer(object @object, XmlReader reader)
         {
-            throw new NotImplementedException();
+            foreach (PropertyInfo property in @object.GetType().GetProperties())
+            {
+                Type type = @object.GetType();
+                if (type.IsArray)
+                {
+                    throw new NotImplementedException();
+                }
+                else if (typeof(List<>).IsAssignableFrom(type))
+                {
+                    throw new NotImplementedException();
+                }
+                else if (typeof(IList<>).IsAssignableFrom(type))
+                {
+                    throw new NotImplementedException();
+                }
+                else if (typeof(IList).IsAssignableFrom(type))
+                {
+                    throw new NotImplementedException();
+                }
+                else if (typeof(HashSet<>).IsAssignableFrom(type))
+                {
+                    throw new NotImplementedException();
+                }
+                else if (typeof(ISet<>).IsAssignableFrom(type))
+                {
+                    throw new NotImplementedException();
+                }
+                else if (typeof(Dictionary<,>).IsAssignableFrom(type))
+                {
+                    throw new NotImplementedException();
+                }
+                else if (typeof(IDictionary<,>).IsAssignableFrom(type))
+                {
+                    throw new NotImplementedException();
+                }
+                else if (typeof(IDictionary).IsAssignableFrom(type))
+                {
+                    throw new NotImplementedException();
+                }
+                else if (typeof(IEnumerable<>).IsAssignableFrom(type))
+                {
+                    throw new NotImplementedException();
+                }
+                else
+                {
+                    throw new NotImplementedException();
+                }
+            }
         }
         #endregion
     }
