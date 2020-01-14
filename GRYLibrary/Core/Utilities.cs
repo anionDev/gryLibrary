@@ -19,6 +19,7 @@ using System.Xml.Xsl;
 using static GRYLibrary.Core.TableGenerator;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Xml.Serialization;
 
 namespace GRYLibrary.Core
 {
@@ -1562,33 +1563,41 @@ namespace GRYLibrary.Core
         }
         public static void GenericXMLSerializer(object @object, XmlWriter writer)
         {
-            foreach (PropertyInfo property in @object.GetType().GetProperties())
+            Type type = @object.GetType();
+            if (type.IsGenericType)
             {
-                object value = property.GetValue(@object, null);
-                string propertyName = property.Name;
-                Type type = @object.GetType();
-                if (type.IsArray)
+                type = type.GetGenericTypeDefinition();
+            }
+            if (typeof(string).IsAssignableFrom(type))
+            {
+                SerializeString(writer, "String", @object);
+            }
+            else if (type.IsArray)
+            {
+                SerializeArray(writer, "Array", @object);
+            }
+            else if (typeof(IList<>).IsAssignableFrom(type))
+            {
+                SerializeList(writer, "List", @object);
+            }
+            else if (typeof(ISet<>).IsAssignableFrom(type))
+            {
+                SerializeSet(writer, "Set", @object);
+            }
+            else if (typeof(IDictionary<,>).IsAssignableFrom(type))
+            {
+                SerializeDictionary(writer, "Dictionary", @object);
+            }
+            else if (typeof(IEnumerable<>).IsAssignableFrom(type))
+            {
+                SerializeEnumerable(writer, "Enumerable", @object);
+            }
+            else
+            {
+                foreach (PropertyInfo property in @object.GetType().GetProperties())
                 {
-                    SerializeArray(writer, property, value);
-                }
-                else if (typeof(IList<>).IsAssignableFrom(type))
-                {
-                    SerializeList(writer, property, value);
-                }
-                else if (typeof(ISet<>).IsAssignableFrom(type))
-                {
-                    SerializeSet(writer, property, value);
-                }
-                else if (typeof(IDictionary<,>).IsAssignableFrom(type))
-                {
-                    SerializeDictionary(writer, property, value);
-                }
-                else if (typeof(IEnumerable<>).IsAssignableFrom(type))
-                {
-                    SerializeEnumerable(writer, property, value);
-                }
-                else
-                {
+                    string propertyName = property.Name;
+                    object value = property.GetValue(@object, null);
                     GenericXMLSerializer(value, writer);
                 }
             }
@@ -1596,83 +1605,106 @@ namespace GRYLibrary.Core
 
         public static void GenericXMLDeserializer(object @object, XmlReader reader)
         {
-            foreach (PropertyInfo property in @object.GetType().GetProperties())
+            Type type = @object.GetType();
+            if (type.IsGenericType)
             {
-                object value = property.GetValue(@object, null);
-                Type type = @object.GetType();
-                if (type.IsArray)
+                type = type.GetGenericTypeDefinition();
+            }
+            if (typeof(string).IsAssignableFrom(type))
+            {
+                DeserializeString(reader, "String", @object);
+            }
+            else if (type.IsArray)
+            {
+                DeserializeArray(reader, "Array", @object);
+            }
+            else if (typeof(IList<>).IsAssignableFrom(type))
+            {
+                DeserializeList(reader, "List", @object);
+            }
+            else if (typeof(ISet<>).IsAssignableFrom(type))
+            {
+                DeserializeSet(reader, "Set", @object);
+            }
+            else if (typeof(IDictionary<,>).IsAssignableFrom(type))
+            {
+                DeserializeDictionary(reader, "Dictionary", @object);
+            }
+            else if (typeof(IEnumerable<>).IsAssignableFrom(type))
+            {
+                DeserializeEnumerable(reader, "Enumerable", @object);
+            }
+            else
+            {
+                foreach (PropertyInfo property in @object.GetType().GetProperties())
                 {
-                    DeserializeArray(reader, property, value);
-                }
-                else if (typeof(IList<>).IsAssignableFrom(type))
-                {
-                    DeserializeList(reader, property, value);
-                }
-                else if (typeof(ISet<>).IsAssignableFrom(type))
-                {
-                    DeserializeSet(reader, property, value);
-                }
-                else if (typeof(IDictionary<,>).IsAssignableFrom(type))
-                {
-                    DeserializeDictionary(reader, property, value);
-                }
-                else if (typeof(IEnumerable<>).IsAssignableFrom(type))
-                {
-                    DeserializeEnumerable(reader, property, value);
-                }
-                else
-                {
+                    object value = property.GetValue(@object, null);
                     GenericXMLDeserializer(value, reader);
                 }
             }
         }
 
-        private static void SerializeEnumerable(XmlWriter writer, PropertyInfo property, object value)
+        private static void SerializeString(XmlWriter writer, string propertyName, object value)
+        {
+            new XmlSerializer(typeof(string)).Serialize(writer, value);
+        }
+
+        private static void SerializeEnumerable(XmlWriter writer, string propertyName, object value)
+        {
+            new XmlSerializer(typeof(Enumerable)).Serialize(writer, value);
+        }
+
+        private static void SerializeDictionary(XmlWriter writer, string propertyName, object value)
+        {
+            new XmlSerializer(typeof(Dictionary<,>)).Serialize(writer, value);
+        }
+
+        private static void SerializeSet(XmlWriter writer, string propertyName, object value)
+        {
+            new XmlSerializer(typeof(HashSet<>)).Serialize(writer, value);
+        }
+
+        private static void SerializeList(XmlWriter writer, string propertyName, object value)
+        {
+            writer.WriteStartElement(propertyName);
+            foreach (object obj in (IEnumerable)value)
+            {
+                GenericXMLSerializer(obj, writer);
+            }
+            writer.WriteEndElement();
+        }
+
+        private static void SerializeArray(XmlWriter writer, string propertyName, object value)
+        {
+            new XmlSerializer(typeof(Array)).Serialize(writer, value);
+        }
+
+        private static void DeserializeString(XmlReader reader, string propertyName, object value)
         {
             throw new NotImplementedException();
         }
 
-        private static void SerializeDictionary(XmlWriter writer, PropertyInfo property, object value)
+        private static void DeserializeArray(XmlReader reader, string propertyName, object value)
         {
             throw new NotImplementedException();
         }
 
-        private static void SerializeSet(XmlWriter writer, PropertyInfo property, object value)
+        private static void DeserializeList(XmlReader reader, string propertyName, object value)
         {
             throw new NotImplementedException();
         }
 
-        private static void SerializeList(XmlWriter writer, PropertyInfo property, object value)
+        private static void DeserializeSet(XmlReader reader, string propertyName, object value)
         {
             throw new NotImplementedException();
         }
 
-        private static void SerializeArray(XmlWriter writer, PropertyInfo propertyName, object value)
+        private static void DeserializeDictionary(XmlReader reader, string propertyName, object value)
         {
             throw new NotImplementedException();
         }
 
-        private static void DeserializeArray(XmlReader reader, PropertyInfo property, object value)
-        {
-            throw new NotImplementedException();
-        }
-
-        private static void DeserializeList(XmlReader reader, PropertyInfo property, object value)
-        {
-            throw new NotImplementedException();
-        }
-
-        private static void DeserializeSet(XmlReader reader, PropertyInfo property, object value)
-        {
-            throw new NotImplementedException();
-        }
-
-        private static void DeserializeDictionary(XmlReader reader, PropertyInfo property, object value)
-        {
-            throw new NotImplementedException();
-        }
-
-        private static void DeserializeEnumerable(XmlReader reader, PropertyInfo property, object value)
+        private static void DeserializeEnumerable(XmlReader reader, string propertyName, object value)
         {
             throw new NotImplementedException();
         }

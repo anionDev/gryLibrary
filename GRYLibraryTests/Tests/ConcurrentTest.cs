@@ -1,5 +1,4 @@
-﻿using GRYLibrary;
-using GRYLibrary.Core;
+﻿using GRYLibrary.Core;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;

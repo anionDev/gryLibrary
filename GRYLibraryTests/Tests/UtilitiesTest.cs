@@ -1,9 +1,12 @@
 ﻿using GRYLibrary.Core;
+using GRYLibrary.TestData.TestTypes.SimpleDataStructure1;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Numerics;
+using System.Text;
 
 namespace GRYLibrary.Tests
 {
@@ -132,6 +135,13 @@ namespace GRYLibrary.Tests
             Guid inputId = Guid.Parse(input);
             Guid result = Utilities.IncrementGuid(inputId);
             Assert.AreNotEqual(input, result.ToString());
+        }
+        [TestMethod]
+        public void GenericSerializerTest1()
+        {
+            var testObject = SimpleDataStructure3.GetTestObject();
+            SimpleGenericXMLSerializer<SimpleDataStructure3> seriailzer = new SimpleGenericXMLSerializer<SimpleDataStructure3>();
+            Assert.AreEqual(File.ReadAllText(@"TestData\TestXMLSerialization\GenericSerializerTest1.txt", new UTF8Encoding(false)), seriailzer.Serialize(testObject));
         }
     }
 }
