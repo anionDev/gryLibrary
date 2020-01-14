@@ -1,4 +1,5 @@
-﻿using System;
+﻿using GRYLibrary.Core.Log;
+using System;
 
 namespace GRYLibrary.Core
 {

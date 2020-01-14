@@ -1,4 +1,5 @@
 ﻿using GRYLibrary.Core;
+using GRYLibrary.Core.Log;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
@@ -90,7 +91,6 @@ namespace GRYLibrary.Tests
                     Assert.AreEqual("test1", File.ReadAllText(logFile1, encoding));
 
                     GRYLogConfiguration reloadedConfiguration = GRYLogConfiguration.LoadConfiguration(configurationFile);
-                    reloadedConfiguration.LogLevelsForLogFile.Add(LogLevel.Debug);
                     GRYLogConfiguration.SaveConfiguration(configurationFile, reloadedConfiguration);
 
                     System.Threading.Thread.Sleep(1000);//wait until config is reloaded
@@ -99,7 +99,7 @@ namespace GRYLibrary.Tests
                     Assert.AreEqual("test1" + Environment.NewLine + "test3", File.ReadAllText(logFile1, encoding));
 
                     reloadedConfiguration = GRYLogConfiguration.LoadConfiguration(configurationFile);
-                    reloadedConfiguration.LogFile = logFile2;
+                    reloadedConfiguration.LogFile= logFile2;
                     GRYLogConfiguration.SaveConfiguration(configurationFile, reloadedConfiguration);
 
                     System.Threading.Thread.Sleep(1000);//wait until config is reloaded

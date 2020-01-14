@@ -1,4 +1,5 @@
-﻿using System;
+﻿using GRYLibrary.Core.Log;
+using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 

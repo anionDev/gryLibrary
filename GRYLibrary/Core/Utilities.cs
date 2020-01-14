@@ -113,6 +113,7 @@ namespace GRYLibrary.Core
         {
             ReplaceUnderscoresInFile(file, replacements, new UTF8Encoding(false));
         }
+
         public static void ReplaceUnderscoresInFile(string file, IDictionary<string, string> replacements, Encoding encoding)
         {
             string originalContent = File.ReadAllText(file, encoding);
@@ -573,7 +574,6 @@ namespace GRYLibrary.Core
             return new HashSet<string>(tupleList.Select((item) => item.Item1));
         }
         #region IsList and IsDictionary
-        //see https://stackoverflow.com/a/17190236/3905529
         public static bool IsList(this object @object)
         {
             if (@object == null)
@@ -582,9 +582,9 @@ namespace GRYLibrary.Core
             }
             else
             {
-                return @object is IList &&
-                       @object.GetType().IsGenericType &&
-                       @object.GetType().GetGenericTypeDefinition().IsAssignableFrom(typeof(List<>));
+                return @object is IList ||
+                      (@object.GetType().IsGenericType &&
+                       @object.GetType().GetGenericTypeDefinition().IsAssignableFrom(typeof(List<>)));
             }
         }
 
@@ -623,9 +623,16 @@ namespace GRYLibrary.Core
         {
             return new HashSet<T>(source, comparer);
         }
-        public static void AddAll<T>(this ISet<T> set, IEnumerable<T> newItems)
+        public static long GetTotalFreeSpace(string driveName)
         {
-            set.UnionWith(newItems);
+            foreach (DriveInfo drive in DriveInfo.GetDrives())
+            {
+                if (drive.IsReady && drive.Name == driveName)
+                {
+                    return drive.TotalFreeSpace;
+                }
+            }
+            return -1;
         }
         public static SimpleObjectPersistence<T> PersistToDisk<T>(this T @object, string file) where T : new()
         {
@@ -1227,7 +1234,7 @@ namespace GRYLibrary.Core
             ExternalProgramExecutor externalProgramExecutor = ExternalProgramExecutor.Create("mountvol", $"{mountPoint} \\\\?\\Volume{{{volumeId.ToString()}}}\\");
             externalProgramExecutor.ThrowErrorIfExitCodeIsNotZero = true;
             externalProgramExecutor.CreateWindow = false;
-            externalProgramExecutor.LogObject.Configuration.PrintOutputInConsole = false;
+            externalProgramExecutor.LogObject.Configuration.GetLogTarget<Log.ConcreteLogTargets.Console>().Enabled = false;
             externalProgramExecutor.StartConsoleApplicationInCurrentConsoleWindow();
         }
         public static ISet<Guid> GetAvailableVolumeIds()
@@ -1235,7 +1242,7 @@ namespace GRYLibrary.Core
             ExternalProgramExecutor externalProgramExecutor = ExternalProgramExecutor.Create("mountvol", string.Empty);
             externalProgramExecutor.ThrowErrorIfExitCodeIsNotZero = true;
             externalProgramExecutor.CreateWindow = false;
-            externalProgramExecutor.LogObject.Configuration.PrintOutputInConsole = false;
+            externalProgramExecutor.LogObject.Configuration.GetLogTarget<Log.ConcreteLogTargets.Console>().Enabled = false;
             externalProgramExecutor.StartConsoleApplicationInCurrentConsoleWindow();
             HashSet<Guid> result = new HashSet<Guid>();
             for (int i = 0; i < externalProgramExecutor.AllStdOutLines.Length - 1; i++)
@@ -1278,7 +1285,7 @@ namespace GRYLibrary.Core
             ExternalProgramExecutor externalProgramExecutor = ExternalProgramExecutor.Create("mountvol", string.Empty);
             externalProgramExecutor.ThrowErrorIfExitCodeIsNotZero = true;
             externalProgramExecutor.CreateWindow = false;
-            externalProgramExecutor.LogObject.Configuration.PrintOutputInConsole = false;
+            externalProgramExecutor.LogObject.Configuration.GetLogTarget<Log.ConcreteLogTargets.Console>().Enabled = false;
             externalProgramExecutor.StartConsoleApplicationInCurrentConsoleWindow();
             for (int i = 0; i < externalProgramExecutor.AllStdOutLines.Length; i++)
             {
@@ -1312,7 +1319,7 @@ namespace GRYLibrary.Core
             ExternalProgramExecutor externalProgramExecutor = ExternalProgramExecutor.Create("mountvol", $"{mountPoint} /d");
             externalProgramExecutor.ThrowErrorIfExitCodeIsNotZero = true;
             externalProgramExecutor.CreateWindow = false;
-            externalProgramExecutor.LogObject.Configuration.PrintOutputInConsole = false;
+            externalProgramExecutor.LogObject.Configuration.GetLogTarget<Log.ConcreteLogTargets.Console>().Enabled = false;
             externalProgramExecutor.StartConsoleApplicationInCurrentConsoleWindow();
             if (mountPoint.Length > 3)
             {
@@ -1563,44 +1570,55 @@ namespace GRYLibrary.Core
         }
         public static void GenericXMLSerializer(object @object, XmlWriter writer)
         {
-            Type type = @object.GetType();
-            if (type.IsGenericType)
+            if (!typeof(string).Equals(@object.GetType()))
             {
-                type = type.GetGenericTypeDefinition();
-            }
-            if (typeof(string).IsAssignableFrom(type))
-            {
-                SerializeString(writer, "String", @object);
-            }
-            else if (type.IsArray)
-            {
-                SerializeArray(writer, "Array", @object);
-            }
-            else if (typeof(IList<>).IsAssignableFrom(type))
-            {
-                SerializeList(writer, "List", @object);
-            }
-            else if (typeof(ISet<>).IsAssignableFrom(type))
-            {
-                SerializeSet(writer, "Set", @object);
-            }
-            else if (typeof(IDictionary<,>).IsAssignableFrom(type))
-            {
-                SerializeDictionary(writer, "Dictionary", @object);
-            }
-            else if (typeof(IEnumerable<>).IsAssignableFrom(type))
-            {
-                SerializeEnumerable(writer, "Enumerable", @object);
-            }
-            else
-            {
-                foreach (PropertyInfo property in @object.GetType().GetProperties())
+                if (IsArray(@object))
                 {
-                    string propertyName = property.Name;
-                    object value = property.GetValue(@object, null);
-                    GenericXMLSerializer(value, writer);
+                    SerializeArray(writer, "Array", @object);
+                }
+                else if (IsList(@object))
+                {
+                    SerializeList(writer, "List", @object);
+                }
+                else if (IsSet(@object))
+                {
+                    SerializeSet(writer, "Set", @object);
+                }
+                else if (IsDictionary(@object))
+                {
+                    SerializeDictionary(writer, "Dictionary", @object);
+                }
+                else if (IsEnumerable(@object))
+                {
+                    SerializeEnumerable(writer, "Enumerable", @object);
                 }
             }
+            foreach (PropertyInfo property in @object.GetType().GetProperties())
+            {
+                string propertyName = property.Name;
+                object value = property.GetValue(@object, null);
+                GenericXMLSerializer(value, writer);
+            }
+        }
+
+        private static bool IsString(object @object)
+        {
+            throw new NotImplementedException();
+        }
+
+        private static bool IsArray(object @object)
+        {
+            throw new NotImplementedException();
+        }
+
+        private static bool IsEnumerable(object @object)
+        {
+            throw new NotImplementedException();
+        }
+
+        private static bool IsSet(object @object)
+        {
+            throw new NotImplementedException();
         }
 
         public static void GenericXMLDeserializer(object @object, XmlReader reader)
