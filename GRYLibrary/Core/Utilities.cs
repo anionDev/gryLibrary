@@ -1412,39 +1412,19 @@ namespace GRYLibrary.Core
             }
             if (type.IsArray)
             {
-                return GenericArrayEquals((Array)firstObject, (Array)secondObject);
-            }
-            else if (typeof(List<>).IsAssignableFrom(type))
-            {
-                return GenericListEquals((IEnumerable)firstObject, (IEnumerable)secondObject);
+                return GenericListEquals((Array)firstObject, (Array)secondObject);
             }
             else if (typeof(IList<>).IsAssignableFrom(type))
             {
                 return GenericListEquals((IEnumerable)firstObject, (IEnumerable)secondObject);
             }
-            else if (typeof(IList).IsAssignableFrom(type))
-            {
-                return GenericListEquals((IList)firstObject, (IList)secondObject);
-            }
-            else if (typeof(HashSet<>).IsAssignableFrom(type))
-            {
-                return GenericSetEquals((IEnumerable)firstObject, (IEnumerable)secondObject);
-            }
             else if (typeof(ISet<>).IsAssignableFrom(type))
             {
                 return GenericSetEquals((IEnumerable)firstObject, (IEnumerable)secondObject);
             }
-            else if (typeof(Dictionary<,>).IsAssignableFrom(type))
-            {
-                return GenericDictionaryEquals(ConvertToDictionary(firstObject), ConvertToDictionary(secondObject));
-            }
             else if (typeof(IDictionary<,>).IsAssignableFrom(type))
             {
                 return GenericDictionaryEquals(ConvertToDictionary(firstObject), ConvertToDictionary(secondObject));
-            }
-            else if (typeof(IDictionary).IsAssignableFrom(type))
-            {
-                return GenericDictionaryEquals((IDictionary)firstObject, (IDictionary)secondObject);
             }
             else if (typeof(IEnumerable<>).IsAssignableFrom(type))
             {
@@ -1522,7 +1502,7 @@ namespace GRYLibrary.Core
         {
             return GenericSetEquals((IEnumerable)value1, value2);
         }
-        private static bool GenericSetEquals(IEnumerable value1, IEnumerable value2)
+        public static bool GenericSetEquals(IEnumerable value1, IEnumerable value2)
         {
             HashSet<object> hashSet1 = new HashSet<object>(Comparer.Instance);
             foreach (object @object in value1)
@@ -1589,52 +1569,65 @@ namespace GRYLibrary.Core
                 Type type = @object.GetType();
                 if (type.IsArray)
                 {
-                   SerializeArray(writer, property, value);
-                }
-                else if (typeof(List<>).IsAssignableFrom(type))
-                {
-                    throw new NotImplementedException();
+                    SerializeArray(writer, property, value);
                 }
                 else if (typeof(IList<>).IsAssignableFrom(type))
                 {
                     SerializeList(writer, property, value);
                 }
-                else if (typeof(IList).IsAssignableFrom(type))
-                {
-                    throw new NotImplementedException();
-                }
-                else if (typeof(HashSet<>).IsAssignableFrom(type))
-                {
-                    throw new NotImplementedException();
-                }
                 else if (typeof(ISet<>).IsAssignableFrom(type))
                 {
                     SerializeSet(writer, property, value);
-                }
-                else if (typeof(Dictionary<,>).IsAssignableFrom(type))
-                {
-                    throw new NotImplementedException();
                 }
                 else if (typeof(IDictionary<,>).IsAssignableFrom(type))
                 {
                     SerializeDictionary(writer, property, value);
                 }
-                else if (typeof(IDictionary).IsAssignableFrom(type))
-                {
-                    throw new NotImplementedException();
-                }
                 else if (typeof(IEnumerable<>).IsAssignableFrom(type))
                 {
-                    SerializeList(writer, property, value);
+                    SerializeEnumerable(writer, property, value);
                 }
                 else
                 {
-                    SerializeObject(writer, property, value);
+                    GenericXMLSerializer(value, writer);
                 }
             }
         }
 
-        private static void SerializeObject(XmlWriter writer, PropertyInfo property, object value)
+        public static void GenericXMLDeserializer(object @object, XmlReader reader)
+        {
+            foreach (PropertyInfo property in @object.GetType().GetProperties())
+            {
+                object value = property.GetValue(@object, null);
+                Type type = @object.GetType();
+                if (type.IsArray)
+                {
+                    DeserializeArray(reader, property, value);
+                }
+                else if (typeof(IList<>).IsAssignableFrom(type))
+                {
+                    DeserializeList(reader, property, value);
+                }
+                else if (typeof(ISet<>).IsAssignableFrom(type))
+                {
+                    DeserializeSet(reader, property, value);
+                }
+                else if (typeof(IDictionary<,>).IsAssignableFrom(type))
+                {
+                    DeserializeDictionary(reader, property, value);
+                }
+                else if (typeof(IEnumerable<>).IsAssignableFrom(type))
+                {
+                    DeserializeEnumerable(reader, property, value);
+                }
+                else
+                {
+                    GenericXMLDeserializer(value, reader);
+                }
+            }
+        }
+
+        private static void SerializeEnumerable(XmlWriter writer, PropertyInfo property, object value)
         {
             throw new NotImplementedException();
         }
@@ -1659,56 +1652,29 @@ namespace GRYLibrary.Core
             throw new NotImplementedException();
         }
 
-        public static void GenericXMLDeserializer(object @object, XmlReader reader)
+        private static void DeserializeArray(XmlReader reader, PropertyInfo property, object value)
         {
-            foreach (PropertyInfo property in @object.GetType().GetProperties())
-            {
-                Type type = @object.GetType();
-                if (type.IsArray)
-                {
-                    throw new NotImplementedException();
-                }
-                else if (typeof(List<>).IsAssignableFrom(type))
-                {
-                    throw new NotImplementedException();
-                }
-                else if (typeof(IList<>).IsAssignableFrom(type))
-                {
-                    throw new NotImplementedException();
-                }
-                else if (typeof(IList).IsAssignableFrom(type))
-                {
-                    throw new NotImplementedException();
-                }
-                else if (typeof(HashSet<>).IsAssignableFrom(type))
-                {
-                    throw new NotImplementedException();
-                }
-                else if (typeof(ISet<>).IsAssignableFrom(type))
-                {
-                    throw new NotImplementedException();
-                }
-                else if (typeof(Dictionary<,>).IsAssignableFrom(type))
-                {
-                    throw new NotImplementedException();
-                }
-                else if (typeof(IDictionary<,>).IsAssignableFrom(type))
-                {
-                    throw new NotImplementedException();
-                }
-                else if (typeof(IDictionary).IsAssignableFrom(type))
-                {
-                    throw new NotImplementedException();
-                }
-                else if (typeof(IEnumerable<>).IsAssignableFrom(type))
-                {
-                    throw new NotImplementedException();
-                }
-                else
-                {
-                    throw new NotImplementedException();
-                }
-            }
+            throw new NotImplementedException();
+        }
+
+        private static void DeserializeList(XmlReader reader, PropertyInfo property, object value)
+        {
+            throw new NotImplementedException();
+        }
+
+        private static void DeserializeSet(XmlReader reader, PropertyInfo property, object value)
+        {
+            throw new NotImplementedException();
+        }
+
+        private static void DeserializeDictionary(XmlReader reader, PropertyInfo property, object value)
+        {
+            throw new NotImplementedException();
+        }
+
+        private static void DeserializeEnumerable(XmlReader reader, PropertyInfo property, object value)
+        {
+            throw new NotImplementedException();
         }
         #endregion
     }
