@@ -17,6 +17,8 @@ using System.Xml.Schema;
 using System.Xml.Linq;
 using System.Xml.Xsl;
 using static GRYLibrary.Core.TableGenerator;
+using System.Reflection;
+using System.Runtime.InteropServices;
 
 namespace GRYLibrary.Core
 {
@@ -592,15 +594,20 @@ namespace GRYLibrary.Core
             }
             else
             {
-                return @object is IDictionary &&
-                       @object.GetType().IsGenericType &&
-                       @object.GetType().GetGenericTypeDefinition().IsAssignableFrom(typeof(Dictionary<,>));
+                return @object is IDictionary ||
+                       (@object.GetType().IsGenericType &&
+                       @object.GetType().GetGenericTypeDefinition().IsAssignableFrom(typeof(Dictionary<,>)));
             }
         }
         #endregion
+        internal static int GenericGetHashCode(object obj)
+        {
+            GCHandle handle = GCHandle.Alloc(obj, GCHandleType.Pinned);
+            IntPtr pointer = GCHandle.ToIntPtr(handle);
+            return (int)(pointer.ToInt64() / 2);
+        }
 
         private static readonly IFormatter _Formatter = new BinaryFormatter();
-        //see https://stackoverflow.com/a/129395/3905529
         public static T DeepClone<T>(this T @object)
         {
             using (Stream memoryStream = new MemoryStream())
@@ -692,6 +699,8 @@ namespace GRYLibrary.Core
             }
             return true;
         }
+
+
         public static bool IsAllLower(this string input)
         {
             for (int i = 0; i < input.Length; i++)
@@ -703,6 +712,7 @@ namespace GRYLibrary.Core
             }
             return true;
         }
+
         public static bool IsNegative(this TimeSpan timeSpan)
         {
             return timeSpan.Ticks < 0;
@@ -1307,7 +1317,7 @@ namespace GRYLibrary.Core
         {
             if (!mountPoint.EndsWith("\\"))
             {
-                mountPoint = mountPoint + "\\";
+                mountPoint += "\\";
             }
             foreach (Guid volumeId in GetAvailableVolumeIds())
             {
@@ -1321,5 +1331,218 @@ namespace GRYLibrary.Core
             }
             throw new KeyNotFoundException($"No volume could be found which provides the volume accessible at {mountPoint}");
         }
+
+        #region GenericEquals
+        /// <summary>
+        /// This method contains a standard <see cref="object.Equals(object)"/>-implementation.
+        /// </summary>
+        /// <remarks>
+        /// This operation is optimized to not forget any property to compare.
+        /// The properties are transitively checked with <see cref="GenericEquals(object, object)"/>.
+        /// This operation should be used if and only if two objects of the type T are equal if all properties are equal and there is no special requirement for the <see cref="object.Equals(object)"/>-implementation.
+        /// Fields will ignored.
+        /// This method is less performant in comparison to common <see cref="object.Equals(object)"/>-overwritings because this method must obviously use reflection to get all properties.
+        /// </remarks>
+        public static bool GenericEqualsImplementation<T>(T thisObject, object obj)
+        {
+            if (obj == null)
+            {
+                return false;
+            }
+            if (object.ReferenceEquals(thisObject, obj))
+            {
+                return true;
+            }
+            if (obj is T)
+            {
+                foreach (PropertyInfo property in typeof(T).GetProperties())
+                {
+                    if (!GenericEquals(property.GetValue(thisObject, null), property.GetValue(obj, null)))
+                    {
+                        return false;
+                    }
+                }
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        public static bool GenericEquals(object firstObject, object secondObject)
+        {
+            //todo prevent stackvoerflow due check for cyclic referenced properties
+            if (firstObject == null && secondObject == null)
+            {
+                return true;
+            }
+            if (firstObject == null || secondObject == null)
+            {
+                return false;
+            }
+            if (object.ReferenceEquals(firstObject, secondObject))
+            {
+                return true;
+            }
+            Type type = firstObject.GetType();
+            if (!type.Equals(secondObject.GetType()))
+            {
+                return false;
+            }
+            if (type.IsArray)
+            {
+                return GenericArrayEquals((Array)firstObject, (Array)secondObject);
+            }
+            else if (typeof(IList<>).IsAssignableFrom(type))
+            {
+                return GenericListEquals((IEnumerable)firstObject, (IEnumerable)secondObject);
+            }
+            else if (typeof(IList).IsAssignableFrom(type))
+            {
+                return GenericListEquals((IList)firstObject, (IList)secondObject);
+            }
+            else if (typeof(ISet<>).IsAssignableFrom(type))
+            {
+                return GenericSetEquals((IEnumerable)firstObject, (IEnumerable)secondObject);
+            }
+            else if (typeof(IDictionary).IsAssignableFrom(type))
+            {
+                return GenericDictionaryEquals((IDictionary)firstObject, (IDictionary)secondObject);
+            }
+            else if (typeof(IDictionary<,>).IsAssignableFrom(type))
+            {
+                return GenericDictionaryEquals(ConvertToDictionary(firstObject), ConvertToDictionary(secondObject));
+            }
+            else
+            {
+                return firstObject.Equals(secondObject);
+            }
+        }
+
+        private static IDictionary ConvertToDictionary(/*IDictionary<,>*/object @object)
+        {
+            Type keyValuePairType = typeof(KeyValuePair<,>);
+            Hashtable result = new Hashtable();
+            foreach (object currentEntry in (IEnumerable)@object)
+            {
+                PropertyInfo key = keyValuePairType.GetProperty("Key");
+                PropertyInfo value = keyValuePairType.GetProperty("Value");
+                result[key.GetValue(currentEntry, null)] = value.GetValue(currentEntry, null);
+            }
+            return result;
+        }
+        public static bool GenericArrayEquals<T>(T[] value1, T[] value2)
+        {
+            return GenericArrayEquals((Array)value1, value2);
+        }
+        public static bool GenericArrayEquals(Array value1, Array value2)
+        {
+            if (value1.Length != value2.Length)
+            {
+                return false;
+            }
+            for (int i = 0; i < value1.Length; i++)
+            {
+                if (!GenericEquals(value1.GetValue(i), value2.GetValue(i)))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+        public static bool GenericDictionaryEquals(IDictionary dictionary1, IDictionary dictionary2)
+        {
+            if (dictionary1.Count != dictionary2.Count)
+            {
+                return false;
+            }
+            foreach (object key in dictionary1)
+            {
+                if (dictionary2.Contains(key))
+                {
+                    if (!GenericEquals(dictionary1[key], dictionary2[key]))
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+        public static bool GenericSetEquals<T>(ISet<T> value1, ISet<T> value2)
+        {
+            return GenericSetEquals((IEnumerable)value1, value2);
+        }
+        private static bool GenericSetEquals(IEnumerable value1, IEnumerable value2)
+        {
+            HashSet<object> hashSet1 = new HashSet<object>(Comparer.Instance);
+            foreach (object @object in value1)
+            {
+                hashSet1.Add(@object);
+            }
+            HashSet<object> hashSet2 = new HashSet<object>();
+            foreach (object @object in value2)
+            {
+                hashSet2.Add(@object);
+            }
+            return hashSet1.SetEquals(hashSet2);
+        }
+
+        public static bool GenericListEquals(IList value1, IList value2)
+        {
+            return GenericListEquals((IEnumerable)value1, value2);
+        }
+        public static bool GenericListEquals<T>(IList<T> value1, IList<T> value2)
+        {
+            return GenericListEquals((IEnumerable)value1, value2);
+        }
+        private static bool GenericListEquals(IEnumerable value1, IEnumerable value2)
+        {
+            List<object> list1 = new List<object>();
+            foreach (object @object in value1)
+            {
+                list1.Add(@object);
+            }
+            List<object> list2 = new List<object>();
+            foreach (object @object in value2)
+            {
+                list2.Add(@object);
+            }
+            return list1.SequenceEqual(list2, Comparer.Instance);
+        }
+        private class Comparer : IEqualityComparer<object>
+        {
+            private Comparer() { }
+            public static IEqualityComparer<object> Instance { get; } = new Comparer();
+            public new bool Equals(object x, object y)
+            {
+                return Utilities.GenericEquals(x, y);
+            }
+
+            public int GetHashCode(object obj)
+            {
+                return 47861;
+            }
+        }
+        #endregion
+
+        #region GenericGetXML
+        public static XmlSchema GenericGetXMLSchema(Type type)
+        {
+            throw new NotImplementedException();
+        }
+        public static void GenericXMLSerializer(object @object, XmlWriter writer)
+        {
+            throw new NotImplementedException();
+        }
+
+        public static void GenericXMLDeserializer(object @object, XmlReader reader)
+        {
+            throw new NotImplementedException();
+        }
+        #endregion
     }
 }

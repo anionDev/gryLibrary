@@ -5,6 +5,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.IO;
 using System.Text;
+using System.Xml;
 
 namespace GRYLibrary.Tests
 {
@@ -115,6 +116,34 @@ namespace GRYLibrary.Tests
                 Utilities.EnsureFileDoesNotExist(logFile2);
                 Utilities.EnsureFileDoesNotExist(configurationFile);
             }
+        }
+        [TestMethod]
+        public void SerializeAndDeserialize()
+        {
+            GRYLogConfiguration logConfiguration = new GRYLogConfiguration();
+
+            logConfiguration.Name = "MyLog";
+
+            string serializedLogConfiguration;
+            using (StringWriter streamWriter = new StringWriter())
+            {
+                using (XmlWriter xmlWriter = XmlWriter.Create(streamWriter))
+                {
+                    logConfiguration.WriteXml(xmlWriter);
+                    serializedLogConfiguration = xmlWriter.ToString();
+                }
+            }
+            Assert.AreEqual(File.ReadAllText(@"TestData\TextXMLSerialization\GRYLogConfiguration1.txt", new UTF8Encoding(false)), serializedLogConfiguration);
+            GRYLogConfiguration logConfigurationReloaded = new GRYLogConfiguration();
+
+            Assert.AreNotEqual(logConfiguration, logConfigurationReloaded);
+
+            using (XmlReader xmlReader = XmlReader.Create(new StringReader(serializedLogConfiguration)))
+            {
+                logConfigurationReloaded.ReadXml(xmlReader);
+            }
+
+            Assert.AreEqual(logConfiguration, logConfigurationReloaded);
         }
     }
 }

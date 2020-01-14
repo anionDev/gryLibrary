@@ -2,8 +2,10 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Xml;
+using System.Xml.Linq;
 using System.Xml.Schema;
 using System.Xml.Serialization;
 
@@ -59,7 +61,23 @@ namespace GRYLibrary.Core
         {
             return new GRYLog(GRYLogConfiguration.LoadConfiguration(configurationFile), configurationFile);
         }
-
+        public override int GetHashCode()
+        {
+            return this.Configuration.GetHashCode();
+        }
+        public override bool Equals(object obj)
+        {
+            GRYLog typedObject = obj as GRYLog;
+            if (typedObject == null)
+            {
+                return false;
+            }
+            if (!this.Configuration.Equals(typedObject.Configuration))
+            {
+                return false;
+            }
+            return true;
+        }
         private void StartFileWatcherForConfigurationFile(string configurationFile)
         {
             configurationFile = Utilities.ResolveToFullPath(configurationFile);
@@ -441,7 +459,7 @@ namespace GRYLibrary.Core
         #region ILogger-Implementation
         public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
         {
-            this.Log(() => $"{FormatEvent(eventId)} | { formatter(state, exception)}", logLevel);
+            this.Log(() => $"{this.FormatEvent(eventId)} | { formatter(state, exception)}", logLevel);
         }
 
         private string FormatEvent(EventId eventId)
@@ -496,7 +514,6 @@ namespace GRYLibrary.Core
             this.WriteExceptionStackTraceOfExceptionInLogEntry = true;
             this.StoreErrorsInErrorQueueInsteadOfLoggingThem = false;
             this.PrintOutputInConsole = true;
-            this.LogItemIdLength = 8;
             this.Name = string.Empty;
             this.ReloadConfigurationWhenSourceFileWillBeChanged = true;
             this.CreateLogFileIfRequiredAndIfPossible = true;
@@ -526,7 +543,6 @@ namespace GRYLibrary.Core
         public bool ReloadConfigurationWhenSourceFileWillBeChanged { get; set; }
         public bool Enabled { get; set; }
         public string EncodingForLogfile { get; set; }
-        public int LogItemIdLength { get; set; }
         public bool PrintEmptyLines { get; set; }
         public bool PrintErrorsAsInformation { get; set; }
         public string Name { get; set; }
@@ -555,17 +571,25 @@ namespace GRYLibrary.Core
 
         public XmlSchema GetSchema()
         {
-            throw new NotImplementedException();
+            return Utilities.GenericGetXMLSchema(this.GetType());
         }
 
         public void ReadXml(XmlReader reader)
         {
-            throw new NotImplementedException();
+            Utilities.GenericXMLDeserializer(this, reader);
         }
 
         public void WriteXml(XmlWriter writer)
         {
-            throw new NotImplementedException();
+            Utilities.GenericXMLSerializer(this, writer);
+        }
+        public override int GetHashCode()
+        {
+            return Utilities.GenericGetHashCode(this);
+        }
+        public override bool Equals(object obj)
+        {
+            return Utilities.GenericEquals(this, obj);
         }
     }
     public class LoggedMessageTypeConfiguration : IXmlSerializable
@@ -575,17 +599,25 @@ namespace GRYLibrary.Core
 
         public XmlSchema GetSchema()
         {
-            throw new NotImplementedException();
+            return Utilities.GenericGetXMLSchema(this.GetType());
         }
 
         public void ReadXml(XmlReader reader)
         {
-            throw new NotImplementedException();
+            Utilities.GenericXMLDeserializer(this, reader);
         }
 
         public void WriteXml(XmlWriter writer)
         {
-            throw new NotImplementedException();
+            Utilities.GenericXMLSerializer(this, writer);
+        }
+        public override int GetHashCode()
+        {
+            return Utilities.GenericGetHashCode(this);
+        }
+        public override bool Equals(object obj)
+        {
+            return Utilities.GenericEquals(this, obj);
         }
     }
 }

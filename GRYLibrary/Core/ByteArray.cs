@@ -2,10 +2,13 @@
 using System.Linq;
 using System.Numerics;
 using System.Text;
+using System.Xml;
+using System.Xml.Schema;
+using System.Xml.Serialization;
 
 namespace GRYLibrary.Core
 {
-    public class ByteArray
+    public class ByteArray:IXmlSerializable
     {
         public static Encoding DefaultEncoding { get; } = new UTF8Encoding(false);
         public byte[] Data { get; }
@@ -82,6 +85,20 @@ namespace GRYLibrary.Core
                 return false;
             }
             return Encoding.ASCII.GetString(this.Data).Contains(Encoding.ASCII.GetString(value.Data));
+        }
+        public XmlSchema GetSchema()
+        {
+            return Utilities.GenericGetXMLSchema(this.GetType());
+        }
+
+        public void ReadXml(XmlReader reader)
+        {
+            Utilities.GenericXMLDeserializer(this, reader);
+        }
+
+        public void WriteXml(XmlWriter writer)
+        {
+            Utilities.GenericXMLSerializer(this, writer);
         }
     }
 }

@@ -47,6 +47,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="TestData\TestXMLSerialization\GRYLogConfiguration1.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="TestData\XSDValidator\Test1\TestXML1_MatchsXSD1.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

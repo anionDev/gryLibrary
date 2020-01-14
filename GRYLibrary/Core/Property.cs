@@ -2,10 +2,13 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
+using System.Xml;
+using System.Xml.Schema;
+using System.Xml.Serialization;
 
 namespace GRYLibrary.Core
 {
-    public interface IProperty
+    public interface IProperty : IXmlSerializable
     {
         string PropertyName { get; set; }
         Type PropertyValueType { get; }
@@ -160,6 +163,21 @@ namespace GRYLibrary.Core
                 }
             }
             throw new Exception("Value was not set at moment " + dateTime.ToString("yyyy/MM/dd HH:mm:ss"));
+        }
+
+        public XmlSchema GetSchema()
+        {
+            return Utilities.GenericGetXMLSchema(this.GetType());
+        }
+
+        public void ReadXml(XmlReader reader)
+        {
+             Utilities.GenericXMLDeserializer(this,reader);
+        }
+
+        public void WriteXml(XmlWriter writer)
+        {
+            Utilities.GenericXMLSerializer(this, writer);
         }
     }
     public class PropertyChangedEvengArgument<T>
