@@ -275,7 +275,7 @@ namespace GRYLibrary.Core.GraphOperations
                         }
                         else
                         {
-                            throw new Exception();//todo improve exception and its message
+                            throw new Exception($"Could not get edge with name '{edge.Name}'");
                         }
                         customAction(successor, successorPath);
                         queue.Enqueue(new Tuple<Vertex, IList<Edge>>(successor, successorPath));
@@ -283,19 +283,6 @@ namespace GRYLibrary.Core.GraphOperations
                 }
             }
 
-        }
-
-        private void InitializeSearchAndDoSomeChecks(Vertex startVertex, out Dictionary<Vertex, bool> visitedMap)
-        {
-            if (!this.Vertices.Contains(startVertex))
-            {
-                throw new Exception($"Vertex '{startVertex}' is not contained in this graph.");
-            }
-            visitedMap = new Dictionary<Vertex, bool>();
-            foreach (Vertex vertex in this.Vertices)
-            {
-                visitedMap.Add(vertex, false);
-            }
         }
 
         public void DepthFirstSearch(Action<Vertex, IList<Edge>> customAction)
@@ -323,11 +310,23 @@ namespace GRYLibrary.Core.GraphOperations
                         }
                         else
                         {
-                            throw new Exception();//todo improve exception and its message
+                            throw new Exception($"Could not get edge with name '{edge.Name}'");
                         }
                         stack.Push(new Tuple<Vertex, IList<Edge>>(successor, successorPath));
                     }
                 }
+            }
+        }
+        private void InitializeSearchAndDoSomeChecks(Vertex startVertex, out Dictionary<Vertex, bool> visitedMap)
+        {
+            if (!this.Vertices.Contains(startVertex))
+            {
+                throw new Exception($"Vertex '{startVertex}' is not contained in this graph.");
+            }
+            visitedMap = new Dictionary<Vertex, bool>();
+            foreach (Vertex vertex in this.Vertices)
+            {
+                visitedMap.Add(vertex, false);
             }
         }
 
@@ -420,4 +419,5 @@ namespace GRYLibrary.Core.GraphOperations
         T Handle(UndirectedGraph graph);
         T Handle(DirectedGraph graph);
     }
+
 }

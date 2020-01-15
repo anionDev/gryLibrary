@@ -20,6 +20,7 @@ using static GRYLibrary.Core.TableGenerator;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Xml.Serialization;
+using GRYLibrary.Core.XMLSerializer;
 
 namespace GRYLibrary.Core
 {
@@ -43,6 +44,20 @@ namespace GRYLibrary.Core
         {
             return Enumerable.SequenceEqual(list1.OrderBy(item => item), list2.OrderBy(item => item));
         }
+
+        public static IEnumerable<PropertyInfo> GetPropertiesWhichHaveGetterAndSetter(Type type)
+        {
+            List<PropertyInfo> result = new List<PropertyInfo>();
+            foreach (PropertyInfo property in type.GetType().GetProperties())
+            {
+                if (property.CanWrite && property.CanRead)
+                {
+                    result.Add(property);
+                }
+            }
+            return result;
+        }
+
         public static IEnumerable<string> GetFilesOfFolderRecursively(string folder)
         {
             List<string> result = new List<string>();
@@ -573,7 +588,11 @@ namespace GRYLibrary.Core
             ISet<TupleWithValueComparisonEquals<string, string>> tupleList = new HashSet<TupleWithValueComparisonEquals<string, string>>(input.Select((item) => new TupleWithValueComparisonEquals<string, string>(item, item.ToLower())));
             return new HashSet<string>(tupleList.Select((item) => item.Item1));
         }
-        #region IsList and IsDictionary
+        public static bool IsSet(this object @object)
+        {
+            return false;//TODO
+        }
+
         public static bool IsList(this object @object)
         {
             if (@object == null)
@@ -601,7 +620,6 @@ namespace GRYLibrary.Core
                        @object.GetType().GetGenericTypeDefinition().IsAssignableFrom(typeof(Dictionary<,>)));
             }
         }
-        #endregion
         internal static int GenericGetHashCode(object obj)
         {
             GCHandle handle = GCHandle.Alloc(obj, GCHandleType.Pinned);
@@ -1398,50 +1416,9 @@ namespace GRYLibrary.Core
                 return false;
             }
         }
-        public static bool GenericEquals(object firstObject, object secondObject)
+        public static bool GenericEquals(object object1, object object2)
         {
-            //todo prevent stackvoerflow due check for cyclic referenced properties
-            if (firstObject == null && secondObject == null)
-            {
-                return true;
-            }
-            if (firstObject == null || secondObject == null)
-            {
-                return false;
-            }
-            if (object.ReferenceEquals(firstObject, secondObject))
-            {
-                return true;
-            }
-            Type type = firstObject.GetType();
-            if (!type.Equals(secondObject.GetType()))
-            {
-                return false;
-            }
-            if (type.IsArray)
-            {
-                return GenericListEquals((Array)firstObject, (Array)secondObject);
-            }
-            else if (typeof(IList<>).IsAssignableFrom(type))
-            {
-                return GenericListEquals((IEnumerable)firstObject, (IEnumerable)secondObject);
-            }
-            else if (typeof(ISet<>).IsAssignableFrom(type))
-            {
-                return GenericSetEquals((IEnumerable)firstObject, (IEnumerable)secondObject);
-            }
-            else if (typeof(IDictionary<,>).IsAssignableFrom(type))
-            {
-                return GenericDictionaryEquals(ConvertToDictionary(firstObject), ConvertToDictionary(secondObject));
-            }
-            else if (typeof(IEnumerable<>).IsAssignableFrom(type))
-            {
-                return GenericEnumerableEquals((IEnumerable)firstObject, (IEnumerable)secondObject);
-            }
-            else
-            {
-                return firstObject.Equals(secondObject);
-            }
+            return new ObjectGraph(object1).Equals(new ObjectGraph(object2));
         }
 
         private static bool GenericEnumerableEquals(IEnumerable firstObject, IEnumerable secondObject)
@@ -1568,58 +1545,61 @@ namespace GRYLibrary.Core
         {
             throw new NotImplementedException();
         }
-        public static void GenericXMLSerializer(object @object, XmlWriter writer)
+        public static void GenericXMLSerializer(object @object, XmlWriter writer, string name = "")
         {
-            if (!typeof(string).Equals(@object.GetType()))
+            if (name == string.Empty)
             {
-                if (IsArray(@object))
-                {
-                    SerializeArray(writer, "Array", @object);
-                }
-                else if (IsList(@object))
-                {
-                    SerializeList(writer, "List", @object);
-                }
-                else if (IsSet(@object))
-                {
-                    SerializeSet(writer, "Set", @object);
-                }
-                else if (IsDictionary(@object))
-                {
-                    SerializeDictionary(writer, "Dictionary", @object);
-                }
-                else if (IsEnumerable(@object))
-                {
-                    SerializeEnumerable(writer, "Enumerable", @object);
-                }
+                name = @object.GetType().Name;
             }
-            foreach (PropertyInfo property in @object.GetType().GetProperties())
+            writer.WriteStartElement(name);
+            if (@object.GetType().Equals(typeof(string)))
             {
-                string propertyName = property.Name;
-                object value = property.GetValue(@object, null);
-                GenericXMLSerializer(value, writer);
+                SerializeString(writer, @object);
+                goto serializeWithDefaultSerializer;
             }
-        }
-
-        private static bool IsString(object @object)
-        {
-            throw new NotImplementedException();
+            else if (IsDictionary(@object))
+            {
+                SerializeDictionary(writer, @object);
+                goto writeEndElement;
+            }
+            else if (IsList(@object))
+            {
+                SerializeList(writer, @object);
+                goto writeEndElement;
+            }
+            else if (IsSet(@object))
+            {
+                SerializeSet(writer, @object);
+                goto writeEndElement;
+            }
+            else if (IsArray(@object))
+            {
+                SerializeArray(writer, @object);
+                goto writeEndElement;
+            }
+            else if (IsEnumerable(@object))
+            {
+                SerializeEnumerable(writer, @object);
+                goto writeEndElement;
+            }
+            serializeWithDefaultSerializer:
+            new SimpleXMLSerializer().SerializeToWriter(@object, writer);
+            goto writeEndElement;
+            writeEndElement:
+            writer.WriteEndElement();
         }
 
         private static bool IsArray(object @object)
         {
-            throw new NotImplementedException();
+            return @object.GetType().IsArray;
         }
 
         private static bool IsEnumerable(object @object)
         {
-            throw new NotImplementedException();
+            var obj = @object as IEnumerable;
+            return obj != null;
         }
 
-        private static bool IsSet(object @object)
-        {
-            throw new NotImplementedException();
-        }
 
         public static void GenericXMLDeserializer(object @object, XmlReader reader)
         {
@@ -1662,37 +1642,35 @@ namespace GRYLibrary.Core
             }
         }
 
-        private static void SerializeString(XmlWriter writer, string propertyName, object value)
+        private static void SerializeString(XmlWriter writer, object value)
         {
-            new XmlSerializer(typeof(string)).Serialize(writer, value);
+            writer.WriteString((string)value);
         }
 
-        private static void SerializeEnumerable(XmlWriter writer, string propertyName, object value)
+        private static void SerializeEnumerable(XmlWriter writer, object value)
         {
             new XmlSerializer(typeof(Enumerable)).Serialize(writer, value);
         }
 
-        private static void SerializeDictionary(XmlWriter writer, string propertyName, object value)
+        private static void SerializeDictionary(XmlWriter writer, object value)
         {
             new XmlSerializer(typeof(Dictionary<,>)).Serialize(writer, value);
         }
 
-        private static void SerializeSet(XmlWriter writer, string propertyName, object value)
+        private static void SerializeSet(XmlWriter writer, object value)
         {
             new XmlSerializer(typeof(HashSet<>)).Serialize(writer, value);
         }
 
-        private static void SerializeList(XmlWriter writer, string propertyName, object value)
+        private static void SerializeList(XmlWriter writer, object value)
         {
-            writer.WriteStartElement(propertyName);
             foreach (object obj in (IEnumerable)value)
             {
                 GenericXMLSerializer(obj, writer);
             }
-            writer.WriteEndElement();
         }
 
-        private static void SerializeArray(XmlWriter writer, string propertyName, object value)
+        private static void SerializeArray(XmlWriter writer, object value)
         {
             new XmlSerializer(typeof(Array)).Serialize(writer, value);
         }

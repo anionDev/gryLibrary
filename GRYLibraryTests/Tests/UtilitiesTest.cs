@@ -1,4 +1,5 @@
 ﻿using GRYLibrary.Core;
+using GRYLibrary.Core.XMLSerializer;
 using GRYLibrary.TestData.TestTypes.SimpleDataStructure1;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;

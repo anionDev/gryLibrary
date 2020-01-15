@@ -6,13 +6,13 @@ using System.Text;
 using System.Xml;
 using System.Xml.Serialization;
 
-namespace GRYLibrary.Core
+namespace GRYLibrary.Core.XMLSerializer
 {
     /// <summary>
     /// Represents a very easy usable XML-Serializer.
     /// </summary>
     /// <typeparam name="T">The type of the object which should be serialized.</typeparam>
-    public class SimpleGenericXMLSerializer<T> where T : new()
+    public class SimpleGenericXMLSerializer<T>  where T : new()
     {
         private readonly ISet<Type> _AllTypes;
         public Encoding Encoding { get; set; }
@@ -25,14 +25,18 @@ namespace GRYLibrary.Core
             this.XMLWriterSettings = new XmlWriterSettings() { Indent = true, Encoding = Encoding };
             this.KnownTypes = new HashSet<Type>();
         }
+        public void SerializeToWriter(T @object, XmlWriter xmlWriter)
+        {
+            GetSerializer().Serialize(xmlWriter, @object);
+        }
+
         public string Serialize(T @object)
         {
             using (Stream stream = new MemoryStream())
             {
-                XmlSerializer serializer = new XmlSerializer(typeof(T), this.GetExtraTypes());
                 using (XmlWriter xmlWriter = XmlWriter.Create(stream, this.XMLWriterSettings))
                 {
-                    serializer.Serialize(xmlWriter, @object);
+                    GetSerializer().Serialize(xmlWriter, @object);
                 }
                 stream.Seek(0, SeekOrigin.Begin);
                 using (StreamReader streamReader = new StreamReader(stream))
@@ -42,6 +46,10 @@ namespace GRYLibrary.Core
             }
         }
 
+        public T DeserializeFromReader(XmlReader xmlReader)
+        {
+            return (T)GetSerializer().Deserialize(xmlReader);
+        }
         public T Deserialize(string xml)
         {
             using (Stream stream = new MemoryStream())
@@ -49,8 +57,7 @@ namespace GRYLibrary.Core
                 byte[] data = this.Encoding.GetBytes(xml);
                 stream.Write(data, 0, data.Length);
                 stream.Position = 0;
-                XmlSerializer deserializer = new XmlSerializer(typeof(T), this.GetExtraTypes());
-                return (T)deserializer.Deserialize(stream);
+                return (T)GetSerializer().Deserialize(stream);
             }
         }
 
@@ -58,7 +65,11 @@ namespace GRYLibrary.Core
         {
             return this.KnownTypes.Union(this._AllTypes).Where(t => typeof(T).IsAssignableFrom(t)).ToArray();
         }
-    }
+        private XmlSerializer GetSerializer()
+        {
+            return new XmlSerializer(typeof(T), this.GetExtraTypes());
+        }
+              }
 }
 
 
