@@ -3,11 +3,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.IO;
 using System.Runtime.InteropServices;
-using System.Security.Principal;
 using System.Threading.Tasks;
-using System.Xml;
-using System.Xml.Schema;
-using System.Xml.Serialization;
 
 namespace GRYLibrary.Core.Log
 {

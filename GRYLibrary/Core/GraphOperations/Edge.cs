@@ -15,9 +15,18 @@ namespace GRYLibrary.Core.GraphOperations
         /// In the context of <see cref="UndirectedGraph"/>-objects it does not matter which <see cref="Vertex"/>- object is marked as <see cref="Source"/> and which is marked as <see cref="Target"/>.
         /// </remarks>
         public Vertex Target { get; internal set; }
-        public Edge(Vertex source, Vertex target, string name, double weight = 1)
+        public Edge(Vertex source, Vertex target,  double weight = 1):this(source,target,CalculateEdgeName(),weight)
         {
-            this.Source = source;
+        }
+
+        private static string CalculateEdgeName()
+        {
+            return $"{nameof(Edge)}_{Guid.NewGuid().ToString().Substring(0,8)}";
+        }
+
+        public Edge(Vertex source, Vertex target, string name, double weight = 1)
+            {
+                this.Source = source;
             this.Target = target;
             this.Name = name;
             this.Weight = weight;
