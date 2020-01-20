@@ -215,9 +215,10 @@ namespace GRYLibrary.Core
         }
         public static void EnsureFileExists(string path, bool createDirectoryIfRequired = false)
         {
-            if (createDirectoryIfRequired)
+            string directory = Path.GetDirectoryName(path);
+            if (createDirectoryIfRequired &&!string.IsNullOrWhiteSpace(directory))
             {
-                EnsureDirectoryExists(Path.GetDirectoryName(path));
+                EnsureDirectoryExists(directory);
             }
             if (!File.Exists(path))
             {
