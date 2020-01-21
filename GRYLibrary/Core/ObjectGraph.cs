@@ -16,17 +16,17 @@ namespace GRYLibrary.Core
         public object NullRepresenter { get; } = new object();
         public ObjectGraph(object @object)
         {
-            IdWithTheirObjects = new Dictionary<Guid, object>();
-            ObjectsWithTheirId = new Dictionary<object, Guid>(new ReferenceComparer());
+            this.IdWithTheirObjects = new Dictionary<Guid, object>();
+            this.ObjectsWithTheirId = new Dictionary<object, Guid>(new ReferenceComparer());
             this.IdWithTheirVertices = new Dictionary<Guid, Vertex>();
-            this.Object = HandleNull(@object);
+            this.Object = this.HandleNull(@object);
         }
 
         private object HandleNull(object @object)
         {
             if (@object == null)
             {
-                return NullRepresenter;
+                return this.NullRepresenter;
             }
             else
             {
@@ -36,34 +36,34 @@ namespace GRYLibrary.Core
 
         public void BuildObjectGraph()
         {
-            Handle(@Object);
+            this.Handle(this.@Object);
         }
         private Guid Handle(object @object)
         {
-            @object = HandleNull(@object);
+            @object = this.HandleNull(@object);
             Guid idOfCurrentObject;
-            if (GetsSpecialTreatment(@object.GetType()))
+            if (this.GetsSpecialTreatment(@object.GetType()))
             {
 
             }
             else
             {
-                idOfCurrentObject = AddToDictionaryIfNotExist(@object);
+                idOfCurrentObject = this.AddToDictionaryIfNotExist(@object);
                 foreach (PropertyInfo property in Utilities.GetPropertiesWhichHaveGetterAndSetter(@object.GetType()))
                 {
                     object propertyValue = property.GetValue(@object, null);
                     Guid idOfProperty;
-                    if (ObjectsWithTheirId.ContainsKey(@object))
+                    if (this.ObjectsWithTheirId.ContainsKey(@object))
                     {
-                        idOfProperty = ObjectsWithTheirId[@object];
+                        idOfProperty = this.ObjectsWithTheirId[@object];
                     }
                     else
                     {
-                        idOfProperty = Handle(propertyValue);
+                        idOfProperty = this.Handle(propertyValue);
                     }
-                    Edge edge = new Edge(IdWithTheirVertices[idOfCurrentObject], IdWithTheirVertices[idOfProperty], property.Name);
-                    EdgesInformation.Add(edge, property);
-                    Graph.AddEdge(edge);
+                    Edge edge = new Edge(this.IdWithTheirVertices[idOfCurrentObject], this.IdWithTheirVertices[idOfProperty], property.Name);
+                    this.EdgesInformation.Add(edge, property);
+                    this.Graph.AddEdge(edge);
                 }
             }
             return idOfCurrentObject;
@@ -76,24 +76,24 @@ namespace GRYLibrary.Core
 
         private Guid AddToDictionaryIfNotExist(object @object)
         {
-            if (ObjectsWithTheirId.ContainsKey(@object))
+            if (this.ObjectsWithTheirId.ContainsKey(@object))
             {
-                return ObjectsWithTheirId[@object];
+                return this.ObjectsWithTheirId[@object];
             }
             else
             {
                 Guid objectId = Guid.NewGuid();
-                IdWithTheirObjects.Add(objectId, @object);
-                ObjectsWithTheirId.Add(@object, objectId);
+                this.IdWithTheirObjects.Add(objectId, @object);
+                this.ObjectsWithTheirId.Add(@object, objectId);
                 Vertex vertex = new Vertex(objectId.ToString());
-                Graph.AddVertex(vertex);
-                IdWithTheirVertices.Add(objectId, vertex);
+                this.Graph.AddVertex(vertex);
+                this.IdWithTheirVertices.Add(objectId, vertex);
                 return objectId;
             }
         }
         public override int GetHashCode()
         {
-            return Object.GetHashCode();
+            return this.Object.GetHashCode();
         }
         public override bool Equals(object obj)
         {
@@ -102,7 +102,7 @@ namespace GRYLibrary.Core
             {
                 return false;
             }
-            return EqualsAdvanced(IdWithTheirVertices[ObjectsWithTheirId[this.Object]], typedObject);
+            return this.EqualsAdvanced(this.IdWithTheirVertices[this.ObjectsWithTheirId[this.Object]], typedObject);
         }
 
         private bool EqualsAdvanced(Vertex startVertex, ObjectGraph otherGraph)

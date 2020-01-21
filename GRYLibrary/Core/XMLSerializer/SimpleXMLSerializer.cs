@@ -19,25 +19,25 @@ namespace GRYLibrary.Core.XMLSerializer
         }
         public void SerializeToWriter(object @object, XmlWriter xmlWriter)
         {
-            object serializer = GetSerializerForType(@object.GetType());
+            object serializer = this.GetSerializerForType(@object.GetType());
             serializer.GetType().GetMethod(nameof(SimpleXMLSerializer.SerializeToWriter)).Invoke(serializer, new object[] { @object, xmlWriter });
         }
 
         public string Serialize(object @object)
         {
-            object serializer = GetSerializerForType(@object.GetType());
+            object serializer = this.GetSerializerForType(@object.GetType());
             return (string)serializer.GetType().GetMethod(nameof(SimpleXMLSerializer.Serialize)).Invoke(serializer, new object[] { @object });
         }
 
         public dynamic DeserializeFromReader(XmlReader xmlReader)
         {
-            object serializer = GetSerializerForType(GetOutermostType(xmlReader));
+            object serializer = this.GetSerializerForType(this.GetOutermostType(xmlReader));
             return serializer.GetType().GetMethod(nameof(SimpleXMLSerializer.DeserializeFromReader)).Invoke(serializer, new object[] { xmlReader });
         }
 
         public dynamic Deserialize(string xml)
         {
-            object serializer = GetSerializerForType(GetOutermostType(xml));
+            object serializer = this.GetSerializerForType(this.GetOutermostType(xml));
             return serializer.GetType().GetMethod(nameof(SimpleXMLSerializer.Deserialize)).Invoke(serializer, new object[] { xml });
         }
 

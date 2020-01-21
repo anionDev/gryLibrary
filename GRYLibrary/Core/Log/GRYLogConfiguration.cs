@@ -34,11 +34,11 @@ namespace GRYLibrary.Core.Log
         {
             get
             {
-                return GetLogTarget<LogFile>().File;
+                return this.GetLogTarget<LogFile>().File;
             }
             set
             {
-                GetLogTarget<LogFile>().File = value;
+                this.GetLogTarget<LogFile>().File = value;
 
             }
         }

@@ -216,7 +216,7 @@ namespace GRYLibrary.Core
         public static void EnsureFileExists(string path, bool createDirectoryIfRequired = false)
         {
             string directory = Path.GetDirectoryName(path);
-            if (createDirectoryIfRequired &&!string.IsNullOrWhiteSpace(directory))
+            if (createDirectoryIfRequired && !string.IsNullOrWhiteSpace(directory))
             {
                 EnsureDirectoryExists(directory);
             }
@@ -621,11 +621,18 @@ namespace GRYLibrary.Core
                        @object.GetType().GetGenericTypeDefinition().IsAssignableFrom(typeof(Dictionary<,>)));
             }
         }
-        internal static int GenericGetHashCode(object obj)
+        public static int GenericGetHashCode(object obj)
         {
-            GCHandle handle = GCHandle.Alloc(obj, GCHandleType.Pinned);
-            IntPtr pointer = GCHandle.ToIntPtr(handle);
-            return (int)(pointer.ToInt64() / 2);
+            if (obj == null)
+            {
+                return 684341483;
+            }
+            else
+            {
+                GCHandle handle = GCHandle.Alloc(obj, GCHandleType.Pinned);
+                IntPtr pointer = GCHandle.ToIntPtr(handle);
+                return (int)(pointer.ToInt64() / 2);
+            }
         }
 
         private static readonly IFormatter _Formatter = new BinaryFormatter();
@@ -1536,7 +1543,7 @@ namespace GRYLibrary.Core
 
             public int GetHashCode(object obj)
             {
-                return 47861;
+                return GenericGetHashCode(obj);
             }
         }
         #endregion

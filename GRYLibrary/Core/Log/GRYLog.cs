@@ -128,10 +128,10 @@ namespace GRYLibrary.Core.Log
         {
             string appDrive = Path.GetPathRoot(System.Reflection.Assembly.GetEntryAssembly().Location);
             string cDrive = "C:";
-            LogDriveStatistics(cDrive);
+            this.LogDriveStatistics(cDrive);
             if (!appDrive.Equals(cDrive))
             {
-                LogDriveStatistics(appDrive);
+                this.LogDriveStatistics(appDrive);
             }
             this.Log($"Current working-directory: {Directory.GetCurrentDirectory()}", LogLevel.Information);
         }
@@ -206,17 +206,17 @@ namespace GRYLibrary.Core.Log
         }
         public void Log(Func<string> getMessage, LogLevel logLevel)
         {
-            Log(new LogItem(getMessage, logLevel));
+            this.Log(new LogItem(getMessage, logLevel));
         }
         public void Log(LogItem logitem)
         {
             if (this.Configuration.WriteLogEntriesAsynchronous)
             {
-                new Task(() => LogImplementation(logitem)).Start();
+                new Task(() => this.LogImplementation(logitem)).Start();
             }
             else
             {
-                LogImplementation(logitem);
+                this.LogImplementation(logitem);
             }
         }
         private void LogImplementation(LogItem logitem)
@@ -398,7 +398,7 @@ namespace GRYLibrary.Core.Log
         #region ILogger-Implementation
         public bool IsEnabled(LogLevel logLevel)
         {
-            return AnyLogTargetEnabled;
+            return this.AnyLogTargetEnabled;
         }
 
         public IDisposable BeginScope<TState>(TState state)

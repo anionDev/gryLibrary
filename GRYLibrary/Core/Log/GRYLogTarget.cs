@@ -16,7 +16,7 @@ namespace GRYLibrary.Core.Log
         }
         internal void Execute(LogItem logItem, GRYLog logObject)
         {
-            ExecuteImplementation(logItem, logObject);
+            this.ExecuteImplementation(logItem, logObject);
         }
         protected abstract void ExecuteImplementation(LogItem logItem, GRYLog logObject);
     }

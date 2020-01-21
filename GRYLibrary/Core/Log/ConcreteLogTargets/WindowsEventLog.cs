@@ -13,7 +13,7 @@ namespace GRYLibrary.Core.Log.ConcreteLogTargets
             using (EventLog eventLog = new EventLog("Application"))
             {
                 eventLog.Source = logObject.Configuration.Name;
-                eventLog.WriteEntry(logItem.PlainMessage, ConvertLogLevel(logItem.LogLevel), logItem.EventId, logItem.Category);
+                eventLog.WriteEntry(logItem.PlainMessage, this.ConvertLogLevel(logItem.LogLevel), logItem.EventId, logItem.Category);
             }
         }
 

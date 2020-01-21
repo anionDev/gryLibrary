@@ -27,7 +27,7 @@ namespace GRYLibrary.Core.XMLSerializer
         }
         public void SerializeToWriter(T @object, XmlWriter xmlWriter)
         {
-            GetSerializer().Serialize(xmlWriter, @object);
+            this.GetSerializer().Serialize(xmlWriter, @object);
         }
 
         public string Serialize(T @object)
@@ -36,7 +36,7 @@ namespace GRYLibrary.Core.XMLSerializer
             {
                 using (XmlWriter xmlWriter = XmlWriter.Create(stream, this.XMLWriterSettings))
                 {
-                    GetSerializer().Serialize(xmlWriter, @object);
+                    this.GetSerializer().Serialize(xmlWriter, @object);
                 }
                 stream.Seek(0, SeekOrigin.Begin);
                 using (StreamReader streamReader = new StreamReader(stream))
@@ -48,7 +48,7 @@ namespace GRYLibrary.Core.XMLSerializer
 
         public T DeserializeFromReader(XmlReader xmlReader)
         {
-            return (T)GetSerializer().Deserialize(xmlReader);
+            return (T)this.GetSerializer().Deserialize(xmlReader);
         }
         public T Deserialize(string xml)
         {
@@ -57,7 +57,7 @@ namespace GRYLibrary.Core.XMLSerializer
                 byte[] data = this.Encoding.GetBytes(xml);
                 stream.Write(data, 0, data.Length);
                 stream.Position = 0;
-                return (T)GetSerializer().Deserialize(stream);
+                return (T)this.GetSerializer().Deserialize(stream);
             }
         }
 

@@ -12,11 +12,11 @@ namespace GRYLibrary.Core.Log.ConcreteLogTargets
 
         protected override void ExecuteImplementation(LogItem logItem, GRYLog logObject)
         {
-            if (string.IsNullOrWhiteSpace(File))
+            if (string.IsNullOrWhiteSpace(this.File))
             {
                 throw new NullReferenceException($"LogFile is not defined");
             }
-            Utilities.EnsureFileExists(File);
+            Utilities.EnsureFileExists(this.File);
             logItem.Format(logObject.Configuration, out string formattedMessage, out int _, out int _, out ConsoleColor _);
             if (!Utilities.FileIsEmpty(this.File))
             {

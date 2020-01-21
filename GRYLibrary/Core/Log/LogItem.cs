@@ -13,7 +13,7 @@ namespace GRYLibrary.Core.Log
         private bool _FormatingLoaded;
         private ConsoleColor _ConsoleColor;
         private string _PlainMessage;
-        private Func<string> _GetMessageFunction;
+        private readonly Func<string> _GetMessageFunction;
         public int EventId { get; set; }
         public short Category { get; set; }
 
@@ -25,12 +25,12 @@ namespace GRYLibrary.Core.Log
         {
             get
             {
-                if (!_MessageLoaded)
+                if (!this._MessageLoaded)
                 {
-                    _PlainMessage = _GetMessageFunction();
-                    _MessageLoaded = true;
+                    this._PlainMessage = this._GetMessageFunction();
+                    this._MessageLoaded = true;
                 }
-                return _PlainMessage;
+                return this._PlainMessage;
             }
         }
         #region Constructors
@@ -97,18 +97,18 @@ namespace GRYLibrary.Core.Log
         #endregion 
         internal void Format(GRYLogConfiguration configuration, out string formattedMessage, out int colorBegin, out int colorEnd, out ConsoleColor consoleColor)
         {
-            if (!_FormatingLoaded)
+            if (!this._FormatingLoaded)
             {
-                FormatMessage(configuration, this.PlainMessage, this.MomentOfLogEntry, this.LogLevel, out string fm, out int cb, out int ce, out ConsoleColor cc);
+                this.FormatMessage(configuration, this.PlainMessage, this.MomentOfLogEntry, this.LogLevel, out string fm, out int cb, out int ce, out ConsoleColor cc);
                 this._FormattedMessage = fm;
                 this._ColorBegin = cb;
                 this._ColorEnd = ce;
                 this._ConsoleColor = cc;
-                _FormatingLoaded = true;
+                this._FormatingLoaded = true;
             }
-            formattedMessage = _FormattedMessage;
-            colorBegin = _ColorBegin;
-            colorEnd = _ColorEnd;
+            formattedMessage = this._FormattedMessage;
+            colorBegin = this._ColorBegin;
+            colorEnd = this._ColorEnd;
             consoleColor = this._ConsoleColor;
         }
         private void FormatMessage(GRYLogConfiguration configuration, string message, DateTime momentOfLogEntry, LogLevel loglevel, out string formattedMessage, out int colorBegin, out int colorEnd, out ConsoleColor consoleColor)
