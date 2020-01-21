@@ -2,6 +2,10 @@
 
 The GRYLibrary is a collection with some useful .NET classes and functions which are very easy (re)usable.
 
+The GRYLibrary follows the declarative-programming-paradigm:
+
+You should say what you want to do, and not how to do it. This paradigm results in code which is easy to understand and can be written very quickly without loosing the overview of your code.
+
 ## Getting Started
 
 If you have installed GRYLibrary you can immediately use its public classes in the project where you installed GRYLibrary.
