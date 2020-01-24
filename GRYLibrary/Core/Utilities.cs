@@ -1604,7 +1604,7 @@ namespace GRYLibrary.Core
 
         private static bool IsEnumerable(object @object)
         {
-            var obj = @object as IEnumerable;
+            IEnumerable obj = @object as IEnumerable;
             return obj != null;
         }
 
