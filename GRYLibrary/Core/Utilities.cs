@@ -1136,13 +1136,20 @@ namespace GRYLibrary.Core
             }
             return terminatedInGivenTimeSpan;
         }
-        public static string ResolveToFullPath(this string relativePath)
+        public static string ResolveToFullPath(this string path)
         {
-            return ResolveToFullPath(relativePath, Directory.GetCurrentDirectory());
+            return ResolveToFullPath(path, Directory.GetCurrentDirectory());
         }
-        public static string ResolveToFullPath(this string relativePath, string baseDirectory)
+        public static string ResolveToFullPath(this string path, string baseDirectory)
         {
-            return Path.GetFullPath(new Uri(Path.Combine(baseDirectory, relativePath)).LocalPath);
+            if (IsAbsolutePath(path))
+            {
+                return path;
+            }
+            else
+            {
+                return Path.GetFullPath(new Uri(Path.Combine(baseDirectory, path)).LocalPath);
+            }
         }
         public static byte[] DecryptAsymmetrical(byte[] content, string privateKey)
         {
