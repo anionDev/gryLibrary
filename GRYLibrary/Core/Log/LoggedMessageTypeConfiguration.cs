@@ -1,4 +1,5 @@
-﻿using System;
+﻿using GRYLibrary.Core.XMLSerializer;
+using System;
 using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
@@ -12,17 +13,17 @@ namespace GRYLibrary.Core.Log
 
         public XmlSchema GetSchema()
         {
-            return Utilities.GenericGetXMLSchema(this.GetType());
+            return new CustomizableXMLSerializer().GenericGetXMLSchema(this.GetType());
         }
 
         public void ReadXml(XmlReader reader)
         {
-            Utilities.GenericXMLDeserializer(this, reader);
+            new CustomizableXMLSerializer().GenericXMLDeserializer(this, reader);
         }
 
         public void WriteXml(XmlWriter writer)
         {
-            Utilities.GenericXMLSerializer(this, writer);
+            new CustomizableXMLSerializer().GenericXMLSerializer(this, writer);
         }
         public override int GetHashCode()
         {

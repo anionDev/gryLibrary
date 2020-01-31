@@ -17,16 +17,16 @@ namespace GRYLibrary.Tests.GraphTests
             {
                 order.Add(new Tuple<int, IList<Edge>>(int.Parse(v.Name.Replace("v", string.Empty)), edges));
             });
-            int i1 = GetIndexOfTupleWithSpeicficFirstvalue(order, 1);
-            int i2 = GetIndexOfTupleWithSpeicficFirstvalue(order, 2);
-            int i3 = GetIndexOfTupleWithSpeicficFirstvalue(order, 3);
-            int i4 = GetIndexOfTupleWithSpeicficFirstvalue(order, 4);
-            int i5 = GetIndexOfTupleWithSpeicficFirstvalue(order, 5);
-            int i6 = GetIndexOfTupleWithSpeicficFirstvalue(order, 6);
-            int i7 = GetIndexOfTupleWithSpeicficFirstvalue(order, 7);
-            int i8 = GetIndexOfTupleWithSpeicficFirstvalue(order, 8);
-            int i9 = GetIndexOfTupleWithSpeicficFirstvalue(order, 9);
-            int i10 = GetIndexOfTupleWithSpeicficFirstvalue(order, 10);
+            int i1 = this.GetIndexOfTupleWithSpeicficFirstvalue(order, 1);
+            int i2 = this.GetIndexOfTupleWithSpeicficFirstvalue(order, 2);
+            int i3 = this.GetIndexOfTupleWithSpeicficFirstvalue(order, 3);
+            int i4 = this.GetIndexOfTupleWithSpeicficFirstvalue(order, 4);
+            int i5 = this.GetIndexOfTupleWithSpeicficFirstvalue(order, 5);
+            int i6 = this.GetIndexOfTupleWithSpeicficFirstvalue(order, 6);
+            int i7 = this.GetIndexOfTupleWithSpeicficFirstvalue(order, 7);
+            int i8 = this.GetIndexOfTupleWithSpeicficFirstvalue(order, 8);
+            int i9 = this.GetIndexOfTupleWithSpeicficFirstvalue(order, 9);
+            int i10 = this.GetIndexOfTupleWithSpeicficFirstvalue(order, 10);
             Assert.AreEqual(0, i1);
             Assert.IsTrue(i1 < i4);
             Assert.IsTrue(i4 < i8);

@@ -1,4 +1,5 @@
 ﻿using GRYLibrary.Core.Log.ConcreteLogTargets;
+using GRYLibrary.Core.XMLSerializer;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -20,6 +21,7 @@ namespace GRYLibrary.Core.Log
         public bool ReloadConfigurationWhenConfigurationFileWillBeChanged { get; set; } = true;
         public bool WriteLogEntriesAsynchronous { get; set; } = true;
         public bool Enabled { get; set; } = true;
+        public string ConfigurationFile { get; set; } = string.Empty;
         public bool PrintEmptyLines { get; set; } = false;
         public bool PrintErrorsAsInformation { get; set; } = false;
         public string Name { get; set; }
@@ -78,7 +80,9 @@ namespace GRYLibrary.Core.Log
         }
         public static GRYLogConfiguration LoadConfiguration(string configurationFile)
         {
-            return Utilities.LoadFromDisk<GRYLogConfiguration>(configurationFile).Object;
+            GRYLogConfiguration result =Utilities.LoadFromDisk<GRYLogConfiguration>(configurationFile).Object;
+            result.ConfigurationFile = configurationFile;
+            return result;
         }
         public static void SaveConfiguration(string configurationFile, GRYLogConfiguration configuration)
         {
@@ -87,16 +91,16 @@ namespace GRYLibrary.Core.Log
 
         public XmlSchema GetSchema()
         {
-            return Utilities.GenericGetXMLSchema(this.GetType());
+            return new CustomizableXMLSerializer().GenericGetXMLSchema(this.GetType());
         }
 
         public void ReadXml(XmlReader reader)
         {
-            Utilities.GenericXMLDeserializer(this, reader);
+            new CustomizableXMLSerializer().GenericXMLDeserializer(this, reader);
         }
         public void WriteXml(XmlWriter writer)
         {
-            Utilities.GenericXMLSerializer(this, writer);
+            new CustomizableXMLSerializer().GenericXMLSerializer(this, writer);
         }
         public override int GetHashCode()
         {

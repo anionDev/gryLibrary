@@ -4,10 +4,13 @@ using System;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
+using System.Xml;
+using System.Xml.Schema;
+using System.Xml.Serialization;
 
 namespace GRYLibrary.Core.Log
 {
-    public class GRYLog : IDisposable, ILogger
+    public class GRYLog : IDisposable, ILogger, IXmlSerializable
     {
         public GRYLogConfiguration Configuration { get; set; }
         private readonly static object _LockObject = new object();
@@ -34,24 +37,24 @@ namespace GRYLibrary.Core.Log
                 return false;
             }
         }
-
-        private GRYLog(GRYLogConfiguration configuration, string configurationFile)
+        public GRYLog() { }
+        private GRYLog(GRYLogConfiguration configuration)
         {
             lock (_LockObject)
             {
                 this._ConsoleDefaultColor = System.Console.ForegroundColor;
                 this.Configuration = configuration;
                 this.Configuration.GetLogTarget<LogFile>().Enabled = !string.IsNullOrWhiteSpace(this.Configuration.LogFile);
-                if (this.Configuration.ReloadConfigurationWhenConfigurationFileWillBeChanged && File.Exists(configurationFile))
+                if (this.Configuration.ReloadConfigurationWhenConfigurationFileWillBeChanged && File.Exists(this.Configuration.ConfigurationFile))
                 {
-                    this.StartFileWatcherForConfigurationFile(configurationFile);
+                    this.StartFileWatcherForConfigurationFile(this.Configuration.ConfigurationFile);
                 }
                 this._Initialized = true;
             }
         }
         public static GRYLog Create()
         {
-            return new GRYLog(new GRYLogConfiguration(), string.Empty);
+            return new GRYLog(new GRYLogConfiguration());
         }
         public static GRYLog Create(string logFile)
         {
@@ -59,11 +62,11 @@ namespace GRYLibrary.Core.Log
             {
                 LogFile = logFile
             };
-            return new GRYLog(configuration, string.Empty);
+            return new GRYLog(configuration);
         }
         public static GRYLog CreateByConfigurationFile(string configurationFile)
         {
-            return new GRYLog(GRYLogConfiguration.LoadConfiguration(configurationFile), configurationFile);
+            return new GRYLog(GRYLogConfiguration.LoadConfiguration(configurationFile));
         }
         public override int GetHashCode()
         {
@@ -410,7 +413,28 @@ namespace GRYLibrary.Core.Log
             this.Log(() => $"{this.FormatEvent(eventId)} | { formatter(state, exception)}", logLevel);
         }
 
+
         #endregion
+        public XmlSchema GetSchema()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void ReadXml(XmlReader reader)
+        {
+            if (reader.MoveToContent() == XmlNodeType.Element && reader.LocalName == this.GetType().ToString())
+            {
+                this.Configuration = new GRYLogConfiguration();
+                this.Configuration.ReadXml(reader);
+            }
+        }
+
+        public void WriteXml(XmlWriter writer)
+        {
+            writer.WriteStartElement(this.GetType().ToString());
+            this.Configuration.WriteXml(writer);
+            writer.WriteEndElement();
+        }
     }
 
 }

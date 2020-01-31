@@ -1,8 +1,10 @@
 ﻿using GRYLibrary.Core;
 using GRYLibrary.Core.XMLSerializer;
+using GRYLibrary.Core.XMLSerializer.SerializationInfos;
 using GRYLibrary.TestData.TestTypes.SimpleDataStructure1;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -143,6 +145,18 @@ namespace GRYLibrary.Tests
             var testObject = SimpleDataStructure3.GetTestObject();
             SimpleGenericXMLSerializer<SimpleDataStructure3> seriailzer = new SimpleGenericXMLSerializer<SimpleDataStructure3>();
             Assert.AreEqual(File.ReadAllText(@"TestData\TestXMLSerialization\GenericSerializerTest1.txt", new UTF8Encoding(false)), seriailzer.Serialize(testObject));
+        }
+        [TestMethod]
+        public void SimpleDictionarySerializerTest()
+        {
+            Dictionary<string, int> dictionary = new Dictionary<string, int>();
+            dictionary.Add("key1", 2);
+            dictionary.Add("key2", 4);
+            var customizableXMLSerializer = new CustomizableXMLSerializer();
+            DictionarySerializer serializer = new DictionarySerializer(customizableXMLSerializer);
+            Assert.IsTrue(serializer.IsApplicable(dictionary));
+            IDictionary<dynamic, dynamic> dynamicDictionary = serializer.Cast(dictionary);
+            Assert.AreEqual(2, dynamicDictionary.Count);
         }
     }
 }

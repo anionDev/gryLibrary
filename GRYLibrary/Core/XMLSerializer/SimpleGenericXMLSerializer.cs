@@ -12,7 +12,7 @@ namespace GRYLibrary.Core.XMLSerializer
     /// Represents a very easy usable XML-Serializer.
     /// </summary>
     /// <typeparam name="T">The type of the object which should be serialized.</typeparam>
-    public class SimpleGenericXMLSerializer<T>  where T : new()
+    public class SimpleGenericXMLSerializer<T> where T : new()
     {
         private readonly ISet<Type> _AllTypes;
         public Encoding Encoding { get; set; }
@@ -22,7 +22,7 @@ namespace GRYLibrary.Core.XMLSerializer
         {
             this._AllTypes = new HashSet<Type>(AppDomain.CurrentDomain.GetAssemblies().SelectMany(s => s.GetTypes()));
             this.Encoding = new UTF8Encoding(false);
-            this.XMLWriterSettings = new XmlWriterSettings() { Indent = true, Encoding = Encoding };
+            this.XMLWriterSettings = new XmlWriterSettings() { Indent = true, Encoding = Encoding, IndentChars = "     ", NewLineOnAttributes = false, OmitXmlDeclaration = true };
             this.KnownTypes = new HashSet<Type>();
         }
         public void SerializeToWriter(T @object, XmlWriter xmlWriter)
@@ -69,7 +69,7 @@ namespace GRYLibrary.Core.XMLSerializer
         {
             return new XmlSerializer(typeof(T), this.GetExtraTypes());
         }
-              }
+    }
 }
 
 

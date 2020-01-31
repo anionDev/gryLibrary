@@ -99,7 +99,7 @@ namespace GRYLibrary.Tests
                     Assert.AreEqual("test1" + Environment.NewLine + "test3", File.ReadAllText(logFile1, encoding));
 
                     reloadedConfiguration = GRYLogConfiguration.LoadConfiguration(configurationFile);
-                    reloadedConfiguration.LogFile= logFile2;
+                    reloadedConfiguration.LogFile = logFile2;
                     GRYLogConfiguration.SaveConfiguration(configurationFile, reloadedConfiguration);
 
                     System.Threading.Thread.Sleep(1000);//wait until config is reloaded
@@ -124,15 +124,15 @@ namespace GRYLibrary.Tests
             logConfiguration.Name = "MyLog";
 
             string serializedLogConfiguration;
-            using (StringWriter streamWriter = new StringWriter())
+            using (StringWriter stringWriter = new StringWriter())
             {
-                using (XmlWriter xmlWriter = XmlWriter.Create(streamWriter))
+                using (XmlWriter xmlWriter = XmlWriter.Create(stringWriter, new XmlWriterSettings() { Indent = true, Encoding = new UTF8Encoding(false), IndentChars = "     ", NewLineOnAttributes = false, OmitXmlDeclaration = true }))
                 {
                     logConfiguration.WriteXml(xmlWriter);
-                    serializedLogConfiguration = xmlWriter.ToString();
+                    serializedLogConfiguration = stringWriter.ToString();
                 }
             }
-            Assert.AreEqual(File.ReadAllText(@"TestData\TextXMLSerialization\GRYLogConfiguration1.txt", new UTF8Encoding(false)), serializedLogConfiguration);
+            Assert.AreEqual(File.ReadAllText(@"TestData\TestXMLSerialization\GRYLogConfiguration1.txt", new UTF8Encoding(false)), serializedLogConfiguration);
             GRYLogConfiguration logConfigurationReloaded = new GRYLogConfiguration();
 
             Assert.AreNotEqual(logConfiguration, logConfigurationReloaded);
