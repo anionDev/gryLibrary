@@ -34,7 +34,7 @@ namespace GRYLibrary.Core.XMLSerializer
             foreach (dynamic item in @object)
             {
                 writer.WriteStartElement("Item");
-                //customizableXMLSerializer.GenericXMLSerializer(item, writer);
+                customizableXMLSerializer.GenericXMLSerializer(item, writer);
                 writer.WriteEndElement();
             }
         }

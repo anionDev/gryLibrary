@@ -25,7 +25,7 @@ namespace GRYLibrary.Core.XMLSerializer.SerializationInfos
             Dictionary<dynamic, dynamic> result = new Dictionary<dynamic, dynamic>();
             foreach (object item in objectAsEnumerable)
             {
-               // result.Add(((dynamic)item).Key, ((dynamic)item).Value);
+                result.Add(((dynamic)item).Key, ((dynamic)item).Value);
             }
             return result;
 
@@ -40,10 +40,10 @@ namespace GRYLibrary.Core.XMLSerializer.SerializationInfos
             foreach (KeyValuePair<dynamic, dynamic> kvp in @object)
             {
                 writer.WriteStartElement("Key");
-                //this._CustomizableXMLSerializer.GenericXMLSerializer(kvp.Key, writer);
+                this._CustomizableXMLSerializer.GenericXMLSerializer(kvp.Key, writer);
                 writer.WriteEndElement();
                 writer.WriteStartElement("Value");
-                //this._CustomizableXMLSerializer.GenericXMLSerializer(kvp.Value, writer);
+                this._CustomizableXMLSerializer.GenericXMLSerializer(kvp.Value, writer);
                 writer.WriteEndElement();
             }
         }
