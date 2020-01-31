@@ -46,7 +46,7 @@ namespace GRYLibrary.Core
         /// <summary>
         /// The history contains all T-objects which where set as value for <see cref="Property{T}.Value"/> with the <see cref="DateTime"/> when they were set.
         /// </summary>
-        public Stack<KeyValuePair<DateTime, T>> History
+        public Stack<System.Collections.Generic. KeyValuePair<DateTime, T>> History
         {
             get
             {

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Xml;
 
 namespace GRYLibrary.Core.XMLSerializer.SerializationInfos
@@ -13,9 +14,30 @@ namespace GRYLibrary.Core.XMLSerializer.SerializationInfos
         {
             this._CustomizableXMLSerializer = customizableXMLSerializer;
         }
-        public override bool IsApplicable(object @object)
+         public override bool IsApplicable(object @object, Type allowedType)
         {
-            return @object is IEnumerable;
+            Type[] interfaces = allowedType.GetInterfaces();
+            foreach (var @interface in interfaces)
+            {
+                if (IsIEnumerable(@interface))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private bool IsIEnumerable(Type @interface)
+        {
+            if (@interface.Name != "IEnumerable")
+            {
+                return false;
+            }
+            if (@interface.Namespace != "System.Collections")
+            {
+                return false;
+            }
+            return true;
         }
 
         protected internal override IEnumerable<dynamic> Cast(object @object)
@@ -30,12 +52,8 @@ namespace GRYLibrary.Core.XMLSerializer.SerializationInfos
 
         protected override void Serialize(IEnumerable<dynamic> @object, XmlWriter writer)
         {
-            this.CommonSerializationImplementation(@object, writer, this._CustomizableXMLSerializer);
+            new ListSerializer(this._CustomizableXMLSerializer).Serialize(@object.ToList(), writer);
         }
 
-        public override string GetXMLFriendlyNameOfType(IEnumerable<dynamic> @object)
-        {
-            return "Enumerable";
-        }
     }
 }

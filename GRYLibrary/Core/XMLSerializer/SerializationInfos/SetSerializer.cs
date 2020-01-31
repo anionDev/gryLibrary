@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Xml;
 
 namespace GRYLibrary.Core.XMLSerializer.SerializationInfos
@@ -14,11 +15,31 @@ namespace GRYLibrary.Core.XMLSerializer.SerializationInfos
         {
             this._CustomizableXMLSerializer = customizableXMLSerializer;
         }
-        public override bool IsApplicable(object @object)
+        public override bool IsApplicable(object @object, Type allowedType)
         {
-            return Utilities.IsISetOfT(@object);
+            Type[] interfaces = allowedType.GetInterfaces();
+            foreach (var @interface in interfaces)
+            {
+                if (IsISetOfT(@interface))
+                {
+                    return true;
+                }
+            }
+            return false;
         }
 
+        private bool IsISetOfT(Type @interface)
+        {
+            if (@interface.Name != "ISet`1")
+            {
+                return false;
+            }
+            if (@interface.Namespace != "System.Collections.Generic")
+            {
+                return false;
+            }
+            return true;
+        }
         protected internal override ISet<dynamic> Cast(object @object)
         {
             return new HashSet<dynamic>(this.CommonEnumerableCastImplementation(@object));
@@ -31,12 +52,7 @@ namespace GRYLibrary.Core.XMLSerializer.SerializationInfos
 
         protected override void Serialize(ISet<dynamic> @object, XmlWriter writer)
         {
-            this.CommonSerializationImplementation(@object, writer, this._CustomizableXMLSerializer);
-        }
-
-        public override string GetXMLFriendlyNameOfType(ISet<dynamic> @object)
-        {
-            return "Set";
+            new ListSerializer(this._CustomizableXMLSerializer).Serialize(@object.ToList(), writer);
         }
     }
 }

@@ -211,7 +211,7 @@ namespace GRYLibrary.Core.Playlists.ConcretePlaylistHandler
                 foreach (string item in input)
                 {
                     string newItem = item;
-                    foreach (KeyValuePair<string, string> replacement in configuration.Replace)
+                    foreach (System.Collections.Generic.KeyValuePair<string, string> replacement in configuration.Replace)
                     {
                         newItem = newItem.Replace(replacement.Key, replacement.Value);
                     }

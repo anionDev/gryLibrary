@@ -13,9 +13,30 @@ namespace GRYLibrary.Core.XMLSerializer.SerializationInfos
         {
             this._CustomizableXMLSerializer = customizableXMLSerializer;
         }
-        public override bool IsApplicable(object @object)
+        public override bool IsApplicable(object @object, Type allowedType)
         {
-            return @object.GetType().IsGenericType && @object.GetType().GetGenericTypeDefinition().IsAssignableFrom(typeof(IList<>));
+            Type[] interfaces = allowedType.GetInterfaces();
+            foreach (var @interface in interfaces)
+            {
+                if (IsIListOfT(@interface))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private bool IsIListOfT(Type @interface)
+        {
+            if (@interface.Name != "IList`1")
+            {
+                return false;
+            }
+            if (@interface.Namespace != "System.Collections")
+            {
+                return false;
+            }
+            return true;
         }
 
         protected internal override IList<dynamic> Cast(object @object)
@@ -30,12 +51,15 @@ namespace GRYLibrary.Core.XMLSerializer.SerializationInfos
 
         protected override void Serialize(IList<dynamic> @object, XmlWriter writer)
         {
-            this.CommonSerializationImplementation(@object, writer, this._CustomizableXMLSerializer);
+            writer.WriteStartElement("List");
+            foreach (dynamic item in @object)
+            {
+                writer.WriteStartElement("Item");
+                _CustomizableXMLSerializer.GenericXMLSerializer(item, writer);
+                writer.WriteEndElement();
+            }
+            writer.WriteEndElement();
         }
 
-        public override string GetXMLFriendlyNameOfType(IList<dynamic> @object)
-        {
-            return "List";
-        }
     }
 }

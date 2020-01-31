@@ -1,5 +1,4 @@
-﻿using GRYLibrary.Core;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 
 namespace GRYLibrary.Tests
@@ -13,7 +12,7 @@ namespace GRYLibrary.Tests
             object object1 = new object();
             object object2 = new object();
             string name = "propertyName";
-            Property<object> property = new Property<object>(object1, name, true);
+            Core.Property<object> property = new Core.Property<object>(object1, name, true);
             Assert.AreEqual(1, property.History.Count);
             Assert.AreEqual(object1, property.History.Pop().Value);
             Assert.AreEqual(name, property.PropertyName);

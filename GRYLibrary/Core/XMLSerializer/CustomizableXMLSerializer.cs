@@ -19,6 +19,7 @@ namespace GRYLibrary.Core.XMLSerializer
             new ListSerializer(this),
             new SetSerializer(this),
             new EnumerableSerializer(this),
+            new KeyValuePairSerializer(this),
         };
         }
         public XmlSchema GenericGetXMLSchema(Type type)
@@ -27,13 +28,17 @@ namespace GRYLibrary.Core.XMLSerializer
         }
         public bool HandlePropertiesWithPublicGetter { get; set; } = true;
         public bool HandlePropertiesWithNonPublicGetter { get; set; } = false;
-        public IList<CustomXMLSerializer> StandardSerializationInfos { get; set; } 
+        public IList<CustomXMLSerializer> StandardSerializationInfos { get; set; }
 
         public void GenericXMLSerializer(object @object, XmlWriter writer)
         {
             this.GenericXMLSerializer(@object, writer, this.StandardSerializationInfos);
         }
         public void GenericXMLSerializer(object @object, XmlWriter writer, IList<CustomXMLSerializer> serializationInfos)
+        {
+            GenericXMLSerializer(@object, writer, serializationInfos, @object.GetType());
+        }
+        public void GenericXMLSerializer(object @object, XmlWriter writer, IList<CustomXMLSerializer> serializationInfos, Type allowedType)
         {
             if (@object == null)
             {
@@ -49,11 +54,9 @@ namespace GRYLibrary.Core.XMLSerializer
                 bool customSerializationInfoHasSerializedObject = false;
                 foreach (CustomXMLSerializer serializationInfo in serializationInfos)
                 {
-                    if (serializationInfo.IsApplicable(@object))
+                    if (serializationInfo.IsApplicable(@object, allowedType))
                     {
-                        writer.WriteStartElement(serializationInfo.GetXMLFriendlyNameOfType(@object));
                         serializationInfo.Serialize(@object, writer);
-                        writer.WriteEndElement();
                         writer.Flush();
                         customSerializationInfoHasSerializedObject = true;
                         break;
@@ -61,13 +64,13 @@ namespace GRYLibrary.Core.XMLSerializer
                 }
                 if (!customSerializationInfoHasSerializedObject)
                 {
-                    writer.WriteStartElement(@object.GetType().Name);
+                    writer.WriteStartElement(@object.GetType().Name);//todo handle generic names (e. g. "List`1")
                     foreach (PropertyInfo property in typeOfObject.GetProperties())
                     {
                         if (this.PropertyShouldBeHandled(property))
                         {
                             writer.WriteStartElement(property.Name);
-                            this.GenericXMLSerializer(property.GetValue(@object), writer, serializationInfos);
+                            this.GenericXMLSerializer(property.GetValue(@object), writer, serializationInfos, property.PropertyType);
                             writer.WriteEndElement();
                             writer.Flush();
                         }
@@ -97,7 +100,7 @@ namespace GRYLibrary.Core.XMLSerializer
         {
             foreach (CustomXMLSerializer serializationInfo in serializationInfos)
             {
-                if (serializationInfo.IsApplicable(@object))
+                if (serializationInfo.IsApplicable(@object,@object.GetType()))
                 {
                     serializationInfo.Deserialize(@object, reader);
                     return;

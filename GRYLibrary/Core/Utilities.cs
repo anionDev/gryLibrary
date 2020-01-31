@@ -117,7 +117,7 @@ namespace GRYLibrary.Core
 
         public static string ReplaceUnderscores(string @string, IDictionary<string, string> replacements)
         {
-            foreach (KeyValuePair<string, string> replacement in replacements)
+            foreach (System.Collections.Generic.KeyValuePair<string, string> replacement in replacements)
             {
                 @string = @string.Replace($"__{replacement.Key}__", replacement.Value);
             }
@@ -588,22 +588,6 @@ namespace GRYLibrary.Core
         {
             ISet<TupleWithValueComparisonEquals<string, string>> tupleList = new HashSet<TupleWithValueComparisonEquals<string, string>>(input.Select((item) => new TupleWithValueComparisonEquals<string, string>(item, item.ToLower())));
             return new HashSet<string>(tupleList.Select((item) => item.Item1));
-        }
-        public static bool IsISetOfT(this object @object)
-        {
-            return @object.GetType().IsGenericType && @object.GetType().GetGenericTypeDefinition().IsAssignableFrom(typeof(ISet<>));
-        }
-
-        public static bool IsIListOrIListOfT(this object @object)
-        {
-            return @object is IList ||
-                  (@object.GetType().IsGenericType && @object.GetType().GetGenericTypeDefinition().IsAssignableFrom(typeof(List<>)));
-        }
-
-        public static bool IsIDictionaryOrIDictionaryOfTKeyTValue(this object @object)
-        {
-            return @object is IDictionary ||
-                    (@object.GetType().IsGenericType && @object.GetType().GetGenericTypeDefinition().IsAssignableFrom(typeof(Dictionary<,>)));
         }
         public static dynamic ToDynamic(this object value)
         {

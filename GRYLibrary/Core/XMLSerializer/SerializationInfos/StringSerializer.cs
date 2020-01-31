@@ -12,7 +12,7 @@ namespace GRYLibrary.Core.XMLSerializer.SerializationInfos
         {
             this._CustomizableXMLSerializer = customizableXMLSerializer;
         }
-        public override bool IsApplicable(object @object)
+        public override bool IsApplicable(object @object, Type allowedType)
         {
             return typeof(string).Equals(@object.GetType());
         }
@@ -32,9 +32,5 @@ namespace GRYLibrary.Core.XMLSerializer.SerializationInfos
             writer.WriteCData(@object);
         }
 
-        public override string GetXMLFriendlyNameOfType(string @object)
-        {
-            return "string";
-        }
     }
 }

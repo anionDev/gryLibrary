@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Xml;
 
 namespace GRYLibrary.Core.XMLSerializer.SerializationInfos
@@ -14,9 +15,9 @@ namespace GRYLibrary.Core.XMLSerializer.SerializationInfos
             this._CustomizableXMLSerializer = customizableXMLSerializer;
         }
 
-        public override bool IsApplicable(object @object)
+        public override bool IsApplicable(object @object, Type allowedType)
         {
-            Type[] interfaces = @object.GetType().GetInterfaces();
+            Type[] interfaces = allowedType.GetInterfaces();
             foreach (var @interface in interfaces)
             {
                 if (IsIDictionaryOfKeyValue(@interface))
@@ -58,22 +59,7 @@ namespace GRYLibrary.Core.XMLSerializer.SerializationInfos
 
         protected override void Serialize(IDictionary<dynamic, dynamic> @object, XmlWriter writer)
         {
-            foreach (KeyValuePair<dynamic, dynamic> kvp in @object)
-            {
-                writer.WriteStartElement("Entry");
-                writer.WriteStartElement("Key");
-                this._CustomizableXMLSerializer.GenericXMLSerializer(kvp.Key, writer);
-                writer.WriteEndElement();
-                writer.WriteStartElement("Value");
-                this._CustomizableXMLSerializer.GenericXMLSerializer(kvp.Value, writer);
-                writer.WriteEndElement();
-                writer.WriteEndElement();
-            }
-        }
-
-        public override string GetXMLFriendlyNameOfType(IDictionary<dynamic, dynamic> @object)
-        {
-            return "Dictionary";
+            new ListSerializer(this._CustomizableXMLSerializer).Serialize(@object.ToList(), writer);
         }
 
     }

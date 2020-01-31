@@ -2,6 +2,7 @@
 using GRYLibrary.Core.XMLSerializer;
 using GRYLibrary.Core.XMLSerializer.SerializationInfos;
 using GRYLibrary.TestData.TestTypes.SimpleDataStructure1;
+using Microsoft.Extensions.Primitives;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Concurrent;
@@ -156,7 +157,7 @@ namespace GRYLibrary.Tests
             dictionary.Add("key2", 4);
             var customizableXMLSerializer = new CustomizableXMLSerializer();
             DictionarySerializer serializer = new DictionarySerializer(customizableXMLSerializer);
-            Assert.IsTrue(serializer.IsApplicable(dictionary));
+            Assert.IsTrue(serializer.IsApplicable(dictionary, typeof(IDictionary<,>)));
             IDictionary<dynamic, dynamic> dynamicDictionary = serializer.Cast(dictionary);
             Assert.AreEqual(2, dynamicDictionary.Count);
 
@@ -170,46 +171,38 @@ namespace GRYLibrary.Tests
                     result = stringWriter.ToString();
                 }
             }
-            Assert.AreEqual(@"<Dictionary>
-     <Entry>
-          <Key>
-               <string><![CDATA[key1]]></string>
-          </Key>
-          <Value>
-               <int>2</int>
-          </Value>
-     </Entry>
-     <Entry>
-          <Key>
-               <string><![CDATA[key2]]></string>
-          </Key>
+            Assert.AreEqual(@"<List>
+     <Item>
+          <Key><![CDATA[key2]]></Key>
           <Value>
                <int>4</int>
           </Value>
-     </Entry>
-</Dictionary>", result);
+     </Item>
+     <Item>
+          <Key><![CDATA[key1]]></Key>
+          <Value>
+               <int>2</int>
+          </Value>
+     </Item>
+</List>", result);
         }
         [TestMethod]
         public void SimpleDictionaryDeserializerTest()
         {
-            string serializedDictionary = @"<Dictionary>
-     <Entry>
-          <Key>
-               <string><![CDATA[key2]]></string>
-          </Key>
+            string serializedDictionary = @"<List>
+     <Item>
+          <Key><![CDATA[key2]]></Key>
           <Value>
                <int>4</int>
           </Value>
-     </Entry>
-     <Entry>
-          <Key>
-               <string><![CDATA[key1]]></string>
-          </Key>
+     </Item>
+     <Item>
+          <Key><![CDATA[key1]]></Key>
           <Value>
                <int>2</int>
           </Value>
-     </Entry>
-</Dictionary>";
+     </Item>
+</List>";
             CustomizableXMLSerializer c = new CustomizableXMLSerializer();
             IDictionary<string, int> dictionary = new ConcurrentDictionary<string, int>();
             c.GenericXMLDeserializer(dictionary, XmlReader.Create(new StringReader(serializedDictionary)));
@@ -219,7 +212,31 @@ namespace GRYLibrary.Tests
             Assert.IsTrue(dictionary.ContainsKey("key2"));
             Assert.AreEqual(2, dictionary["key1"]);
             Assert.AreEqual(4, dictionary["key2"]);
-
         }
+        [TestMethod]
+        public void SimpleListSerializerTest()
+        {
+            IList<string> list = new StringValues();
+            list.Add("a");
+            list.Add("b");
+            CustomizableXMLSerializer customizableXMLSerializer = new CustomizableXMLSerializer();
+            ListSerializer serializer = new ListSerializer(customizableXMLSerializer);
+            Assert.IsTrue(serializer.IsApplicable(list, typeof(IList<>)));
+            IList<dynamic> dynamicDictionary = serializer.Cast(list);
+            Assert.AreEqual(2, dynamicDictionary.Count);
+
+            string result;
+            using (StringWriter stringWriter = new StringWriter())
+            {
+                using (XmlWriter xmlWriter = XmlWriter.Create(stringWriter, new XmlWriterSettings() { Indent = true, Encoding = new UTF8Encoding(false), IndentChars = "     ", NewLineOnAttributes = false, OmitXmlDeclaration = true }))
+                {
+                    CustomizableXMLSerializer c = new CustomizableXMLSerializer();
+                    c.GenericXMLSerializer(list, xmlWriter);
+                    result = stringWriter.ToString();
+                }
+            }
+            Assert.AreEqual(@"todo", result);
+        }
+
     }
 }

@@ -15,9 +15,9 @@ namespace GRYLibrary.Core.XMLSerializer.SerializationInfos
             this._CustomizableXMLSerializer = customizableXMLSerializer;
         }
 
-        public override bool IsApplicable(object @object)
+        public override bool IsApplicable(object @object, Type allowedType)
         {
-            return @object.GetType().IsArray;
+            return allowedType.IsArray;
         }
 
         protected internal override dynamic[] Cast(object @object)
@@ -32,13 +32,8 @@ namespace GRYLibrary.Core.XMLSerializer.SerializationInfos
 
         protected override void Serialize(dynamic[] @object, XmlWriter writer)
         {
-            this.CommonSerializationImplementation(@object, writer, this._CustomizableXMLSerializer);
+            new ListSerializer(this._CustomizableXMLSerializer).Serialize(@object.ToList(), writer);
         }
-
-        public override string GetXMLFriendlyNameOfType(dynamic[] @object)
-        {
-            return "Array";
-        }
-
+        
     }
 }
