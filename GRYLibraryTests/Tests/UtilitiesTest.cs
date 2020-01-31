@@ -145,7 +145,7 @@ namespace GRYLibrary.Tests
         [TestMethod]
         public void GenericSerializerTest1()
         {
-            var testObject = SimpleDataStructure3.GetTestObject();
+            SimpleDataStructure3 testObject = SimpleDataStructure3.GetTestObject();
             SimpleGenericXMLSerializer<SimpleDataStructure3> seriailzer = new SimpleGenericXMLSerializer<SimpleDataStructure3>();
             Assert.AreEqual(File.ReadAllText(@"TestData\TestXMLSerialization\GenericSerializerTest1.txt", new UTF8Encoding(false)), seriailzer.Serialize(testObject));
         }
@@ -155,7 +155,7 @@ namespace GRYLibrary.Tests
             IDictionary<string, int> dictionary = new ConcurrentDictionary<string, int>();
             dictionary.Add("key1", 2);
             dictionary.Add("key2", 4);
-            var customizableXMLSerializer = new CustomizableXMLSerializer();
+            CustomizableXMLSerializer customizableXMLSerializer = new CustomizableXMLSerializer();
             DictionarySerializer serializer = new DictionarySerializer(customizableXMLSerializer);
             Assert.IsTrue(serializer.IsApplicable(dictionary, typeof(IDictionary<,>)));
             IDictionary<dynamic, dynamic> dynamicDictionary = serializer.Cast(dictionary);

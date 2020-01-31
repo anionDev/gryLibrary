@@ -15,7 +15,7 @@ namespace GRYLibrary.TestData.TestTypes.SimpleDataStructure1
 
         internal static SimpleDataStructure3 GetTestObject()
         {
-            var result = new SimpleDataStructure3();
+            SimpleDataStructure3 result = new SimpleDataStructure3();
 
             result.Property4 = "Property4_" + Guid.NewGuid().ToString();
             result.Property5 = new List<SimpleDataStructure2>();

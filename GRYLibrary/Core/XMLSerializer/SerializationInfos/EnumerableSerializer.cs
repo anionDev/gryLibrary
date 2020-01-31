@@ -14,30 +14,9 @@ namespace GRYLibrary.Core.XMLSerializer.SerializationInfos
         {
             this._CustomizableXMLSerializer = customizableXMLSerializer;
         }
-         public override bool IsApplicable(object @object, Type allowedType)
+        public override bool IsApplicable(object @object, Type allowedType)
         {
-            Type[] interfaces = allowedType.GetInterfaces();
-            foreach (var @interface in interfaces)
-            {
-                if (IsIEnumerable(@interface))
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        private bool IsIEnumerable(Type @interface)
-        {
-            if (@interface.Name != "IEnumerable")
-            {
-                return false;
-            }
-            if (@interface.Namespace != "System.Collections")
-            {
-                return false;
-            }
-            return true;
+            return Utilities.InheritsFromIEnumerable(allowedType);
         }
 
         protected internal override IEnumerable<dynamic> Cast(object @object)

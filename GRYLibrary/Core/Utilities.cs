@@ -1518,7 +1518,149 @@ namespace GRYLibrary.Core
             return list1.SequenceEqual(list2, Comparer.Instance);
         }
 
+        public static bool InheritsFromIDictionaryOfTKeyTValue(Type allowedType)
+        {
+            IEnumerable<Type> interfaces = GetParentTypesIncludingOwn(allowedType);
+            foreach (Type @interface in interfaces)
+            {
+                if (IsIDictionaryOfTKeyTValue(@interface))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
 
+        public static bool IsIDictionaryOfTKeyTValue(Type @interface)
+        {
+            if (@interface.Name != "IDictionary`2")
+            {
+                return false;
+            }
+            if (@interface.Namespace != "System.Collections.Generic")
+            {
+                return false;
+            }
+            return true;
+        }
+
+        public static bool InheritsFromIEnumerable(Type allowedType)
+        {
+            IEnumerable<Type> interfaces = GetParentTypesIncludingOwn(allowedType);
+            foreach (Type @interface in interfaces)
+            {
+                if (IsIEnumerable(@interface))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public static bool IsIEnumerable(Type @interface)
+        {
+            if (@interface.Name != "IEnumerable")
+            {
+                return false;
+            }
+            if (@interface.Namespace != "System.Collections")
+            {
+                return false;
+            }
+            return true;
+        }
+
+        public static bool InheritsFromIListOfT(Type allowedType)
+        {
+            IEnumerable<Type> interfaces = GetParentTypesIncludingOwn(allowedType);
+            foreach (Type @interface in interfaces)
+            {
+                if (IsIListOfT(@interface))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public static bool IsIListOfT(Type @interface)
+        {
+            if (@interface.Name != "IList`1")
+            {
+                return false;
+            }
+            if (@interface.Namespace != "System.Collections")
+            {
+                return false;
+            }
+            return true;
+        }
+
+        public static bool InheritsFromISetOfT(Type allowedType)
+        {
+            IEnumerable<Type> interfaces = GetParentTypesIncludingOwn(allowedType);
+            foreach (Type @interface in interfaces)
+            {
+                if (IsISetOfT(@interface))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public static bool IsISetOfT(Type @interface)
+        {
+            if (@interface.Name != "ISet`1")
+            {
+                return false;
+            }
+            if (@interface.Namespace != "System.Collections.Generic")
+            {
+                return false;
+            }
+            return true;
+        }
+        public static IEnumerable<Type> GetParentTypesIncludingOwn(this Type type)
+        {
+            var result = type.GetParentTypes().ToList();
+            result.Add(type);
+            return new HashSet<Type>(result);
+        }
+        public static IEnumerable<Type> GetParentTypes(this Type type)
+        {
+            foreach (Type @interface in type.GetInterfaces())
+            {
+                yield return @interface;
+            }
+            Type currentBaseType = type.BaseType;
+            while (currentBaseType != null)
+            {
+                yield return currentBaseType;
+                currentBaseType = currentBaseType.BaseType;
+            }
+        }
+        public static bool InheritsFrom(this Type type, Type baseType)
+        {
+            if (baseType == null)
+            {
+                return type.IsInterface || type == typeof(object);
+            }
+            if (baseType.IsInterface)
+            {
+                return type.GetInterfaces().Contains(baseType);
+            }
+            Type currentType = type;
+            while (currentType != null)
+            {
+                if (currentType.BaseType == baseType)
+                {
+                    return true;
+                }
+                currentType = currentType.BaseType;
+            }
+            return false;
+        }
         private class Comparer : IEqualityComparer<object>
         {
             private Comparer() { }

@@ -15,28 +15,7 @@ namespace GRYLibrary.Core.XMLSerializer.SerializationInfos
         }
         public override bool IsApplicable(object @object, Type allowedType)
         {
-            Type[] interfaces = allowedType.GetInterfaces();
-            foreach (var @interface in interfaces)
-            {
-                if (IsIListOfT(@interface))
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        private bool IsIListOfT(Type @interface)
-        {
-            if (@interface.Name != "IList`1")
-            {
-                return false;
-            }
-            if (@interface.Namespace != "System.Collections")
-            {
-                return false;
-            }
-            return true;
+            return Utilities.InheritsFromIListOfT(allowedType);
         }
 
         protected internal override IList<dynamic> Cast(object @object)

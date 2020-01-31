@@ -17,30 +17,9 @@ namespace GRYLibrary.Core.XMLSerializer.SerializationInfos
 
         public override bool IsApplicable(object @object, Type allowedType)
         {
-            Type[] interfaces = allowedType.GetInterfaces();
-            foreach (var @interface in interfaces)
-            {
-                if (IsIDictionaryOfKeyValue(@interface))
-                {
-                    return true;
-                }
-            }
-            return false;
+            return Utilities.InheritsFromIDictionaryOfTKeyTValue(allowedType);
         }
-
-        private bool IsIDictionaryOfKeyValue(Type @interface)
-        {
-            if (@interface.Name != "IDictionary`2")
-            {
-                return false;
-            }
-            if (@interface.Namespace != "System.Collections.Generic")
-            {
-                return false;
-            }
-            return true;
-        }
-
+        
         protected internal override IDictionary<dynamic, dynamic> Cast(object @object)
         {
             IEnumerable objectAsEnumerable = @object as IEnumerable;
