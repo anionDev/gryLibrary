@@ -15,7 +15,8 @@ namespace GRYLibrary.Core.XMLSerializer.SerializationInfos
         }
         public override bool IsApplicable(object @object, Type allowedType)
         {
-            return Utilities.InheritsFromIListOfT(allowedType);
+            return Utilities.InheritsFrom(allowedType,typeof(IList<>))
+                || Utilities.InheritsFrom(allowedType, typeof(IList));
         }
 
         protected internal override IList<dynamic> Cast(object @object)

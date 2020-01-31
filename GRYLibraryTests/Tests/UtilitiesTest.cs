@@ -5,6 +5,7 @@ using GRYLibrary.TestData.TestTypes.SimpleDataStructure1;
 using Microsoft.Extensions.Primitives;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Globalization;
@@ -237,6 +238,16 @@ namespace GRYLibrary.Tests
             }
             Assert.AreEqual(@"todo", result);
         }
+        [TestMethod]
+        public void InheritsFromTest()
+        {
+            Assert.IsFalse(Utilities.InheritsFrom(typeof(IList<int>), typeof(string)));
+            Assert.IsFalse(Utilities.InheritsFrom(typeof(IList), typeof(IList<>)));
+            Assert.IsTrue(Utilities.InheritsFrom(typeof(List<int>), typeof(IList<int>)));
+            Assert.IsFalse(Utilities.InheritsFrom(typeof(IList<ArraySerializer>), typeof(IList<CustomXMLSerializer>)));
+            Assert.IsTrue(Utilities.InheritsFrom(typeof(IList<int>), typeof(IList<>)));//most tricky part
 
+
+        }
     }
 }
