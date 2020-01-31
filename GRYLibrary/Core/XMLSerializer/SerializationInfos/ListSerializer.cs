@@ -15,7 +15,7 @@ namespace GRYLibrary.Core.XMLSerializer.SerializationInfos
         }
         public override bool IsApplicable(object @object)
         {
-            return @object.GetType().IsGenericType && @object.GetType().GetGenericTypeDefinition().IsAssignableFrom(typeof(List<>));
+            return @object.GetType().IsGenericType && @object.GetType().GetGenericTypeDefinition().IsAssignableFrom(typeof(IList<>));
         }
 
         protected internal override IList<dynamic> Cast(object @object)

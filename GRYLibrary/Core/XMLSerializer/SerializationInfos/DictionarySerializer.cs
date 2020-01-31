@@ -16,7 +16,28 @@ namespace GRYLibrary.Core.XMLSerializer.SerializationInfos
 
         public override bool IsApplicable(object @object)
         {
-            return @object.GetType().IsGenericType && @object.GetType().GetGenericTypeDefinition().IsAssignableFrom(typeof(Dictionary<,>));
+            Type[] interfaces = @object.GetType().GetInterfaces();
+            foreach (var @interface in interfaces)
+            {
+                if (IsIDictionaryOfKeyValue(@interface))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private bool IsIDictionaryOfKeyValue(Type @interface)
+        {
+            if (@interface.Name != "IDictionary`2")
+            {
+                return false;
+            }
+            if (@interface.Namespace != "System.Collections.Generic")
+            {
+                return false;
+            }
+            return true;
         }
 
         protected internal override IDictionary<dynamic, dynamic> Cast(object @object)
@@ -39,11 +60,13 @@ namespace GRYLibrary.Core.XMLSerializer.SerializationInfos
         {
             foreach (KeyValuePair<dynamic, dynamic> kvp in @object)
             {
+                writer.WriteStartElement("Entry");
                 writer.WriteStartElement("Key");
                 this._CustomizableXMLSerializer.GenericXMLSerializer(kvp.Key, writer);
                 writer.WriteEndElement();
                 writer.WriteStartElement("Value");
                 this._CustomizableXMLSerializer.GenericXMLSerializer(kvp.Value, writer);
+                writer.WriteEndElement();
                 writer.WriteEndElement();
             }
         }

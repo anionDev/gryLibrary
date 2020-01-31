@@ -4,12 +4,14 @@ using GRYLibrary.Core.XMLSerializer.SerializationInfos;
 using GRYLibrary.TestData.TestTypes.SimpleDataStructure1;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Text;
+using System.Xml;
 
 namespace GRYLibrary.Tests
 {
@@ -149,7 +151,7 @@ namespace GRYLibrary.Tests
         [TestMethod]
         public void SimpleDictionarySerializerTest()
         {
-            Dictionary<string, int> dictionary = new Dictionary<string, int>();
+            IDictionary<string, int> dictionary = new ConcurrentDictionary<string, int>();
             dictionary.Add("key1", 2);
             dictionary.Add("key2", 4);
             var customizableXMLSerializer = new CustomizableXMLSerializer();
@@ -157,6 +159,67 @@ namespace GRYLibrary.Tests
             Assert.IsTrue(serializer.IsApplicable(dictionary));
             IDictionary<dynamic, dynamic> dynamicDictionary = serializer.Cast(dictionary);
             Assert.AreEqual(2, dynamicDictionary.Count);
+
+            string result;
+            using (StringWriter stringWriter = new StringWriter())
+            {
+                using (XmlWriter xmlWriter = XmlWriter.Create(stringWriter, new XmlWriterSettings() { Indent = true, Encoding = new UTF8Encoding(false), IndentChars = "     ", NewLineOnAttributes = false, OmitXmlDeclaration = true }))
+                {
+                    CustomizableXMLSerializer c = new CustomizableXMLSerializer();
+                    c.GenericXMLSerializer(dictionary, xmlWriter);
+                    result = stringWriter.ToString();
+                }
+            }
+            Assert.AreEqual(@"<Dictionary>
+     <Entry>
+          <Key>
+               <string><![CDATA[key1]]></string>
+          </Key>
+          <Value>
+               <int>2</int>
+          </Value>
+     </Entry>
+     <Entry>
+          <Key>
+               <string><![CDATA[key2]]></string>
+          </Key>
+          <Value>
+               <int>4</int>
+          </Value>
+     </Entry>
+</Dictionary>", result);
+        }
+        [TestMethod]
+        public void SimpleDictionaryDeserializerTest()
+        {
+            string serializedDictionary = @"<Dictionary>
+     <Entry>
+          <Key>
+               <string><![CDATA[key2]]></string>
+          </Key>
+          <Value>
+               <int>4</int>
+          </Value>
+     </Entry>
+     <Entry>
+          <Key>
+               <string><![CDATA[key1]]></string>
+          </Key>
+          <Value>
+               <int>2</int>
+          </Value>
+     </Entry>
+</Dictionary>";
+            CustomizableXMLSerializer c = new CustomizableXMLSerializer();
+            IDictionary<string, int> dictionary = new ConcurrentDictionary<string, int>();
+            c.GenericXMLDeserializer(dictionary, XmlReader.Create(new StringReader(serializedDictionary)));
+
+            Assert.AreEqual(2, dictionary.Count);
+            Assert.IsTrue(dictionary.ContainsKey("key1"));
+            Assert.IsTrue(dictionary.ContainsKey("key2"));
+            Assert.AreEqual(2, dictionary["key1"]);
+            Assert.AreEqual(4, dictionary["key2"]);
+
         }
     }
 }
