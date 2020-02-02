@@ -1366,7 +1366,7 @@ namespace GRYLibrary.Core
             int result = 0;
             while (source.GetEnumerator().MoveNext())
             {
-                result = result + 1;
+                result += 1;
             }
             return result;
         }
@@ -1414,11 +1414,11 @@ namespace GRYLibrary.Core
             return new ObjectGraph(object1).Equals(new ObjectGraph(object2));
         }
 
-        private static bool GenericEnumerableEquals(IEnumerable firstObject, IEnumerable secondObject)
+        public static bool GenericEnumerableEquals(IEnumerable firstObject, IEnumerable secondObject)
         {
             return GenericEnumerableEquals(firstObject.OfType<object>(), secondObject.OfType<object>());
         }
-        private static bool GenericEnumerableEquals<T>(IEnumerable<T> firstObject, IEnumerable<T> secondObject)
+        public static bool GenericEnumerableEquals<T>(IEnumerable<T> firstObject, IEnumerable<T> secondObject)
         {
             return firstObject.Count() == secondObject.Count() && firstObject.Intersect(secondObject).Count() == secondObject.Count();
         }
@@ -1621,9 +1621,9 @@ namespace GRYLibrary.Core
             }
             return true;
         }
-        public static IEnumerable<Type> GetParentTypesIncludingOwn(this Type type)
+        public static ISet<Type> GetParentTypesIncludingOwn(this Type type)
         {
-            var result = type.GetParentTypes().ToList();
+            List<Type> result = type.GetParentTypes().ToList();
             result.Add(type);
             return new HashSet<Type>(result);
         }

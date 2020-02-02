@@ -8,13 +8,9 @@ namespace GRYLibrary.Core.XMLSerializer.SerializationInfos
 {
     public class DictionarySerializer : CustomXMLSerializer<IDictionary<dynamic, dynamic>>
     {
-        private readonly CustomizableXMLSerializer _CustomizableXMLSerializer;
-
-        public DictionarySerializer(CustomizableXMLSerializer customizableXMLSerializer)
+        public DictionarySerializer(CustomizableXMLSerializer customizableXMLSerializer) : base(customizableXMLSerializer)
         {
-            this._CustomizableXMLSerializer = customizableXMLSerializer;
         }
-
         public override bool IsApplicable(object @object, Type allowedType)
         {
             return Utilities.InheritsFromIDictionaryOfTKeyTValue(allowedType);
@@ -38,7 +34,7 @@ namespace GRYLibrary.Core.XMLSerializer.SerializationInfos
 
         protected override void Serialize(IDictionary<dynamic, dynamic> @object, XmlWriter writer)
         {
-            new ListSerializer(this._CustomizableXMLSerializer).Serialize(@object.ToList(), writer);
+            new ListSerializer(this.CustomizableXMLSerializer).Serialize(@object.ToList(), writer);
         }
 
     }

@@ -5,13 +5,10 @@ namespace GRYLibrary.Core.XMLSerializer.SerializationInfos
 {
     public class StringSerializer : CustomXMLSerializer<string>
     {
-
-        private readonly CustomizableXMLSerializer _CustomizableXMLSerializer;
-
-        public StringSerializer(CustomizableXMLSerializer customizableXMLSerializer)
+        public StringSerializer(CustomizableXMLSerializer customizableXMLSerializer) : base(customizableXMLSerializer)
         {
-            this._CustomizableXMLSerializer = customizableXMLSerializer;
         }
+
         public override bool IsApplicable(object @object, Type allowedType)
         {
             return typeof(string).Equals(@object.GetType());

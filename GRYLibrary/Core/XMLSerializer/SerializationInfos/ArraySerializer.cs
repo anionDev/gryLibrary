@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Linq;
 using System.Xml;
 
@@ -8,13 +6,9 @@ namespace GRYLibrary.Core.XMLSerializer.SerializationInfos
 {
     public class ArraySerializer : CustomXMLSerializer<dynamic[]>
     {
-        private readonly CustomizableXMLSerializer _CustomizableXMLSerializer;
-
-        public ArraySerializer(CustomizableXMLSerializer customizableXMLSerializer)
+        public ArraySerializer(CustomizableXMLSerializer customizableXMLSerializer) : base(customizableXMLSerializer)
         {
-            this._CustomizableXMLSerializer = customizableXMLSerializer;
         }
-
         public override bool IsApplicable(object @object, Type allowedType)
         {
             return allowedType.IsArray;
@@ -32,7 +26,7 @@ namespace GRYLibrary.Core.XMLSerializer.SerializationInfos
 
         protected override void Serialize(dynamic[] @object, XmlWriter writer)
         {
-            new ListSerializer(this._CustomizableXMLSerializer).Serialize(@object.ToList(), writer);
+            new ListSerializer(this.CustomizableXMLSerializer).Serialize(@object.ToList(), writer);
         }
         
     }

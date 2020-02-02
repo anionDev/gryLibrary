@@ -1,6 +1,5 @@
 ﻿using GRYLibrary.Core.XMLSerializer.SerializationInfos;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Xml;
@@ -36,7 +35,7 @@ namespace GRYLibrary.Core.XMLSerializer
         }
         public void GenericXMLSerializer(object @object, XmlWriter writer, IList<CustomXMLSerializer> serializationInfos)
         {
-            GenericXMLSerializer(@object, writer, serializationInfos, @object.GetType());
+            this.GenericXMLSerializer(@object, writer, serializationInfos, @object.GetType());
         }
         public void GenericXMLSerializer(object @object, XmlWriter writer, IList<CustomXMLSerializer> serializationInfos, Type allowedType)
         {

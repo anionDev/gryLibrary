@@ -8,9 +8,9 @@ namespace GRYLibrary.Core
         public GRYLog LogObject { get; set; }
         public static SupervisedThread CreateByLogFile(Action action, string logFile, string name = "", string informationAboutInvoker = "")
         {
-            return CreateWithGRYLog(action, GRYLog.Create(logFile), name, informationAboutInvoker);
+            return CreateByGRYLog(action, GRYLog.Create(logFile), name, informationAboutInvoker);
         }
-        public static SupervisedThread CreateWithGRYLog(Action action, GRYLog log = null, string name = "", string informationAboutInvoker = "")
+        public static SupervisedThread CreateByGRYLog(Action action, GRYLog log = null, string name = "", string informationAboutInvoker = "")
         {
             return new SupervisedThread(action, log, name, informationAboutInvoker);
         }

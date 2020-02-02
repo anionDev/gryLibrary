@@ -7,11 +7,8 @@ namespace GRYLibrary.Core.XMLSerializer.SerializationInfos
 {
     public class ListSerializer : CustomXMLSerializer<IList<dynamic>>
     {
-        private readonly CustomizableXMLSerializer _CustomizableXMLSerializer;
-
-        public ListSerializer(CustomizableXMLSerializer customizableXMLSerializer)
+        public ListSerializer(CustomizableXMLSerializer customizableXMLSerializer) : base(customizableXMLSerializer)
         {
-            this._CustomizableXMLSerializer = customizableXMLSerializer;
         }
         public override bool IsApplicable(object @object, Type allowedType)
         {
@@ -35,7 +32,7 @@ namespace GRYLibrary.Core.XMLSerializer.SerializationInfos
             foreach (dynamic item in @object)
             {
                 writer.WriteStartElement("Item");
-                _CustomizableXMLSerializer.GenericXMLSerializer(item, writer);
+                this.CustomizableXMLSerializer.GenericXMLSerializer(item, writer);
                 writer.WriteEndElement();
             }
             writer.WriteEndElement();

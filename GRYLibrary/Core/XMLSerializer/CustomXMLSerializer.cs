@@ -13,9 +13,14 @@ namespace GRYLibrary.Core.XMLSerializer
     }
     public abstract class CustomXMLSerializer<T> : CustomXMLSerializer
     {
+        protected CustomizableXMLSerializer CustomizableXMLSerializer { get; set; }
         protected internal abstract T Cast(object @object);
         protected abstract void Serialize(T @object, XmlWriter writer);
         protected abstract void Deserialize(T @object, XmlReader reader);
+        public CustomXMLSerializer(CustomizableXMLSerializer customizableXMLSerializer)
+        {
+            this.CustomizableXMLSerializer = customizableXMLSerializer;
+        }
         public sealed override void Serialize(object @object, XmlWriter writer)
         {
             this.Serialize(this.Cast(@object), writer);

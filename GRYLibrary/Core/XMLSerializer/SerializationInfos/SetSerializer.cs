@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml;
@@ -9,11 +8,8 @@ namespace GRYLibrary.Core.XMLSerializer.SerializationInfos
     public class SetSerializer : CustomXMLSerializer<ISet<dynamic>>
     {
 
-        private readonly CustomizableXMLSerializer _CustomizableXMLSerializer;
-
-        public SetSerializer(CustomizableXMLSerializer customizableXMLSerializer)
+        public SetSerializer(CustomizableXMLSerializer customizableXMLSerializer) : base(customizableXMLSerializer)
         {
-            this._CustomizableXMLSerializer = customizableXMLSerializer;
         }
         public override bool IsApplicable(object @object, Type allowedType)
         {
@@ -31,7 +27,7 @@ namespace GRYLibrary.Core.XMLSerializer.SerializationInfos
 
         protected override void Serialize(ISet<dynamic> @object, XmlWriter writer)
         {
-            new ListSerializer(this._CustomizableXMLSerializer).Serialize(@object.ToList(), writer);
+            new ListSerializer(this.CustomizableXMLSerializer).Serialize(@object.ToList(), writer);
         }
     }
 }
