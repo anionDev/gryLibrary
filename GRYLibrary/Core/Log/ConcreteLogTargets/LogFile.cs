@@ -4,8 +4,7 @@ namespace GRYLibrary.Core.Log.ConcreteLogTargets
 {
     public class LogFile : GRYLogTarget
     {
-        private LogFile() { }
-        public static LogFile Instance { get; } = new LogFile();
+        public LogFile() { }
         public bool CreateLogFileIfRequiredAndIfPossible { get; set; }
         public string File { get; set; }
         public string Encoding { get; set; } = "utf-8";

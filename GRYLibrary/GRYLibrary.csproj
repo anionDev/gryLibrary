@@ -28,7 +28,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="ReferenceGeneration\**" />
     <EmbeddedResource Remove="ReferenceGeneration\**" />
     <None Remove="ReferenceGeneration\**" />
   </ItemGroup>
@@ -41,7 +40,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Core\KVP\" />
     <Folder Include="Properties\" />
   </ItemGroup>
 

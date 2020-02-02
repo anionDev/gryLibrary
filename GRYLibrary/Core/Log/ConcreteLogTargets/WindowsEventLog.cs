@@ -6,8 +6,7 @@ namespace GRYLibrary.Core.Log.ConcreteLogTargets
 {
     internal class WindowsEventLog : GRYLogTarget
     {
-        private WindowsEventLog() { }
-        public static WindowsEventLog Instance { get; } = new WindowsEventLog();
+        public WindowsEventLog() { }
         protected override void ExecuteImplementation(LogItem logItem, GRYLog logObject)
         {
             using (EventLog eventLog = new EventLog("Application"))

@@ -13,13 +13,13 @@ namespace GRYLibrary.Core.Log
 {
     public class GRYLogConfiguration : IXmlSerializable
     {
-        internal ISet<GRYLogTarget> _LogTargets = new HashSet<GRYLogTarget>();
 
         /// <summary>
         /// If this value is false then changing this value in the configuration-file has no effect.
         /// </summary>
         public bool ReloadConfigurationWhenConfigurationFileWillBeChanged { get; set; } = true;
-        public bool WriteLogEntriesAsynchronous { get; set; } = true;
+        public ISet<GRYLogTarget> _LogTargets { get; set; } = new HashSet<GRYLogTarget>();
+        public bool WriteLogEntriesAsynchronous { get; set; } = false;
         public bool Enabled { get; set; } = true;
         public string ConfigurationFile { get; set; } = string.Empty;
         public bool PrintEmptyLines { get; set; } = false;
@@ -54,14 +54,11 @@ namespace GRYLibrary.Core.Log
             this.LoggedMessageTypesConfiguration.Add(LogLevel.Error, new LoggedMessageTypeConfiguration() { CustomText = nameof(LogLevel.Error), ConsoleColor = ConsoleColor.Red });
             this.LoggedMessageTypesConfiguration.Add(LogLevel.Critical, new LoggedMessageTypeConfiguration() { CustomText = nameof(LogLevel.Critical), ConsoleColor = ConsoleColor.DarkRed });
 
-            ConcreteLogTargets.LogFile.Instance.Enabled = writeToConsole;
-            this._LogTargets.Add(ConcreteLogTargets.LogFile.Instance);
-            Console.Instance.Enabled = writeToLogFile;
-            this._LogTargets.Add(Console.Instance);
+            this._LogTargets.Add(new LogFile() { Enabled = writeToLogFile });
+            this._LogTargets.Add(new Console() { Enabled = writeToConsole });
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                WindowsEventLog.Instance.Enabled = writeToWindowsEventLog;
-                this._LogTargets.Add(WindowsEventLog.Instance);
+                this._LogTargets.Add(new WindowsEventLog());
             }
         }
         public GRYLogConfiguration() : this(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name, true, false, false)
@@ -80,7 +77,7 @@ namespace GRYLibrary.Core.Log
         }
         public static GRYLogConfiguration LoadConfiguration(string configurationFile)
         {
-            GRYLogConfiguration result =Utilities.LoadFromDisk<GRYLogConfiguration>(configurationFile).Object;
+            GRYLogConfiguration result = Utilities.LoadFromDisk<GRYLogConfiguration>(configurationFile).Object;
             result.ConfigurationFile = configurationFile;
             return result;
         }
@@ -109,6 +106,14 @@ namespace GRYLibrary.Core.Log
         public override bool Equals(object obj)
         {
             return Utilities.GenericEquals(this, obj);
+        }
+
+        public void SetEnabledOfAllLogTargets(bool newEnabledValue)
+        {
+            foreach (var item in _LogTargets)
+            {
+                item.Enabled = newEnabledValue;
+            }
         }
     }
 

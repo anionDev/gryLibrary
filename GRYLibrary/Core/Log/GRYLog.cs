@@ -244,10 +244,6 @@ namespace GRYLibrary.Core.Log
                     {
                         return;
                     }
-                    if (!this.AnyLogTargetEnabled)
-                    {
-                        return;
-                    }
                     if (!this.LineShouldBePrinted(logitem.PlainMessage))
                     {
                         return;
