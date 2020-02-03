@@ -18,7 +18,7 @@ namespace GRYLibrary.Core.Log
         /// If this value is false then changing this value in the configuration-file has no effect.
         /// </summary>
         public bool ReloadConfigurationWhenConfigurationFileWillBeChanged { get; set; } = true;
-        public ISet<GRYLogTarget> _LogTargets { get; set; } = new HashSet<GRYLogTarget>();
+        public ISet<GRYLogTarget> LogTargets { get; set; } = new HashSet<GRYLogTarget>();
         public bool WriteLogEntriesAsynchronous { get; set; } = false;
         public bool Enabled { get; set; } = true;
         public string ConfigurationFile { get; set; } = string.Empty;
@@ -54,11 +54,11 @@ namespace GRYLibrary.Core.Log
             this.LoggedMessageTypesConfiguration.Add(LogLevel.Error, new LoggedMessageTypeConfiguration() { CustomText = nameof(LogLevel.Error), ConsoleColor = ConsoleColor.Red });
             this.LoggedMessageTypesConfiguration.Add(LogLevel.Critical, new LoggedMessageTypeConfiguration() { CustomText = nameof(LogLevel.Critical), ConsoleColor = ConsoleColor.DarkRed });
 
-            this._LogTargets.Add(new LogFile() { Enabled = writeToLogFile });
-            this._LogTargets.Add(new Console() { Enabled = writeToConsole });
+            this.LogTargets.Add(new LogFile() { Enabled = writeToLogFile });
+            this.LogTargets.Add(new Console() { Enabled = writeToConsole });
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                this._LogTargets.Add(new WindowsEventLog());
+                this.LogTargets.Add(new WindowsEventLog());
             }
         }
         public GRYLogConfiguration() : this(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name, true, false, false)
@@ -66,7 +66,7 @@ namespace GRYLibrary.Core.Log
         }
         public Target GetLogTarget<Target>() where Target : GRYLogTarget
         {
-            foreach (GRYLogTarget target in this._LogTargets)
+            foreach (GRYLogTarget target in this.LogTargets)
             {
                 if (target is Target)
                 {
@@ -110,7 +110,7 @@ namespace GRYLibrary.Core.Log
 
         public void SetEnabledOfAllLogTargets(bool newEnabledValue)
         {
-            foreach (var item in _LogTargets)
+            foreach (var item in LogTargets)
             {
                 item.Enabled = newEnabledValue;
             }

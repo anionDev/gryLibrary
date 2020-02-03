@@ -215,6 +215,7 @@ namespace GRYLibrary.Core
         }
         public static void EnsureFileExists(string path, bool createDirectoryIfRequired = false)
         {
+            path = ResolveToFullPath(path);
             string directory = Path.GetDirectoryName(path);
             if (createDirectoryIfRequired && !string.IsNullOrWhiteSpace(directory))
             {
@@ -231,6 +232,11 @@ namespace GRYLibrary.Core
             {
                 Directory.CreateDirectory(path);
             }
+        }
+
+        public static string DurationToUserFriendlyString(TimeSpan timespan)
+        {
+            return $"{timespan.TotalHours}:{timespan.Minutes}:{timespan.Seconds}";
         }
 
         public static void EnsureDirectoryDoesNotExist(string path)

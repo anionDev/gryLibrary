@@ -27,7 +27,7 @@ namespace GRYLibrary.Core.Log
         {
             get
             {
-                foreach (GRYLogTarget target in this.Configuration._LogTargets)
+                foreach (GRYLogTarget target in this.Configuration.LogTargets)
                 {
                     if (target.Enabled)
                     {
@@ -268,7 +268,7 @@ namespace GRYLibrary.Core.Log
                     {
                         this._AmountOfWarnings += 1;
                     }
-                    foreach (GRYLogTarget logTarget in this.Configuration._LogTargets)
+                    foreach (GRYLogTarget logTarget in this.Configuration.LogTargets)
                     {
                         if (logTarget.Enabled)
                         {
