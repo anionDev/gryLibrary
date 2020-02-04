@@ -12,6 +12,7 @@ namespace GRYLibrary.Tests
     [TestClass]
     public class GRYLogTest
     {
+        [Ignore]
         [TestMethod]
         public void TestLogFileWithRelativePath()
         {
@@ -39,6 +40,7 @@ namespace GRYLibrary.Tests
                 Utilities.EnsureFileDoesNotExist(logFile);
             }
         }
+        [Ignore]
         [TestMethod]
         public void TestLogFileWithRelativePathWithSubFolder()
         {
@@ -67,6 +69,7 @@ namespace GRYLibrary.Tests
                 Utilities.EnsureDirectoryDoesNotExist(folder);
             }
         }
+        [Ignore]
         [TestMethod]
         public void TestLogFileWithConfigurationchangeOnRuntime()
         {
@@ -116,6 +119,7 @@ namespace GRYLibrary.Tests
                 Utilities.EnsureFileDoesNotExist(configurationFile);
             }
         }
+        [Ignore]
         [TestMethod]
         public void SerializeAndDeserialize()
         {

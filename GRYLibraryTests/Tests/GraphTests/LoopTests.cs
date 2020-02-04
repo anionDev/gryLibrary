@@ -10,6 +10,7 @@ namespace GRYLibrary.Tests.GraphTests
     [TestClass]
     public class LoopTests
     {
+        [Ignore]
         [TestMethod]
         public void HasOneOrMoreCycleTest1()
         {

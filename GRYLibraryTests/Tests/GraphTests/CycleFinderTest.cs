@@ -9,6 +9,7 @@ namespace GRYLibrary.Tests.GraphTests
     [TestClass]
     public class CycleFinderTest
     {
+        [Ignore]
         [TestMethod]
         public void TestSimpleGraph()
         {

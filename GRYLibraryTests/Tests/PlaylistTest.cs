@@ -65,16 +65,19 @@ namespace GRYLibrary.Tests
             Utilities.EnsureFileDoesNotExist(file);
         }
 
+        [Ignore]
         [TestMethod]
         public void CommonTestM3U()
         {
             this.CommonTest("Test.m3u", M3UHandler.Instance);
         }
+        [Ignore]
         [TestMethod]
         public void CommonTestPLS()
         {
             this.CommonTest("Test.pls", PLSHandler.Instance);
         }
+        [Ignore]
         [TestMethod]
         public void CommonTestM3UReferencedPlaylist()
         {
@@ -106,6 +109,7 @@ namespace GRYLibrary.Tests
 
             }
         }
+        [Ignore]
         [TestMethod]
         public void M3UConfigurationWithRelativePath1()
         {
@@ -236,6 +240,7 @@ namespace GRYLibrary.Tests
             }
         }
 
+        [Ignore]
         [TestMethod]
         public void CommonTestM3UConfigurationWithAbsolutePath()
         {
