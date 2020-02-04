@@ -1,6 +1,7 @@
 ﻿using GRYLibrary.Core.Log.ConcreteLogTargets;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
@@ -121,22 +122,23 @@ namespace GRYLibrary.Core.Log
         {
             return this._AmountOfWarnings;
         }
-        public void LogGeneralSystemInformation()
+        public void LogGeneralProgramInformation()
         {
-            this.Log($"Executing assembly name: {System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}", LogLevel.Information);
-            this.Log($"Executing assembly version: {System.Reflection.Assembly.GetExecutingAssembly().GetName().Version}", LogLevel.Information);
-            this.Log($"OS description: {RuntimeInformation.OSDescription}", LogLevel.Information);
+            ProcessModule module = Process.GetProcessById(Process.GetCurrentProcess().Id).MainModule;
+            this.Log($"Executing assembly-name: {AppDomain.CurrentDomain.FriendlyName} ({module.FileName})", LogLevel.Information);
+            this.Log($"Executing file-version: {module.FileVersionInfo.FileVersion}", LogLevel.Information);
+            this.Log($"Current working-directory: {Directory.GetCurrentDirectory()}", LogLevel.Information);
         }
         public void LogCurrentSystemStatistics()
         {
+            this.Log($"OS description: {RuntimeInformation.OSDescription}", LogLevel.Information);
             string appDrive = Path.GetPathRoot(System.Reflection.Assembly.GetEntryAssembly().Location);
-            string cDrive = "C:";
+            string cDrive = "C:\\";
             this.LogDriveStatistics(cDrive);
             if (!appDrive.Equals(cDrive))
             {
                 this.LogDriveStatistics(appDrive);
             }
-            this.Log($"Current working-directory: {Directory.GetCurrentDirectory()}", LogLevel.Information);
         }
 
         private void LogDriveStatistics(string drive)

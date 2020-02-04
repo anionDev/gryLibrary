@@ -236,7 +236,7 @@ namespace GRYLibrary.Core
 
         public static string DurationToUserFriendlyString(TimeSpan timespan)
         {
-            return $"{timespan.TotalHours}:{timespan.Minutes}:{timespan.Seconds}";
+            return $"{Math.Floor(timespan.TotalHours)}:{timespan.Minutes}:{timespan.Seconds}";
         }
 
         public static void EnsureDirectoryDoesNotExist(string path)

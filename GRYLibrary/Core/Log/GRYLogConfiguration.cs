@@ -61,7 +61,7 @@ namespace GRYLibrary.Core.Log
                 this.LogTargets.Add(new WindowsEventLog());
             }
         }
-        public GRYLogConfiguration() : this(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name, true, false, false)
+        public GRYLogConfiguration() : this(AppDomain.CurrentDomain.FriendlyName, true, false, false)
         {
         }
         public Target GetLogTarget<Target>() where Target : GRYLogTarget

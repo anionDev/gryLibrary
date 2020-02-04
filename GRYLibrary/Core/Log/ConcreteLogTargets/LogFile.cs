@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 
 namespace GRYLibrary.Core.Log.ConcreteLogTargets
 {
@@ -21,7 +22,16 @@ namespace GRYLibrary.Core.Log.ConcreteLogTargets
             {
                 formattedMessage = Environment.NewLine + formattedMessage;
             }
-            System.IO.File.AppendAllText(this.File, formattedMessage, System.Text.Encoding.GetEncoding(this.Encoding));
+            Encoding encoding;
+            if (this.Encoding.Equals("utf-8"))
+            {
+                encoding = new UTF8Encoding(false);
+            }
+            else
+            {
+                encoding = System.Text.Encoding.GetEncoding(this.Encoding);
+            }
+            System.IO.File.AppendAllText(this.File, formattedMessage, encoding);
         }
     }
 }
