@@ -1068,6 +1068,19 @@ namespace GRYLibrary.Core
             array2.CopyTo(result, array1.Length);
             return result;
         }
+        public static bool StringToBoolean(string value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                return false;
+            }
+            value = value.Trim().ToLower();
+            return value == "1"
+                || value == "y"
+                || value == "yes"
+                || value == "true";
+        }
+
         public static void Assert(bool condition, string message = "")
         {
             if (!condition)
