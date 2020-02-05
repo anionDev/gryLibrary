@@ -1139,6 +1139,7 @@ namespace GRYLibrary.Core
         }
         public static string ResolveToFullPath(this string path, string baseDirectory)
         {
+            path = path.Trim();
             if (IsAbsolutePath(path))
             {
                 return path;
