@@ -114,6 +114,7 @@ namespace GRYLibrary.Tests
                 Utilities.EnsureFileDoesNotExist(configurationFile);
             }
         }
+        [Ignore]
         [TestMethod]
         public void SerializeAndDeserialize()
         {
