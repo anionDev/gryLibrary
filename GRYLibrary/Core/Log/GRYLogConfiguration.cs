@@ -75,8 +75,8 @@ namespace GRYLibrary.Core.Log
             this.LoggedMessageTypesConfiguration.Add(new XMLSerializer.KeyValuePair<LogLevel, LoggedMessageTypeConfiguration>(LogLevel.Critical, new LoggedMessageTypeConfiguration() { CustomText = nameof(LogLevel.Critical), ConsoleColor = ConsoleColor.DarkRed }));
 
             this.LogTargets = new HashSet<GRYLogTarget>();
-            this.LogTargets.Add(new LogFile() { File = logFile, Enabled = string.IsNullOrWhiteSpace(logFile) ? false : true });
             this.LogTargets.Add(new Console() { Enabled = true });
+            this.LogTargets.Add(new LogFile() { File = logFile, Enabled = !string.IsNullOrWhiteSpace(logFile) });
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
                 this.LogTargets.Add(new WindowsEventLog() { Enabled = false });
@@ -91,7 +91,7 @@ namespace GRYLibrary.Core.Log
                     return (Target)target;
                 }
             }
-            throw new KeyNotFoundException($"No {nameof(Target)}-target available");
+            throw new KeyNotFoundException($"No {typeof(Target).Name}-target available");
         }
         public static GRYLogConfiguration LoadConfiguration(string configurationFile)
         {

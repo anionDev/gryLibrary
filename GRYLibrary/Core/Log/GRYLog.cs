@@ -35,7 +35,10 @@ namespace GRYLibrary.Core.Log
                 return false;
             }
         }
-        public GRYLog() { }
+        public GRYLog()
+        {
+            this.Configuration = new GRYLogConfiguration();
+        }
         private GRYLog(GRYLogConfiguration configuration)
         {
             lock (_LockObject)
@@ -52,9 +55,7 @@ namespace GRYLibrary.Core.Log
         }
         public static GRYLog Create()
         {
-            GRYLog result = new GRYLog();
-            result.Configuration.ResetToDefaultValues();
-            return result;
+            return Create(null);
         }
         public static GRYLog Create(string logFile)
         {
