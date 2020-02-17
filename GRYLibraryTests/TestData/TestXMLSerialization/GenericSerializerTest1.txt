@@ -1,1 +1,11 @@
-﻿todo
+﻿<SimpleDataStructure3 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+     <Property4>Property4_e7df34db-bb6f-4a11-8c6d-66bccafbd041</Property4>
+     <Property5>
+          <SimpleDataStructure2>
+               <Guid>a54f4945-e928-4296-bf9b-e9ae16b35744</Guid>
+          </SimpleDataStructure2>
+          <SimpleDataStructure2>
+               <Guid>1735ece2-942f-4380-aec4-27aaa4021ed5</Guid>
+          </SimpleDataStructure2>
+     </Property5>
+</SimpleDataStructure3>

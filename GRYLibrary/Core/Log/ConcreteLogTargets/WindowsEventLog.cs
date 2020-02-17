@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 
 namespace GRYLibrary.Core.Log.ConcreteLogTargets
 {
-    internal class WindowsEventLog : GRYLogTarget
+    public class WindowsEventLog : GRYLogTarget
     {
         public WindowsEventLog() { }
         protected override void ExecuteImplementation(LogItem logItem, GRYLog logObject)

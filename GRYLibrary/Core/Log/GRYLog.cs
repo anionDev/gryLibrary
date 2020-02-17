@@ -52,14 +52,14 @@ namespace GRYLibrary.Core.Log
         }
         public static GRYLog Create()
         {
-            return new GRYLog(new GRYLogConfiguration());
+            GRYLog result = new GRYLog();
+            result.Configuration.ResetToDefaultValues();
+            return result;
         }
         public static GRYLog Create(string logFile)
         {
-            GRYLogConfiguration configuration = new GRYLogConfiguration
-            {
-                LogFile = logFile
-            };
+            GRYLogConfiguration configuration = new GRYLogConfiguration();
+            configuration.ResetToDefaultValues(logFile);
             return new GRYLog(configuration);
         }
         public static GRYLog CreateByConfigurationFile(string configurationFile)

@@ -1,1 +1,17 @@
-﻿todo
+﻿<GRYLogConfiguration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+     <ReloadConfigurationWhenConfigurationFileWillBeChanged>true</ReloadConfigurationWhenConfigurationFileWillBeChanged>
+     <LogTargets />
+     <WriteLogEntriesAsynchronous>false</WriteLogEntriesAsynchronous>
+     <Enabled>true</Enabled>
+     <ConfigurationFile />
+     <PrintEmptyLines>false</PrintEmptyLines>
+     <PrintErrorsAsInformation>false</PrintErrorsAsInformation>
+     <Name>MyLog</Name>
+     <WriteExceptionMessageOfExceptionInLogEntry>true</WriteExceptionMessageOfExceptionInLogEntry>
+     <WriteExceptionStackTraceOfExceptionInLogEntry>true</WriteExceptionStackTraceOfExceptionInLogEntry>
+     <DateFormat>yyyy-MM-dd HH:mm:ss</DateFormat>
+     <LoggedMessageTypesConfiguration />
+     <Format>GRYLogFormat</Format>
+     <ConvertTimeForLogentriesToUTCFormat>false</ConvertTimeForLogentriesToUTCFormat>
+     <LogEveryLineOfLogEntryInNewLine>false</LogEveryLineOfLogEntryInNewLine>
+</GRYLogConfiguration>

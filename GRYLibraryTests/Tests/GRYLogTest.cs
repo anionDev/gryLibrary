@@ -1,18 +1,18 @@
 ﻿using GRYLibrary.Core;
 using GRYLibrary.Core.Log;
+using GRYLibrary.Core.Log.ConcreteLogTargets;
+using GRYLibrary.Core.XMLSerializer;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.IO;
 using System.Text;
-using System.Xml;
 
 namespace GRYLibrary.Tests
 {
     [TestClass]
     public class GRYLogTest
     {
-        [Ignore]
         [TestMethod]
         public void TestLogFileWithRelativePath()
         {
@@ -40,7 +40,6 @@ namespace GRYLibrary.Tests
                 Utilities.EnsureFileDoesNotExist(logFile);
             }
         }
-        [Ignore]
         [TestMethod]
         public void TestLogFileWithRelativePathWithSubFolder()
         {
@@ -52,15 +51,10 @@ namespace GRYLibrary.Tests
                 using (GRYLog logObject = GRYLog.Create(logFile))
                 {
                     logObject.Configuration.Format = GRYLogLogFormat.OnlyMessage;
-                    string file = logFile;
-                    Assert.IsFalse(File.Exists(file));
-                    string fileWithRelativePath = logFile;
-                    logObject.Configuration.LogFile = fileWithRelativePath;
-                    Assert.AreEqual(fileWithRelativePath, logObject.Configuration.LogFile);
-                    Assert.IsFalse(File.Exists(fileWithRelativePath));
-                    string testContent = "test";
+                    Assert.IsFalse(File.Exists(logFile));
+                    string testContent = "x";
                     logObject.Log(testContent);
-                    Assert.IsTrue(File.Exists(fileWithRelativePath));
+                    Assert.IsTrue(File.Exists(logFile));
                     Assert.AreEqual(testContent, File.ReadAllText(logFile));
                 }
             }
@@ -69,18 +63,18 @@ namespace GRYLibrary.Tests
                 Utilities.EnsureDirectoryDoesNotExist(folder);
             }
         }
-        [Ignore]
         [TestMethod]
         public void TestLogFileWithConfigurationchangeOnRuntime()
         {
             string configurationFile = "log.configuration";
             string logFile1 = "log1.log";
             string logFile2 = "log2.log";
-            GRYLogConfiguration configuration = new GRYLogConfiguration();
             Utilities.EnsureFileDoesNotExist(logFile1);
             Utilities.EnsureFileDoesNotExist(logFile2);
             Utilities.EnsureFileDoesNotExist(configurationFile);
-            configuration.LogFile = logFile1;
+            GRYLogConfiguration configuration = new GRYLogConfiguration();
+            configuration.ConfigurationFile = configurationFile;
+            configuration.ResetToDefaultValues(logFile1);
             configuration.Format = GRYLogLogFormat.OnlyMessage;
             GRYLogConfiguration.SaveConfiguration(configurationFile, configuration);
             UTF8Encoding encoding = new UTF8Encoding(false);
@@ -88,17 +82,17 @@ namespace GRYLibrary.Tests
             {
                 using (GRYLog logObject = GRYLog.CreateByConfigurationFile(configurationFile))
                 {
-                    //TODO
                     logObject.Log("test1", LogLevel.Information);//will be logged
-                    logObject.Log("test2", LogLevel.Debug);//will not be logged because verbose is not contained in LoggedMessageTypesInLogFile by default
+                    logObject.Log("test2", LogLevel.Debug);//will not be logged because 'debug' is not contained in LogLevels by default
                     Assert.AreEqual("test1", File.ReadAllText(logFile1, encoding));
 
                     GRYLogConfiguration reloadedConfiguration = GRYLogConfiguration.LoadConfiguration(configurationFile);
+                    reloadedConfiguration.GetLogTarget<LogFile>().LogLevels.Add(LogLevel.Debug);
                     GRYLogConfiguration.SaveConfiguration(configurationFile, reloadedConfiguration);
 
                     System.Threading.Thread.Sleep(1000);//wait until config is reloaded
 
-                    logObject.Log("test3", LogLevel.Debug);// will be logged
+                    logObject.Log("test3", LogLevel.Debug);// will now be logged
                     Assert.AreEqual("test1" + Environment.NewLine + "test3", File.ReadAllText(logFile1, encoding));
 
                     reloadedConfiguration = GRYLogConfiguration.LoadConfiguration(configurationFile);
@@ -119,33 +113,22 @@ namespace GRYLibrary.Tests
                 Utilities.EnsureFileDoesNotExist(configurationFile);
             }
         }
-        [Ignore]
         [TestMethod]
         public void SerializeAndDeserialize()
         {
             GRYLogConfiguration logConfiguration = new GRYLogConfiguration();
-
             logConfiguration.Name = "MyLog";
 
-            string serializedLogConfiguration;
-            using (StringWriter stringWriter = new StringWriter())
-            {
-                using (XmlWriter xmlWriter = XmlWriter.Create(stringWriter, new XmlWriterSettings() { Indent = true, Encoding = new UTF8Encoding(false), IndentChars = "     ", NewLineOnAttributes = false, OmitXmlDeclaration = true }))
-                {
-                    logConfiguration.WriteXml(xmlWriter);
-                    serializedLogConfiguration = stringWriter.ToString();
-                }
-            }
+            SimpleGenericXMLSerializer<GRYLogConfiguration> serializer = new SimpleGenericXMLSerializer<GRYLogConfiguration>();
+
+            string serializedLogConfiguration = serializer.Serialize(logConfiguration);
             Assert.AreEqual(File.ReadAllText(@"TestData\TestXMLSerialization\GRYLogConfiguration1.txt", new UTF8Encoding(false)), serializedLogConfiguration);
-            GRYLogConfiguration logConfigurationReloaded = new GRYLogConfiguration();
 
-            Assert.AreNotEqual(logConfiguration, logConfigurationReloaded);
+            logConfiguration.ResetToDefaultValues("logfile.txt");
+            serializedLogConfiguration = serializer.Serialize(logConfiguration);
+            Assert.AreEqual(File.ReadAllText(@"TestData\TestXMLSerialization\GRYLogConfiguration2.txt", new UTF8Encoding(false)), serializedLogConfiguration);
 
-            using (XmlReader xmlReader = XmlReader.Create(new StringReader(serializedLogConfiguration)))
-            {
-                logConfigurationReloaded.ReadXml(xmlReader);
-            }
-
+            GRYLogConfiguration logConfigurationReloaded = serializer.Deserialize(serializedLogConfiguration);
             Assert.AreEqual(logConfiguration, logConfigurationReloaded);
         }
     }

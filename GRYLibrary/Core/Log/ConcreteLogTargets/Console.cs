@@ -17,7 +17,7 @@ namespace GRYLibrary.Core.Log.ConcreteLogTargets
         {
             try
             {
-                System.Console.ForegroundColor = logObject.Configuration.LoggedMessageTypesConfiguration[logLevel].ConsoleColor;
+                System.Console.ForegroundColor = logObject.Configuration.GetLoggedMessageTypesConfigurationByLogLevel(logLevel).ConsoleColor;
                 System.Console.Write(message);
             }
             finally

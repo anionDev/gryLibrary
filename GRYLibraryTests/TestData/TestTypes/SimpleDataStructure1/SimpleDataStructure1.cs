@@ -1,13 +1,9 @@
-﻿using GRYLibrary.Core;
-using GRYLibrary.Core.XMLSerializer;
+﻿using System;
 using System.Collections.Generic;
-using System.Xml;
-using System.Xml.Schema;
-using System.Xml.Serialization;
 
 namespace GRYLibrary.TestData.TestTypes.SimpleDataStructure1
 {
-    public class SimpleDataStructure1 : IXmlSerializable
+    public class SimpleDataStructure1
     {
         public IList<SimpleDataStructure3> Property1 { get; set; }
         public SimpleDataStructure2 Property2 { get; set; }
@@ -21,24 +17,10 @@ namespace GRYLibrary.TestData.TestTypes.SimpleDataStructure1
             result.Property1.Add(SimpleDataStructure3.GetTestObject());
             result.Property1.Add(SimpleDataStructure3.GetTestObject());
             result.Property1.Add(SimpleDataStructure3.GetTestObject());
-            result.Property2 = SimpleDataStructure2.GetTestObject();
+            result.Property2 = new SimpleDataStructure2() { Guid = Guid.Parse("3735ece2-942f-4380-aec4-27aaa4021ed5") };
             result.Property3 = 21;
             return result;
         }
 
-        public XmlSchema GetSchema()
-        {
-            return new CustomizableXMLSerializer().GenericGetXMLSchema(this.GetType());
-        }
-
-        public void ReadXml(XmlReader reader)
-        {
-            new CustomizableXMLSerializer().GenericXMLDeserializer(this, reader);
-        }
-
-        public void WriteXml(XmlWriter writer)
-        {
-            new CustomizableXMLSerializer().GenericXMLSerializer(this, writer);
-        }
     }
 }

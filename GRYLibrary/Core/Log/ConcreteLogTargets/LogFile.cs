@@ -6,7 +6,6 @@ namespace GRYLibrary.Core.Log.ConcreteLogTargets
     public class LogFile : GRYLogTarget
     {
         public LogFile() { }
-        public bool CreateLogFileIfRequiredAndIfPossible { get; set; }
         public string File { get; set; }
         public string Encoding { get; set; } = "utf-8";
 
@@ -16,9 +15,10 @@ namespace GRYLibrary.Core.Log.ConcreteLogTargets
             {
                 throw new NullReferenceException($"LogFile is not defined");
             }
-            Utilities.EnsureFileExists(this.File);
+            string file = Utilities.ResolveToFullPath(this.File);
+            Utilities.EnsureFileExists(file, true);
             logItem.Format(logObject.Configuration, out string formattedMessage, out int _, out int _, out ConsoleColor _);
-            if (!Utilities.FileIsEmpty(this.File))
+            if (!Utilities.FileIsEmpty(file))
             {
                 formattedMessage = Environment.NewLine + formattedMessage;
             }
@@ -31,7 +31,7 @@ namespace GRYLibrary.Core.Log.ConcreteLogTargets
             {
                 encoding = System.Text.Encoding.GetEncoding(this.Encoding);
             }
-            System.IO.File.AppendAllText(this.File, formattedMessage, encoding);
+            System.IO.File.AppendAllText(file, formattedMessage, encoding);
         }
     }
 }

@@ -113,7 +113,7 @@ namespace GRYLibrary.Core.Log
         }
         private void FormatMessage(GRYLogConfiguration configuration, string message, DateTime momentOfLogEntry, LogLevel loglevel, out string formattedMessage, out int colorBegin, out int colorEnd, out ConsoleColor consoleColor)
         {
-            consoleColor = configuration.LoggedMessageTypesConfiguration[loglevel].ConsoleColor;
+            consoleColor = configuration.GetLoggedMessageTypesConfigurationByLogLevel(loglevel).ConsoleColor;
             if (!string.IsNullOrEmpty(configuration.Name))
             {
                 message = $"[{configuration.Name.Trim()}] {message}";
@@ -131,7 +131,7 @@ namespace GRYLibrary.Core.Log
                     break;
                 case GRYLogLogFormat.GRYLogFormat:
                     string part1 = "[" + momentOfLogEntry.ToString(configuration.DateFormat) + "] [";
-                    string part2 = configuration.LoggedMessageTypesConfiguration[loglevel].CustomText;
+                    string part2 = configuration.GetLoggedMessageTypesConfigurationByLogLevel(loglevel).CustomText;
                     string part3 = "] " + message;
                     formattedMessage = part1 + part2 + part3;
                     colorBegin = part1.Length;

@@ -9,7 +9,6 @@ namespace GRYLibrary.Tests
     [TestClass]
     public class SimpleObjectPersistenceTest
     {
-        [Ignore]
         [TestMethod]
         public void SimpleObjectPersistenceTestTest1()
         {
@@ -42,22 +41,21 @@ namespace GRYLibrary.Tests
                 Assert.AreEqual("y", sop2.Object.TestStringFromInterface);
 
                 Assert.AreEqual(testObject, sop2.Object);
-                string expectedXMLValue = @"<?xml version=""1.0"" encoding=""utf-8""?>
-<SerializeTestClass xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:xsd=""http://www.w3.org/2001/XMLSchema"">
-  <ListTest>
-    <boolean>true</boolean>
-    <boolean>false</boolean>
-    <boolean>true</boolean>
-  </ListTest>
-  <TestAttribute>
-    <TestString1>encodingtest: áä?&lt;👍你好</TestString1>
-    <TestAttribute1>
-      <TestString1>x</TestString1>
-    </TestAttribute1>
-  </TestAttribute>
-  <TestStringFromInterface>y</TestStringFromInterface>
-  <TestDouble>3.1428571428571428</TestDouble>
-  <TestDouble2>5</TestDouble2>
+                string expectedXMLValue = @"<SerializeTestClass xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:xsd=""http://www.w3.org/2001/XMLSchema"">
+     <ListTest>
+          <boolean>true</boolean>
+          <boolean>false</boolean>
+          <boolean>true</boolean>
+     </ListTest>
+     <TestAttribute>
+          <TestString1>encodingtest: áä?&lt;👍你好</TestString1>
+          <TestAttribute1>
+               <TestString1>x</TestString1>
+          </TestAttribute1>
+     </TestAttribute>
+     <TestStringFromInterface>y</TestStringFromInterface>
+     <TestDouble>3.1428571428571428</TestDouble>
+     <TestDouble2>5</TestDouble2>
 </SerializeTestClass>";
                 Assert.AreEqual(expectedXMLValue, content);
             }

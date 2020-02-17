@@ -6,14 +6,26 @@ namespace GRYLibrary.Core.Log
     {
         public ConsoleColor ConsoleColor { get; set; }
         public string CustomText { get; set; }
-
-         public override int GetHashCode()
-        {
-            return Utilities.GenericGetHashCode(this);
-        }
         public override bool Equals(object obj)
         {
-            return Utilities.GenericEquals(this, obj);
+            LoggedMessageTypeConfiguration typedObject = obj as LoggedMessageTypeConfiguration;
+            if (typedObject == null)
+            {
+                return false;
+            }
+            if (this.ConsoleColor != typedObject.ConsoleColor)
+            {
+                return false;
+            }
+            if (this.CustomText != typedObject.CustomText)
+            {
+                return false;
+            }
+            return true;
+        }
+        public override int GetHashCode()
+        {
+            return this.CustomText.GetHashCode();
         }
     }
 

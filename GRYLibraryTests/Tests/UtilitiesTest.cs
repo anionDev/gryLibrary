@@ -1,19 +1,13 @@
 ﻿using GRYLibrary.Core;
 using GRYLibrary.Core.XMLSerializer;
-using GRYLibrary.Core.XMLSerializer.SerializationInfos;
 using GRYLibrary.TestData.TestTypes.SimpleDataStructure1;
-using Microsoft.Extensions.Primitives;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
-using System.Collections;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Text;
-using System.Xml;
 
 namespace GRYLibrary.Tests
 {
@@ -143,116 +137,12 @@ namespace GRYLibrary.Tests
             Guid result = Utilities.IncrementGuid(inputId);
             Assert.AreNotEqual(input, result.ToString());
         }
-        [Ignore]
         [TestMethod]
         public void GenericSerializerTest1()
         {
             SimpleDataStructure3 testObject = SimpleDataStructure3.GetTestObject();
             SimpleGenericXMLSerializer<SimpleDataStructure3> seriailzer = new SimpleGenericXMLSerializer<SimpleDataStructure3>();
             Assert.AreEqual(File.ReadAllText(@"TestData\TestXMLSerialization\GenericSerializerTest1.txt", new UTF8Encoding(false)), seriailzer.Serialize(testObject));
-        }
-        [Ignore]
-        [TestMethod]
-        public void SimpleDictionarySerializerTest()
-        {
-            IDictionary<string, int> dictionary = new ConcurrentDictionary<string, int>();
-            dictionary.Add("key1", 2);
-            dictionary.Add("key2", 4);
-            CustomizableXMLSerializer customizableXMLSerializer = new CustomizableXMLSerializer();
-            DictionarySerializer serializer = new DictionarySerializer(customizableXMLSerializer);
-            Assert.IsTrue(serializer.IsApplicable(dictionary, typeof(IDictionary<,>)));
-            IDictionary<dynamic, dynamic> dynamicDictionary = serializer.Cast(dictionary);
-            Assert.AreEqual(2, dynamicDictionary.Count);
-
-            string result;
-            using (StringWriter stringWriter = new StringWriter())
-            {
-                using (XmlWriter xmlWriter = XmlWriter.Create(stringWriter, new XmlWriterSettings() { Indent = true, Encoding = new UTF8Encoding(false), IndentChars = "     ", NewLineOnAttributes = false, OmitXmlDeclaration = true }))
-                {
-                    CustomizableXMLSerializer c = new CustomizableXMLSerializer();
-                    c.GenericXMLSerializer(dictionary, xmlWriter);
-                    result = stringWriter.ToString();
-                }
-            }
-            Assert.AreEqual(@"<List>
-     <Item>
-          <Key><![CDATA[key2]]></Key>
-          <Value>
-               <int>4</int>
-          </Value>
-     </Item>
-     <Item>
-          <Key><![CDATA[key1]]></Key>
-          <Value>
-               <int>2</int>
-          </Value>
-     </Item>
-</List>", result);
-        }
-        [Ignore]
-        [TestMethod]
-        public void SimpleDictionaryDeserializerTest()
-        {
-            string serializedDictionary = @"<List>
-     <Item>
-          <Key><![CDATA[key2]]></Key>
-          <Value>
-               <int>4</int>
-          </Value>
-     </Item>
-     <Item>
-          <Key><![CDATA[key1]]></Key>
-          <Value>
-               <int>2</int>
-          </Value>
-     </Item>
-</List>";
-            CustomizableXMLSerializer c = new CustomizableXMLSerializer();
-            IDictionary<string, int> dictionary = new ConcurrentDictionary<string, int>();
-            c.GenericXMLDeserializer(dictionary, XmlReader.Create(new StringReader(serializedDictionary)));
-
-            Assert.AreEqual(2, dictionary.Count);
-            Assert.IsTrue(dictionary.ContainsKey("key1"));
-            Assert.IsTrue(dictionary.ContainsKey("key2"));
-            Assert.AreEqual(2, dictionary["key1"]);
-            Assert.AreEqual(4, dictionary["key2"]);
-        }
-        [Ignore]
-        [TestMethod]
-        public void SimpleListSerializerTest()
-        {
-            IList<string> list = new StringValues();
-            list.Add("a");
-            list.Add("b");
-            CustomizableXMLSerializer customizableXMLSerializer = new CustomizableXMLSerializer();
-            ListSerializer serializer = new ListSerializer(customizableXMLSerializer);
-            Assert.IsTrue(serializer.IsApplicable(list, typeof(IList<>)));
-            IList<dynamic> dynamicDictionary = serializer.Cast(list);
-            Assert.AreEqual(2, dynamicDictionary.Count);
-
-            string result;
-            using (StringWriter stringWriter = new StringWriter())
-            {
-                using (XmlWriter xmlWriter = XmlWriter.Create(stringWriter, new XmlWriterSettings() { Indent = true, Encoding = new UTF8Encoding(false), IndentChars = "     ", NewLineOnAttributes = false, OmitXmlDeclaration = true }))
-                {
-                    CustomizableXMLSerializer c = new CustomizableXMLSerializer();
-                    c.GenericXMLSerializer(list, xmlWriter);
-                    result = stringWriter.ToString();
-                }
-            }
-            Assert.AreEqual(@"todo", result);
-        }
-        [Ignore]
-        [TestMethod]
-        public void InheritsFromTest()
-        {
-            Assert.IsFalse(Utilities.InheritsFrom(typeof(IList<int>), typeof(string)));
-            Assert.IsFalse(Utilities.InheritsFrom(typeof(IList), typeof(IList<>)));
-            Assert.IsTrue(Utilities.InheritsFrom(typeof(List<int>), typeof(IList<int>)));
-            Assert.IsFalse(Utilities.InheritsFrom(typeof(IList<ArraySerializer>), typeof(IList<CustomXMLSerializer>)));
-            Assert.IsTrue(Utilities.InheritsFrom(typeof(IList<int>), typeof(IList<>)));//most tricky part
-
-
         }
     }
 }
