@@ -5,13 +5,10 @@ using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
-using System.Xml;
-using System.Xml.Schema;
-using System.Xml.Serialization;
 
 namespace GRYLibrary.Core.Log
 {
-    public class GRYLog : IDisposable, ILogger, IXmlSerializable
+    public class GRYLog : IDisposable, ILogger
     {
         public GRYLogConfiguration Configuration { get; set; }
         private readonly static object _LockObject = new object();
@@ -413,26 +410,7 @@ namespace GRYLibrary.Core.Log
 
 
         #endregion
-        public XmlSchema GetSchema()
-        {
-            throw new NotImplementedException();
-        }
 
-        public void ReadXml(XmlReader reader)
-        {
-            if (reader.MoveToContent() == XmlNodeType.Element && reader.LocalName == this.GetType().ToString())
-            {
-                this.Configuration = new GRYLogConfiguration();
-                this.Configuration.ReadXml(reader);
-            }
-        }
-
-        public void WriteXml(XmlWriter writer)
-        {
-            writer.WriteStartElement(this.GetType().ToString());
-            this.Configuration.WriteXml(writer);
-            writer.WriteEndElement();
-        }
     }
 
 }

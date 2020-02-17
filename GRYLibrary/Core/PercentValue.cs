@@ -1,15 +1,11 @@
-﻿using GRYLibrary.Core.XMLSerializer;
-using System;
-using System.Xml;
-using System.Xml.Schema;
-using System.Xml.Serialization;
+﻿using System;
 
 namespace GRYLibrary.Core
 {
     /// <summary>
     /// Represents a number between 0 and 1.
     /// </summary>
-    public class PercentValue : IXmlSerializable
+    public class PercentValue
     {
         public int ValueInPercent
         {
@@ -58,19 +54,6 @@ namespace GRYLibrary.Core
         {
             return this.Value.GetHashCode();
         }
-        public XmlSchema GetSchema()
-        {
-            return new CustomizableXMLSerializer().GenericGetXMLSchema(this.GetType());
-        }
-
-        public void ReadXml(XmlReader reader)
-        {
-            new CustomizableXMLSerializer().GenericXMLDeserializer(this, reader);
-        }
-
-        public void WriteXml(XmlWriter writer)
-        {
-            new CustomizableXMLSerializer().GenericXMLSerializer(this, writer);
-        }
+      
     }
 }

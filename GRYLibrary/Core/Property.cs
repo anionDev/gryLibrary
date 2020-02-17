@@ -1,15 +1,11 @@
 ﻿using GRYLibrary.Core.Event;
-using GRYLibrary.Core.XMLSerializer;
 using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
-using System.Xml;
-using System.Xml.Schema;
-using System.Xml.Serialization;
 
 namespace GRYLibrary.Core
 {
-    public interface IProperty : IXmlSerializable
+    public interface IProperty
     {
         string PropertyName { get; set; }
         Type PropertyValueType { get; }
@@ -165,22 +161,7 @@ namespace GRYLibrary.Core
             }
             throw new Exception("Value was not set at moment " + dateTime.ToString("yyyy/MM/dd HH:mm:ss"));
         }
-
-        public XmlSchema GetSchema()
-        {
-            return new CustomizableXMLSerializer().GenericGetXMLSchema(this.GetType());
-        }
-
-        public void ReadXml(XmlReader reader)
-        {
-             new CustomizableXMLSerializer().GenericXMLDeserializer(this,reader);
-        }
-
-        public void WriteXml(XmlWriter writer)
-        {
-            new CustomizableXMLSerializer().GenericXMLSerializer(this, writer);
-        }
-    }
+       }
     public class PropertyChangedEvengArgument<T>
     {
         internal PropertyChangedEvengArgument(T oldValue, T newValue, DateTime changeMoment)
