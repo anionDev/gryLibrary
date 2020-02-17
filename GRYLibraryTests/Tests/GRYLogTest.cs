@@ -63,6 +63,7 @@ namespace GRYLibrary.Tests
                 Utilities.EnsureDirectoryDoesNotExist(folder);
             }
         }
+        [Ignore]
         [TestMethod]
         public void TestLogFileWithConfigurationchangeOnRuntime()
         {
