@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<MyRootItem xmlns="mynamespace" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.w3schools.com ./TestXSD1.xsd">
+    <MyItems>
+        <MyItem>
+            value
+        </MyItem>
+        <MyItem>
+            value2
+        </MyItem>
+    </MyItems>
+    <MySubElement>
+        value3
+    </MySubElement>
+</MyRootItem>

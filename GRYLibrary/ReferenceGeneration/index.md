@@ -9,7 +9,7 @@ All labels (for classes, properties, etc.) have meaningful names.
 
 # Reference
 
-The concrete reference all types can be found [here](https://aniondev.github.io/gryLibraryReference/Reference/api/GRYLibrary.html).
+The reference can be found [here](https://aniondev.github.io/gryLibraryReference/Reference/api/index.html).
 
 # Additional information
 
@@ -25,7 +25,7 @@ The concrete reference all types can be found [here](https://aniondev.github.io/
 
 ![Maintenance](https://img.shields.io/maintenance/yes/2020.svg)
 
-[![Coverage Status](https://coveralls.io/repos/github/anionDev/gryLibrary/badge.svg?branch=dev%2Fgrylibrary-0-3-0)](https://coveralls.io/github/anionDev/gryLibrary?branch=dev%2Fgrylibrary-0-3-0)
+[![Coverage Status](https://coveralls.io/repos/github/anionDev/gryLibrary/badge.svg?branch=development)](https://coveralls.io/github/anionDev/gryLibrary?branch=development)
 
 # Contribute
 
@@ -35,7 +35,7 @@ You are welcome to contribute by
 * adding documentation for existing functions
 * adding tests for existing functions
 
-and you are also welcome to share your commits under the terms of [LGPL](https://raw.githubusercontent.com/anionDev/gryLibrary/master/ConcreteLicenseTexts/GNU%20Lesser%20General%20Public%20License%20version%203.txt) by creating a pullrequest. If you want to do that then please create a fork of the development-branch (currently `dev/grylibrary-0-3-0`) and then create a pullrequest back to this branch (not to the `master`-branch).
+and you are also welcome to share your commits under the terms of [LGPL](https://raw.githubusercontent.com/anionDev/gryLibrary/master/ConcreteLicenseTexts/GNU%20Lesser%20General%20Public%20License%20version%203.txt) by creating a pullrequest. If you want to do that then please create a fork of the development-branch (`development`) and then create a pullrequest back to this branch (not to the `master`-branch).
 
 # Links
 
@@ -45,7 +45,7 @@ and you are also welcome to share your commits under the terms of [LGPL](https:/
 
 [Nuget GRYLibrary-package](https://www.nuget.org/packages/GRYLibrary)
 
-[Class Reference and Documentation](https://aniondev.github.io/gryLibraryReference/Site/api/GRYLibrary.html)
+[Class Reference and Documentation](https://aniondev.github.io/gryLibraryReference/Reference/api/GRYLibrary.html)
 
 [Test-coverage](https://aniondev.github.io/gryLibraryReference/TestReports/index.htm)
 
@@ -53,4 +53,80 @@ and you are also welcome to share your commits under the terms of [LGPL](https:/
 
 # Version-system
 
-For every new release the minor version will be increased. [v0.1](https://www.nuget.org/packages/GRYLibrary/0.1.0) and [v0.2](https://www.nuget.org/packages/GRYLibrary/0.2.0) are released and now v0.3 will currently be developed.
+For every merge to the master the minor version will be increased and a new nuget-package will be published.
+
+# Changelog
+
+## Version 0.4 (In Progress)
+
+### Release-information
+
+[Tag](https://github.com/anionDev/gryLibrary/releases/tag/v0.4)
+
+[Nuget](https://www.nuget.org/packages/GRYLibrary/0.4.0)
+
+### Changes
+
+- [ ] Support custom formats in GRYLog
+- [ ] Implement HTML-Tables in TableGenerator
+- [ ] Add more doc-comments
+- [ ] Convert projects to .NET-Standard-projects
+
+## Version 0.3
+
+### Release-information
+
+[Tag](https://github.com/anionDev/gryLibrary/releases/tag/v0.3)
+
+[Nuget](https://www.nuget.org/packages/GRYLibrary/0.3.0)
+
+[Commit 3ba30b61](https://github.com/anionDev/gryLibrary/commit/3ba30b612bc72fb220cf6b7b215481edc83d2ffb)
+
+### Changes
+
+- [x] Create Semaphore
+- [x] Create TableGenerator
+- [x] Create TaskQueue
+- [x] Create DocFX-Project
+- [x] Add more testcases
+- [x] Improve information-files (.md-files etc.)
+- [x] Add more doc-comments
+
+## Version 0.2
+
+### Release-information
+
+[Tag](https://github.com/anionDev/gryLibrary/releases/tag/v0.2)
+
+[Nuget](https://www.nuget.org/packages/GRYLibrary/0.2.0)
+
+[Commit 87ba33fc](https://github.com/anionDev/gryLibrary/commit/87ba33fc9073126bcbfdb83acb1eda56311fa6a8)
+
+### Changes
+
+- [x] Create Fileselector
+- [x] Create SimpleObjectPersistence
+- [x] Fixes
+
+## Version 0.1 
+
+### Release-information
+
+[Tag](https://github.com/anionDev/gryLibrary/releases/tag/v0.1)
+
+[Nuget](https://www.nuget.org/packages/GRYLibrary/0.1.0)
+
+[Commit 952bb1ac](https://github.com/anionDev/gryLibrary/commit/952bb1ac347852e978016afa6926f9b6256e7cb0)
+
+### Changes
+
+- [x] Create ColorGradient
+- [x] Create ExtendedColor
+- [x] Create ExternalProgramExecutor
+- [x] Create GRYLog
+- [x] Create NonPersistentInputHistoryList
+- [x] Create PercentValue
+- [x] Create PlaylistHandler
+- [x] Create SimpleGenericXMLSerializer
+- [x] Create SupervisedThread
+- [x] Create Testproject

@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<MyDocument>
+    <property xyz="abc">
+        <type>x1</type>
+        <property1>x2</property1>
+        <subObject>x3,x4,x5</subObject>
+        <property6>x7</property6>
+        <property7>x8</property7>
+        <property8>x9</property8>
+    </property>
+</MyDocument>

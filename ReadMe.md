@@ -2,6 +2,10 @@
 
 The GRYLibrary is a collection with some useful .NET classes and functions which are very easy (re)usable.
 
+The GRYLibrary follows the declarative-programming-paradigm:
+
+You should say what you want to do, and not how to do it. This paradigm results in code which is easy to understand and can be written very quickly without loosing the overview of your code.
+
 ## Getting Started
 
 If you have installed GRYLibrary you can immediately use its public classes in the project where you installed GRYLibrary.
@@ -10,7 +14,7 @@ If you have installed GRYLibrary you can immediately use its public classes in t
 
 [![NuGet](https://img.shields.io/nuget/v/GRYLibrary.svg?color=green)](https://www.nuget.org/packages/GRYLibrary/)
 
-Install the GRYLibrary as nuget-package:
+Install the GRYLibrary as nuget-package using the Package Manager Console:
 
 ```
 Install-Package GRYLibrary
@@ -28,7 +32,7 @@ The entire documentation-website can be found [here](https://aniondev.github.io/
 
 ### Platform
 
-The latest nuget-package (0.2.0.0) is compiled for the .NET-Framework 4.7.1 and for the platform 'Any CPU'.
+The latest nuget-package is compiled for the .NET-Framework 4.7.1 and for the platform 'Any CPU'.
 
 ### Signing
 
