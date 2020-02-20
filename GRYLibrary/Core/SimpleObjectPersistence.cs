@@ -50,8 +50,9 @@ namespace GRYLibrary.Core
 
         public void SaveObjectToFile()
         {
-            Utilities.EnsureFileExists(this.File);
-            System.IO.File.WriteAllText(this.File, this._Serializer.Serialize(this.Object), this.XMLWriterSettings.Encoding);
+            Utilities.EnsureFileExists(this.File, true);
+            string value = this._Serializer.Serialize(this.Object);
+            System.IO.File.WriteAllText(this.File, value, this.XMLWriterSettings.Encoding);
         }
     }
 }
