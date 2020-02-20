@@ -144,5 +144,18 @@ namespace GRYLibrary.Tests
             SimpleGenericXMLSerializer<SimpleDataStructure3> seriailzer = new SimpleGenericXMLSerializer<SimpleDataStructure3>();
             Assert.AreEqual(File.ReadAllText(@"TestData\TestXMLSerialization\GenericSerializerTest1.txt", new UTF8Encoding(false)), seriailzer.Serialize(testObject));
         }
+        [TestMethod]
+        public void SerializeableDictionaryTest()
+        {
+            SerializableDictionary<int, string> dictionary = new SerializableDictionary<int, string>();
+            dictionary.Add(1, "test1");
+            dictionary.Add(2, "test2");
+            SimpleGenericXMLSerializer<SerializableDictionary<int, string>> serializer = new SimpleGenericXMLSerializer<SerializableDictionary<int, string>>();
+            string serializedDictionary = serializer.Serialize(dictionary);
+            SerializableDictionary<int, string> reloadedDictionary = serializer.Deserialize(serializedDictionary);
+            Assert.AreEqual(2, reloadedDictionary.Count);
+            Assert.AreEqual("test1", reloadedDictionary[1]);
+            Assert.AreEqual("test2", reloadedDictionary[2]);
+        }
     }
 }

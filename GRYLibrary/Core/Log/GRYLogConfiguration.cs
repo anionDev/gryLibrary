@@ -61,7 +61,7 @@ namespace GRYLibrary.Core.Log
         }
         public void ResetToDefaultValues()
         {
-            ResetToDefaultValues(null);
+            this.ResetToDefaultValues(null);
         }
         public void ResetToDefaultValues(string logFile)
         {
@@ -183,7 +183,7 @@ namespace GRYLibrary.Core.Log
 
         public void SetEnabledOfAllLogTargets(bool newEnabledValue)
         {
-            foreach (GRYLogTarget item in LogTargets)
+            foreach (GRYLogTarget item in this.LogTargets)
             {
                 item.Enabled = newEnabledValue;
             }

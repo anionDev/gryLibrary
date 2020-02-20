@@ -10,38 +10,38 @@ namespace GRYLibrary.Core
 
         private void Initialize(object[] words)
         {
-            S = new SortedSet<State>[words.Length + 1];
+            this.S = new SortedSet<State>[words.Length + 1];
             for (int k = 0; k <= words.Length; k++)
             {
-                S[k] = new SortedSet<State>();
+                this.S[k] = new SortedSet<State>();
             }
         }
         public SortedSet<State>[] Parse(object[] words, Grammar grammar)
         {
-            Initialize(words);
+            this.Initialize(words);
             // S[0].Add(new State() { Rule = new ProductionRuleWithExpection() { Identifier = new NonTerminalSymbol() { Value = string.Empty }, Substituted = new List<Symbol>(), Expected  = S }, J = 0 });
             for (int k = 0; k <= words.Length; k++)
             {
-                foreach (State state in S[k]) // S[k] can expand during this loop
+                foreach (State state in this.S[k]) // S[k] can expand during this loop
                 {
-                    if (Finished(state))
+                    if (this.Finished(state))
                     {
-                        if (NextElementOfState(state) is TerminalSymbol)
+                        if (this.NextElementOfState(state) is TerminalSymbol)
                         {
-                            Scanner(state, k, words);
+                            this.Scanner(state, k, words);
                         }
                         else
                         {
-                            Predictor(state, k, grammar);
+                            this.Predictor(state, k, grammar);
                         }
                     }
                     else
                     {
-                        Completer(state, k);
+                        this.Completer(state, k);
                     }
                 }
             }
-            return S;
+            return this.S;
         }
 
         private Symbol NextElementOfState(State state)
@@ -56,9 +56,9 @@ namespace GRYLibrary.Core
 
         private void Predictor(State state, int k, Grammar grammar)
         {
-            foreach (ProductionRule rule in GrammarRules(state.Rule.Expected, grammar))
+            foreach (ProductionRule rule in this.GrammarRules(state.Rule.Expected, grammar))
             {
-                S[k].Add(new State()
+                this.S[k].Add(new State()
                 {
                     Rule = new ProductionRuleWithExpection()
                     {
@@ -78,9 +78,9 @@ namespace GRYLibrary.Core
 
         private void Scanner(State state, int k, object[] words)
         {
-            if (PartsOfSpeech(words[k]).Contains(state.Rule.Expected.First()))
+            if (this.PartsOfSpeech(words[k]).Contains(state.Rule.Expected.First()))
             {
-                S[k + 1].Add(new State()
+                this.S[k + 1].Add(new State()
                 {
                     Rule = new ProductionRuleWithExpection()
                     {
@@ -100,9 +100,9 @@ namespace GRYLibrary.Core
 
         private void Completer(State state, int k)
         {
-            foreach (State state2 in S[state.J])
+            foreach (State state2 in this.S[state.J])
             {
-                S[k].Add(new State()
+                this.S[k].Add(new State()
                 {
                     Rule = new ProductionRuleWithExpection()
                     {
