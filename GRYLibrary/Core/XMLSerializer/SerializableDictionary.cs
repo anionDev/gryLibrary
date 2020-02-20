@@ -4,36 +4,65 @@ using System.Xml.Serialization;
 
 namespace GRYLibrary.Core.XMLSerializer
 {
-    public class SerializableDictionary<TKey, TValue>
+    [XmlRoot("Dictionary")]
+    public class SerializableDictionary<TKey, TValue> : Dictionary<TKey, TValue>, IXmlSerializable
     {
-        public IDictionary<TKey, TValue> Dictionary { get; }
-        /// <summary>
-        /// Represents the items as list. This property is required for the serializer and is not intended to be used directly.
-        /// </summary>
-        public List<KeyValuePair<TKey, TValue>> Items
-        {
-            get
-            {
-                List<KeyValuePair<TKey, TValue>> result = new List<KeyValuePair<TKey, TValue>>();
-                foreach(System.Collections.Generic.KeyValuePair<TKey, TValue> item in Dictionary)
-                {
-                    result.Add(new KeyValuePair<TKey, TValue>(item.Key, item.Value));
-                }
-                return result;
-            }
-            set
-            {
-                Dictionary.Clear();
-                foreach (KeyValuePair<TKey, TValue> item in value)
-                {
-                    Dictionary.Add(item.Key, item.Value);
-                }
-            }
-        }
+        private readonly XmlSerializer _KeySerializer;
+        private readonly XmlSerializer _ValueSerializer;
         public SerializableDictionary()
         {
-            Dictionary = new Dictionary<TKey, TValue>();
-            Items = new List<KeyValuePair<TKey, TValue>>();
+            _KeySerializer = new XmlSerializer(typeof(TKey));
+            _ValueSerializer = new XmlSerializer(typeof(TValue));
+        }
+
+        public void ReadXml(System.Xml.XmlReader reader)
+        {
+            bool isEmptyElement = reader.IsEmptyElement;
+            reader.Read();
+            if (isEmptyElement)
+            {
+                return;
+            }
+            else
+            {
+                while (reader.NodeType != System.Xml.XmlNodeType.EndElement)
+                {
+                    reader.ReadStartElement("Item");
+                    reader.ReadStartElement("Key");
+                    TKey key = (TKey)_KeySerializer.Deserialize(reader);
+                    reader.ReadEndElement();
+                    reader.ReadStartElement("Value");
+                    TValue value = (TValue)_ValueSerializer.Deserialize(reader);
+                    reader.ReadEndElement();
+                    this.Add(key, value);
+                    reader.ReadEndElement();
+                    reader.MoveToContent();
+                }
+                reader.ReadEndElement();
+            }
+        }
+
+        public void WriteXml(System.Xml.XmlWriter writer)
+        {
+
+            foreach (TKey key in this.Keys)
+            {
+                writer.WriteStartElement("Item");
+
+                writer.WriteStartElement("Key");
+                _KeySerializer.Serialize(writer, key);
+                writer.WriteEndElement();
+
+                writer.WriteStartElement("Value");
+                _ValueSerializer.Serialize(writer, this[key]);
+                writer.WriteEndElement();
+
+                writer.WriteEndElement();
+            }
+        }
+        public System.Xml.Schema.XmlSchema GetSchema()
+        {
+            return null;
         }
     }
 }

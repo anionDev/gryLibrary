@@ -148,14 +148,14 @@ namespace GRYLibrary.Tests
         public void SerializeableDictionaryTest()
         {
             SerializableDictionary<int, string> dictionary = new SerializableDictionary<int, string>();
-            dictionary.Dictionary.Add(1, "test1");
-            dictionary.Dictionary.Add(2, "test2");
+            dictionary.Add(1, "test1");
+            dictionary.Add(2, "test2");
             SimpleGenericXMLSerializer<SerializableDictionary<int, string>> serializer = new SimpleGenericXMLSerializer<SerializableDictionary<int, string>>();
             string serializedDictionary = serializer.Serialize(dictionary);
             SerializableDictionary<int, string> reloadedDictionary = serializer.Deserialize(serializedDictionary);
-            Assert.AreEqual(2, reloadedDictionary.Dictionary.Count);
-            Assert.AreEqual("test1", reloadedDictionary.Dictionary[1]);
-            Assert.AreEqual("test2", reloadedDictionary.Dictionary[2]);
+            Assert.AreEqual(2, reloadedDictionary.Count);
+            Assert.AreEqual("test1", reloadedDictionary[1]);
+            Assert.AreEqual("test2", reloadedDictionary[2]);
         }
     }
 }
