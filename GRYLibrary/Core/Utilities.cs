@@ -1360,5 +1360,37 @@ namespace GRYLibrary.Core
             }
             throw new KeyNotFoundException($"No volume could be found which provides the volume accessible at {mountPoint}");
         }
+        public static bool NullSafeSetEquals<T>(this ISet<T> @this, ISet<T> obj)
+        {
+            return NullSafeHelper(@this, obj, (obj1, obj2) => obj1.SetEquals(obj2));
+        }
+        public static bool NullSafeSequenceEqual<T>(this IList<T> @this, IList<T> obj)
+        {
+            return NullSafeHelper(@this, obj, (obj1, obj2) => obj1.SequenceEqual(obj2));
+        }
+        public static bool NullSafeEquals(this object @this, object obj)
+        {
+            return NullSafeHelper(@this, obj, (obj1, obj2) => obj1.Equals(obj2));
+        }
+        private static bool NullSafeHelper<T>(T object1, T object2, Func<T, T, bool> f)
+        {
+            bool thisIsNull = object1 == null;
+            bool objIsNull = object2 == null;
+            if (thisIsNull ^ objIsNull)
+            {
+                return false;
+            }
+            else
+            {
+                if (thisIsNull && objIsNull)
+                {
+                    return true;
+                }
+                else
+                {
+                    return f(object1, object2);
+                }
+            }
+        }
     }
 }
