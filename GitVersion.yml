@@ -2,9 +2,8 @@ mode: Mainline
 assembly-versioning-scheme: MajorMinorPatch
 assembly-file-versioning-scheme: MajorMinorPatch
 major-version-bump-message: '\+semver:\s?(major)'
-minor-version-bump-message: '\+semver:\s?(features)'
-patch-version-bump-message: '\+semver:\s?(fix)'
+minor-version-bump-message: '\+semver:\s?(minor)'
+patch-version-bump-message: '\+semver:\s?(patch)'
 tag-prefix: '[vV]'
-branches: {}
 ignore:
   sha: []
