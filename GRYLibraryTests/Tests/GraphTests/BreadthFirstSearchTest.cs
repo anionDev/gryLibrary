@@ -17,6 +17,7 @@ namespace GRYLibrary.Tests.GraphTests
             g.BreadthFirstSearch((v, edges) =>
             {
                 order.Add(int.Parse(v.Name.Replace("v", string.Empty)));
+                return true;
             });
             Assert.AreEqual(1, order[0]);
             Assert.IsTrue(new HashSet<int>(new int[] { 2, 3, 4 }).SetEquals(new int[] { order[1], order[2], order[3] }));
@@ -31,6 +32,7 @@ namespace GRYLibrary.Tests.GraphTests
             g.BreadthFirstSearch((v, edges) =>
             {
                 order.Add(new Tuple<Vertex, IList<Edge>>(v, edges));
+                return true;
             });
             Assert.AreEqual(g.GetVertexByName("v1"), order[0].Item1);
             Assert.AreEqual(0, order[0].Item2.Count);

@@ -8,8 +8,9 @@ namespace GRYLibrary.Core.GraphOperations
     public class Cycle
     {
         public IList<Edge> Edges { get; private set; } = new List<Edge>();
-        public Cycle(IList<Edge> edges)
+        public Cycle(IList<Edge> edgesList)
         {
+            List<Edge> edges = edgesList.ToList();
             if (edges.Count == 0)
             {
                 throw new Exception("A cycle can not be empty.");
@@ -31,7 +32,30 @@ namespace GRYLibrary.Core.GraphOperations
             {
                 return false;
             }
-            return this.Edges.SequenceEqual(cycle.Edges);
+            int edgesCount = this.Edges.Count;
+            if (this.Edges.Count != cycle.Edges.Count)
+            {
+                return false;
+            }
+            int indexOfStartItemInCycle2;
+            if (cycle.Edges.Contains(this.Edges[0]))
+            {
+                indexOfStartItemInCycle2 = cycle.Edges.IndexOf(this.Edges[0]);
+            }
+            else
+            {
+                return false;
+            }
+            for (int indexOfStartItemInCycle1 = 0; indexOfStartItemInCycle1 < edgesCount; indexOfStartItemInCycle1++)
+            {
+                Edge edgeInCycle1 = this.Edges[indexOfStartItemInCycle1];
+                Edge edgeInCycle2 = cycle.Edges[(indexOfStartItemInCycle2 + indexOfStartItemInCycle1) % edgesCount];
+                if (!edgeInCycle1.Equals(edgeInCycle2))
+                {
+                    return false;
+                }
+            }
+            return true;
         }
         public override int GetHashCode()
         {
@@ -42,9 +66,11 @@ namespace GRYLibrary.Core.GraphOperations
         {
             if (edges.Count > 0)
             {
-                List<Edge> reversedList = edges.ToList();
-                reversedList.Reverse();
-                return CheckIfEdgesAreCyclic(edges) || CheckIfEdgesAreCyclic(reversedList);
+                if (new HashSet<Edge>(edges).Count != edges.Count)
+                {
+                    return false;
+                }
+                return CheckIfEdgesAreCyclic(edges);
             }
             else
             {
@@ -65,21 +91,17 @@ namespace GRYLibrary.Core.GraphOperations
                 }
                 else
                 {
-                    try
-                    {
-  if (!edges[i].Source.Equals(edges[i - 1].Target))
+                    if (!edges[i].Source.Equals(edges[i - 1].Target))
                     {
                         return false;
                     }
-                    }
-                    catch
-                    {
-
-                    }
-                  
                 }
             }
             return true;
+        }
+        public override string ToString()
+        {
+            return nameof(Cycle) + "(" + string.Join("->", this.Edges) + ")";
         }
     }
 }

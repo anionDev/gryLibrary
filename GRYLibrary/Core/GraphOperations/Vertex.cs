@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace GRYLibrary.Core.GraphOperations
 {
@@ -8,8 +7,7 @@ namespace GRYLibrary.Core.GraphOperations
     public class Vertex
     {
         public string Name { get; set; }
-        public IEnumerable<Edge> ConnectedEdges { get { return this._ConnectedEdges.ToList().AsReadOnly(); } }
-        internal ISet<Edge> _ConnectedEdges = new HashSet<Edge>();
+        internal ISet<Edge> ConnectedEdges { get; set; } = new HashSet<Edge>();
         public Vertex() : this(CalculateVertexName())
         {
         }
@@ -22,7 +20,7 @@ namespace GRYLibrary.Core.GraphOperations
             return $"{nameof(Vertex)}_{Guid.NewGuid().ToString().Substring(0, 8)}";
         }
 
-        public int Degree { get { return this._ConnectedEdges.Count; } }
+        public int Degree { get { return this.ConnectedEdges.Count; } }
         public override bool Equals(object obj)
         {
             Vertex typedObject = obj as Vertex;
@@ -40,7 +38,10 @@ namespace GRYLibrary.Core.GraphOperations
         {
             return this.Name;
         }
-
+        public ISet<Edge> GetConnectedEdges()
+        {
+            return new HashSet<Edge>(this.ConnectedEdges);
+        }
 
     }
 }

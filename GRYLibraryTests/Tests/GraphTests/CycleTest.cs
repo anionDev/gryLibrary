@@ -1,5 +1,6 @@
 ﻿using GRYLibrary.Core.GraphOperations;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -50,18 +51,54 @@ namespace GRYLibrary.Tests.GraphTests
             Edge edge5 = new Edge(v4, v3, "e5");
 
             List<Edge> cycleItems = new List<Edge>();
+
             cycleItems.Add(edge1);
             Assert.IsFalse(Cycle.RepresentsCycle(cycleItems));
+
             cycleItems.Add(edge2);
             Assert.IsFalse(Cycle.RepresentsCycle(cycleItems));
+
             cycleItems.Add(edge3);
             Assert.IsTrue(Cycle.RepresentsCycle(cycleItems));
+            new Cycle(cycleItems);
+
             cycleItems.Add(edge4);
             Assert.IsFalse(Cycle.RepresentsCycle(cycleItems));
+
             cycleItems.Add(edge5);
             Assert.IsFalse(Cycle.RepresentsCycle(cycleItems));
 
-
+        }
+        public void TestErrorsOfCycleConstructorsDueToEmptyEdgesList()
+        {
+            Assert.ThrowsException<Exception>(() => new List<Edge>(new Edge[] { }));
+        }
+        public void TestErrorsOfCycleConstructorsDueToUncyclicEdges()
+        {
+            Vertex v1 = new Vertex(nameof(v1));
+            Vertex v2 = new Vertex(nameof(v2));
+            Vertex v3 = new Vertex(nameof(v3));
+            Vertex v4 = new Vertex(nameof(v4));
+            Vertex v5 = new Vertex(nameof(v5));
+            Edge edge1 = new Edge(v1, v2, "e1");
+            Edge edge2 = new Edge(v2, v3, "e2");
+            Edge edge3 = new Edge(v3, v1, "e3");
+            Assert.ThrowsException<Exception>(() => new List<Edge>(new Edge[] { edge1, edge2 }));
+        }
+        public void TestErrorsOfCycleConstructorsDueToDuplicatedEdges()
+        {
+            Vertex v1 = new Vertex(nameof(v1));
+            Vertex v2 = new Vertex(nameof(v2));
+            Vertex v3 = new Vertex(nameof(v3));
+            Vertex v4 = new Vertex(nameof(v4));
+            Vertex v5 = new Vertex(nameof(v5));
+            Edge edge1 = new Edge(v1, v2, "e1");
+            Edge edge2 = new Edge(v2, v3, "e2");
+            Edge edge3 = new Edge(v3, v1, "e3");
+            Edge edge4 = new Edge(v1, v4, "e1");
+            Edge edge5 = new Edge(v4, v5, "e2");
+            Edge edge6 = new Edge(v5, v1, "e3");
+            Assert.ThrowsException<Exception>(() => new List<Edge>(new Edge[] { edge1, edge2, edge3, edge4, edge5, edge6, }));
         }
     }
 }

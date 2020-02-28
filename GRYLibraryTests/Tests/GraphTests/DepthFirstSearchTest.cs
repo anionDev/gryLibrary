@@ -16,6 +16,7 @@ namespace GRYLibrary.Tests.GraphTests
             g.DepthFirstSearch((v, edges) =>
             {
                 order.Add(new Tuple<int, IList<Edge>>(int.Parse(v.Name.Replace("v", string.Empty)), edges));
+                return true;
             });
             int i1 = this.GetIndexOfTupleWithSpeicficFirstvalue(order, 1);
             int i2 = this.GetIndexOfTupleWithSpeicficFirstvalue(order, 2);
