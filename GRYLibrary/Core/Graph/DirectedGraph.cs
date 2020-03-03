@@ -1,8 +1,9 @@
-﻿using System;
+﻿using GRYLibrary.Core.Graph.Exceptions;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace GRYLibrary.Core.GraphOperations
+namespace GRYLibrary.Core.Graph
 {
     public class DirectedGraph : Graph
     {
@@ -23,7 +24,7 @@ namespace GRYLibrary.Core.GraphOperations
         public UndirectedGraph ToUndirectedGraph()
         {
             UndirectedGraph result = new UndirectedGraph();
-            foreach (Vertex vertex in this._Vertices)
+            foreach (Vertex vertex in this.Vertices)
             {
                 result.AddVertex(vertex.DeepClone());
             }
@@ -40,7 +41,7 @@ namespace GRYLibrary.Core.GraphOperations
         public override ISet<Vertex> GetDirectSuccessors(Vertex vertex)
         {
             HashSet<Vertex> result = new HashSet<Vertex>();
-            foreach (DirectedEdge edge in vertex.ConnectedEdges)
+            foreach (DirectedEdge edge in vertex.GetConnectedEdges())
             {
                 if (edge.Source.Equals(vertex))
                 {
@@ -58,7 +59,7 @@ namespace GRYLibrary.Core.GraphOperations
         public ISet<Vertex> GetDirectPredecessors(Vertex vertex)
         {
             HashSet<Vertex> result = new HashSet<Vertex>();
-            foreach (DirectedEdge edge in vertex.ConnectedEdges)
+            foreach (DirectedEdge edge in vertex.GetConnectedEdges())
             {
                 if (edge.Target.Equals(vertex))
                 {
@@ -67,10 +68,9 @@ namespace GRYLibrary.Core.GraphOperations
             }
             return result;
         }
-
         public bool HasIncomingEdge(Vertex vertex)
         {
-            foreach (DirectedEdge edge in vertex.ConnectedEdges)
+            foreach (DirectedEdge edge in vertex.GetConnectedEdges())
             {
                 if (edge.Target.Equals(edge))
                 {
@@ -80,7 +80,7 @@ namespace GRYLibrary.Core.GraphOperations
             return false;
         }
 
-        public override bool TryGetEdge(Vertex source, Vertex target, out DirectedEdge result)
+        public override bool TryGetEdge(Vertex source, Vertex target, out Edge result)
         {
             foreach (DirectedEdge edge in this.Edges)
             {
@@ -94,15 +94,15 @@ namespace GRYLibrary.Core.GraphOperations
             return false;
         }
 
-        public override ISet<DirectedEdge> GetDirectSuccessorEdges(Vertex vertex)
+        public override ISet<Edge> GetDirectSuccessorEdges(Vertex vertex)
         {
-            return this.GetOutgoingEdges(vertex);
+            return new HashSet<Edge>(this.GetOutgoingEdges(vertex).OfType<Edge>());
         }
 
         public ISet<DirectedEdge> GetIncomingEdges(Vertex vertex)
         {
             HashSet<DirectedEdge> result = new HashSet<DirectedEdge>();
-            foreach (DirectedEdge edge in vertex.ConnectedEdges)
+            foreach (DirectedEdge edge in vertex.GetConnectedEdges())
             {
                 if (edge.Target.Equals(vertex))
                 {
@@ -114,7 +114,7 @@ namespace GRYLibrary.Core.GraphOperations
         public ISet<DirectedEdge> GetOutgoingEdges(Vertex vertex)
         {
             HashSet<DirectedEdge> result = new HashSet<DirectedEdge>();
-            foreach (DirectedEdge edge in vertex.ConnectedEdges)
+            foreach (DirectedEdge edge in vertex.GetConnectedEdges())
             {
                 if (edge.Source.Equals(vertex))
                 {
@@ -124,17 +124,6 @@ namespace GRYLibrary.Core.GraphOperations
             return result;
         }
 
-        public override void AddEdge(Edge edge)
-        {
-            if (!(edge is DirectedEdge))
-            {
-                throw new Exception($"{nameof(DirectedGraph)}-objects can only have edges of type {nameof(DirectedEdge)}");
-            }
-            DirectedEdge directedEdge = (DirectedEdge)edge;
-            this.AddCheck(edge, ((DirectedEdge)edge).Source, ((DirectedEdge)edge).Target);
-            this._DirectedEdges.Add((DirectedEdge)edge);
-
-        }
         public static DirectedGraph CreateByAdjacencyMatrix(double[,] adjacencyMatrix)
         {
             DirectedGraph graph = new DirectedGraph();
@@ -145,9 +134,8 @@ namespace GRYLibrary.Core.GraphOperations
             }
             foreach (DirectedEdge item in items.Item1)
             {
-                graph.Edges.Add(item);
+                graph._DirectedEdges.Add(item);
             }
-            graph.SortVertices();
             return graph;
         }
         private static Tuple<IList<DirectedEdge>, IList<Vertex>> ParseAdjacencyMatrix(double[,] adjacencyMatrix)
@@ -167,7 +155,7 @@ namespace GRYLibrary.Core.GraphOperations
             {
                 for (int j = 0; j < adjacencyMatrix.GetLength(1); j++)
                 {
-                    DirectedEdge newEdge = new DirectedEdge(vertices[i], vertices[j], "Edge_" + (i + 1).ToString() + "_" + (j + 1).ToString());
+                    DirectedEdge newEdge = new DirectedEdge(vertices[i], vertices[j], nameof(Edge) + "_" + (i + 1).ToString() + "_" + (j + 1).ToString());
                     newEdge.Weight = adjacencyMatrix[i, j];
                     edges.Add(newEdge);
                 }
@@ -175,12 +163,29 @@ namespace GRYLibrary.Core.GraphOperations
             return new Tuple<IList<DirectedEdge>, IList<Vertex>>(edges, vertices);
         }
 
+        public override void AddEdge(Edge edge)
+        {
+            if (!(edge is DirectedEdge))
+            {
+                throw new InvalidEdgeTypeException($"{nameof(DirectedGraph)}-objects can only have edges of type {nameof(DirectedEdge)}");
+            }
+            DirectedEdge directedEdge = (DirectedEdge)edge;
+            this.AddCheck(edge, ((DirectedEdge)edge).Source, ((DirectedEdge)edge).Target);
+            this._DirectedEdges.Add((DirectedEdge)edge);
+            OnEdgeAdded(edge);
+        }
         public override void RemoveEdge(Edge edge)
         {
             if (edge is DirectedEdge)
             {
                 this._DirectedEdges.Remove((DirectedEdge)edge);
+                OnEdgeRemoved(edge);
             }
+        }
+
+        public override string ToString()
+        {
+            return base.ToString();
         }
     }
 }

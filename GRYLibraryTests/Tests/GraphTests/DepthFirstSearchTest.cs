@@ -1,4 +1,4 @@
-﻿using GRYLibrary.Core.GraphOperations;
+﻿using GRYLibrary.Core.Graph;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
@@ -11,13 +11,14 @@ namespace GRYLibrary.Tests.GraphTests
         [TestMethod]
         public void TestSimpleSearch()
         {
-            IList<Tuple<int, IList<DirectedEdge>>> order = new List<Tuple<int, IList<DirectedEdge>>>();
+            IList<Tuple<int, IList<Edge>>> order = new List<Tuple<int, IList<Edge>>>();
             Graph g = TestGraphs.GetTestGraphWithoutLoop();
             g.DepthFirstSearch((v, edges) =>
             {
-                order.Add(new Tuple<int, IList<DirectedEdge>>(int.Parse(v.Name.Replace("v", string.Empty)), edges));
+                order.Add(new Tuple<int, IList<Edge>>(int.Parse(v.Name.Replace("v", string.Empty)), edges));
                 return true;
             });
+            Assert.AreEqual(10, order.Count);
             int i1 = this.GetIndexOfTupleWithSpeicficFirstvalue(order, 1);
             int i2 = this.GetIndexOfTupleWithSpeicficFirstvalue(order, 2);
             int i3 = this.GetIndexOfTupleWithSpeicficFirstvalue(order, 3);
@@ -40,7 +41,7 @@ namespace GRYLibrary.Tests.GraphTests
             Assert.IsTrue(i5 < i9);
         }
 
-        private int GetIndexOfTupleWithSpeicficFirstvalue(IList<Tuple<int, IList<DirectedEdge>>> l, int index)
+        private int GetIndexOfTupleWithSpeicficFirstvalue(IList<Tuple<int, IList<Edge>>> l, int index)
         {
             for (int i = 0; i < l.Count; i++)
             {

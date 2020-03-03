@@ -2,19 +2,19 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace GRYLibrary.Core.GraphOperations
+namespace GRYLibrary.Core.Graph
 {
     public class Cycle
     {
-        public IList<DirectedEdge> Edges { get; private set; } = new List<DirectedEdge>();
-        public Cycle(IList<DirectedEdge> edgesList)
+        public IList<Edge> Edges { get; private set; } = new List<Edge>();
+        public Cycle(IList<Edge> edgesList)
         {
-            List<DirectedEdge> edges = edgesList.ToList();
+            List<Edge> edges = edgesList.ToList();
             if (edges.Count == 0)
             {
                 throw new Exception("A cycle can not be empty.");
             }
-            if (new HashSet<DirectedEdge>(edges).Count < edges.Count)
+            if (new HashSet<Edge>(edges).Count < edges.Count)
             {
                 throw new Exception("A cycle can not contain two equal edges.");
             }
@@ -47,8 +47,8 @@ namespace GRYLibrary.Core.GraphOperations
             }
             for (int indexOfStartItemInCycle1 = 0; indexOfStartItemInCycle1 < edgesCount; indexOfStartItemInCycle1++)
             {
-                DirectedEdge edgeInCycle1 = this.Edges[indexOfStartItemInCycle1];
-                DirectedEdge edgeInCycle2 = cycle.Edges[(indexOfStartItemInCycle2 + indexOfStartItemInCycle1) % edgesCount];
+                Edge edgeInCycle1 = this.Edges[indexOfStartItemInCycle1];
+                Edge edgeInCycle2 = cycle.Edges[(indexOfStartItemInCycle2 + indexOfStartItemInCycle1) % edgesCount];
                 if (!edgeInCycle1.Equals(edgeInCycle2))
                 {
                     return false;
@@ -61,15 +61,15 @@ namespace GRYLibrary.Core.GraphOperations
             return this.Edges.Count.GetHashCode();
         }
 
-        public static bool RepresentsCycle(IList<DirectedEdge> edges)
+        public static bool RepresentsCycle(IList<Edge> edges)
         {
             if (edges.Count > 0)
             {
-                if (new HashSet<DirectedEdge>(edges).Count != edges.Count)
+                if (new HashSet<Edge>(edges).Count != edges.Count)
                 {
                     return false;
                 }
-                return CheckIfEdgesAreCyclic(edges);
+                return EdgesAreCyclic(edges);
             }
             else
             {
@@ -77,13 +77,13 @@ namespace GRYLibrary.Core.GraphOperations
             }
         }
 
-        private static bool CheckIfEdgesAreCyclic(IList<DirectedEdge> edges)
+        private static bool EdgesAreCyclic(IList<Edge> edges)
         {
             for (int i = 0; i < edges.Count; i++)
             {
                 if (i == 0)
                 {
-                    if (!edges[0].Source.Equals(edges[edges.Count - 1].Target))
+                    if (! edges[0].Source.Equals(edges[edges.Count - 1].Target))
                     {
                         return false;
                     }

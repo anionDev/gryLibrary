@@ -7,12 +7,37 @@ namespace GRYLibrary.Core
     public class TableGenerator
     {
         private TableGenerator() { }
-        public static string[] Generate<T>(T[,] array, TableOutputType outputType, Func<T, string> toString)
+        public static string[] Generate<T>(T[,] array, TableOutputType outputType, Func<T, string> toString, object[] headlines = null)
         {
-            throw new NotImplementedException();
+            string[,] convertedArray = new string[array.GetLength(0), array.GetLength(1)];
+            for (int i = 0; i < array.GetLength(0); i++)
+            {
+                for (int j = 0; j < array.GetLength(1); j++)
+                {
+                    convertedArray[i, j] = toString(array[i, j]);
+                }
+            }
+            return Generate(convertedArray, outputType, headlines);
         }
-        public static string[] Generate(string[,] array, TableOutputType outputType)
+        public static string[] Generate(string[,] array, TableOutputType outputType, object[] headlines = null)
         {
+            if (headlines != null)
+            {
+                string[,] newArray = new string[array.GetLength(0) + 1, array.GetLength(1)];
+                for (int i = 0; i < headlines.Length; i++)
+                {
+                    newArray[0, i] = headlines[i].ToString();
+                }
+                for (int i = 0; i < array.GetLength(0); i++)
+                {
+                    for (int j = 0; j < array.GetLength(1); j++)
+                    {
+                        newArray[i+ 1, j] = array[i , j];
+                    }
+                }
+                array = newArray;
+                outputType.TableHasTitles = true;
+            }
             return outputType.Accept(new TableOutputTypeVisitor(array));
         }
         private class TableOutputTypeVisitor : ITableOutputTypeVisitor<string[]>
@@ -217,6 +242,7 @@ namespace GRYLibrary.Core
         }
         public abstract class TableOutputType
         {
+            public bool TableHasTitles { get; set; } = false;
             public abstract void Accept(ITableOutputTypeVisitor visitor);
             public abstract T Accept<T>(ITableOutputTypeVisitor<T> visitor);
 
@@ -238,7 +264,6 @@ namespace GRYLibrary.Core
         {
             public ITableCharacter Characters { get; set; } = new OneLineTableCharacter();
 
-            public bool TableHasTitles { get; set; } = false;
             public int MaximalWidth { get; set; } = 1000;
             public string Title { get; set; } = string.Empty;
             public override void Accept(ITableOutputTypeVisitor visitor)

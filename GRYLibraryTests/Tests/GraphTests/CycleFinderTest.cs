@@ -1,4 +1,4 @@
-﻿using GRYLibrary.Core.GraphOperations;
+﻿using GRYLibrary.Core.Graph;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
 using System.Linq;
@@ -41,9 +41,9 @@ namespace GRYLibrary.Tests.GraphTests
             DirectedEdge e10 = new DirectedEdge(f, c, nameof(e10)); graph.AddEdge(e10);
 
             ISet<Cycle> expectedCycles = new HashSet<Cycle>();
-            expectedCycles.Add(new Cycle(new DirectedEdge[] { e01, e02, e03, e04, e05, e06, e07, e08 }.ToList()));
-            expectedCycles.Add(new Cycle(new DirectedEdge[] { e01, e09, e07, e08 }.ToList()));
-            expectedCycles.Add(new Cycle(new DirectedEdge[] { e03, e04, e05, e10 }.ToList()));
+            expectedCycles.Add(new Cycle(new Edge[] { e01, e02, e03, e04, e05, e06, e07, e08 }.ToList()));
+            expectedCycles.Add(new Cycle(new Edge[] { e01, e09, e07, e08 }.ToList()));
+            expectedCycles.Add(new Cycle(new Edge[] { e03, e04, e05, e10 }.ToList()));
 
             ISet<Cycle> foundCycles = graph.GetAllCycles();
 
@@ -52,6 +52,7 @@ namespace GRYLibrary.Tests.GraphTests
         [TestMethod]
         public void TestSimpleGraph2()
         {
+            throw new System.Exception("caution: endless-loop due to bug in GetAllCyclesThroughASpecificVertex");
             DirectedGraph graph = new DirectedGraph();
             Vertex a = new Vertex(nameof(a)); graph.AddVertex(a);
             Vertex b = new Vertex(nameof(b)); graph.AddVertex(b);
@@ -69,11 +70,11 @@ namespace GRYLibrary.Tests.GraphTests
             DirectedEdge e08 = new DirectedEdge(d, b, nameof(e08)); graph.AddEdge(e08);
 
             ISet<Cycle> expectedCycles = new HashSet<Cycle>();
-            expectedCycles.Add(new Cycle(new DirectedEdge[] { e01, e02, e03, e04, e05 }.ToList()));
-            expectedCycles.Add(new Cycle(new DirectedEdge[] { e06, e03, e08, e07,e05 }.ToList()));
-            expectedCycles.Add(new Cycle(new DirectedEdge[] { e02, e03, e08 }.ToList()));
-            expectedCycles.Add(new Cycle(new DirectedEdge[] { e01, e07, e05 }.ToList()));
-            expectedCycles.Add(new Cycle(new DirectedEdge[] { e06, e03, e04, e05 }.ToList()));
+            expectedCycles.Add(new Cycle(new Edge[] { e01, e02, e03, e04, e05 }.ToList()));
+            expectedCycles.Add(new Cycle(new Edge[] { e06, e03, e08, e07,e05 }.ToList()));
+            expectedCycles.Add(new Cycle(new Edge[] { e02, e03, e08 }.ToList()));
+            expectedCycles.Add(new Cycle(new Edge[] { e01, e07, e05 }.ToList()));
+            expectedCycles.Add(new Cycle(new Edge[] { e06, e03, e04, e05 }.ToList()));
 
             ISet<Cycle> foundCycles = graph.GetAllCycles();
 

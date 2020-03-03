@@ -1,4 +1,4 @@
-﻿using GRYLibrary.Core.GraphOperations;
+﻿using GRYLibrary.Core.Graph;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
@@ -21,7 +21,7 @@ namespace GRYLibrary.Tests.GraphTests
             DirectedEdge edge3 = new DirectedEdge(v1, v2, "e3");
             DirectedEdge edge4 = new DirectedEdge(v2, v3, "e4");
 
-            List<DirectedEdge> cycleItems = new List<DirectedEdge>();
+            List<Edge> cycleItems = new List<Edge>();
             cycleItems.Add(edge3);
             cycleItems.Add(edge4);
             cycleItems.Add(edge1);
@@ -50,7 +50,7 @@ namespace GRYLibrary.Tests.GraphTests
             DirectedEdge edge4 = new DirectedEdge(v3, v4, "e4");
             DirectedEdge edge5 = new DirectedEdge(v4, v3, "e5");
 
-            List<DirectedEdge> cycleItems = new List<DirectedEdge>();
+            List<Edge> cycleItems = new List<Edge>();
 
             cycleItems.Add(edge1);
             Assert.IsFalse(Cycle.RepresentsCycle(cycleItems));

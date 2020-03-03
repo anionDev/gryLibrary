@@ -1,4 +1,4 @@
-﻿using GRYLibrary.Core.GraphOperations;
+﻿using GRYLibrary.Core.Graph;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -11,7 +11,7 @@ namespace GRYLibrary.Core
         public IDictionary<Guid, object> IdWithTheirObjects { get; }
         public IDictionary<DirectedEdge, PropertyInfo> EdgesInformation { get; }
         public IDictionary<object, Guid> ObjectsWithTheirId { get; }
-        public Graph Graph { get; }
+        public Graph.Graph Graph { get; }
         public object @Object { get; }
         public object NullRepresenter { get; } = new object();
         public ObjectGraph(object @object)

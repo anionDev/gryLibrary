@@ -1,6 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 
-namespace GRYLibrary.Core.GraphOperations
+namespace GRYLibrary.Core.Graph
 {
     public abstract class Edge
     {
@@ -14,6 +15,9 @@ namespace GRYLibrary.Core.GraphOperations
             this.Name = name;
             this.Weight = weight;
         }
+        public abstract bool Connects(Vertex fromVertex, Vertex toVertex);
+
+        public abstract IEnumerable<Vertex> GetConnectedVertices();
 
         private static string CalculateEdgeName()
         {
@@ -24,6 +28,10 @@ namespace GRYLibrary.Core.GraphOperations
         {
             Edge typedObject = obj as Edge;
             if (typedObject is null)
+            {
+                return false;
+            }
+            if (!this.GetType().Equals(obj.GetType()))
             {
                 return false;
             }
