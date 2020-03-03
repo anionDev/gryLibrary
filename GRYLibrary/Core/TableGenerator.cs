@@ -6,6 +6,11 @@ namespace GRYLibrary.Core
 {
     public class TableGenerator
     {
+        private TableGenerator() { }
+        public static string[] Generate<T>(T[,] array, TableOutputType outputType, Func<T, string> toString)
+        {
+            throw new NotImplementedException();
+        }
         public static string[] Generate(string[,] array, TableOutputType outputType)
         {
             return outputType.Accept(new TableOutputTypeVisitor(array));

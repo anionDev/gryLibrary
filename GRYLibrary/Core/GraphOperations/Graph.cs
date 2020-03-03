@@ -10,41 +10,11 @@ namespace GRYLibrary.Core.GraphOperations
     /// <remarks>
     /// This graph does not support two edges between the same two vertices.
     /// </remarks>
-    [Serializable]
     public abstract class Graph
     {
         public IList<Vertex> Vertices { get; private set; }
-
-        protected static Graph FillByAdjacencyMatrix(Graph grpah, double[,] adjacencyMatrix)
-        {
-            Tuple<IList<Edge>, IList<Vertex>> items = grpah.ParseAdjacencyMatrix(adjacencyMatrix);
-            foreach (Vertex item in items.Item2)
-            {
-                grpah._Vertices.Add(item);
-            }
-            foreach (Edge item in items.Item1)
-            {
-                grpah._Edges.Add(item);
-            }
-            grpah.SortVertices();
-            return grpah;
-        }
-
-        public Vertex GetVertexByName(string vertexName)
-        {
-            foreach (Vertex vertex in this.Vertices)
-            {
-                if (vertex.Name.Equals(vertexName))
-                {
-                    return vertex;
-                }
-            }
-            throw new KeyNotFoundException();
-        }
-
         protected ISet<Vertex> _Vertices = new HashSet<Vertex>();
-        public IEnumerable<Edge> Edges { get { return this._Edges.ToList().AsReadOnly(); } }
-        protected ISet<Edge> _Edges = new HashSet<Edge>();
+        public abstract ISet<Edge> Edges { get; }
 
         public abstract void Accept(IGraphVisitor visitor);
         public abstract T Accept<T>(IGraphVisitor<T> visitor);
@@ -69,36 +39,23 @@ namespace GRYLibrary.Core.GraphOperations
             }
         }
         private bool _SelfLoopIsAllowed = true;
+
+        public Vertex GetVertexByName(string vertexName)
+        {
+            foreach (Vertex vertex in this.Vertices)
+            {
+                if (vertex.Name.Equals(vertexName))
+                {
+                    return vertex;
+                }
+            }
+            throw new KeyNotFoundException();
+        }
         /// <remarks>
         /// This function will also add the vertices which are connected by <paramref name="edge"/> to the list of vertices of this graph.
         /// </remarks>
-        public void AddEdge(Edge edge)
-        {
-            if (!this.SelfLoopIsAllowed && edge.Source.Equals(edge.Target))
-            {
-                throw new Exception($"Self-loops are not allowed. Change the value of the {nameof(this.SelfLoopIsAllowed)}-property to allow this.");
-            }
-            if (this.Edges.Where(existingEdge => existingEdge.Name.Equals(edge.Name)).Count() > 0)
-            {
-                throw new Exception($"This graph does already have an edge with the name {edge.Name}.");
-            }
-            if (this.TryGetEdge(edge.Source, edge.Target, out _))
-            {
-                throw new Exception($"This graph does already have an edge which connects {edge.Source.Name} and {edge.Target.Name}.");
-            }
-            this._Vertices.Add(edge.Source);
-            this._Vertices.Add(edge.Target);
-            this.SortVertices();
-            this._Edges.Add(edge);
-            edge.Source.ConnectedEdges.Add(edge);
-            edge.Target.ConnectedEdges.Add(edge);
-        }
-        public void RemoveEdge(Edge edge)
-        {
-            this._Edges.Remove(edge);
-            edge.Source.ConnectedEdges.Remove(edge);
-            edge.Target.ConnectedEdges.Remove(edge);
-        }
+        public abstract void AddEdge(Edge edge);
+        public abstract void RemoveEdge(Edge edge);
         public void AddVertex(Vertex vertex)
         {
             if (this.Vertices.Contains(vertex))
@@ -110,7 +67,7 @@ namespace GRYLibrary.Core.GraphOperations
         }
         public void RemoveAllEdgesWithoutWeight()
         {
-            foreach (Edge edge in this._Edges)
+            foreach (Edge edge in this.Edges)
             {
                 if (edge.Weight == 0)
                 {
@@ -124,11 +81,26 @@ namespace GRYLibrary.Core.GraphOperations
         public void RemoveVertex(Vertex vertex)
         {
             this._Vertices.Remove(vertex);
-            foreach (Edge edge in vertex.ConnectedEdges)
+            foreach (DirectedEdge edge in vertex.ConnectedEdges)
             {
                 this.RemoveEdge(edge);
             }
             this.SortVertices();
+        }
+        protected void AddCheck(Edge edge, Vertex connectedVertex1, Vertex connectedVertex2)
+        {
+            if (!this.SelfLoopIsAllowed && connectedVertex1.Equals(connectedVertex2))
+            {
+                throw new Exception($"Self-loops are not allowed. Change the value of the {nameof(this.SelfLoopIsAllowed)}-property to allow this.");
+            }
+            if (this.Edges.Where(existingEdge => existingEdge.Name.Equals(edge.Name)).Count() > 0)
+            {
+                throw new Exception($"This graph does already have an edge with the name {edge.Name}.");
+            }
+            if (this.TryGetEdge(connectedVertex1, connectedVertex2, out _))
+            {
+                throw new Exception($"This graph does already have an edge which connects {connectedVertex1.Name} and {connectedVertex2.Name}.");
+            }
         }
         protected void SortVertices()
         {
@@ -137,7 +109,7 @@ namespace GRYLibrary.Core.GraphOperations
 
         public bool ContainsOneOrMoreSelfLoops()
         {
-            foreach (Edge edge in this.Edges)
+            foreach (DirectedEdge edge in this.Edges)
             {
                 if (edge.Source.Equals(edge.Target))
                 {
@@ -195,7 +167,7 @@ namespace GRYLibrary.Core.GraphOperations
             {
                 for (int j = 0; j < result.GetLength(1); j++)
                 {
-                    if (this.TryGetEdge(vertices[i], vertices[j], out Edge connection))
+                    if (this.TryGetEdge(vertices[i], vertices[j], out DirectedEdge connection))
                     {
                         result[i, j] = connection.Weight;
                     }
@@ -208,31 +180,6 @@ namespace GRYLibrary.Core.GraphOperations
             return result;
         }
 
-
-        protected Tuple<IList<Edge>, IList<Vertex>> ParseAdjacencyMatrix(double[,] adjacencyMatrix)
-        {
-            if (adjacencyMatrix.GetLength(0) != adjacencyMatrix.GetLength(1))
-            {
-                throw new Exception("The row-count must be equal to the column-count.");
-            }
-            IList<Vertex> vertices = new List<Vertex>();
-            for (int i = 0; i < adjacencyMatrix.GetLength(0); i++)
-            {
-                Vertex newVertex = new Vertex("Vertex_" + (i + 1).ToString());
-                vertices.Add(newVertex);
-            }
-            IList<Edge> edges = new List<Edge>();
-            for (int i = 0; i < adjacencyMatrix.GetLength(0); i++)
-            {
-                for (int j = 0; j < adjacencyMatrix.GetLength(1); j++)
-                {
-                    Edge newEdge = new Edge(vertices[i], vertices[j], "Edge_" + (i + 1).ToString() + "_" + (j + 1).ToString());
-                    newEdge.Weight = adjacencyMatrix[i, j];
-                    edges.Add(newEdge);
-                }
-            }
-            return new Tuple<IList<Edge>, IList<Vertex>>(edges, vertices);
-        }
         public ISet<Cycle> GetAllCycles()
         {
             ISet<Cycle> result = new HashSet<Cycle>();
@@ -246,18 +193,18 @@ namespace GRYLibrary.Core.GraphOperations
         public ISet<Cycle> GetAllCyclesThroughASpecificVertex(Vertex vertex)
         {
             HashSet<Cycle> result = new HashSet<Cycle>();
-            ISet<WriteableTuple<IList<Edge>, bool>> paths = new HashSet<WriteableTuple<IList<Edge>, bool>>();
-            foreach (Edge edge in this.GetDirectSuccessorEdges(vertex))
+            ISet<WriteableTuple<IList<DirectedEdge>, bool>> paths = new HashSet<WriteableTuple<IList<DirectedEdge>, bool>>();
+            foreach (DirectedEdge edge in this.GetDirectSuccessorEdges(vertex))
             {
-                paths.Add(new WriteableTuple<IList<Edge>, bool>(new List<Edge>(new Edge[] { edge }), false));
+                paths.Add(new WriteableTuple<IList<DirectedEdge>, bool>(new List<DirectedEdge>(new DirectedEdge[] { edge }), false));
             }
             while (paths.Where(pathTuple => !pathTuple.Item2).Count() > 0)
             {
-                foreach (WriteableTuple<IList<Edge>, bool> pathTuple in paths.ToList())
+                foreach (WriteableTuple<IList<DirectedEdge>, bool> pathTuple in paths.ToList())
                 {
                     if (!pathTuple.Item2)
                     {
-                        IList<Edge> currentPath = pathTuple.Item1;
+                        IList<DirectedEdge> currentPath = pathTuple.Item1;
                         if (Cycle.RepresentsCycle(currentPath))
                         {
                             result.Add(new Cycle(currentPath));
@@ -265,13 +212,19 @@ namespace GRYLibrary.Core.GraphOperations
                         }
                         else
                         {
-                            foreach (Edge edge in this.GetDirectSuccessorEdges(currentPath.Last().Source).Concat(this.GetDirectSuccessorEdges(currentPath.Last().Target)))
+                            foreach (DirectedEdge edge in this.GetDirectSuccessorEdges(currentPath.Last().Source).Concat(this.GetDirectSuccessorEdges(currentPath.Last().Target)))
                             {
-                                if (!this.Contains(currentPath, edge.Source, true) || !this.Contains(currentPath, edge.Target, true))
+                                if (!this.Contains(currentPath, edge.Source, true))
                                 {
-                                    List<Edge> newPath = new List<Edge>(currentPath);
+                                    List<DirectedEdge> newPath = new List<DirectedEdge>(currentPath);
                                     newPath.Add(edge);
-                                    paths.Add(new WriteableTuple<IList<Edge>, bool>(newPath, false));
+                                    paths.Add(new WriteableTuple<IList<DirectedEdge>, bool>(newPath, false));
+                                }
+                                if (!this.Contains(currentPath, edge.Target, true))
+                                {
+                                    List<DirectedEdge> newPath = new List<DirectedEdge>(currentPath);
+                                    newPath.Add(edge);
+                                    paths.Add(new WriteableTuple<IList<DirectedEdge>, bool>(newPath, false));
                                 }
                             }
                         }
@@ -280,12 +233,18 @@ namespace GRYLibrary.Core.GraphOperations
             }
             return result;
         }
-        public abstract ISet<Edge> GetDirectSuccessorEdges(Vertex vertex);
-        private bool Contains(IList<Edge> edges, Vertex vertex, bool excludeTargetOfLastEdge = false)
+        public override string ToString()
+        {
+            double[,] matrix = this.ToAdjacencyMatrix();
+            var table = TableGenerator.Generate(matrix, new TableGenerator.ASCIITable(), value => value.ToString());
+            return string.Join(Environment.NewLine, table);
+        }
+        public abstract ISet<DirectedEdge> GetDirectSuccessorEdges(Vertex vertex);
+        private bool Contains(IList<DirectedEdge> edges, Vertex vertex, bool excludeTargetOfLastEdge = false)
         {
             for (int i = 0; i < edges.Count; i++)
             {
-                Edge currentEdge = edges[i];
+                DirectedEdge currentEdge = edges[i];
                 if (currentEdge.Source.Equals(vertex))
                 {
                     return true;
@@ -302,31 +261,31 @@ namespace GRYLibrary.Core.GraphOperations
             return false;
         }
 
-        public void BreadthFirstSearch(Func<Vertex/*current vertex*/, IList<Edge>/*path*/, bool/*continue search*/> customAction)
+        public void BreadthFirstSearch(Func<Vertex/*current vertex*/, IList<DirectedEdge>/*path*/, bool/*continue search*/> customAction)
         {
             this.BreadthFirstSearch(customAction, this.Vertices.First());
         }
-        public void BreadthFirstSearch(Func<Vertex/*current vertex*/, IList<Edge>/*path*/, bool/*continue search*/> customAction, Vertex startVertex)
+        public void BreadthFirstSearch(Func<Vertex/*current vertex*/, IList<DirectedEdge>/*path*/, bool/*continue search*/> customAction, Vertex startVertex)
         {
             this.InitializeSearchAndDoSomeChecks(startVertex, out Dictionary<Vertex, bool> visitedMap);
-            Queue<Tuple<Vertex, IList<Edge>>> queue = new Queue<Tuple<Vertex, IList<Edge>>>();
+            Queue<Tuple<Vertex, IList<DirectedEdge>>> queue = new Queue<Tuple<Vertex, IList<DirectedEdge>>>();
             visitedMap[startVertex] = true;
-            List<Edge> initialList = new List<Edge>();
+            List<DirectedEdge> initialList = new List<DirectedEdge>();
             if (!customAction(startVertex, initialList))
             {
                 return;
             }
-            queue.Enqueue(new Tuple<Vertex, IList<Edge>>(startVertex, initialList));
+            queue.Enqueue(new Tuple<Vertex, IList<DirectedEdge>>(startVertex, initialList));
             while (queue.Count != 0)
             {
-                Tuple<Vertex, IList<Edge>> currentVertex = queue.Dequeue();
+                Tuple<Vertex, IList<DirectedEdge>> currentVertex = queue.Dequeue();
                 foreach (Vertex successor in this.GetDirectSuccessors(currentVertex.Item1))
                 {
                     if (!visitedMap[successor])
                     {
                         visitedMap[successor] = true;
-                        List<Edge> successorPath = currentVertex.Item2.ToList();
-                        if (this.TryGetEdge(currentVertex.Item1, successor, out Edge edge))
+                        List<DirectedEdge> successorPath = currentVertex.Item2.ToList();
+                        if (this.TryGetEdge(currentVertex.Item1, successor, out DirectedEdge edge))
                         {
                             successorPath.Add(edge);
                         }
@@ -338,25 +297,25 @@ namespace GRYLibrary.Core.GraphOperations
                         {
                             return;
                         }
-                        queue.Enqueue(new Tuple<Vertex, IList<Edge>>(successor, successorPath));
+                        queue.Enqueue(new Tuple<Vertex, IList<DirectedEdge>>(successor, successorPath));
                     }
                 }
             }
 
         }
 
-        public void DepthFirstSearch(Func<Vertex/*current vertex*/, IList<Edge>/*path*/, bool/*continue search*/> customAction)
+        public void DepthFirstSearch(Func<Vertex/*current vertex*/, IList<DirectedEdge>/*path*/, bool/*continue search*/> customAction)
         {
             this.DepthFirstSearch(customAction, this.Vertices.First());
         }
-        public void DepthFirstSearch(Func<Vertex/*current vertex*/, IList<Edge>/*path*/, bool/*continue search*/> customAction, Vertex startVertex)
+        public void DepthFirstSearch(Func<Vertex/*current vertex*/, IList<DirectedEdge>/*path*/, bool/*continue search*/> customAction, Vertex startVertex)
         {
             this.InitializeSearchAndDoSomeChecks(startVertex, out Dictionary<Vertex, bool> visitedMap);
-            Stack<Tuple<Vertex, IList<Edge>>> stack = new Stack<Tuple<Vertex, IList<Edge>>>();
-            stack.Push(new Tuple<Vertex, IList<Edge>>(startVertex, new List<Edge>()));
+            Stack<Tuple<Vertex, IList<DirectedEdge>>> stack = new Stack<Tuple<Vertex, IList<DirectedEdge>>>();
+            stack.Push(new Tuple<Vertex, IList<DirectedEdge>>(startVertex, new List<DirectedEdge>()));
             while (stack.Count > 0)
             {
-                Tuple<Vertex, IList<Edge>> currentVertex = stack.Pop();
+                Tuple<Vertex, IList<DirectedEdge>> currentVertex = stack.Pop();
                 if (!visitedMap[currentVertex.Item1])
                 {
                     visitedMap[currentVertex.Item1] = true;
@@ -366,8 +325,8 @@ namespace GRYLibrary.Core.GraphOperations
                     }
                     foreach (Vertex successor in this.GetDirectSuccessors(currentVertex.Item1))
                     {
-                        List<Edge> successorPath = currentVertex.Item2.ToList();
-                        if (this.TryGetEdge(currentVertex.Item1, successor, out Edge edge))
+                        List<DirectedEdge> successorPath = currentVertex.Item2.ToList();
+                        if (this.TryGetEdge(currentVertex.Item1, successor, out DirectedEdge edge))
                         {
                             successorPath.Add(edge);
                         }
@@ -375,7 +334,7 @@ namespace GRYLibrary.Core.GraphOperations
                         {
                             throw new Exception($"Could not get edge with name '{edge.Name}'");
                         }
-                        stack.Push(new Tuple<Vertex, IList<Edge>>(successor, successorPath));
+                        stack.Push(new Tuple<Vertex, IList<DirectedEdge>>(successor, successorPath));
                     }
                 }
             }
@@ -393,7 +352,7 @@ namespace GRYLibrary.Core.GraphOperations
             }
         }
 
-        public abstract bool TryGetEdge(Vertex source, Vertex target, out Edge edge);
+        public abstract bool TryGetEdge(Vertex source, Vertex target, out DirectedEdge edge);
 
         /// <returns>
         /// Returns true if and only if the adjacency-matrices of this and <paramref name="obj"/> are equal.

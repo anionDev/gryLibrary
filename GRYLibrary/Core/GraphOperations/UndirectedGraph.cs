@@ -1,17 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace GRYLibrary.Core.GraphOperations
 {
-    [Serializable]
     public class UndirectedGraph : Graph
     {
-        public static UndirectedGraph CreateByAdjacencyMatrix(double[,] adjacencyMatrix)
-        {
-            UndirectedGraph result = new UndirectedGraph();
-            return (UndirectedGraph)FillByAdjacencyMatrix(result, adjacencyMatrix);
-        }
-        public override void Accept(IGraphVisitor visitor)
+        public override ISet<Edge> Edges { get { return new HashSet<Edge>(_UndirectedEdges); } }
+        public ISet<Edge> UndirectedEdges { get { return new HashSet<Edge>(_UndirectedEdges); } }
+        private ISet<UndirectedEdge> _UndirectedEdges = new HashSet<UndirectedEdge>();
+           public override void Accept(IGraphVisitor visitor)
         {
             visitor.Handle(this);
         }
@@ -28,7 +26,7 @@ namespace GRYLibrary.Core.GraphOperations
         public override ISet<Vertex> GetDirectSuccessors(Vertex vertex)
         {
             HashSet<Vertex> result = new HashSet<Vertex>();
-            foreach (Edge edge in vertex.ConnectedEdges)
+            foreach (DirectedEdge edge in vertex.ConnectedEdges)
             {
                 bool sourceIsThis = edge.Source.Equals(vertex);
                 bool targetIsThis = edge.Target.Equals(vertex);
@@ -50,9 +48,9 @@ namespace GRYLibrary.Core.GraphOperations
             }
             return result;
         }
-        public override bool TryGetEdge(Vertex source, Vertex target, out Edge result)
+        public override bool TryGetEdge(Vertex source, Vertex target, out DirectedEdge result)
         {
-            foreach (Edge edge in this.Edges)
+            foreach (DirectedEdge edge in this.Edges)
             {
                 if ((edge.Source.Equals(source) && edge.Target.Equals(target)) || (edge.Source.Equals(target) && edge.Target.Equals(source)))
                 {
@@ -64,10 +62,10 @@ namespace GRYLibrary.Core.GraphOperations
             return false;
         }
 
-        public override ISet<Edge> GetDirectSuccessorEdges(Vertex vertex)
+        public override ISet<DirectedEdge> GetDirectSuccessorEdges(Vertex vertex)
         {
-            HashSet<Edge> result = new HashSet<Edge>();
-            foreach (Edge edge in vertex.ConnectedEdges)
+            HashSet<DirectedEdge> result = new HashSet<DirectedEdge>();
+            foreach (DirectedEdge edge in vertex.ConnectedEdges)
             {
                 bool sourceIsThis = edge.Source.Equals(vertex);
                 bool targetIsThis = edge.Target.Equals(vertex);
@@ -88,6 +86,26 @@ namespace GRYLibrary.Core.GraphOperations
                 }
             }
             return result;
+        }
+
+        public override void AddEdge(Edge edge)
+        {
+            if (!(edge is UndirectedEdge))
+            {
+                throw new Exception($"{nameof(UndirectedGraph)}-objects can only have edges of type {nameof(UndirectedEdge)}");
+            }
+            UndirectedEdge undirectedEdge = (UndirectedEdge)edge;
+            var connectedVertices = undirectedEdge.ConnectedVertices.ToList();
+            this.AddCheck(edge,connectedVertices[0],connectedVertices[1]);
+            this._UndirectedEdges.Add((UndirectedEdge)edge);
+        }
+
+        public override void RemoveEdge(Edge edge)
+        {
+            if (edge is UndirectedEdge)
+            {
+                this._UndirectedEdges.Remove((UndirectedEdge)edge);
+            }
         }
     }
 }

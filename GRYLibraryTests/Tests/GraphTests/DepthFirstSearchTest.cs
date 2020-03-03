@@ -11,11 +11,11 @@ namespace GRYLibrary.Tests.GraphTests
         [TestMethod]
         public void TestSimpleSearch()
         {
-            IList<Tuple<int, IList<Edge>>> order = new List<Tuple<int, IList<Edge>>>();
+            IList<Tuple<int, IList<DirectedEdge>>> order = new List<Tuple<int, IList<DirectedEdge>>>();
             Graph g = TestGraphs.GetTestGraphWithoutLoop();
             g.DepthFirstSearch((v, edges) =>
             {
-                order.Add(new Tuple<int, IList<Edge>>(int.Parse(v.Name.Replace("v", string.Empty)), edges));
+                order.Add(new Tuple<int, IList<DirectedEdge>>(int.Parse(v.Name.Replace("v", string.Empty)), edges));
                 return true;
             });
             int i1 = this.GetIndexOfTupleWithSpeicficFirstvalue(order, 1);
@@ -40,7 +40,7 @@ namespace GRYLibrary.Tests.GraphTests
             Assert.IsTrue(i5 < i9);
         }
 
-        private int GetIndexOfTupleWithSpeicficFirstvalue(IList<Tuple<int, IList<Edge>>> l, int index)
+        private int GetIndexOfTupleWithSpeicficFirstvalue(IList<Tuple<int, IList<DirectedEdge>>> l, int index)
         {
             for (int i = 0; i < l.Count; i++)
             {

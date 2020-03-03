@@ -1,16 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace GRYLibrary.Core.GraphOperations
 {
-    [Serializable]
     public class DirectedGraph : Graph
     {
-        public static DirectedGraph CreateByAdjacencyMatrix(double[,] adjacencyMatrix)
-        {
-            DirectedGraph result = new DirectedGraph();
-            return (DirectedGraph)FillByAdjacencyMatrix(result, adjacencyMatrix);
-        }
+        public override ISet<Edge> Edges { get { return new HashSet<Edge>(_DirectedEdges); } }
+        public ISet<Edge> DirectedEdges { get { return new HashSet<Edge>(_DirectedEdges); } }
+        private ISet<DirectedEdge> _DirectedEdges = new HashSet<DirectedEdge>();
 
         public override void Accept(IGraphVisitor visitor)
         {
@@ -29,9 +27,9 @@ namespace GRYLibrary.Core.GraphOperations
             {
                 result.AddVertex(vertex.DeepClone());
             }
-            foreach (Edge edge in this._Edges)
+            foreach (DirectedEdge edge in this._DirectedEdges)
             {
-                result.AddEdge(edge.DeepClone());
+                result.AddEdge(edge.ToUndirectedEdge());
             }
             return result;
         }
@@ -42,7 +40,7 @@ namespace GRYLibrary.Core.GraphOperations
         public override ISet<Vertex> GetDirectSuccessors(Vertex vertex)
         {
             HashSet<Vertex> result = new HashSet<Vertex>();
-            foreach (Edge edge in vertex.ConnectedEdges)
+            foreach (DirectedEdge edge in vertex.ConnectedEdges)
             {
                 if (edge.Source.Equals(vertex))
                 {
@@ -60,7 +58,7 @@ namespace GRYLibrary.Core.GraphOperations
         public ISet<Vertex> GetDirectPredecessors(Vertex vertex)
         {
             HashSet<Vertex> result = new HashSet<Vertex>();
-            foreach (Edge edge in vertex.ConnectedEdges)
+            foreach (DirectedEdge edge in vertex.ConnectedEdges)
             {
                 if (edge.Target.Equals(vertex))
                 {
@@ -72,7 +70,7 @@ namespace GRYLibrary.Core.GraphOperations
 
         public bool HasIncomingEdge(Vertex vertex)
         {
-            foreach (Edge edge in vertex.ConnectedEdges)
+            foreach (DirectedEdge edge in vertex.ConnectedEdges)
             {
                 if (edge.Target.Equals(edge))
                 {
@@ -82,9 +80,9 @@ namespace GRYLibrary.Core.GraphOperations
             return false;
         }
 
-        public override bool TryGetEdge(Vertex source, Vertex target, out Edge result)
+        public override bool TryGetEdge(Vertex source, Vertex target, out DirectedEdge result)
         {
-            foreach (Edge edge in this.Edges)
+            foreach (DirectedEdge edge in this.Edges)
             {
                 if (edge.Source.Equals(source) && edge.Target.Equals(target))
                 {
@@ -96,15 +94,15 @@ namespace GRYLibrary.Core.GraphOperations
             return false;
         }
 
-        public override ISet<Edge> GetDirectSuccessorEdges(Vertex vertex)
+        public override ISet<DirectedEdge> GetDirectSuccessorEdges(Vertex vertex)
         {
             return this.GetOutgoingEdges(vertex);
         }
 
-        public ISet<Edge> GetIncomingEdges(Vertex vertex)
+        public ISet<DirectedEdge> GetIncomingEdges(Vertex vertex)
         {
-            HashSet<Edge> result = new HashSet<Edge>();
-            foreach (Edge edge in vertex.ConnectedEdges)
+            HashSet<DirectedEdge> result = new HashSet<DirectedEdge>();
+            foreach (DirectedEdge edge in vertex.ConnectedEdges)
             {
                 if (edge.Target.Equals(vertex))
                 {
@@ -113,10 +111,10 @@ namespace GRYLibrary.Core.GraphOperations
             }
             return result;
         }
-        public ISet<Edge> GetOutgoingEdges(Vertex vertex)
+        public ISet<DirectedEdge> GetOutgoingEdges(Vertex vertex)
         {
-            HashSet<Edge> result = new HashSet<Edge>();
-            foreach (Edge edge in vertex.ConnectedEdges)
+            HashSet<DirectedEdge> result = new HashSet<DirectedEdge>();
+            foreach (DirectedEdge edge in vertex.ConnectedEdges)
             {
                 if (edge.Source.Equals(vertex))
                 {
@@ -124,6 +122,65 @@ namespace GRYLibrary.Core.GraphOperations
                 }
             }
             return result;
+        }
+
+        public override void AddEdge(Edge edge)
+        {
+            if (!(edge is DirectedEdge))
+            {
+                throw new Exception($"{nameof(DirectedGraph)}-objects can only have edges of type {nameof(DirectedEdge)}");
+            }
+            DirectedEdge directedEdge = (DirectedEdge)edge;
+            this.AddCheck(edge, ((DirectedEdge)edge).Source, ((DirectedEdge)edge).Target);
+            this._DirectedEdges.Add((DirectedEdge)edge);
+
+        }
+        public static DirectedGraph CreateByAdjacencyMatrix(double[,] adjacencyMatrix)
+        {
+            DirectedGraph graph = new DirectedGraph();
+            Tuple<IList<DirectedEdge>, IList<Vertex>> items = ParseAdjacencyMatrix(adjacencyMatrix);
+            foreach (Vertex item in items.Item2)
+            {
+                graph._Vertices.Add(item);
+            }
+            foreach (DirectedEdge item in items.Item1)
+            {
+                graph.Edges.Add(item);
+            }
+            graph.SortVertices();
+            return graph;
+        }
+        private static Tuple<IList<DirectedEdge>, IList<Vertex>> ParseAdjacencyMatrix(double[,] adjacencyMatrix)
+        {
+            if (adjacencyMatrix.GetLength(0) != adjacencyMatrix.GetLength(1))
+            {
+                throw new Exception("The row-count must be equal to the column-count.");
+            }
+            IList<Vertex> vertices = new List<Vertex>();
+            for (int i = 0; i < adjacencyMatrix.GetLength(0); i++)
+            {
+                Vertex newVertex = new Vertex("Vertex_" + (i + 1).ToString());
+                vertices.Add(newVertex);
+            }
+            IList<DirectedEdge> edges = new List<DirectedEdge>();
+            for (int i = 0; i < adjacencyMatrix.GetLength(0); i++)
+            {
+                for (int j = 0; j < adjacencyMatrix.GetLength(1); j++)
+                {
+                    DirectedEdge newEdge = new DirectedEdge(vertices[i], vertices[j], "Edge_" + (i + 1).ToString() + "_" + (j + 1).ToString());
+                    newEdge.Weight = adjacencyMatrix[i, j];
+                    edges.Add(newEdge);
+                }
+            }
+            return new Tuple<IList<DirectedEdge>, IList<Vertex>>(edges, vertices);
+        }
+
+        public override void RemoveEdge(Edge edge)
+        {
+            if (edge is DirectedEdge)
+            {
+                this._DirectedEdges.Remove((DirectedEdge)edge);
+            }
         }
     }
 }

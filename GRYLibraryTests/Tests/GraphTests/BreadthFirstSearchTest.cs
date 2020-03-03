@@ -27,11 +27,11 @@ namespace GRYLibrary.Tests.GraphTests
         [TestMethod]
         public void TestSimpleBreadthFirstSearch2()
         {
-            List<Tuple<Vertex, IList<Edge>>> order = new List<Tuple<Vertex, IList<Edge>>>();
+            List<Tuple<Vertex, IList<DirectedEdge>>> order = new List<Tuple<Vertex, IList<DirectedEdge>>>();
             Graph g = TestGraphs.GetTestGraphWithoutLoop();
             g.BreadthFirstSearch((v, edges) =>
             {
-                order.Add(new Tuple<Vertex, IList<Edge>>(v, edges));
+                order.Add(new Tuple<Vertex, IList<DirectedEdge>>(v, edges));
                 return true;
             });
             Assert.AreEqual(g.GetVertexByName("v1"), order[0].Item1);

@@ -3,11 +3,10 @@ using System.Collections.Generic;
 
 namespace GRYLibrary.Core.GraphOperations
 {
-    [Serializable]
     public class Vertex
     {
         public string Name { get; set; }
-        internal ISet<Edge> ConnectedEdges { get; set; } = new HashSet<Edge>();
+        internal ISet<DirectedEdge> ConnectedEdges { get; set; } = new HashSet<DirectedEdge>();
         public Vertex() : this(CalculateVertexName())
         {
         }
@@ -38,9 +37,9 @@ namespace GRYLibrary.Core.GraphOperations
         {
             return this.Name;
         }
-        public ISet<Edge> GetConnectedEdges()
+        public ISet<DirectedEdge> GetConnectedEdges()
         {
-            return new HashSet<Edge>(this.ConnectedEdges);
+            return new HashSet<DirectedEdge>(this.ConnectedEdges);
         }
 
     }

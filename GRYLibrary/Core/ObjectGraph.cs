@@ -9,7 +9,7 @@ namespace GRYLibrary.Core
     {
         public IDictionary<Guid, Vertex> IdWithTheirVertices { get; }
         public IDictionary<Guid, object> IdWithTheirObjects { get; }
-        public IDictionary<Edge, PropertyInfo> EdgesInformation { get; }
+        public IDictionary<DirectedEdge, PropertyInfo> EdgesInformation { get; }
         public IDictionary<object, Guid> ObjectsWithTheirId { get; }
         public Graph Graph { get; }
         public object @Object { get; }
@@ -61,7 +61,7 @@ namespace GRYLibrary.Core
                     {
                         idOfProperty = this.Handle(propertyValue);
                     }
-                    Edge edge = new Edge(this.IdWithTheirVertices[idOfCurrentObject], this.IdWithTheirVertices[idOfProperty], property.Name);
+                    DirectedEdge edge = new DirectedEdge(this.IdWithTheirVertices[idOfCurrentObject], this.IdWithTheirVertices[idOfProperty], property.Name);
                     this.EdgesInformation.Add(edge, property);
                     this.Graph.AddEdge(edge);
                 }

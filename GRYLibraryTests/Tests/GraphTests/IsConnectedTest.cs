@@ -26,11 +26,11 @@ namespace GRYLibrary.Tests.GraphTests
             Vertex v2 = new Vertex("v2");
             graph.AddVertex(v2);
             Assert.IsFalse(graph.IsConnected());
-            graph.AddEdge(new Edge(v1, v2, "e1"));
+            graph.AddEdge(new DirectedEdge(v1, v2, "e1"));
             Assert.IsTrue(graph.IsConnected());
             try
             {
-                graph.AddEdge(new Edge(v2, v1, "e2"));
+                graph.AddEdge(new DirectedEdge(v2, v1, "e2"));
                 Assert.IsTrue(false, "This graph does already have an edge which connects v2 and v1.");
             }
             catch

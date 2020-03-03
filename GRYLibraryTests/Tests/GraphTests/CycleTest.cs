@@ -16,12 +16,12 @@ namespace GRYLibrary.Tests.GraphTests
             Vertex v2 = new Vertex(nameof(v2));
             Vertex v3 = new Vertex(nameof(v3));
             Vertex v4 = new Vertex(nameof(v4));
-            Edge edge1 = new Edge(v3, v4, "e1");
-            Edge edge2 = new Edge(v4, v1, "e2");
-            Edge edge3 = new Edge(v1, v2, "e3");
-            Edge edge4 = new Edge(v2, v3, "e4");
+            DirectedEdge edge1 = new DirectedEdge(v3, v4, "e1");
+            DirectedEdge edge2 = new DirectedEdge(v4, v1, "e2");
+            DirectedEdge edge3 = new DirectedEdge(v1, v2, "e3");
+            DirectedEdge edge4 = new DirectedEdge(v2, v3, "e4");
 
-            List<Edge> cycleItems = new List<Edge>();
+            List<DirectedEdge> cycleItems = new List<DirectedEdge>();
             cycleItems.Add(edge3);
             cycleItems.Add(edge4);
             cycleItems.Add(edge1);
@@ -29,7 +29,7 @@ namespace GRYLibrary.Tests.GraphTests
 
             Cycle cycle = new Cycle(cycleItems);
 
-            List<Edge> cycleInternalOrder = new List<Edge>();
+            List<DirectedEdge> cycleInternalOrder = new List<DirectedEdge>();
             cycleInternalOrder.Add(edge3);
             cycleInternalOrder.Add(edge4);
             cycleInternalOrder.Add(edge1);
@@ -44,13 +44,13 @@ namespace GRYLibrary.Tests.GraphTests
             Vertex v2 = new Vertex(nameof(v2));
             Vertex v3 = new Vertex(nameof(v3));
             Vertex v4 = new Vertex(nameof(v3));
-            Edge edge1 = new Edge(v1, v2, "e1");
-            Edge edge2 = new Edge(v2, v3, "e2");
-            Edge edge3 = new Edge(v3, v1, "e3");
-            Edge edge4 = new Edge(v3, v4, "e4");
-            Edge edge5 = new Edge(v4, v3, "e5");
+            DirectedEdge edge1 = new DirectedEdge(v1, v2, "e1");
+            DirectedEdge edge2 = new DirectedEdge(v2, v3, "e2");
+            DirectedEdge edge3 = new DirectedEdge(v3, v1, "e3");
+            DirectedEdge edge4 = new DirectedEdge(v3, v4, "e4");
+            DirectedEdge edge5 = new DirectedEdge(v4, v3, "e5");
 
-            List<Edge> cycleItems = new List<Edge>();
+            List<DirectedEdge> cycleItems = new List<DirectedEdge>();
 
             cycleItems.Add(edge1);
             Assert.IsFalse(Cycle.RepresentsCycle(cycleItems));
@@ -71,7 +71,7 @@ namespace GRYLibrary.Tests.GraphTests
         }
         public void TestErrorsOfCycleConstructorsDueToEmptyEdgesList()
         {
-            Assert.ThrowsException<Exception>(() => new List<Edge>(new Edge[] { }));
+            Assert.ThrowsException<Exception>(() => new List<DirectedEdge>(new DirectedEdge[] { }));
         }
         public void TestErrorsOfCycleConstructorsDueToUncyclicEdges()
         {
@@ -80,10 +80,10 @@ namespace GRYLibrary.Tests.GraphTests
             Vertex v3 = new Vertex(nameof(v3));
             Vertex v4 = new Vertex(nameof(v4));
             Vertex v5 = new Vertex(nameof(v5));
-            Edge edge1 = new Edge(v1, v2, "e1");
-            Edge edge2 = new Edge(v2, v3, "e2");
-            Edge edge3 = new Edge(v3, v1, "e3");
-            Assert.ThrowsException<Exception>(() => new List<Edge>(new Edge[] { edge1, edge2 }));
+            DirectedEdge edge1 = new DirectedEdge(v1, v2, "e1");
+            DirectedEdge edge2 = new DirectedEdge(v2, v3, "e2");
+            DirectedEdge edge3 = new DirectedEdge(v3, v1, "e3");
+            Assert.ThrowsException<Exception>(() => new List<DirectedEdge>(new DirectedEdge[] { edge1, edge2 }));
         }
         public void TestErrorsOfCycleConstructorsDueToDuplicatedEdges()
         {
@@ -92,13 +92,13 @@ namespace GRYLibrary.Tests.GraphTests
             Vertex v3 = new Vertex(nameof(v3));
             Vertex v4 = new Vertex(nameof(v4));
             Vertex v5 = new Vertex(nameof(v5));
-            Edge edge1 = new Edge(v1, v2, "e1");
-            Edge edge2 = new Edge(v2, v3, "e2");
-            Edge edge3 = new Edge(v3, v1, "e3");
-            Edge edge4 = new Edge(v1, v4, "e1");
-            Edge edge5 = new Edge(v4, v5, "e2");
-            Edge edge6 = new Edge(v5, v1, "e3");
-            Assert.ThrowsException<Exception>(() => new List<Edge>(new Edge[] { edge1, edge2, edge3, edge4, edge5, edge6, }));
+            DirectedEdge edge1 = new DirectedEdge(v1, v2, "e1");
+            DirectedEdge edge2 = new DirectedEdge(v2, v3, "e2");
+            DirectedEdge edge3 = new DirectedEdge(v3, v1, "e3");
+            DirectedEdge edge4 = new DirectedEdge(v1, v4, "e1");
+            DirectedEdge edge5 = new DirectedEdge(v4, v5, "e2");
+            DirectedEdge edge6 = new DirectedEdge(v5, v1, "e3");
+            Assert.ThrowsException<Exception>(() => new List<DirectedEdge>(new DirectedEdge[] { edge1, edge2, edge3, edge4, edge5, edge6, }));
         }
     }
 }
