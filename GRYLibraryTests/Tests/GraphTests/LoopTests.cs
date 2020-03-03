@@ -10,10 +10,10 @@ namespace GRYLibrary.Tests.GraphTests
     [TestClass]
     public class LoopTests
     {
-        [Ignore]
         [TestMethod]
         public void HasOneOrMoreCycleTest1()
         {
+            throw new System.Exception("caution: endless-loop due to bug in GetAllCyclesThroughASpecificVertex");
             DirectedGraph graph = TestGraphs.GetTestGraphWithSimpleLoop();
             Assert.IsTrue(graph.ContainsOneOrMoreCycles());
             Assert.IsFalse(graph.ContainsOneOrMoreSelfLoops());

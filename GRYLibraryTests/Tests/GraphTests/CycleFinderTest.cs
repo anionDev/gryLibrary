@@ -9,10 +9,10 @@ namespace GRYLibrary.Tests.GraphTests
     [TestClass]
     public class CycleFinderTest
     {
-        [Ignore]
-        [TestMethod]
+            [TestMethod]
         public void TestSimpleGraph()
         {
+            throw new System.Exception("caution: endless-loop due to bug in GetAllCyclesThroughASpecificVertex");
             /*
              * Graph:
              * A⭢B⭢C⭢D
@@ -48,6 +48,38 @@ namespace GRYLibrary.Tests.GraphTests
             ISet<Cycle> foundCycles = graph.GetAllCycles();
 
             Assert.IsTrue(foundCycles.SetEquals(expectedCycles));
+        }
+        [TestMethod]
+        public void TestSimpleGraph2()
+        {
+            throw new System.Exception("caution: endless-loop due to bug in GetAllCyclesThroughASpecificVertex");
+            DirectedGraph graph = new DirectedGraph();
+            Vertex a = new Vertex(nameof(a)); graph.AddVertex(a);
+            Vertex b = new Vertex(nameof(b)); graph.AddVertex(b);
+            Vertex c = new Vertex(nameof(c)); graph.AddVertex(c);
+            Vertex d = new Vertex(nameof(d)); graph.AddVertex(d);
+            Vertex e = new Vertex(nameof(e)); graph.AddVertex(e);
+
+            Edge e01 = new Edge(a, b, nameof(e01)); graph.AddEdge(e01);
+            Edge e02 = new Edge(b, c, nameof(e02)); graph.AddEdge(e02);
+            Edge e03 = new Edge(c, d, nameof(e03)); graph.AddEdge(e03);
+            Edge e04 = new Edge(d, e, nameof(e04)); graph.AddEdge(e04);
+            Edge e05 = new Edge(e, a, nameof(e05)); graph.AddEdge(e05);
+            Edge e06 = new Edge(a, c, nameof(e06)); graph.AddEdge(e06);
+            Edge e07 = new Edge(b, e, nameof(e07)); graph.AddEdge(e07);
+            Edge e08 = new Edge(d, b, nameof(e08)); graph.AddEdge(e08);
+
+            ISet<Cycle> expectedCycles = new HashSet<Cycle>();
+            expectedCycles.Add(new Cycle(new Edge[] { e01, e02, e03, e04, e05 }.ToList()));
+            expectedCycles.Add(new Cycle(new Edge[] { e06, e03, e08, e07,e05 }.ToList()));
+            expectedCycles.Add(new Cycle(new Edge[] { e02, e03, e08 }.ToList()));
+            expectedCycles.Add(new Cycle(new Edge[] { e01, e07, e05 }.ToList()));
+            expectedCycles.Add(new Cycle(new Edge[] { e06, e03, e04, e05 }.ToList()));
+
+            ISet<Cycle> foundCycles = graph.GetAllCycles();
+
+            Assert.IsTrue(foundCycles.SetEquals(expectedCycles));
+
         }
     }
 }

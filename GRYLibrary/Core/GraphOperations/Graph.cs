@@ -246,10 +246,41 @@ namespace GRYLibrary.Core.GraphOperations
         public ISet<Cycle> GetAllCyclesThroughASpecificVertex(Vertex vertex)
         {
             HashSet<Cycle> result = new HashSet<Cycle>();
-            // ISet<Vertex> successors = this.GetDirectSuccessors(vertex);
-            // TODO
+            ISet<WriteableTuple<IList<Edge>, bool>> paths = new HashSet<WriteableTuple<IList<Edge>, bool>>();
+            foreach (Edge edge in this.GetDirectSuccessorEdges(vertex))
+            {
+                paths.Add(new WriteableTuple<IList<Edge>, bool>(new List<Edge>(new Edge[] { edge }), false));
+            }
+            while (paths.Where(pathTuple => !pathTuple.Item2).Count() > 0)
+            {
+                foreach (WriteableTuple<IList<Edge>, bool> pathTuple in paths.ToList())
+                {
+                    if (!pathTuple.Item2)
+                    {
+                        IList<Edge> currentPath = pathTuple.Item1;
+                        if (Cycle.RepresentsCycle(currentPath))
+                        {
+                            result.Add(new Cycle(currentPath));
+                            pathTuple.Item2 = true;
+                        }
+                        else
+                        {
+                            foreach (Edge edge in this.GetDirectSuccessorEdges(currentPath.Last().Source).Concat(this.GetDirectSuccessorEdges(currentPath.Last().Target)))
+                            {
+                                if (!this.Contains(currentPath, edge.Source, true) || !this.Contains(currentPath, edge.Target, true))
+                                {
+                                    List<Edge> newPath = new List<Edge>(currentPath);
+                                    newPath.Add(edge);
+                                    paths.Add(new WriteableTuple<IList<Edge>, bool>(newPath, false));
+                                }
+                            }
+                        }
+                    }
+                }
+            }
             return result;
         }
+        public abstract ISet<Edge> GetDirectSuccessorEdges(Vertex vertex);
         private bool Contains(IList<Edge> edges, Vertex vertex, bool excludeTargetOfLastEdge = false)
         {
             for (int i = 0; i < edges.Count; i++)

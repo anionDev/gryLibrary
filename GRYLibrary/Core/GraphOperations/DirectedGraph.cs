@@ -95,5 +95,35 @@ namespace GRYLibrary.Core.GraphOperations
             result = null;
             return false;
         }
+
+        public override ISet<Edge> GetDirectSuccessorEdges(Vertex vertex)
+        {
+            return this.GetOutgoingEdges(vertex);
+        }
+
+        public ISet<Edge> GetIncomingEdges(Vertex vertex)
+        {
+            HashSet<Edge> result = new HashSet<Edge>();
+            foreach (Edge edge in vertex.ConnectedEdges)
+            {
+                if (edge.Target.Equals(vertex))
+                {
+                    result.Add(edge);
+                }
+            }
+            return result;
+        }
+        public ISet<Edge> GetOutgoingEdges(Vertex vertex)
+        {
+            HashSet<Edge> result = new HashSet<Edge>();
+            foreach (Edge edge in vertex.ConnectedEdges)
+            {
+                if (edge.Source.Equals(vertex))
+                {
+                    result.Add(edge);
+                }
+            }
+            return result;
+        }
     }
 }

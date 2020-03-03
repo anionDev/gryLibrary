@@ -64,5 +64,30 @@ namespace GRYLibrary.Core.GraphOperations
             return false;
         }
 
+        public override ISet<Edge> GetDirectSuccessorEdges(Vertex vertex)
+        {
+            HashSet<Edge> result = new HashSet<Edge>();
+            foreach (Edge edge in vertex.ConnectedEdges)
+            {
+                bool sourceIsThis = edge.Source.Equals(vertex);
+                bool targetIsThis = edge.Target.Equals(vertex);
+                if (sourceIsThis && targetIsThis)
+                {
+                    result.Add(edge);
+                }
+                else
+                {
+                    if (sourceIsThis)
+                    {
+                        result.Add(edge);
+                    }
+                    if (targetIsThis)
+                    {
+                        result.Add(edge);
+                    }
+                }
+            }
+            return result;
+        }
     }
 }
