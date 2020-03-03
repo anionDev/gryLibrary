@@ -81,20 +81,21 @@ namespace GRYLibrary.Core.Graph
         {
             for (int i = 0; i < edges.Count; i++)
             {
-                if (i == 0)
-                {
-                    if (! edges[0].Source.Equals(edges[edges.Count - 1].Target))
-                    {
-                        return false;
-                    }
-                }
-                else
-                {
-                    if (!edges[i].Source.Equals(edges[i - 1].Target))
-                    {
-                        return false;
-                    }
-                }
+                throw new NotImplementedException();
+                //if (i == 0)
+                //{
+                //    if (!edges[0].Source.Equals(edges[edges.Count - 1].Target))
+                //    {
+                //        return false;
+                //    }
+                //}
+                //else
+                //{
+                //    if (!edges[i].Source.Equals(edges[i - 1].Target))
+                //    {
+                //        return false;
+                //    }
+                //}
             }
             return true;
         }

@@ -225,21 +225,22 @@ namespace GRYLibrary.Core.Graph
                         }
                         else
                         {
-                            foreach (Edge edge in this.GetDirectSuccessorEdges(currentPath.Last().Source).Concat(this.GetDirectSuccessorEdges(currentPath.Last().Target)))
-                            {
-                                if (!this.Contains(currentPath, edge.Source, true))
-                                {
-                                    List<Edge> newPath = new List<Edge>(currentPath);
-                                    newPath.Add(edge);
-                                    paths.Add(new WriteableTuple<IList<Edge>, bool>(newPath, false));
-                                }
-                                if (!this.Contains(currentPath, edge.Target, true))
-                                {
-                                    List<Edge> newPath = new List<Edge>(currentPath);
-                                    newPath.Add(edge);
-                                    paths.Add(new WriteableTuple<IList<Edge>, bool>(newPath, false));
-                                }
-                            }
+                            throw new NotImplementedException();
+                            //foreach (Edge edge in this.GetDirectSuccessorEdges(currentPath.Last().Source).Concat(this.GetDirectSuccessorEdges(currentPath.Last().Target)))
+                            //{
+                            //    if (!this.Contains(currentPath, edge.Source, true))
+                            //    {
+                            //        List<Edge> newPath = new List<Edge>(currentPath);
+                            //        newPath.Add(edge);
+                            //        paths.Add(new WriteableTuple<IList<Edge>, bool>(newPath, false));
+                            //    }
+                            //    if (!this.Contains(currentPath, edge.Target, true))
+                            //    {
+                            //        List<Edge> newPath = new List<Edge>(currentPath);
+                            //        newPath.Add(edge);
+                            //        paths.Add(new WriteableTuple<IList<Edge>, bool>(newPath, false));
+                            //    }
+                            //}
                         }
                     }
                 }
