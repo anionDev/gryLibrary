@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace GRYLibrary.Core.Graph
 {
@@ -38,7 +37,7 @@ namespace GRYLibrary.Core.Graph
 
         internal DirectedEdge ToDirectedEdge()
         {
-            List<Vertex> connectedVertices = ConnectedVertices.ToList();
+            List<Vertex> connectedVertices = this.ConnectedVertices.ToList();
             return new DirectedEdge(connectedVertices[0], connectedVertices[1], this.Name, this.Weight);
         }
         public override bool Equals(object obj)
@@ -61,7 +60,7 @@ namespace GRYLibrary.Core.Graph
 
         public override IEnumerable<Vertex> GetConnectedVertices()
         {
-            return ConnectedVertices;
+            return this.ConnectedVertices;
         }
 
         public override void Accept(IEdgeVisitor visitor)
@@ -75,12 +74,12 @@ namespace GRYLibrary.Core.Graph
         }
         public override IEnumerable<Vertex> GetInputs()
         {
-            return new List<Vertex>(ConnectedVertices);
+            return new List<Vertex>(this.ConnectedVertices);
         }
 
         public override IEnumerable<Vertex> GetOutputs()
         {
-            return new List<Vertex>(ConnectedVertices);
+            return new List<Vertex>(this.ConnectedVertices);
         }
 
         public override IEnumerable<Vertex> GetOtherConnectedVerticesVisitor(Vertex vertex)

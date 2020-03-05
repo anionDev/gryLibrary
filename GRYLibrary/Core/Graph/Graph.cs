@@ -13,7 +13,7 @@ namespace GRYLibrary.Core.Graph
     /// </remarks>
     public abstract class Graph
     {
-        public ISet<Vertex> Vertices { get { return new HashSet<Vertex>(_Vertices); } }
+        public ISet<Vertex> Vertices { get { return new HashSet<Vertex>(this._Vertices); } }
         protected ISet<Vertex> _Vertices = new HashSet<Vertex>();
         public abstract ISet<Edge> Edges { get; }
 
@@ -175,7 +175,7 @@ namespace GRYLibrary.Core.Graph
 
         public double[,] ToAdjacencyMatrix()
         {
-            IList<Vertex> vertices = GetOrderedVertices();
+            IList<Vertex> vertices = this.GetOrderedVertices();
             int verticesCount = vertices.Count;
             double[,] result = new double[verticesCount, verticesCount];
             for (int i = 0; i < result.GetLength(0); i++)
@@ -213,11 +213,15 @@ namespace GRYLibrary.Core.Graph
         public ISet<Cycle> GetAllCyclesThroughASpecificVertex(Vertex vertex)
         {
             ISet<Cycle> result = new HashSet<Cycle>();
+            if (this.TryGetEdge(vertex, vertex, out Edge selfloop))
+            {
+                result.Add(new Cycle(new List<Edge>() { selfloop }));
+            }
             this.DepthFirstSearch((currentVertex, path) =>
             {
                 foreach (Vertex successor in currentVertex.GetSuccessorVertices())
                 {
-                    if (successor.Equals(vertex))
+                    if (successor.Equals(vertex) && path.Count > 0)
                     {
                         if (this.TryGetEdge(currentVertex, successor, out Edge lastEdge))
                         {
@@ -225,18 +229,18 @@ namespace GRYLibrary.Core.Graph
                         }
                         else
                         {
-                            throw new Exception();
+                            throw new InternalAlgorithmException($"Could not get edge between {currentVertex} and {successor}.");
                         }
                     }
                 }
                 return true;
-            }, true);
+            }, vertex, true);
             return result;
         }
         public override string ToString()
         {
             double[,] matrix = this.ToAdjacencyMatrix();
-            string[] table = TableGenerator.Generate(matrix, new TableGenerator.ASCIITable(), value => value.ToString(), GetOrderedVertices().ToArray());
+            string[] table = TableGenerator.Generate(matrix, new TableGenerator.ASCIITable(), value => value.ToString(), this.GetOrderedVertices().ToArray());
             return string.Join(Environment.NewLine, table);
         }
         public abstract ISet<Edge> GetDirectSuccessorEdges(Vertex vertex);
@@ -270,7 +274,7 @@ namespace GRYLibrary.Core.Graph
                         }
                         else
                         {
-                            successorPath.Add(GetNewEdgeBetween(currentVertex.Item1, successor));
+                            successorPath.Add(this.GetNewEdgeBetween(currentVertex.Item1, successor));
                         }
                         if (!customAction(successor, successorPath))
                         {
@@ -311,7 +315,7 @@ namespace GRYLibrary.Core.Graph
                         }
                         else
                         {
-                            successorPath.Add(GetNewEdgeBetween(currentVertex.Item1, successor));
+                            successorPath.Add(this.GetNewEdgeBetween(currentVertex.Item1, successor));
                         }
                         stack.Push(new Tuple<Vertex, IList<Edge>>(successor, successorPath));
                     }
@@ -325,7 +329,7 @@ namespace GRYLibrary.Core.Graph
         {
             if (!this.Vertices.Contains(startVertex))
             {
-                throw new Exception($"Vertex '{startVertex}' is not contained in this graph.");
+                throw new InternalAlgorithmException($"Vertex '{startVertex}' is not contained in this graph.");
             }
             visitedMap = new Dictionary<Vertex, bool>();
             foreach (Vertex vertex in this.Vertices)
@@ -369,7 +373,7 @@ namespace GRYLibrary.Core.Graph
         }
         public override int GetHashCode()
         {
-            return this.Vertices.Count().GetHashCode();
+            return this._Vertices.Count().GetHashCode() ^ this.Edges.Count.GetHashCode();
         }
         public bool IsSubgraph(Graph subgraph, out IDictionary<Vertex, Vertex> mappingFromSubgraphToThisGraph)
         {
@@ -393,18 +397,26 @@ namespace GRYLibrary.Core.Graph
         {
             if (!this.GetType().Equals(otherGraph.GetType()))
             {
-                throw new Exception($"Graphs of types {this.GetType().FullName} and {otherGraph.GetType().FullName} are not comparable.");
+                throw new UnallowedOperationException($"Graphs of types {this.GetType().FullName} and {otherGraph.GetType().FullName} are not comparable.");
             }
             if (this._Vertices.Count != otherGraph._Vertices.Count || this.Edges.Count() != otherGraph.Edges.Count())
             {
                 bijectionFromOtherGraphToThisGraph = null;
                 return false;
             }
-            throw new NotImplementedException();
+            if (this.IsSubgraphOf(otherGraph, out IDictionary<Vertex, Vertex> mappingFromgraphToThisGraph))
+            {
+                bijectionFromOtherGraphToThisGraph = mappingFromgraphToThisGraph;
+                return true;
+            }
+            else
+            {
+                bijectionFromOtherGraphToThisGraph = null;
+                return false;
+            }
         }
         public bool HasHamiltonianCycle(out Cycle result)
         {
-            //TODO implement an algorithm which is more performant
             foreach (Cycle cycle in this.GetAllCycles())
             {
                 if (cycle.Edges.Count == this._Vertices.Count)

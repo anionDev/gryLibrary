@@ -21,7 +21,7 @@ namespace GRYLibrary.Core.Graph
 
         public int Degree()
         {
-            return GetConnectedEdges().Count;
+            return this.GetConnectedEdges().Count;
         }
         public override bool Equals(object obj)
         {
@@ -35,7 +35,7 @@ namespace GRYLibrary.Core.Graph
         internal List<Edge> ConnectedEdges { get; } = new List<Edge>();
         public List<Edge> GetConnectedEdges()
         {
-            return new List<Edge>(ConnectedEdges);
+            return new List<Edge>(this.ConnectedEdges);
         }
         public override int GetHashCode()
         {

@@ -6,8 +6,8 @@ namespace GRYLibrary.Core.Graph
 {
     public class UndirectedGraph : Graph
     {
-        public override ISet<Edge> Edges { get { return new HashSet<Edge>(_UndirectedEdges); } }
-        public ISet<Edge> UndirectedEdges { get { return new HashSet<Edge>(_UndirectedEdges); } }
+        public override ISet<Edge> Edges { get { return new HashSet<Edge>(this._UndirectedEdges); } }
+        public ISet<Edge> UndirectedEdges { get { return new HashSet<Edge>(this._UndirectedEdges); } }
         private ISet<UndirectedEdge> _UndirectedEdges = new HashSet<UndirectedEdge>();
         public override void Accept(IGraphVisitor visitor)
         {
@@ -85,7 +85,7 @@ namespace GRYLibrary.Core.Graph
             List<Vertex> connectedVertices = undirectedEdge.ConnectedVertices.ToList();
             this.AddCheck(edge, connectedVertices[0], connectedVertices[1]);
             this._UndirectedEdges.Add((UndirectedEdge)edge);
-            OnEdgeAdded(edge);
+            this.OnEdgeAdded(edge);
         }
 
         public override void RemoveEdge(Edge edge)
@@ -93,7 +93,7 @@ namespace GRYLibrary.Core.Graph
             if (edge is UndirectedEdge)
             {
                 this._UndirectedEdges.Remove((UndirectedEdge)edge);
-                OnEdgeRemoved(edge);
+                this.OnEdgeRemoved(edge);
             }
         }
         public override string ToString()

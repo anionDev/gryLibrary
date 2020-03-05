@@ -6,7 +6,7 @@ namespace GRYLibrary.Core.Graph
 {
     public class Cycle
     {
-        public IList<Edge> Edges { get { return new List<Edge>(_Edges); } }
+        public IList<Edge> Edges { get { return new List<Edge>(this._Edges); } }
         private IList<Edge> _Edges = new List<Edge>();
         public Cycle(IList<Edge> edgesList)
         {

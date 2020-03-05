@@ -7,8 +7,8 @@ namespace GRYLibrary.Core.Graph
 {
     public class DirectedGraph : Graph
     {
-        public override ISet<Edge> Edges { get { return new HashSet<Edge>(_DirectedEdges); } }
-        public ISet<Edge> DirectedEdges { get { return new HashSet<Edge>(_DirectedEdges); } }
+        public override ISet<Edge> Edges { get { return new HashSet<Edge>(this._DirectedEdges); } }
+        public ISet<Edge> DirectedEdges { get { return new HashSet<Edge>(this._DirectedEdges); } }
         private ISet<DirectedEdge> _DirectedEdges = new HashSet<DirectedEdge>();
 
         public override void Accept(IGraphVisitor visitor)
@@ -161,14 +161,14 @@ namespace GRYLibrary.Core.Graph
             DirectedEdge directedEdge = (DirectedEdge)edge;
             this.AddCheck(edge, ((DirectedEdge)edge).Source, ((DirectedEdge)edge).Target);
             this._DirectedEdges.Add((DirectedEdge)edge);
-            OnEdgeAdded(edge);
+            this.OnEdgeAdded(edge);
         }
         public override void RemoveEdge(Edge edge)
         {
             if (edge is DirectedEdge)
             {
                 this._DirectedEdges.Remove((DirectedEdge)edge);
-                OnEdgeRemoved(edge);
+                this.OnEdgeRemoved(edge);
             }
         }
 
