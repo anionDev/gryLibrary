@@ -26,11 +26,11 @@ namespace GRYLibrary.Core.Graph
             UndirectedGraph result = new UndirectedGraph();
             foreach (Vertex vertex in this.Vertices)
             {
-                result.AddVertex(vertex.DeepClone());
+                result.AddVertex(new Vertex(vertex.Name));
             }
             foreach (DirectedEdge edge in this._DirectedEdges)
             {
-                result.AddEdge(edge.ToUndirectedEdge());
+                result.AddEdge(edge.ToUndirectedEdge(result.GetVertex(edge.Source.Name), result.GetVertex(edge.Target.Name)));
             }
             return result;
         }
@@ -38,7 +38,7 @@ namespace GRYLibrary.Core.Graph
         /// <remarks>If this graph contains a selfloop with this vertex then the result-set will also contain this vertex.
         /// The runtime of this function is &lt;=O(|this.Edges|).
         /// </remarks>
-        public override ISet<Vertex> GetDirectSuccessors(Vertex vertex)
+        public override ISet<Vertex> GetDirectSuccessors(Vertex vertex, bool doNotWalkAgainstDirectedEdges = true)
         {
             HashSet<Vertex> result = new HashSet<Vertex>();
             foreach (DirectedEdge edge in vertex.GetConnectedEdges())
@@ -46,6 +46,10 @@ namespace GRYLibrary.Core.Graph
                 if (edge.Source.Equals(vertex))
                 {
                     result.Add(edge.Target);
+                }
+                if (edge.Target.Equals(vertex) && !doNotWalkAgainstDirectedEdges)
+                {
+                    result.Add(edge.Source);
                 }
             }
             return result;
@@ -79,21 +83,6 @@ namespace GRYLibrary.Core.Graph
             }
             return false;
         }
-
-        public override bool TryGetEdge(Vertex source, Vertex target, out Edge result)
-        {
-            foreach (DirectedEdge edge in this.Edges)
-            {
-                if (edge.Source.Equals(source) && edge.Target.Equals(target))
-                {
-                    result = edge;
-                    return true;
-                }
-            }
-            result = null;
-            return false;
-        }
-
         public override ISet<Edge> GetDirectSuccessorEdges(Vertex vertex)
         {
             return new HashSet<Edge>(this.GetOutgoingEdges(vertex).OfType<Edge>());
@@ -186,6 +175,11 @@ namespace GRYLibrary.Core.Graph
         public override string ToString()
         {
             return base.ToString();
+        }
+
+        internal override Edge GetEdgeBetween(Vertex source, Vertex target)
+        {
+            return new DirectedEdge(source, target);
         }
     }
 }

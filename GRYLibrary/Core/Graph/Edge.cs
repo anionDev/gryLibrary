@@ -58,6 +58,7 @@ namespace GRYLibrary.Core.Graph
 
         public abstract IEnumerable<Vertex> GetInputs();
         public abstract IEnumerable<Vertex> GetOutputs();
+        public abstract IEnumerable<Vertex> GetOtherConnectedVerticesVisitor(Vertex vertex);
     }
     public interface IEdgeVisitor
     {

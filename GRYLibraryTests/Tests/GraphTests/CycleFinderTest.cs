@@ -12,7 +12,6 @@ namespace GRYLibrary.Tests.GraphTests
             [TestMethod]
         public void TestSimpleGraph()
         {
-            throw new System.Exception("caution: endless-loop due to bug in GetAllCyclesThroughASpecificVertex");
             /*
              * Graph:
              * A⭢B⭢C⭢D
@@ -52,7 +51,6 @@ namespace GRYLibrary.Tests.GraphTests
         [TestMethod]
         public void TestSimpleGraph2()
         {
-            throw new System.Exception("caution: endless-loop due to bug in GetAllCyclesThroughASpecificVertex");
             DirectedGraph graph = new DirectedGraph();
             Vertex a = new Vertex(nameof(a)); graph.AddVertex(a);
             Vertex b = new Vertex(nameof(b)); graph.AddVertex(b);

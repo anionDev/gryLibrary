@@ -10,7 +10,7 @@ namespace GRYLibrary.Tests.GraphTests
         /// ^                   |
         /// └-------------------┘
         /// </returns>
-        internal static DirectedGraph GetTestGraphWithSimpleLoop()
+        internal static DirectedGraph GetTestConnectedGraphWithSimpleLoop()
         {
             DirectedGraph graph = new DirectedGraph();
             Vertex v0 = new Vertex("v0");

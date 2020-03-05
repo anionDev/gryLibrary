@@ -13,8 +13,7 @@ namespace GRYLibrary.Tests.GraphTests
         [TestMethod]
         public void HasOneOrMoreCycleTest1()
         {
-            throw new System.Exception("caution: endless-loop due to bug in GetAllCyclesThroughASpecificVertex");
-            DirectedGraph graph = TestGraphs.GetTestGraphWithSimpleLoop();
+            DirectedGraph graph = TestGraphs.GetTestConnectedGraphWithSimpleLoop();
             Assert.IsTrue(graph.ContainsOneOrMoreCycles());
             Assert.IsFalse(graph.ContainsOneOrMoreSelfLoops());
             Assert.IsTrue(graph.HasHamiltonianCycle(out _));
@@ -31,7 +30,8 @@ namespace GRYLibrary.Tests.GraphTests
         [TestMethod]
         public void IsConnectedTest1()
         {
-            Assert.IsTrue(TestGraphs.GetTestGraphWithSimpleLoop().ToUndirectedGraph().IsConnected());
+            Assert.IsTrue(TestGraphs.GetTestConnectedGraphWithSimpleLoop().ToUndirectedGraph().IsConnected());
+            Assert.IsTrue(TestGraphs.GetTestConnectedGraphWithSimpleLoop().IsConnected());
         }
     }
 }

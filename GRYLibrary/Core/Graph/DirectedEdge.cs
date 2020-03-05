@@ -7,15 +7,24 @@ namespace GRYLibrary.Core.Graph
     {
         public Vertex Source { get; internal set; }
         public Vertex Target { get; internal set; }
+        public DirectedEdge(Vertex source, Vertex target) : this(source, target, CalculateName(source, target))
+        {
+        }
+
+        private static string CalculateName(Vertex source, Vertex target)
+        {
+            return $"({source}->{target})";
+        }
+
         public DirectedEdge(Vertex source, Vertex target, string name, double weight = 1) : base(name, weight)
         {
             this.Source = source;
             this.Target = target;
         }
 
-        internal UndirectedEdge ToUndirectedEdge()
+        internal UndirectedEdge ToUndirectedEdge(Vertex equalSourceInUndirectedGraph, Vertex equalTargetInUndirectedGraph)
         {
-            return new UndirectedEdge(new Vertex[] { Source, Target }, this.Name, this.Weight);
+            return new UndirectedEdge(new Vertex[] { equalSourceInUndirectedGraph, equalTargetInUndirectedGraph }, this.Name, this.Weight);
         }
         public override bool Connects(Vertex fromVertex, Vertex toVertex)
         {
@@ -59,12 +68,25 @@ namespace GRYLibrary.Core.Graph
 
         public override IEnumerable<Vertex> GetInputs()
         {
-            return new Vertex[] { this.Source};
+            return new Vertex[] { this.Source };
         }
 
         public override IEnumerable<Vertex> GetOutputs()
         {
             return new Vertex[] { this.Target };
+        }
+
+        public override IEnumerable<Vertex> GetOtherConnectedVerticesVisitor(Vertex vertex)
+        {
+            if (this.Source.Equals(vertex))
+            {
+                return new Vertex[] { this.Target };
+            }
+            if (this.Target.Equals(vertex))
+            {
+                return new Vertex[] { this.Source };
+            }
+            throw new Exception();
         }
     }
 }

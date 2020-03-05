@@ -35,7 +35,7 @@ namespace GRYLibrary.Tests.GraphTests
                 order.Add(new Tuple<Vertex, IList<Edge>>(v, edges));
                 return true;
             });
-            Assert.AreEqual(g.GetVertexByName("v1"), order[0].Item1);
+            Assert.AreEqual(g.GetVertex("v1"), order[0].Item1);
             Assert.AreEqual(0, order[0].Item2.Count);
             //todo write asserts for content of order of edges
         }

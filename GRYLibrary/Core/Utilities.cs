@@ -1375,8 +1375,8 @@ namespace GRYLibrary.Core
                 {
                     return false;
                 }
-                var obj1Copy = new List<T>(obj1);
-                var obj2Copy = new List<T>(obj2);
+                List<T> obj1Copy = new List<T>(obj1);
+                List<T> obj2Copy = new List<T>(obj2);
                 for (int i = 0; i < obj1.Count(); i++)
                 {
                     if (!RemoveItemOnlyOnce(obj2Copy, obj1Copy[i]))

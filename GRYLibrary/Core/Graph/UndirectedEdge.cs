@@ -16,6 +16,16 @@ namespace GRYLibrary.Core.Graph
             }
             this.ConnectedVertices = new List<Vertex>(connectedVertices);
         }
+
+        public UndirectedEdge(IEnumerable<Vertex> connectedVertices) : this(connectedVertices, CalculateName(connectedVertices))
+        {
+        }
+
+        private static string CalculateName(IEnumerable<Vertex> connectedVertices)
+        {
+            return $"({string.Join("<->", connectedVertices)})";
+        }
+
         public override bool Connects(Vertex fromVertex, Vertex toVertex)
         {
             List<Vertex> vertices = this.ConnectedVertices.ToList();
@@ -71,6 +81,23 @@ namespace GRYLibrary.Core.Graph
         public override IEnumerable<Vertex> GetOutputs()
         {
             return new List<Vertex>(ConnectedVertices);
+        }
+
+        public override IEnumerable<Vertex> GetOtherConnectedVerticesVisitor(Vertex vertex)
+        {
+            if (this.ConnectedVertices.Contains(vertex))
+            {
+                List<Vertex> result = this.ConnectedVertices.ToList();
+                if (!result.RemoveItemOnlyOnce(vertex))
+                {
+                    throw new Exception();
+                }
+                return result;
+            }
+            else
+            {
+                throw new Exception();
+            }
         }
     }
 }
