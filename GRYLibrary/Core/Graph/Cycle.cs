@@ -100,5 +100,9 @@ namespace GRYLibrary.Core.Graph
         {
             return nameof(Cycle) + "(" + string.Join("->", this._Edges) + ")";
         }
+        public static string CycleSetToString(ISet<Cycle> expectedCycles)
+        {
+            return "{" + string.Join(",", expectedCycles) + "}";
+        }
     }
 }

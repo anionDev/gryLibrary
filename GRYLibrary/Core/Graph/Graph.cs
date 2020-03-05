@@ -212,30 +212,11 @@ namespace GRYLibrary.Core.Graph
 
         public ISet<Cycle> GetAllCyclesThroughASpecificVertex(Vertex vertex)
         {
-            ISet<Cycle> result = new HashSet<Cycle>();
-            if (this.TryGetEdge(vertex, vertex, out Edge selfloop))
-            {
-                result.Add(new Cycle(new List<Edge>() { selfloop }));
-            }
-            this.DepthFirstSearch((currentVertex, path) =>
-            {
-                foreach (Vertex successor in currentVertex.GetSuccessorVertices())
-                {
-                    if (successor.Equals(vertex) && path.Count > 0)
-                    {
-                        if (this.TryGetEdge(currentVertex, successor, out Edge lastEdge))
-                        {
-                            result.Add(new Cycle(path.Concat(new Edge[] { lastEdge }).ToList()));
-                        }
-                        else
-                        {
-                            throw new InternalAlgorithmException($"Could not get edge between {currentVertex} and {successor}.");
-                        }
-                    }
-                }
-                return true;
-            }, vertex, true);
-            return result;
+            throw new NotImplementedException();//todo implement using Backtracking
+        }
+        public IList<Edge> GetShortestPath(Vertex start, Vertex destination)
+        {
+            throw new NotImplementedException();//todo implement using Dijkstra's algorithm with Fibonacci heap
         }
         public override string ToString()
         {
