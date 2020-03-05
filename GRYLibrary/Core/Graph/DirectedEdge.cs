@@ -47,5 +47,24 @@ namespace GRYLibrary.Core.Graph
         {
             return new Vertex[] { this.Source, this.Target };
         }
+        public override void Accept(IEdgeVisitor visitor)
+        {
+            visitor.Handle(this);
+        }
+
+        public override T Accept<T>(IEdgeVisitor<T> visitor)
+        {
+            return visitor.Handle(this);
+        }
+
+        public override IEnumerable<Vertex> GetInputs()
+        {
+            return new Vertex[] { this.Source};
+        }
+
+        public override IEnumerable<Vertex> GetOutputs()
+        {
+            return new Vertex[] { this.Target };
+        }
     }
 }

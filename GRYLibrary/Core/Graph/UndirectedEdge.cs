@@ -53,5 +53,24 @@ namespace GRYLibrary.Core.Graph
         {
             return ConnectedVertices;
         }
+
+        public override void Accept(IEdgeVisitor visitor)
+        {
+            visitor.Handle(this);
+        }
+
+        public override T Accept<T>(IEdgeVisitor<T> visitor)
+        {
+            return visitor.Handle(this);
+        }
+        public override IEnumerable<Vertex> GetInputs()
+        {
+            return new List<Vertex>(ConnectedVertices);
+        }
+
+        public override IEnumerable<Vertex> GetOutputs()
+        {
+            return new List<Vertex>(ConnectedVertices);
+        }
     }
 }

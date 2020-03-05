@@ -53,5 +53,20 @@ namespace GRYLibrary.Core.Graph
         {
             return this.Name;
         }
+        public abstract void Accept(IEdgeVisitor visitor);
+        public abstract T Accept<T>(IEdgeVisitor<T> visitor);
+
+        public abstract IEnumerable<Vertex> GetInputs();
+        public abstract IEnumerable<Vertex> GetOutputs();
+    }
+    public interface IEdgeVisitor
+    {
+        void Handle(UndirectedEdge edge);
+        void Handle(DirectedEdge edge);
+    }
+    public interface IEdgeVisitor<T>
+    {
+        T Handle(UndirectedEdge edge);
+        T Handle(DirectedEdge edge);
     }
 }

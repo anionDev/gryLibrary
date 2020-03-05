@@ -81,23 +81,66 @@ namespace GRYLibrary.Core.Graph
         {
             for (int i = 0; i < edges.Count; i++)
             {
-                throw new NotImplementedException();
-                //if (i == 0)
-                //{
-                //    if (!edges[0].Source.Equals(edges[edges.Count - 1].Target))
-                //    {
-                //        return false;
-                //    }
-                //}
-                //else
-                //{
-                //    if (!edges[i].Source.Equals(edges[i - 1].Target))
-                //    {
-                //        return false;
-                //    }
-                //}
+                Edge edge1 = edges[1];
+                Edge edge2;
+                if (i == edges.Count - 1)
+                {
+                    edge2 = edges[0];
+                }
+                else
+                {
+                    edge2 = edges[i + 1];
+                }
+                if (!AtLeastOneOutputOfEdge1LeadsToInputOfEdge1(edge1, edge2))
+                {
+                    return false;
+                }
             }
             return true;
+        }
+
+        private static bool AtLeastOneOutputOfEdge1LeadsToInputOfEdge1(Edge edge1, Edge edge2)
+        {
+            return edge1.GetOutputs().Intersect(edge2.GetInputs()).Count() > 0;
+        }
+
+        private IEnumerable<Vertex> GetIntersectionOfConnectedVertices(Edge edge1, Edge edge2)
+        {
+            return edge1.GetConnectedVertices().Intersect(edge2.GetConnectedVertices());
+        }
+        private class GetOtherConnectedVerticesVisitor : IEdgeVisitor<IEnumerable<Vertex>>
+        {
+            private readonly Vertex _Vertex;
+            public GetOtherConnectedVerticesVisitor(Vertex vertex)
+            {
+                this._Vertex = vertex;
+            }
+            public IEnumerable<Vertex> Handle(UndirectedEdge edge)
+            {
+                if (edge.ConnectedVertices.Contains(this._Vertex))
+                {
+                    List<Vertex> result = edge.ConnectedVertices.ToList();
+                    result.RemoveItemOnlyOnce(this._Vertex);
+                    return result;
+                }
+                else
+                {
+                    throw new Exception();
+                }
+            }
+
+            public IEnumerable<Vertex> Handle(DirectedEdge edge)
+            {
+                if (edge.Source.Equals(this._Vertex))
+                {
+                    return new Vertex[] { edge.Target };
+                }
+                if (edge.Target.Equals(this._Vertex))
+                {
+                    return new Vertex[] { edge.Source };
+                }
+                throw new Exception();
+            }
         }
         public override string ToString()
         {

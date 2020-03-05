@@ -1411,7 +1411,7 @@ namespace GRYLibrary.Core
                 }
             }
         }
-        public static bool RemoveItemOnlyOnce<T>(List<T> list, T item)
+        public static bool RemoveItemOnlyOnce<T>(this IList<T> list, T item)
         {
             int index = list.IndexOf(item);
             if (index > -1)

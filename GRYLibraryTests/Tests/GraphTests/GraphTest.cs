@@ -115,7 +115,7 @@ namespace GRYLibrary.Tests.GraphTests
             Assert.AreEqual(5, g.Vertices.Count());
             Assert.AreEqual(6, g.Edges.Count());
             Assert.AreEqual(2, g.GetMinimumDegree());
-            Assert.AreEqual(3, g.GetMaximumDegree());
+            Assert.AreEqual(4, g.GetMaximumDegree());
 
             try
             {
