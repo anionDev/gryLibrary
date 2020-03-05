@@ -42,4 +42,5 @@ The public key token of all official GRYLibrary-releases is `def3d0f8e99ddde7`. 
 
 ## License
 
-GRYLibrary is licensed under the terms of LGPL3. The concrete license-text for the GRYLibrary can be found [here](https://raw.githubusercontent.com/anionDev/gryLibrary/master/License.txt).
+GRYLibrary is licensed under the terms of GRYL-1.1. The concrete license-text for the GRYLibrary can be found [here](https://raw.githubusercontent.com/anionDev/gryLibrary/master/License.txt).
+If all of your usecases for this product satisfy the conditions for ethical usage which are defined in the GRYL-1.1 but your company is not allowed to use this product due to too high sales then please contact the productowner for a commercial license.

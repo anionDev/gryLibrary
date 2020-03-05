@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace GRYLibrary.Core.Graph
 {
-    public class DirectedGraph : Graph
+    public sealed class DirectedGraph : Graph
     {
         public override ISet<Edge> Edges { get { return new HashSet<Edge>(this._DirectedEdges); } }
         public ISet<Edge> DirectedEdges { get { return new HashSet<Edge>(this._DirectedEdges); } }
@@ -34,7 +34,9 @@ namespace GRYLibrary.Core.Graph
             }
             return result;
         }
-        /// <returns>Returns a set of all vertices which are a direct successor of this vertex in this graph.</returns>
+        /// <returns>
+        /// Returns a set of all vertices which are a direct successor of this vertex in this graph.
+        /// </returns>
         /// <remarks>If this graph contains a selfloop with this vertex then the result-set will also contain this vertex.
         /// The runtime of this function is &lt;=O(|this.Edges|).
         /// </remarks>

@@ -200,6 +200,7 @@ namespace GRYLibrary.Core.Graph
             return this.Vertices.OrderBy(vertex => vertex.Name).ToList();
         }
 
+        /// <remarks>This operations does not work yet due to missing implementation of <see cref="GetAllCyclesThroughASpecificVertex"/>.</remarks>
         public ISet<Cycle> GetAllCycles()
         {
             ISet<Cycle> result = new HashSet<Cycle>();
@@ -209,11 +210,12 @@ namespace GRYLibrary.Core.Graph
             }
             return result;
         }
-
+        /// <remarks>This operations is not implemented yet.</remarks>
         public ISet<Cycle> GetAllCyclesThroughASpecificVertex(Vertex vertex)
         {
             throw new NotImplementedException();//todo implement using Backtracking
         }
+        /// <remarks>This operations is not implemented yet.</remarks>
         public IList<Edge> GetShortestPath(Vertex start, Vertex destination)
         {
             throw new NotImplementedException();//todo implement using Dijkstra's algorithm with Fibonacci heap
@@ -356,10 +358,12 @@ namespace GRYLibrary.Core.Graph
         {
             return this._Vertices.Count().GetHashCode() ^ this.Edges.Count.GetHashCode();
         }
+        /// <remarks>This operations is not implemented yet.</remarks>
         public bool IsSubgraph(Graph subgraph, out IDictionary<Vertex, Vertex> mappingFromSubgraphToThisGraph)
         {
             throw new NotImplementedException();
         }
+        /// <remarks>This operations does not work yet due to missing implementation of <see cref="IsSubgraph"/>.</remarks>
         public bool IsSubgraphOf(Graph graph, out IDictionary<Vertex, Vertex> mappingFromgraphToThisGraph)
         {
             IDictionary<Vertex, Vertex> mappingFromSubgraphToThisGraph;
@@ -374,6 +378,7 @@ namespace GRYLibrary.Core.Graph
             }
             return result;
         }
+        /// <remarks>This operations does not work yet due to missing implementation of <see cref="IsSubgraph"/>.</remarks>
         public bool IsIsomorphic(Graph otherGraph, out IDictionary<Vertex, Vertex> bijectionFromOtherGraphToThisGraph)
         {
             if (!this.GetType().Equals(otherGraph.GetType()))
@@ -396,6 +401,7 @@ namespace GRYLibrary.Core.Graph
                 return false;
             }
         }
+        /// <remarks>This operations does not work yet due to missing implementation of <see cref="GetAllCyclesThroughASpecificVertex"/>.</remarks>
         public bool HasHamiltonianCycle(out Cycle result)
         {
             foreach (Cycle cycle in this.GetAllCycles())

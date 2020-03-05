@@ -1,16 +1,22 @@
-GRYLibrary-License version 1.0 (GRYL-1.0)
+GRYLibrary-License version 1.1 (GRYL-1.1)
 
-Licensor hereby grants permission by this license to use this product under the terms of the "GNU lesser general public license version 3" (see concrete license-text below) if and only if you are
+Licensor hereby grants permission by this license to use this products under terms of the GRYL-usage-conditions which are defined below if and only if you satisfy the GRYL-user-conditions which are defined below and all of your usecases for this product satisfy the GRYL-ethics-conditions which are defined below.
+Your license expires immediately if one of this conditions is not fulfilled anymore.
+ 
+GRYL-usage-conditions:
+The licensee is allowed to use this product under the terms of the "GNU lesser general public license version 3" (see appendix 1) with the restriction that the licensee is not allowed to exercise any right given by the "GNU lesser general public license version 3" if it contradicts any condition defined in the "GRYLibrary-License version 1.0".
+
+GRYL-user-conditions:
+You satisfies the GRYL-user-conditions if and only if you are
  - a private person or
  - a nonprofit-organization or
- - a company which had sales of (converted) 1 million US-Dollar or less in the last year
-and additionally all of your usecases for this product satisfy the conditions for ethical usage which are defined below.
-Your license expires immediately if one of this conditions is not fulfilled anymore.
-If all of your usecases for this product satisfy the conditions for ethical usage which are defined below but your company is not allowed to use this product due to too high sales then please contact the productowner for a commercial license.
-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-Conditions for ethical usage:
-A usecase for this product satisfies the conditions for ethical usage if and only if the usecase accomplish the ethical claims defined by the "Hippocratic License Version 2.0" (see concrete license-text below).
-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ - company which had sales of (converted) 1 million US-Dollar or less in the last year.
+
+GRYL-ethics-conditions:
+A usecase for this product satisfies the conditions for ethical usage if and only if the usecase accomplish the ethical claims defined by the "Hippocratic License Version 2.0" (see appendix 2).
+----------
+Appendix 1:
+
 GNU LESSER GENERAL PUBLIC LICENSE
 Version 3, 29 June 2007
 
@@ -67,7 +73,9 @@ The Free Software Foundation may publish revised and/or new versions of the GNU 
 Each version is given a distinguishing version number. If the Library as you received it specifies that a certain numbered version of the GNU Lesser General Public License “or any later version” applies to it, you have the option of following the terms and conditions either of that published version or of any later version published by the Free Software Foundation. If the Library as you received it does not specify a version number of the GNU Lesser General Public License, you may choose any version of the GNU Lesser General Public License ever published by the Free Software Foundation.
 
 If the Library as you received it specifies that a proxy can decide whether future versions of the GNU Lesser General Public License shall apply, that proxy's public statement of acceptance of any version is permanent authorization for you to choose that version for the Library.
-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+----------
+Appendix 2:
+
 Copyright 2020 Coraline Ada Ehmke
 
 Hippocratic License Version 2.0.
@@ -89,4 +97,4 @@ Licensor hereby grants permission by this license ("License"), free of charge, t
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 This Hippocratic License is an Ethical Source license (https://ethicalsource.dev).
-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+----------

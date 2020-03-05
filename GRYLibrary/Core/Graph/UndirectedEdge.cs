@@ -4,9 +4,12 @@ using System.Linq;
 
 namespace GRYLibrary.Core.Graph
 {
+    /// <summary>
+    /// Represents an undirected <see cref="Edge"/>. Currently an <see cref="UndirectedEdge"/> can only have exactly two connected <see cref="Vertex"/>-objects.
+    /// </summary>
     public class UndirectedEdge : Edge
     {
-        public IList<Vertex> ConnectedVertices { get; internal set; }
+        public IList<Vertex> ConnectedVertices { get; private set; }
         public UndirectedEdge(IEnumerable<Vertex> connectedVertices, string name, double weight = 1) : base(name, weight)
         {
             if (connectedVertices.Count() != 2)
@@ -33,12 +36,6 @@ namespace GRYLibrary.Core.Graph
             bool x3 = vertices[1].Equals(fromVertex);
             bool x4 = vertices[0].Equals(toVertex);
             return x1 && x2 || x3 && x4;
-        }
-
-        internal DirectedEdge ToDirectedEdge()
-        {
-            List<Vertex> connectedVertices = this.ConnectedVertices.ToList();
-            return new DirectedEdge(connectedVertices[0], connectedVertices[1], this.Name, this.Weight);
         }
         public override bool Equals(object obj)
         {

@@ -5,8 +5,8 @@ namespace GRYLibrary.Core.Graph
 {
     public class DirectedEdge : Edge
     {
-        public Vertex Source { get; internal set; }
-        public Vertex Target { get; internal set; }
+        public Vertex Source { get; private set; }
+        public Vertex Target { get; private set; }
         public DirectedEdge(Vertex source, Vertex target) : this(source, target, CalculateName(source, target))
         {
         }

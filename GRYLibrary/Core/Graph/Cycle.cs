@@ -1,4 +1,5 @@
-﻿using System;
+﻿using GRYLibrary.Core.Graph.Exceptions;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -13,15 +14,15 @@ namespace GRYLibrary.Core.Graph
             List<Edge> edges = edgesList.ToList();
             if (edges.Count == 0)
             {
-                throw new Exception("A cycle can not be empty.");
+                throw new InvalidGraphStructureException("A cycle can not be empty.");
             }
             if (new HashSet<Edge>(edges).Count < edges.Count)
             {
-                throw new Exception("A cycle can not contain two equal edges.");
+                throw new InvalidGraphStructureException("A cycle can not contain two equal edges.");
             }
             if (!RepresentsCycle(edges))
             {
-                throw new Exception("The given edge-list is not cyclic.");
+                throw new InvalidGraphStructureException("The given edge-list is not cyclic.");
             }
             this._Edges = edges;
         }
@@ -100,7 +101,7 @@ namespace GRYLibrary.Core.Graph
         {
             return nameof(Cycle) + "(" + string.Join("->", this._Edges) + ")";
         }
-        public static string CycleSetToString(ISet<Cycle> expectedCycles)
+        public static string CycleSetToString(IEnumerable<Cycle> expectedCycles)
         {
             return "{" + string.Join(",", expectedCycles) + "}";
         }

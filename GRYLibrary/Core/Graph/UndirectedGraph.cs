@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace GRYLibrary.Core.Graph
 {
-    public class UndirectedGraph : Graph
+    public sealed class UndirectedGraph : Graph
     {
         public override ISet<Edge> Edges { get { return new HashSet<Edge>(this._UndirectedEdges); } }
         public ISet<Edge> UndirectedEdges { get { return new HashSet<Edge>(this._UndirectedEdges); } }
@@ -18,12 +18,13 @@ namespace GRYLibrary.Core.Graph
         {
             return visitor.Handle(this);
         }
-        /// <returns>Returns a set of all vertices which have a connection to this vertex in this graph.</returns>
+        /// <returns>
+        /// Returns a set of all vertices which have a connection to this vertex in this graph.
+        /// </returns>
         /// <remarks>
         /// If this graph contains a selfloop with this vertex then the result-set will also contain this vertex.
-        /// The runtime of this function is &lt;=O(|this.Edges|).
         /// </remarks>
-        public override ISet<Vertex> GetDirectSuccessors(Vertex vertex, bool doNotWalkAgainstDirectedEdges)
+        public override ISet<Vertex> GetDirectSuccessors(Vertex vertex, bool doNotWalkAgainstDirectedEdges = true)
         {
             HashSet<Vertex> result = new HashSet<Vertex>();
             foreach (UndirectedEdge edge in vertex.GetConnectedEdges())

@@ -23,6 +23,7 @@ namespace GRYLibrary.Core.Graph
         {
             return this.GetConnectedEdges().Count;
         }
+        /// <returns>Returns true if and only if the <see cref="Name"/> of the vertices are equal.</returns>
         public override bool Equals(object obj)
         {
             Vertex typedObject = obj as Vertex;
