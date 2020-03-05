@@ -51,7 +51,10 @@ namespace GRYLibrary.Core.Graph
             List<Vertex> result = new List<Vertex>();
             foreach (Edge edge in this.ConnectedEdges)
             {
-                result.AddRange(edge.GetOtherConnectedVerticesVisitor(this));
+                if (edge.GetInputs().Contains(this))
+                {
+                    result.AddRange(edge.GetOutputs());
+                }
             }
             return result;
         }

@@ -133,15 +133,12 @@ namespace GRYLibrary.Core.Graph
                 bool containsCycle = false;
                 this.DepthFirstSearch((currentVertex, edges) =>
                 {
-                    if (edges.Count > 0)
+                    foreach (Vertex successor in currentVertex.GetSuccessorVertices())
                     {
-                        foreach (Vertex successor in currentVertex.GetSuccessorVertices())
+                        if (successor.Equals(vertex))
                         {
-                            if (successor.Equals(vertex))
-                            {
-                                containsCycle = true;
-                                return false;
-                            }
+                            containsCycle = true;
+                            return false;
                         }
                     }
                     return true;
@@ -215,7 +212,26 @@ namespace GRYLibrary.Core.Graph
 
         public ISet<Cycle> GetAllCyclesThroughASpecificVertex(Vertex vertex)
         {
-            throw new NotImplementedException();
+            ISet<Cycle> result = new HashSet<Cycle>();
+            this.DepthFirstSearch((currentVertex, path) =>
+            {
+                foreach (Vertex successor in currentVertex.GetSuccessorVertices())
+                {
+                    if (successor.Equals(vertex))
+                    {
+                        if (this.TryGetEdge(currentVertex, successor, out Edge lastEdge))
+                        {
+                            result.Add(new Cycle(path.Concat(new Edge[] { lastEdge }).ToList()));
+                        }
+                        else
+                        {
+                            throw new Exception();
+                        }
+                    }
+                }
+                return true;
+            }, true);
+            return result;
         }
         public override string ToString()
         {
@@ -254,7 +270,7 @@ namespace GRYLibrary.Core.Graph
                         }
                         else
                         {
-                            successorPath.Add(GetEdgeBetween(currentVertex.Item1, successor));
+                            successorPath.Add(GetNewEdgeBetween(currentVertex.Item1, successor));
                         }
                         if (!customAction(successor, successorPath))
                         {
@@ -295,7 +311,7 @@ namespace GRYLibrary.Core.Graph
                         }
                         else
                         {
-                            successorPath.Add(GetEdgeBetween(currentVertex.Item1, successor));
+                            successorPath.Add(GetNewEdgeBetween(currentVertex.Item1, successor));
                         }
                         stack.Push(new Tuple<Vertex, IList<Edge>>(successor, successorPath));
                     }
@@ -303,7 +319,7 @@ namespace GRYLibrary.Core.Graph
             }
         }
 
-        internal abstract Edge GetEdgeBetween(Vertex item1, Vertex successor);
+        internal abstract Edge GetNewEdgeBetween(Vertex item1, Vertex successor);
 
         private void InitializeSearchAndDoSomeChecks(Vertex startVertex, out Dictionary<Vertex, bool> visitedMap)
         {

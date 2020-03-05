@@ -177,7 +177,7 @@ namespace GRYLibrary.Core.Graph
             return base.ToString();
         }
 
-        internal override Edge GetEdgeBetween(Vertex source, Vertex target)
+        internal override Edge GetNewEdgeBetween(Vertex source, Vertex target)
         {
             return new DirectedEdge(source, target);
         }
