@@ -14,13 +14,11 @@ namespace GRYLibrary.Core.XMLSerializer
     /// <typeparam name="T">The type of the object which should be serialized.</typeparam>
     public class SimpleGenericXMLSerializer<T> where T : new()
     {
-        private readonly ISet<Type> _AllTypes;
         public Encoding Encoding { get; set; }
         public XmlWriterSettings XMLWriterSettings { get; set; }
         public ISet<Type> KnownTypes { get; set; }
         public SimpleGenericXMLSerializer()
         {
-            this._AllTypes = new HashSet<Type>(AppDomain.CurrentDomain.GetAssemblies().SelectMany(s => s.GetTypes()));
             this.Encoding = new UTF8Encoding(false);
             this.XMLWriterSettings = new XmlWriterSettings() { Indent = true, Encoding = Encoding, IndentChars = "     ", NewLineOnAttributes = false, OmitXmlDeclaration = true };
             this.KnownTypes = new HashSet<Type>();
@@ -60,10 +58,14 @@ namespace GRYLibrary.Core.XMLSerializer
                 return (T)this.GetSerializer().Deserialize(stream);
             }
         }
+        public void AddAllTypesInCurrentDomainAssembliesToKnownTypes()
+        {
+            this.KnownTypes.UnionWith(new HashSet<Type>(AppDomain.CurrentDomain.GetAssemblies().SelectMany(s => s.GetTypes())));
 
+        }
         private Type[] GetExtraTypes()
         {
-            return this.KnownTypes.Union(this._AllTypes).Where(t => typeof(T).IsAssignableFrom(t)).ToArray();
+            return this.KnownTypes.Where(type => typeof(T).IsAssignableFrom(type)).ToArray();
         }
         private XmlSerializer GetSerializer()
         {
