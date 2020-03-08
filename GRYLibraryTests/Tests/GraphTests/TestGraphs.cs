@@ -1,4 +1,4 @@
-﻿using GRYLibrary.Core.GraphOperations;
+﻿using GRYLibrary.Core.Graph;
 
 namespace GRYLibrary.Tests.GraphTests
 {
@@ -10,7 +10,7 @@ namespace GRYLibrary.Tests.GraphTests
         /// ^                   |
         /// └-------------------┘
         /// </returns>
-        internal static DirectedGraph GetTestGraphWithSimpleLoop()
+        internal static DirectedGraph GetTestConnectedGraphWithSimpleLoop()
         {
             DirectedGraph graph = new DirectedGraph();
             Vertex v0 = new Vertex("v0");
@@ -19,12 +19,12 @@ namespace GRYLibrary.Tests.GraphTests
             Vertex v3 = new Vertex("v3");
             Vertex v4 = new Vertex("v4");
             Vertex v5 = new Vertex("v5");
-            graph.AddEdge(new Edge(v0, v1, "e1"));
-            graph.AddEdge(new Edge(v1, v2, "e2"));
-            graph.AddEdge(new Edge(v2, v3, "e3"));
-            graph.AddEdge(new Edge(v3, v4, "e4"));
-            graph.AddEdge(new Edge(v4, v5, "e5"));
-            graph.AddEdge(new Edge(v5, v0, "e6"));
+            graph.AddEdge(new DirectedEdge(v0, v1, "e1"));
+            graph.AddEdge(new DirectedEdge(v1, v2, "e2"));
+            graph.AddEdge(new DirectedEdge(v2, v3, "e3"));
+            graph.AddEdge(new DirectedEdge(v3, v4, "e4"));
+            graph.AddEdge(new DirectedEdge(v4, v5, "e5"));
+            graph.AddEdge(new DirectedEdge(v5, v0, "e6"));
             return graph;
         }
         /// <returns>
@@ -40,11 +40,11 @@ namespace GRYLibrary.Tests.GraphTests
             Vertex v3 = new Vertex("v3");
             Vertex v4 = new Vertex("v4");
             Vertex v5 = new Vertex("v5");
-            graph.AddEdge(new Edge(v0, v1, "e1"));
-            graph.AddEdge(new Edge(v1, v2, "e2"));
-            graph.AddEdge(new Edge(v2, v3, "e3"));
-            graph.AddEdge(new Edge(v3, v4, "e4"));
-            graph.AddEdge(new Edge(v4, v5, "e5"));
+            graph.AddEdge(new DirectedEdge(v0, v1, "e1"));
+            graph.AddEdge(new DirectedEdge(v1, v2, "e2"));
+            graph.AddEdge(new DirectedEdge(v2, v3, "e3"));
+            graph.AddEdge(new DirectedEdge(v3, v4, "e4"));
+            graph.AddEdge(new DirectedEdge(v4, v5, "e5"));
             return graph;
         }
 
@@ -62,15 +62,15 @@ namespace GRYLibrary.Tests.GraphTests
             Vertex v9 = new Vertex(nameof(v9)); graph.AddVertex(v9);
             Vertex v10 = new Vertex(nameof(v10)); graph.AddVertex(v10);
 
-            Edge e1 = new Edge(v1, v2, nameof(e1)); graph.AddEdge(e1);
-            Edge e2 = new Edge(v1, v3, nameof(e2)); graph.AddEdge(e2);
-            Edge e3 = new Edge(v1, v4, nameof(e3)); graph.AddEdge(e3);
-            Edge e4 = new Edge(v2, v5, nameof(e4)); graph.AddEdge(e4);
-            Edge e5 = new Edge(v3, v6, nameof(e5)); graph.AddEdge(e5);
-            Edge e6 = new Edge(v3, v7, nameof(e6)); graph.AddEdge(e6);
-            Edge e7 = new Edge(v4, v8, nameof(e7)); graph.AddEdge(e7);
-            Edge e8 = new Edge(v5, v9, nameof(e8)); graph.AddEdge(e8);
-            Edge e9 = new Edge(v6, v10, nameof(e9)); graph.AddEdge(e9);
+            UndirectedEdge e1 = new UndirectedEdge(new Vertex[] { v1, v2 }, nameof(e1)); graph.AddEdge(e1);
+            UndirectedEdge e2 = new UndirectedEdge(new Vertex[] { v1, v3 }, nameof(e2)); graph.AddEdge(e2);
+            UndirectedEdge e3 = new UndirectedEdge(new Vertex[] { v1, v4 }, nameof(e3)); graph.AddEdge(e3);
+            UndirectedEdge e4 = new UndirectedEdge(new Vertex[] { v2, v5 }, nameof(e4)); graph.AddEdge(e4);
+            UndirectedEdge e5 = new UndirectedEdge(new Vertex[] { v3, v6 }, nameof(e5)); graph.AddEdge(e5);
+            UndirectedEdge e6 = new UndirectedEdge(new Vertex[] { v3, v7 }, nameof(e6)); graph.AddEdge(e6);
+            UndirectedEdge e7 = new UndirectedEdge(new Vertex[] { v4, v8 }, nameof(e7)); graph.AddEdge(e7);
+            UndirectedEdge e8 = new UndirectedEdge(new Vertex[] { v5, v9 }, nameof(e8)); graph.AddEdge(e8);
+            UndirectedEdge e9 = new UndirectedEdge(new Vertex[] { v6, v10 }, nameof(e9)); graph.AddEdge(e9);
 
             return graph;
 

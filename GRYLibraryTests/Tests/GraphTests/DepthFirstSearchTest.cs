@@ -1,4 +1,4 @@
-﻿using GRYLibrary.Core.GraphOperations;
+﻿using GRYLibrary.Core.Graph;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
@@ -16,7 +16,9 @@ namespace GRYLibrary.Tests.GraphTests
             g.DepthFirstSearch((v, edges) =>
             {
                 order.Add(new Tuple<int, IList<Edge>>(int.Parse(v.Name.Replace("v", string.Empty)), edges));
+                return true;
             });
+            Assert.AreEqual(10, order.Count);
             int i1 = this.GetIndexOfTupleWithSpeicficFirstvalue(order, 1);
             int i2 = this.GetIndexOfTupleWithSpeicficFirstvalue(order, 2);
             int i3 = this.GetIndexOfTupleWithSpeicficFirstvalue(order, 3);

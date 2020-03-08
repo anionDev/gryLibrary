@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Xml.Serialization;
 
 namespace GRYLibrary.Core.XMLSerializer
@@ -11,8 +10,8 @@ namespace GRYLibrary.Core.XMLSerializer
         private readonly XmlSerializer _ValueSerializer;
         public SerializableDictionary()
         {
-            _KeySerializer = new XmlSerializer(typeof(TKey));
-            _ValueSerializer = new XmlSerializer(typeof(TValue));
+            this._KeySerializer = new XmlSerializer(typeof(TKey));
+            this._ValueSerializer = new XmlSerializer(typeof(TValue));
         }
 
         public void ReadXml(System.Xml.XmlReader reader)
@@ -29,10 +28,10 @@ namespace GRYLibrary.Core.XMLSerializer
                 {
                     reader.ReadStartElement("Item");
                     reader.ReadStartElement("Key");
-                    TKey key = (TKey)_KeySerializer.Deserialize(reader);
+                    TKey key = (TKey)this._KeySerializer.Deserialize(reader);
                     reader.ReadEndElement();
                     reader.ReadStartElement("Value");
-                    TValue value = (TValue)_ValueSerializer.Deserialize(reader);
+                    TValue value = (TValue)this._ValueSerializer.Deserialize(reader);
                     reader.ReadEndElement();
                     this.Add(key, value);
                     reader.ReadEndElement();
@@ -50,11 +49,11 @@ namespace GRYLibrary.Core.XMLSerializer
                 writer.WriteStartElement("Item");
 
                 writer.WriteStartElement("Key");
-                _KeySerializer.Serialize(writer, key);
+                this._KeySerializer.Serialize(writer, key);
                 writer.WriteEndElement();
 
                 writer.WriteStartElement("Value");
-                _ValueSerializer.Serialize(writer, this[key]);
+                this._ValueSerializer.Serialize(writer, this[key]);
                 writer.WriteEndElement();
 
                 writer.WriteEndElement();

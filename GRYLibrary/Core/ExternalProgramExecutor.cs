@@ -38,6 +38,7 @@ namespace GRYLibrary.Core
         public GRYLog LogObject { get; set; }
         public string Arguments { get; set; }
         public string ProgramPathAndFile { get; set; }
+        public bool RunAsAdministrator { get; set; } = false;
         public bool CreateWindow { get; set; } = true;
         public string Title { get; set; }
         public string WorkingDirectory { get; set; }
@@ -110,9 +111,13 @@ namespace GRYLibrary.Core
                         Arguments = this.Arguments,
                         WorkingDirectory = this.WorkingDirectory,
                         RedirectStandardOutput = true,
-                        RedirectStandardError = true
+                        RedirectStandardError = true,
+                        CreateNoWindow = !this.CreateWindow,
                     };
-                    StartInfo.CreateNoWindow = !this.CreateWindow;
+                    if (this.RunAsAdministrator)
+                    {
+                        StartInfo.Verb = "Runas";
+                    }
                     process = new Process();
                     process.StartInfo = StartInfo;
                     process.OutputDataReceived += (object sender, DataReceivedEventArgs e) => this.EnqueueInformation(e.Data);

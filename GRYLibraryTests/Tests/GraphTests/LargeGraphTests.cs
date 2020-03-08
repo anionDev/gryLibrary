@@ -1,4 +1,4 @@
-﻿using GRYLibrary.Core.GraphOperations;
+﻿using GRYLibrary.Core.Graph;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
@@ -17,42 +17,42 @@ namespace GRYLibrary.Tests.GraphTests
         public readonly DirectedGraph DirectedNotConnectedCyclicGraph = GetDirectedNotConnectedCyclicGraph();
         public readonly DirectedGraph DirectedNotConnectedNotCyclicGraph = GetDirectedNotConnectedNotCyclicGraph();
 
-        private static UndirectedGraph CreateUndirectedGraph(IEnumerable<Edge> bigStructure)
+        private static UndirectedGraph CreateUndirectedGraph(IEnumerable<DirectedEdge> bigStructure)
         {
             UndirectedGraph result = new UndirectedGraph();
-            foreach (Edge edge in bigStructure)
+            foreach (DirectedEdge edge in bigStructure)
             {
                 result.AddEdge(edge);
             }
             return result;
         }
 
-        private static void MakeUnconnected(IList<Edge> existingStructure)
+        private static void MakeUnconnected(IList<DirectedEdge> existingStructure)
         {
-            foreach (Edge item in CreateRandomConnectedNotCyclicEdgesWithNewVertices())
+            foreach (DirectedEdge item in CreateRandomConnectedNotCyclicEdgesWithNewVertices())
             {
                 existingStructure.Add(item);
             }
         }
 
-        private static IEnumerable<Edge> CreateRandomConnectedNotCyclicEdgesWithNewVertices()
+        private static IEnumerable<DirectedEdge> CreateRandomConnectedNotCyclicEdgesWithNewVertices()
         {
             throw new NotImplementedException();
         }
 
-        private static IList<Edge> GetLargeUndirectedConnectedNotCyclicGraphStructure()
+        private static IList<DirectedEdge> GetLargeUndirectedConnectedNotCyclicGraphStructure()
         {
             throw new NotImplementedException();
         }
 
-        private static void AddCycle(IList<Edge> existingStructure)
+        private static void AddCycle(IList<DirectedEdge> existingStructure)
         {
             throw new NotImplementedException();
         }
-        private static DirectedGraph CreateDirectedGraph(IEnumerable<Edge> bigStructure)
+        private static DirectedGraph CreateDirectedGraph(IEnumerable<DirectedEdge> bigStructure)
         {
             DirectedGraph result = new DirectedGraph();
-            foreach (Edge edge in bigStructure)
+            foreach (DirectedEdge edge in bigStructure)
             {
                 result.AddEdge(edge);
             }
@@ -61,20 +61,20 @@ namespace GRYLibrary.Tests.GraphTests
 
         private static UndirectedGraph GetNotDirectedConnectedCyclicGraph()
         {
-            IList<Edge> bigStructure = GetLargeUndirectedConnectedNotCyclicGraphStructure();
+            IList<DirectedEdge> bigStructure = GetLargeUndirectedConnectedNotCyclicGraphStructure();
             AddCycle(bigStructure);
             return CreateUndirectedGraph(bigStructure);
         }
 
         private static UndirectedGraph GetNotDirectedConnectedNotCyclicGraph()
         {
-            IList<Edge> bigStructure = GetLargeUndirectedConnectedNotCyclicGraphStructure();
+            IList<DirectedEdge> bigStructure = GetLargeUndirectedConnectedNotCyclicGraphStructure();
             return CreateUndirectedGraph(bigStructure);
         }
 
         private static UndirectedGraph GetNotDirectedNotConnectedCyclicGraph()
         {
-            IList<Edge> bigStructure = GetLargeUndirectedConnectedNotCyclicGraphStructure();
+            IList<DirectedEdge> bigStructure = GetLargeUndirectedConnectedNotCyclicGraphStructure();
             MakeUnconnected(bigStructure);
             AddCycle(bigStructure);
             return CreateUndirectedGraph(bigStructure);
@@ -82,14 +82,14 @@ namespace GRYLibrary.Tests.GraphTests
 
         private static UndirectedGraph GetNotDirectedNotConnectedNotCyclicGraph()
         {
-            IList<Edge> bigStructure = GetLargeUndirectedConnectedNotCyclicGraphStructure();
+            IList<DirectedEdge> bigStructure = GetLargeUndirectedConnectedNotCyclicGraphStructure();
             MakeUnconnected(bigStructure);
             return CreateUndirectedGraph(bigStructure);
         }
 
         private static DirectedGraph GetDirectedConnectedCyclicGraph()
         {
-            IList<Edge> bigStructure = GetLargeUndirectedConnectedNotCyclicGraphStructure();
+            IList<DirectedEdge> bigStructure = GetLargeUndirectedConnectedNotCyclicGraphStructure();
             MakeUnconnected(bigStructure);
             AddCycle(bigStructure);
             return CreateDirectedGraph(bigStructure);
@@ -97,13 +97,13 @@ namespace GRYLibrary.Tests.GraphTests
 
         private static DirectedGraph GetDirectedConnectedNotCyclicGraph()
         {
-            IList<Edge> bigStructure = GetLargeUndirectedConnectedNotCyclicGraphStructure();
+            IList<DirectedEdge> bigStructure = GetLargeUndirectedConnectedNotCyclicGraphStructure();
             return CreateDirectedGraph(bigStructure);
         }
 
         private static DirectedGraph GetDirectedNotConnectedCyclicGraph()
         {
-            IList<Edge> bigStructure = GetLargeUndirectedConnectedNotCyclicGraphStructure();
+            IList<DirectedEdge> bigStructure = GetLargeUndirectedConnectedNotCyclicGraphStructure();
             MakeUnconnected(bigStructure);
             AddCycle(bigStructure);
             return CreateDirectedGraph(bigStructure);
@@ -112,7 +112,7 @@ namespace GRYLibrary.Tests.GraphTests
 
         private static DirectedGraph GetDirectedNotConnectedNotCyclicGraph()
         {
-            IList<Edge> bigStructure = GetLargeUndirectedConnectedNotCyclicGraphStructure();
+            IList<DirectedEdge> bigStructure = GetLargeUndirectedConnectedNotCyclicGraphStructure();
             MakeUnconnected(bigStructure);
             return CreateDirectedGraph(bigStructure);
         }

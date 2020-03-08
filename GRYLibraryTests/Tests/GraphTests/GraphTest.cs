@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using GRYLibrary.Core;
-using GRYLibrary.Core.GraphOperations;
+using GRYLibrary.Core.Graph;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace GRYLibrary.Tests.GraphTests
@@ -16,7 +16,7 @@ namespace GRYLibrary.Tests.GraphTests
         public void SimpleVertexTest()
         {
             Vertex v1 = new Vertex("v1");
-            Assert.AreEqual(0, v1.ConnectedEdges.Count());
+            Assert.AreEqual(0, v1.GetConnectedEdges().Count());
             Assert.AreEqual("v1", v1.Name);
             Assert.AreEqual(v1, v1);
         }
@@ -32,19 +32,19 @@ namespace GRYLibrary.Tests.GraphTests
         {
             Vertex v1 = new Vertex("v1");
             Vertex v2 = new Vertex("v2");
-            Edge e1 = new Edge(v1, v2, "e", 1.5);
+            DirectedEdge e1 = new DirectedEdge(v1, v2, "e", 1.5);
             Assert.AreEqual(v1, e1.Source);
             Assert.AreEqual(v2, e1.Target);
             Assert.AreEqual("e", e1.Name);
             Assert.AreEqual(1.5, e1.Weight);
-            Edge e2 = new Edge(v1, v2, "e", 1.5);
+            DirectedEdge e2 = new DirectedEdge(v1, v2, "e", 1.5);
             Assert.AreEqual(e1, e2);
-            Edge e3 = new Edge(v1, v2, "e", 1.6);
-            Assert.AreEqual(e1, e3);
-            Edge e4 = new Edge(v2, v1, "e", 1.5);
-            Assert.AreEqual(e1, e4);
-            Edge e5 = new Edge(v1, new Vertex("v3"), "e", 1.5);
-            Assert.AreEqual(e1, e5);
+            DirectedEdge e3 = new DirectedEdge(v1, v2, "e", 1.6);
+            Assert.AreNotEqual(e1, e3);
+            DirectedEdge e4 = new DirectedEdge(v2, v1, "e", 1.5);
+            Assert.AreNotEqual(e1, e4);
+            DirectedEdge e5 = new DirectedEdge(v1, new Vertex("v3"), "e", 1.5);
+            Assert.AreNotEqual(e1, e5);
 
         }
         [TestMethod]
@@ -52,9 +52,9 @@ namespace GRYLibrary.Tests.GraphTests
         {
             Vertex v1 = new Vertex("v1");
             Vertex v2 = new Vertex("v2");
-            Edge e1 = new Edge(v1, v2, "e1");
-            Edge e21 = new Edge(v1, v2, "e2");
-            Edge e22 = new Edge(v2, v1, "e3");
+            DirectedEdge e1 = new DirectedEdge(v1, v2, "e1");
+            DirectedEdge e21 = new DirectedEdge(v1, v2, "e2");
+            DirectedEdge e22 = new DirectedEdge(v2, v1, "e3");
             Assert.AreEqual(e1, e1);
             Assert.AreNotEqual(e1, e21);
             Assert.AreNotEqual(e1, e22);
@@ -70,11 +70,11 @@ namespace GRYLibrary.Tests.GraphTests
             Vertex v4 = new Vertex("v4");
             Vertex v5 = new Vertex("v5");
 
-            Edge e1 = new Edge(v1, v2, "e1");
-            Edge e2 = new Edge(v2, v3, "e2");
-            Edge e3 = new Edge(v3, v4, "e3");
-            Edge e4 = new Edge(v4, v5, "e4");
-            Edge e5 = new Edge(v5, v1, "e5");
+            DirectedEdge e1 = new DirectedEdge(v1, v2, "e1");
+            DirectedEdge e2 = new DirectedEdge(v2, v3, "e2");
+            DirectedEdge e3 = new DirectedEdge(v3, v4, "e3");
+            DirectedEdge e4 = new DirectedEdge(v4, v5, "e4");
+            DirectedEdge e5 = new DirectedEdge(v5, v1, "e5");
 
             g.AddVertex(v1);
             g.AddVertex(v2);
@@ -89,14 +89,14 @@ namespace GRYLibrary.Tests.GraphTests
 
             Assert.AreEqual(5, g.Vertices.Count());
             Assert.AreEqual(5, g.Edges.Count());
-            Assert.AreEqual(2, v1.ConnectedEdges.Count());
+            Assert.AreEqual(2, v1.GetConnectedEdges().Count());
 
             //test TryGetConnectionBetween:
             Edge e1Reloaded;
             Assert.IsTrue(g.TryGetEdge(v1, v2, out e1Reloaded));
             Assert.AreEqual(e1, e1Reloaded);
 
-            Edge e45 = new Edge(v4, v5, "e45");
+            DirectedEdge e45 = new DirectedEdge(v4, v5, "e45");
             try
             {
                 g.AddEdge(e45);//edge this this source and target does already exist
@@ -107,7 +107,7 @@ namespace GRYLibrary.Tests.GraphTests
             }
 
             //test TryGetConnectionBetween with selfloop:
-            Edge eSelfLoop = new Edge(v1, v1, "e11");
+            DirectedEdge eSelfLoop = new DirectedEdge(v1, v1, "e11");
             g.AddEdge(eSelfLoop);
             Edge eSelfLoopReloaded;
             g.TryGetEdge(v1, v1, out eSelfLoopReloaded);
@@ -115,7 +115,7 @@ namespace GRYLibrary.Tests.GraphTests
             Assert.AreEqual(5, g.Vertices.Count());
             Assert.AreEqual(6, g.Edges.Count());
             Assert.AreEqual(2, g.GetMinimumDegree());
-            Assert.AreEqual(3, g.GetMaximumDegree());
+            Assert.AreEqual(4, g.GetMaximumDegree());
 
             try
             {
@@ -138,7 +138,7 @@ namespace GRYLibrary.Tests.GraphTests
             Assert.AreEqual(1, successorsOfv5.Count);
             Assert.AreEqual(v1, successorsOfv5.First());
 
-            Edge e43 = new Edge(v4, v3, "e43");
+            DirectedEdge e43 = new DirectedEdge(v4, v3, "e43");
             g.AddEdge(e43);
             ISet<Vertex> successorsOfv4 = g.GetDirectSuccessors(v4);
             Assert.AreEqual(2, successorsOfv4.Count);
@@ -155,11 +155,11 @@ namespace GRYLibrary.Tests.GraphTests
             Vertex v4 = new Vertex("v4");
             Vertex v5 = new Vertex("v5");
 
-            Edge e1 = new Edge(v1, v2, "e1");
-            Edge e2 = new Edge(v2, v3, "e2");
-            Edge e3 = new Edge(v3, v4, "e3");
-            Edge e4 = new Edge(v4, v5, "e4");
-            Edge e5 = new Edge(v5, v1, "e5");
+            UndirectedEdge e1 = new UndirectedEdge(new Vertex[] { v1, v2 }, "e1");
+            UndirectedEdge e2 = new UndirectedEdge(new Vertex[] { v2, v3 }, "e2");
+            UndirectedEdge e3 = new UndirectedEdge(new Vertex[] { v3, v4 }, "e3");
+            UndirectedEdge e4 = new UndirectedEdge(new Vertex[] { v4, v5 }, "e4");
+            UndirectedEdge e5 = new UndirectedEdge(new Vertex[] { v5, v1 }, "e5");
 
             g.AddVertex(v1);
             g.AddVertex(v2);
@@ -174,7 +174,7 @@ namespace GRYLibrary.Tests.GraphTests
 
             Assert.AreEqual(5, g.Vertices.Count());
             Assert.AreEqual(5, g.Edges.Count());
-            Assert.AreEqual(2, v1.ConnectedEdges.Count());
+            Assert.AreEqual(2, v1.GetConnectedEdges().Count());
 
             //test TryGetEdge:
             Edge e1Reloaded1;
@@ -186,7 +186,7 @@ namespace GRYLibrary.Tests.GraphTests
 
             Assert.AreEqual(e1Reloaded1, e1Reloaded2);
 
-            Edge e54 = new Edge(v5, v4, "e54");
+            UndirectedEdge e54 = new UndirectedEdge(new Vertex[] { v5, v4 }, "e54");
             try
             {
                 g.AddEdge(e54);//edge this this source and target does already exist
@@ -197,7 +197,7 @@ namespace GRYLibrary.Tests.GraphTests
             }
 
             //test TryGetConnectionBetween with selfloop:
-            Edge eSelfLoop = new Edge(v1, v1, "e11");
+            UndirectedEdge eSelfLoop = new UndirectedEdge(new Vertex[] { v1, v1 }, "e11");
             g.AddEdge(eSelfLoop);
             Edge eSelfLoopReloaded;
             g.TryGetEdge(v1, v1, out eSelfLoopReloaded);
@@ -222,7 +222,7 @@ namespace GRYLibrary.Tests.GraphTests
             Assert.AreEqual(5, g.Vertices.Count());
             Assert.AreEqual(5, g.Edges.Count());
 
-            ISet<Vertex> successorsOfv4 = g.GetDirectSuccessors(v4);
+            ISet<Vertex> successorsOfv4 = g.GetDirectSuccessors(v4, true);
             Assert.AreEqual(2, successorsOfv4.Count);
             Assert.IsTrue(new HashSet<Vertex>() { v3, v5 }.SetEquals(successorsOfv4));
         }
@@ -240,7 +240,7 @@ namespace GRYLibrary.Tests.GraphTests
         {
             DirectedGraph graph = this.GetTestGraph();
             DirectedGraph createByAdjacencyMatrix = DirectedGraph.CreateByAdjacencyMatrix(this.GetTestAdjacencyMatrix());
-            Assert.IsTrue(graph.Equals(createByAdjacencyMatrix), $"Expected <{Utilities.TwoDimensionalArrayToString(graph.ToAdjacencyMatrix())}> but was <{Utilities.TwoDimensionalArrayToString(createByAdjacencyMatrix.ToAdjacencyMatrix())}>");
+            Assert.AreEqual(graph, createByAdjacencyMatrix);
         }
         private double[,] GetTestAdjacencyMatrix()
         {
@@ -271,12 +271,12 @@ namespace GRYLibrary.Tests.GraphTests
             Vertex v1 = new Vertex("Vertex_2");
             Vertex v2 = new Vertex("Vertex_3");
             Vertex v3 = new Vertex("Vertex_4");
-            graph.AddEdge(new Edge(v0, v0, "e1"));
-            graph.AddEdge(new Edge(v0, v1, "e2", 0.8));
-            graph.AddEdge(new Edge(v1, v2, "e3"));
-            graph.AddEdge(new Edge(v1, v3, "e4"));
-            graph.AddEdge(new Edge(v2, v0, "e5", 0.2));
-            graph.AddEdge(new Edge(v2, v3, "e6"));
+            graph.AddEdge(new DirectedEdge(v0, v0, "e1"));
+            graph.AddEdge(new DirectedEdge(v0, v1, "e2", 0.8));
+            graph.AddEdge(new DirectedEdge(v1, v2, "e3"));
+            graph.AddEdge(new DirectedEdge(v1, v3, "e4"));
+            graph.AddEdge(new DirectedEdge(v2, v0, "e5", 0.2));
+            graph.AddEdge(new DirectedEdge(v2, v3, "e6"));
             return graph;
         }
     }

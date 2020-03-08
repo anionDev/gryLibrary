@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
@@ -1359,6 +1358,71 @@ namespace GRYLibrary.Core
                 }
             }
             throw new KeyNotFoundException($"No volume could be found which provides the volume accessible at {mountPoint}");
+        }
+        public static bool NullSafeSetEquals<T>(this ISet<T> @this, ISet<T> obj)
+        {
+            return NullSafeHelper(@this, obj, (obj1, obj2) => obj1.SetEquals(obj2));
+        }
+        public static bool NullSafeListEquals<T>(this IList<T> @this, IList<T> obj)
+        {
+            return NullSafeHelper(@this, obj, (obj1, obj2) => obj1.SequenceEqual(obj2));
+        }
+        public static bool NullSafeEnumerableEquals<T>(this IEnumerable<T> @this, IEnumerable<T> obj)
+        {
+            return NullSafeHelper(@this, obj, (obj1, obj2) =>
+            {
+                if (obj1.Count() != obj2.Count())
+                {
+                    return false;
+                }
+                List<T> obj1Copy = new List<T>(obj1);
+                List<T> obj2Copy = new List<T>(obj2);
+                for (int i = 0; i < obj1.Count(); i++)
+                {
+                    if (!RemoveItemOnlyOnce(obj2Copy, obj1Copy[i]))
+                    {
+                        return false;
+                    }
+                }
+                return true;
+            });
+        }
+        public static bool NullSafeEquals(this object @this, object obj)
+        {
+            return NullSafeHelper(@this, obj, (obj1, obj2) => obj1.Equals(obj2));
+        }
+        private static bool NullSafeHelper<T>(T object1, T object2, Func<T, T, bool> f)
+        {
+            bool thisIsNull = object1 == null;
+            bool objIsNull = object2 == null;
+            if (thisIsNull ^ objIsNull)
+            {
+                return false;
+            }
+            else
+            {
+                if (thisIsNull && objIsNull)
+                {
+                    return true;
+                }
+                else
+                {
+                    return f(object1, object2);
+                }
+            }
+        }
+        public static bool RemoveItemOnlyOnce<T>(this IList<T> list, T item)
+        {
+            int index = list.IndexOf(item);
+            if (index > -1)
+            {
+                list.RemoveAt(index);
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
     }
 }

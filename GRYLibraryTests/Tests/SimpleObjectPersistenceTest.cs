@@ -54,7 +54,7 @@ namespace GRYLibrary.Tests
           </TestAttribute1>
      </TestAttribute>
      <TestStringFromInterface>y</TestStringFromInterface>
-     <TestDouble>3.1428571428571428</TestDouble>
+     <TestDouble>3.142857142857143</TestDouble>
      <TestDouble2>5</TestDouble2>
 </SerializeTestClass>";
                 Assert.AreEqual(expectedXMLValue, content);
