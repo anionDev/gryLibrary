@@ -90,7 +90,7 @@ namespace GRYLibrary.Tests
                     reloadedConfiguration.GetLogTarget<LogFile>().LogLevels.Add(LogLevel.Debug);
                     GRYLogConfiguration.SaveConfiguration(configurationFile, reloadedConfiguration);
 
-                    System.Threading.Thread.Sleep(2000);//wait until config is reloaded
+                    System.Threading.Thread.Sleep(1000);//wait until config is reloaded
 
                     logObject.Log("test3", LogLevel.Debug);// will now be logged
                     Assert.AreEqual("test1" + Environment.NewLine + "test3", File.ReadAllText(logFile1, encoding));
@@ -99,7 +99,7 @@ namespace GRYLibrary.Tests
                     reloadedConfiguration.LogFile = logFile2;
                     GRYLogConfiguration.SaveConfiguration(configurationFile, reloadedConfiguration);
 
-                    System.Threading.Thread.Sleep(2000);//wait until config is reloaded
+                    System.Threading.Thread.Sleep(1000);//wait until config is reloaded
 
                     logObject.Log("test4", LogLevel.Debug);// will be logged
                     Assert.AreEqual("test1" + Environment.NewLine + "test3", File.ReadAllText(logFile1, encoding));

@@ -98,6 +98,7 @@ namespace GRYLibrary.Core.Log
                 try
                 {
                     this._Watcher.EnableRaisingEvents = false;
+                    System.Threading.Thread.Sleep(200);
                     this.Configuration = GRYLogConfiguration.LoadConfiguration(configurationFile);
                 }
                 catch (Exception exception)
