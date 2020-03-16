@@ -1,10 +1,12 @@
-GRYLibrary-License version 1.1 (GRYL-1.1)
+GRYLibrary-License version 1.2 (GRYL-1.2)
 
+You are not allowed to use this product if you do not agree to this license-text.
+The licensor does not give any warranty that the product does not contain flaws. The licensor is not liable for any damages or costs caused by the use of the product.
 Licensor hereby grants permission by this license to use this products under terms of the GRYL-usage-conditions which are defined below if and only if you satisfy the GRYL-user-conditions which are defined below and all of your usecases for this product satisfy the GRYL-ethics-conditions which are defined below.
 Your license expires immediately if one of this conditions is not fulfilled anymore.
- 
+
 GRYL-usage-conditions:
-The licensee is allowed to use this product under the terms of the "GNU lesser general public license version 3" (see appendix 1) with the restriction that the licensee is not allowed to exercise any right given by the "GNU lesser general public license version 3" if it contradicts any condition defined in the "GRYLibrary-License version 1.0".
+The licensee is allowed to use this product under the terms of the "GNU lesser general public license version 3" (see appendix 1) with the restriction that the licensee is not allowed to exercise any right given by the "GNU lesser general public license version 3" if it contradicts any condition defined in the "GRYLibrary-License version 1.2".
 
 GRYL-user-conditions:
 You satisfies the GRYL-user-conditions if and only if you are
