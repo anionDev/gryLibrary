@@ -43,7 +43,7 @@
   </ItemGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="copy &quot;$(ProjectDir)..\License.txt&quot; &quot;$(OutDir)\GRYLibrary.License.txt&quot;" />
+    <Exec Command="copy &quot;$(ProjectDir)..\License.txt&quot; &quot;$(OutDir)\GRYLibrary.License.txt&quot;&#xD;&#xA;rm  &quot;$(OutDir)\GRYLibrary.deps.json&quot;" />
   </Target>
 
 </Project>
