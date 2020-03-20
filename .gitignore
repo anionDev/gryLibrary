@@ -287,5 +287,4 @@ __pycache__/
 *.odx.cs
 *.xsd.cs
 
-
-gitignored/
+GRYLibraryTests/GRYLibrary.TestCoverage.opencover.xml
