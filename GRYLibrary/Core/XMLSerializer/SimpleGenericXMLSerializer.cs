@@ -30,18 +30,14 @@ namespace GRYLibrary.Core.XMLSerializer
 
         public string Serialize(T @object)
         {
-            using (Stream stream = new MemoryStream())
+            using Stream stream = new MemoryStream();
+            using (XmlWriter xmlWriter = XmlWriter.Create(stream, this.XMLWriterSettings))
             {
-                using (XmlWriter xmlWriter = XmlWriter.Create(stream, this.XMLWriterSettings))
-                {
-                    this.GetSerializer().Serialize(xmlWriter, @object);
-                }
-                stream.Seek(0, SeekOrigin.Begin);
-                using (StreamReader streamReader = new StreamReader(stream))
-                {
-                    return streamReader.ReadToEnd();
-                }
+                this.GetSerializer().Serialize(xmlWriter, @object);
             }
+            stream.Seek(0, SeekOrigin.Begin);
+            using StreamReader streamReader = new StreamReader(stream);
+            return streamReader.ReadToEnd();
         }
 
         public T DeserializeFromReader(XmlReader xmlReader)
@@ -50,13 +46,11 @@ namespace GRYLibrary.Core.XMLSerializer
         }
         public T Deserialize(string xml)
         {
-            using (Stream stream = new MemoryStream())
-            {
-                byte[] data = this.Encoding.GetBytes(xml);
-                stream.Write(data, 0, data.Length);
-                stream.Position = 0;
-                return (T)this.GetSerializer().Deserialize(stream);
-            }
+            using Stream stream = new MemoryStream();
+            byte[] data = this.Encoding.GetBytes(xml);
+            stream.Write(data, 0, data.Length);
+            stream.Position = 0;
+            return (T)this.GetSerializer().Deserialize(stream);
         }
         public void AddAllTypesInCurrentDomainAssembliesToKnownTypes()
         {

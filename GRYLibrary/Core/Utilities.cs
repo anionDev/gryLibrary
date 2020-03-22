@@ -610,12 +610,10 @@ namespace GRYLibrary.Core
         private static readonly IFormatter _Formatter = new BinaryFormatter();
         public static T DeepClone<T>(this T @object)
         {
-            using (Stream memoryStream = new MemoryStream())
-            {
-                _Formatter.Serialize(memoryStream, @object);
-                memoryStream.Position = 0;
-                return (T)_Formatter.Deserialize(memoryStream);
-            }
+            using Stream memoryStream = new MemoryStream();
+            _Formatter.Serialize(memoryStream, @object);
+            memoryStream.Position = 0;
+            return (T)_Formatter.Deserialize(memoryStream);
         }
         public static long GetTotalFreeSpace(string driveName)
         {
@@ -1190,15 +1188,13 @@ namespace GRYLibrary.Core
         {
             XslCompiledTransform myXslTrans = new XslCompiledTransform();
             myXslTrans.Load(XmlReader.Create(new StringReader(xslt)));
-            using (StringWriter stringWriter = new StringWriter())
+            using StringWriter stringWriter = new StringWriter();
+            using (XmlWriter xmlWriter = XmlWriter.Create(stringWriter, applyXSLTToXMLXMLWriterDefaultSettings))
             {
-                using (XmlWriter xmlWriter = XmlWriter.Create(stringWriter, applyXSLTToXMLXMLWriterDefaultSettings))
-                {
-                    myXslTrans.Transform(XmlReader.Create(new StringReader(xml)), xmlWriter);
+                myXslTrans.Transform(XmlReader.Create(new StringReader(xml)), xmlWriter);
 
-                }
-                return xmlDeclaration + stringWriter.ToString();
             }
+            return xmlDeclaration + stringWriter.ToString();
         }
         public static readonly Encoding FormatXMLFile_DefaultEncoding = new UTF8Encoding(false);
         public static readonly XmlWriterSettings FormatXMLFile_DefaultXmlWriterSettings = new XmlWriterSettings() { Indent = true, IndentChars = "    " };
@@ -1224,21 +1220,15 @@ namespace GRYLibrary.Core
         }
         public static string FormatXMLString(string xmlString, XmlWriterSettings settings)
         {
-            using (MemoryStream memoryStream = new MemoryStream())
-            {
-                using (XmlWriter xmlWriter = XmlWriter.Create(memoryStream, settings))
-                {
-                    XmlDocument document = new XmlDocument();
-                    document.LoadXml(xmlString);
-                    xmlWriter.Flush();
-                    memoryStream.Flush();
-                    memoryStream.Position = 0;
-                    using (StreamReader streamReader = new StreamReader(memoryStream))
-                    {
-                        return streamReader.ReadToEnd();
-                    }
-                }
-            }
+            using MemoryStream memoryStream = new MemoryStream();
+            using XmlWriter xmlWriter = XmlWriter.Create(memoryStream, settings);
+            XmlDocument document = new XmlDocument();
+            document.LoadXml(xmlString);
+            xmlWriter.Flush();
+            memoryStream.Flush();
+            memoryStream.Position = 0;
+            using StreamReader streamReader = new StreamReader(memoryStream);
+            return streamReader.ReadToEnd();
         }
         public static void AddMountPointForVolume(Guid volumeId, string mountPoint)
         {
@@ -1270,7 +1260,7 @@ namespace GRYLibrary.Core
                     if (line.StartsWith(prefix))
                     {
                         line = line.Substring(prefix.Length);//remove "\\?\Volume{"
-                        line = line.Substring(0, line.Length - 2);//remove "}\"
+                        line = line[0..^2];//remove "}\"
                         string nextLine = externalProgramExecutor.AllStdOutLines[i + 1].Trim();
                         if (Directory.Exists(nextLine) || nextLine.StartsWith("***"))
                         {
