@@ -19,6 +19,7 @@ using static GRYLibrary.Core.TableGenerator;
 using System.Reflection;
 using System.Dynamic;
 using System.ComponentModel;
+using GRYLibrary.Core.Log;
 
 namespace GRYLibrary.Core
 {
@@ -1412,6 +1413,98 @@ namespace GRYLibrary.Core
             else
             {
                 return false;
+            }
+        }
+        public static GitCommandResult ExecuteGitCommand(string repository, string argument, bool throwErrorIfExitCodeIsNotZero = false, int? timeoutInMilliseconds = null)
+        {
+            ExternalProgramExecutor externalProgramExecutor = ExternalProgramExecutor.Create("git", argument, repository, string.Empty, false, timeoutInMilliseconds);
+            externalProgramExecutor.ThrowErrorIfExitCodeIsNotZero = throwErrorIfExitCodeIsNotZero;
+            externalProgramExecutor.StartConsoleApplicationInCurrentConsoleWindow();
+            return new GitCommandResult(argument, repository, externalProgramExecutor.AllStdOutLines, externalProgramExecutor.AllStdErrLines, externalProgramExecutor.ExitCode);
+        }
+        public static bool GitRepositoryContainsObligatoryFiles(string repositoryFolder, out ISet<string> missingFiles)
+        {
+            missingFiles = new HashSet<string>();
+            List<Tuple<string, ISet<string>>> fileLists = new List<Tuple<string/*file*/, ISet<string>/*aliase*/>>();
+            fileLists.Add(Tuple.Create<string, ISet<string>>(".gitignore", new HashSet<string>()));
+            fileLists.Add(Tuple.Create<string, ISet<string>>("License.txt", new HashSet<string>() { "License", "License.md" }));
+            fileLists.Add(Tuple.Create<string, ISet<string>>("ReadMe.md", new HashSet<string>() { "ReadMe", "ReadMe.txt" }));
+            foreach (Tuple<string, ISet<string>> file in fileLists)
+            {
+                if (!(File.Exists(Path.Combine(repositoryFolder, file.Item1)) || AnyFileExistsInRepositoryFolder(repositoryFolder, file.Item2)))
+                {
+                    missingFiles.Add(file.Item1);
+                }
+            }
+            return missingFiles.Count == 0;
+        }
+        public static bool AnyFileExistsInRepositoryFolder(string repositoryFolder, IEnumerable<string> files)
+        {
+            foreach (string file in files)
+            {
+                if (File.Exists(Path.Combine(repositoryFolder, file)))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+        public static bool IsInGitSubmodule(string repositoryFolder)
+        {
+            return !GetGitBaseRepositoryPathHelper(repositoryFolder).Equals(string.Empty);
+        }
+        public static string GetGitBaseRepositoryPath(string repositoryFolder)
+        {
+            string basePath = GetGitBaseRepositoryPathHelper(repositoryFolder);
+            if (basePath.Equals(string.Empty))
+            {
+                throw new KeyNotFoundException("No base-repository found in '" + repositoryFolder + "'");
+            }
+            else
+            {
+                return basePath;
+            }
+        }
+        private static string GetGitBaseRepositoryPathHelper(string repositoryFolder)
+        {
+            return ExecuteGitCommand(repositoryFolder, "rev-parse --show-superproject-working-tree", true).GetFirstStdOutLine();
+        }
+        public static bool IsGitRepository(string folder)
+        {
+            return Directory.Exists(Path.Combine(folder, ".git")) || File.Exists(Path.Combine(folder, ".git"));
+        }
+        public static string GitCommit(string repository, string commitMessage)
+        {
+            if (GitRepositoryHasUncommittedChanges(repository))
+            {
+                ExecuteGitCommand(repository, $"add -A");
+                ExecuteGitCommand(repository, $"commit -m \"{commitMessage}\"");
+                return GetLastGitCommitId(repository);
+            }
+            else
+            {
+                throw new Exception($"Repository '{repository}' does not have any changes");
+            }
+        }
+        public static string GetLastGitCommitId(string repositoryFolder)
+        {
+            return ExecuteGitCommand(repositoryFolder, $"rev-parse HEAD").GetFirstStdOutLine();
+        }
+
+        public static bool GitRepositoryHasUncommittedChanges(string repository)
+        {
+            int exitCode = ExecuteGitCommand(repository, "diff-index --quiet HEAD --", false).ExitCode;
+            if (exitCode == 0)
+            {
+                return false;
+            }
+            else if (exitCode == 1)
+            {
+                return true;
+            }
+            else
+            {
+                throw new Exception("Could not calculate uncommitted changes in '" + repository + "'");
             }
         }
     }
