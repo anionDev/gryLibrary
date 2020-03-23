@@ -19,7 +19,6 @@ using static GRYLibrary.Core.TableGenerator;
 using System.Reflection;
 using System.Dynamic;
 using System.ComponentModel;
-using GRYLibrary.Core.Log;
 
 namespace GRYLibrary.Core
 {
@@ -115,7 +114,7 @@ namespace GRYLibrary.Core
 
         public static string ReplaceUnderscores(string @string, IDictionary<string, string> replacements)
         {
-            foreach (System.Collections.Generic.KeyValuePair<string, string> replacement in replacements)
+            foreach (KeyValuePair<string, string> replacement in replacements)
             {
                 @string = @string.Replace($"__{replacement.Key}__", replacement.Value);
             }
@@ -1431,22 +1430,24 @@ namespace GRYLibrary.Core
             fileLists.Add(Tuple.Create<string, ISet<string>>("ReadMe.md", new HashSet<string>() { "ReadMe", "ReadMe.txt" }));
             foreach (Tuple<string, ISet<string>> file in fileLists)
             {
-                if (!(File.Exists(Path.Combine(repositoryFolder, file.Item1)) || AnyFileExistsInRepositoryFolder(repositoryFolder, file.Item2)))
+                if (!(File.Exists(Path.Combine(repositoryFolder, file.Item1)) || AtLeastOneFileExistsInFolder(repositoryFolder, file.Item2,out string _)))
                 {
                     missingFiles.Add(file.Item1);
                 }
             }
             return missingFiles.Count == 0;
         }
-        public static bool AnyFileExistsInRepositoryFolder(string repositoryFolder, IEnumerable<string> files)
+        public static bool AtLeastOneFileExistsInFolder(string repositoryFolder, IEnumerable<string> files,out string foundFile)
         {
             foreach (string file in files)
             {
                 if (File.Exists(Path.Combine(repositoryFolder, file)))
                 {
+                    foundFile = file;
                     return true;
                 }
             }
+            foundFile = null;
             return false;
         }
         public static bool IsInGitSubmodule(string repositoryFolder)
@@ -1488,7 +1489,7 @@ namespace GRYLibrary.Core
         }
         public static string GetLastGitCommitId(string repositoryFolder)
         {
-            return ExecuteGitCommand(repositoryFolder, $"rev-parse HEAD").GetFirstStdOutLine();
+            return ExecuteGitCommand(repositoryFolder, $"rev-parse HEAD", true).GetFirstStdOutLine();
         }
 
         public static bool GitRepositoryHasUncommittedChanges(string repository)
@@ -1506,6 +1507,14 @@ namespace GRYLibrary.Core
             {
                 throw new Exception("Could not calculate uncommitted changes in '" + repository + "'");
             }
+        }
+        public static int GetAmountOfCommitsInGitRepository(string repositoryFolder)
+        {
+            return int.Parse(ExecuteGitCommand(repositoryFolder, $"rev-list --count <revision>", true).GetFirstStdOutLine());
+        }
+        public static string GetCurrentGitRepositoryBranch(string repositoryFolder)
+        {
+            return ExecuteGitCommand(repositoryFolder, $"rev-parse --abbrev-ref HEAD", true).GetFirstStdOutLine();
         }
     }
 }

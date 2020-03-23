@@ -54,8 +54,7 @@ namespace GRYLibrary.Core.XMLSerializer
         }
         public void AddAllTypesInCurrentDomainAssembliesToKnownTypes()
         {
-            this.KnownTypes.UnionWith(new HashSet<Type>(AppDomain.CurrentDomain.GetAssemblies().SelectMany(s => s.GetTypes())));
-
+            this.KnownTypes.UnionWith(new HashSet<Type>(AppDomain.CurrentDomain.GetAssemblies().SelectMany(assembly => assembly.GetTypes())));
         }
         private Type[] GetExtraTypes()
         {

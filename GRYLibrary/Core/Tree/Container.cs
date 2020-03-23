@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 
 namespace GRYLibrary.Core.Tree
 {
@@ -18,7 +17,7 @@ namespace GRYLibrary.Core.Tree
         {
             List<TreeItem<ContainedItemType>> result = new List<TreeItem<ContainedItemType>>();
             result.AddRange(this.Children);
-            foreach (var child in this.Children)
+            foreach (TreeItem<ContainedItemType> child in this.Children)
             {
                 if (child is Container<ContainedItemType>)
                 {
