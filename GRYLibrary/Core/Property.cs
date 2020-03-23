@@ -78,12 +78,12 @@ namespace GRYLibrary.Core
                 {
                     lock (this.LockObject)
                     {
-                        return GetValue();
+                        return this.GetValue();
                     }
                 }
                 else
                 {
-                    return GetValue();
+                    return this.GetValue();
                 }
             }
             set
