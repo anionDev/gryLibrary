@@ -122,7 +122,7 @@ namespace GRYLibrary.Core
             {
                 throw new ArgumentException("null is not allowed as value");
             }
-            T oldValue = this.Value;
+            T oldValue = this._Value;
             T newValue = value;
             this.Unset = false;
             this._Value = newValue;
