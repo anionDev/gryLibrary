@@ -19,6 +19,7 @@ using static GRYLibrary.Core.TableGenerator;
 using System.Reflection;
 using System.Dynamic;
 using System.ComponentModel;
+using GRYLibrary.Core.XMLSerializer;
 
 namespace GRYLibrary.Core
 {
@@ -114,7 +115,7 @@ namespace GRYLibrary.Core
 
         public static string ReplaceUnderscores(string @string, IDictionary<string, string> replacements)
         {
-            foreach (KeyValuePair<string, string> replacement in replacements)
+            foreach (System.Collections.Generic.KeyValuePair<string, string> replacement in replacements)
             {
                 @string = @string.Replace($"__{replacement.Key}__", replacement.Value);
             }
@@ -1236,7 +1237,7 @@ namespace GRYLibrary.Core
             {
                 EnsureDirectoryExists(mountPoint);
             }
-            ExternalProgramExecutor externalProgramExecutor = ExternalProgramExecutor.Create("mountvol", $"{mountPoint} \\\\?\\Volume{{{volumeId.ToString()}}}\\");
+            ExternalProgramExecutor externalProgramExecutor = ExternalProgramExecutor.Create("mountvol", $"{mountPoint} \\\\?\\Volume{{{volumeId}}}\\");
             externalProgramExecutor.ThrowErrorIfExitCodeIsNotZero = true;
             externalProgramExecutor.CreateWindow = false;
             externalProgramExecutor.LogObject.Configuration.GetLogTarget<Log.ConcreteLogTargets.Console>().Enabled = false;
@@ -1295,7 +1296,7 @@ namespace GRYLibrary.Core
             for (int i = 0; i < externalProgramExecutor.AllStdOutLines.Length; i++)
             {
                 string line = externalProgramExecutor.AllStdOutLines[i].Trim();
-                if (line.StartsWith($"\\\\?\\Volume{{{volumeId.ToString()}}}\\"))
+                if (line.StartsWith($"\\\\?\\Volume{{{volumeId}}}\\"))
                 {
                     int j = i;
                     do
@@ -1430,14 +1431,14 @@ namespace GRYLibrary.Core
             fileLists.Add(Tuple.Create<string, ISet<string>>("ReadMe.md", new HashSet<string>() { "ReadMe", "ReadMe.txt" }));
             foreach (Tuple<string, ISet<string>> file in fileLists)
             {
-                if (!(File.Exists(Path.Combine(repositoryFolder, file.Item1)) || AtLeastOneFileExistsInFolder(repositoryFolder, file.Item2,out string _)))
+                if (!(File.Exists(Path.Combine(repositoryFolder, file.Item1)) || AtLeastOneFileExistsInFolder(repositoryFolder, file.Item2, out string _)))
                 {
                     missingFiles.Add(file.Item1);
                 }
             }
             return missingFiles.Count == 0;
         }
-        public static bool AtLeastOneFileExistsInFolder(string repositoryFolder, IEnumerable<string> files,out string foundFile)
+        public static bool AtLeastOneFileExistsInFolder(string repositoryFolder, IEnumerable<string> files, out string foundFile)
         {
             foreach (string file in files)
             {
@@ -1515,6 +1516,15 @@ namespace GRYLibrary.Core
         public static string GetCurrentGitRepositoryBranch(string repositoryFolder)
         {
             return ExecuteGitCommand(repositoryFolder, $"rev-parse --abbrev-ref HEAD", true).GetFirstStdOutLine();
+        }
+        public static SerializableDictionary<TKey, TValue> ToSerializableDictionary<TKey, TValue>(this IDictionary<TKey, TValue> dictionary)
+        {
+            SerializableDictionary<TKey, TValue> result = new SerializableDictionary<TKey, TValue>();
+            foreach (System.Collections.Generic.KeyValuePair<TKey, TValue> kvp in dictionary)
+            {
+                result.Add(kvp.Key, kvp.Value);
+            }
+            return result;
         }
     }
 }
