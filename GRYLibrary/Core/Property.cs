@@ -29,9 +29,17 @@ namespace GRYLibrary.Core
         private readonly Stack<KeyValuePair<DateTime, T>> _History;
         [DataMember]
         public bool LockEnabled = false;
+        [DataMember]
+        public bool Unset = true;
 
         public object LockObject = new object();
-
+        public bool HasValue
+        {
+            get
+            {
+                return !this.Unset;
+            }
+        }
         public T InitialValue
         {
             get
@@ -42,17 +50,20 @@ namespace GRYLibrary.Core
         /// <summary>
         /// The history contains all T-objects which where set as value for <see cref="Property{T}.Value"/> with the <see cref="DateTime"/> when they were set.
         /// </summary>
-        public Stack<System.Collections.Generic. KeyValuePair<DateTime, T>> History
+        public Stack<KeyValuePair<DateTime, T>> History
         {
             get
             {
                 return new Stack<KeyValuePair<DateTime, T>>(new Stack<KeyValuePair<DateTime, T>>(this._History));
             }
         }
-
+        public void UnsetValue()
+        {
+            this.Unset = true;
+        }
         public string PropertyName { get { return this._PropertyName; } set { this._PropertyName = value; } }
 
-        public System.Type PropertyValueType
+        public Type PropertyValueType
         {
             get
             {
@@ -67,12 +78,12 @@ namespace GRYLibrary.Core
                 {
                     lock (this.LockObject)
                     {
-                        return this._Value;
+                        return this.GetValue();
                     }
                 }
                 else
                 {
-                    return this._Value;
+                    return this.GetValue();
                 }
             }
             set
@@ -91,16 +102,32 @@ namespace GRYLibrary.Core
             }
         }
 
+        public DateTime LastWriteTime { get; private set; }
+
+        private T GetValue()
+        {
+            if (this.HasValue)
+            {
+                return this._Value;
+            }
+            else
+            {
+                throw new Exception("No value set");
+            }
+        }
+
         private void SetValue(T value)
         {
             if ((value == null) && !this.AllowNullAsValue)
             {
                 throw new ArgumentException("null is not allowed as value");
             }
-            T oldValue = this.Value;
+            T oldValue = this._Value;
             T newValue = value;
+            this.Unset = false;
             this._Value = newValue;
             DateTime changeDate = DateTime.Now;
+            this.LastWriteTime = changeDate;
             if (this.AddValuesToHistory)
             {
                 this._History.Push(new KeyValuePair<DateTime, T>(changeDate, this._Value));

@@ -19,6 +19,7 @@ using static GRYLibrary.Core.TableGenerator;
 using System.Reflection;
 using System.Dynamic;
 using System.ComponentModel;
+using GRYLibrary.Core.XMLSerializer;
 
 namespace GRYLibrary.Core
 {
@@ -610,12 +611,10 @@ namespace GRYLibrary.Core
         private static readonly IFormatter _Formatter = new BinaryFormatter();
         public static T DeepClone<T>(this T @object)
         {
-            using (Stream memoryStream = new MemoryStream())
-            {
-                _Formatter.Serialize(memoryStream, @object);
-                memoryStream.Position = 0;
-                return (T)_Formatter.Deserialize(memoryStream);
-            }
+            using Stream memoryStream = new MemoryStream();
+            _Formatter.Serialize(memoryStream, @object);
+            memoryStream.Position = 0;
+            return (T)_Formatter.Deserialize(memoryStream);
         }
         public static long GetTotalFreeSpace(string driveName)
         {
@@ -1190,15 +1189,13 @@ namespace GRYLibrary.Core
         {
             XslCompiledTransform myXslTrans = new XslCompiledTransform();
             myXslTrans.Load(XmlReader.Create(new StringReader(xslt)));
-            using (StringWriter stringWriter = new StringWriter())
+            using StringWriter stringWriter = new StringWriter();
+            using (XmlWriter xmlWriter = XmlWriter.Create(stringWriter, applyXSLTToXMLXMLWriterDefaultSettings))
             {
-                using (XmlWriter xmlWriter = XmlWriter.Create(stringWriter, applyXSLTToXMLXMLWriterDefaultSettings))
-                {
-                    myXslTrans.Transform(XmlReader.Create(new StringReader(xml)), xmlWriter);
+                myXslTrans.Transform(XmlReader.Create(new StringReader(xml)), xmlWriter);
 
-                }
-                return xmlDeclaration + stringWriter.ToString();
             }
+            return xmlDeclaration + stringWriter.ToString();
         }
         public static readonly Encoding FormatXMLFile_DefaultEncoding = new UTF8Encoding(false);
         public static readonly XmlWriterSettings FormatXMLFile_DefaultXmlWriterSettings = new XmlWriterSettings() { Indent = true, IndentChars = "    " };
@@ -1224,21 +1221,15 @@ namespace GRYLibrary.Core
         }
         public static string FormatXMLString(string xmlString, XmlWriterSettings settings)
         {
-            using (MemoryStream memoryStream = new MemoryStream())
-            {
-                using (XmlWriter xmlWriter = XmlWriter.Create(memoryStream, settings))
-                {
-                    XmlDocument document = new XmlDocument();
-                    document.LoadXml(xmlString);
-                    xmlWriter.Flush();
-                    memoryStream.Flush();
-                    memoryStream.Position = 0;
-                    using (StreamReader streamReader = new StreamReader(memoryStream))
-                    {
-                        return streamReader.ReadToEnd();
-                    }
-                }
-            }
+            using MemoryStream memoryStream = new MemoryStream();
+            using XmlWriter xmlWriter = XmlWriter.Create(memoryStream, settings);
+            XmlDocument document = new XmlDocument();
+            document.LoadXml(xmlString);
+            xmlWriter.Flush();
+            memoryStream.Flush();
+            memoryStream.Position = 0;
+            using StreamReader streamReader = new StreamReader(memoryStream);
+            return streamReader.ReadToEnd();
         }
         public static void AddMountPointForVolume(Guid volumeId, string mountPoint)
         {
@@ -1246,7 +1237,7 @@ namespace GRYLibrary.Core
             {
                 EnsureDirectoryExists(mountPoint);
             }
-            ExternalProgramExecutor externalProgramExecutor = ExternalProgramExecutor.Create("mountvol", $"{mountPoint} \\\\?\\Volume{{{volumeId.ToString()}}}\\");
+            ExternalProgramExecutor externalProgramExecutor = ExternalProgramExecutor.Create("mountvol", $"{mountPoint} \\\\?\\Volume{{{volumeId}}}\\");
             externalProgramExecutor.ThrowErrorIfExitCodeIsNotZero = true;
             externalProgramExecutor.CreateWindow = false;
             externalProgramExecutor.LogObject.Configuration.GetLogTarget<Log.ConcreteLogTargets.Console>().Enabled = false;
@@ -1270,7 +1261,7 @@ namespace GRYLibrary.Core
                     if (line.StartsWith(prefix))
                     {
                         line = line.Substring(prefix.Length);//remove "\\?\Volume{"
-                        line = line.Substring(0, line.Length - 2);//remove "}\"
+                        line = line[0..^2];//remove "}\"
                         string nextLine = externalProgramExecutor.AllStdOutLines[i + 1].Trim();
                         if (Directory.Exists(nextLine) || nextLine.StartsWith("***"))
                         {
@@ -1305,7 +1296,7 @@ namespace GRYLibrary.Core
             for (int i = 0; i < externalProgramExecutor.AllStdOutLines.Length; i++)
             {
                 string line = externalProgramExecutor.AllStdOutLines[i].Trim();
-                if (line.StartsWith($"\\\\?\\Volume{{{volumeId.ToString()}}}\\"))
+                if (line.StartsWith($"\\\\?\\Volume{{{volumeId}}}\\"))
                 {
                     int j = i;
                     do
@@ -1423,6 +1414,117 @@ namespace GRYLibrary.Core
             {
                 return false;
             }
+        }
+        public static GitCommandResult ExecuteGitCommand(string repository, string argument, bool throwErrorIfExitCodeIsNotZero = false, int? timeoutInMilliseconds = null)
+        {
+            ExternalProgramExecutor externalProgramExecutor = ExternalProgramExecutor.Create("git", argument, repository, string.Empty, false, timeoutInMilliseconds);
+            externalProgramExecutor.ThrowErrorIfExitCodeIsNotZero = throwErrorIfExitCodeIsNotZero;
+            externalProgramExecutor.StartConsoleApplicationInCurrentConsoleWindow();
+            return new GitCommandResult(argument, repository, externalProgramExecutor.AllStdOutLines, externalProgramExecutor.AllStdErrLines, externalProgramExecutor.ExitCode);
+        }
+        public static bool GitRepositoryContainsObligatoryFiles(string repositoryFolder, out ISet<string> missingFiles)
+        {
+            missingFiles = new HashSet<string>();
+            List<Tuple<string, ISet<string>>> fileLists = new List<Tuple<string/*file*/, ISet<string>/*aliase*/>>();
+            fileLists.Add(Tuple.Create<string, ISet<string>>(".gitignore", new HashSet<string>()));
+            fileLists.Add(Tuple.Create<string, ISet<string>>("License.txt", new HashSet<string>() { "License", "License.md" }));
+            fileLists.Add(Tuple.Create<string, ISet<string>>("ReadMe.md", new HashSet<string>() { "ReadMe", "ReadMe.txt" }));
+            foreach (Tuple<string, ISet<string>> file in fileLists)
+            {
+                if (!(File.Exists(Path.Combine(repositoryFolder, file.Item1)) || AtLeastOneFileExistsInFolder(repositoryFolder, file.Item2, out string _)))
+                {
+                    missingFiles.Add(file.Item1);
+                }
+            }
+            return missingFiles.Count == 0;
+        }
+        public static bool AtLeastOneFileExistsInFolder(string repositoryFolder, IEnumerable<string> files, out string foundFile)
+        {
+            foreach (string file in files)
+            {
+                if (File.Exists(Path.Combine(repositoryFolder, file)))
+                {
+                    foundFile = file;
+                    return true;
+                }
+            }
+            foundFile = null;
+            return false;
+        }
+        public static bool IsInGitSubmodule(string repositoryFolder)
+        {
+            return !GetGitBaseRepositoryPathHelper(repositoryFolder).Equals(string.Empty);
+        }
+        public static string GetGitBaseRepositoryPath(string repositoryFolder)
+        {
+            string basePath = GetGitBaseRepositoryPathHelper(repositoryFolder);
+            if (basePath.Equals(string.Empty))
+            {
+                throw new KeyNotFoundException("No base-repository found in '" + repositoryFolder + "'");
+            }
+            else
+            {
+                return basePath;
+            }
+        }
+        private static string GetGitBaseRepositoryPathHelper(string repositoryFolder)
+        {
+            return ExecuteGitCommand(repositoryFolder, "rev-parse --show-superproject-working-tree", true).GetFirstStdOutLine();
+        }
+        public static bool IsGitRepository(string folder)
+        {
+            return Directory.Exists(Path.Combine(folder, ".git")) || File.Exists(Path.Combine(folder, ".git"));
+        }
+        public static string GitCommit(string repository, string commitMessage)
+        {
+            if (GitRepositoryHasUncommittedChanges(repository))
+            {
+                ExecuteGitCommand(repository, $"add -A");
+                ExecuteGitCommand(repository, $"commit -m \"{commitMessage}\"");
+                return GetLastGitCommitId(repository);
+            }
+            else
+            {
+                throw new Exception($"Repository '{repository}' does not have any changes");
+            }
+        }
+        public static string GetLastGitCommitId(string repositoryFolder)
+        {
+            return ExecuteGitCommand(repositoryFolder, $"rev-parse HEAD", true).GetFirstStdOutLine();
+        }
+
+        public static bool GitRepositoryHasUncommittedChanges(string repository)
+        {
+            int exitCode = ExecuteGitCommand(repository, "diff-index --quiet HEAD --", false).ExitCode;
+            if (exitCode == 0)
+            {
+                return false;
+            }
+            else if (exitCode == 1)
+            {
+                return true;
+            }
+            else
+            {
+                throw new Exception("Could not calculate uncommitted changes in '" + repository + "'");
+            }
+        }
+        public static int GetAmountOfCommitsInGitRepository(string repositoryFolder)
+        {
+            return int.Parse(ExecuteGitCommand(repositoryFolder, $"rev-list --count <revision>", true).GetFirstStdOutLine());
+        }
+        public static string GetCurrentGitRepositoryBranch(string repositoryFolder)
+        {
+            return ExecuteGitCommand(repositoryFolder, $"rev-parse --abbrev-ref HEAD", true).GetFirstStdOutLine();
+        }
+        public static SerializableDictionary<TKey, TValue> ToSerializableDictionary<TKey, TValue>(this IDictionary<TKey, TValue> dictionary)
+        {
+            SerializableDictionary<TKey, TValue> result = new SerializableDictionary<TKey, TValue>();
+            foreach (System.Collections.Generic.KeyValuePair<TKey, TValue> kvp in dictionary)
+            {
+                result.Add(kvp.Key, kvp.Value);
+            }
+            return result;
         }
     }
 }

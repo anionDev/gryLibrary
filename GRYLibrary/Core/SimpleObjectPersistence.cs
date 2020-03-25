@@ -1,6 +1,5 @@
 ﻿using GRYLibrary.Core.XMLSerializer;
 using System.Text;
-using System.Xml;
 using System.Xml.Serialization;
 
 namespace GRYLibrary.Core
@@ -15,9 +14,8 @@ namespace GRYLibrary.Core
     {
         public T Object { get; set; }
         public string File { get; set; }
-        private readonly SimpleGenericXMLSerializer<T> _Serializer = new SimpleGenericXMLSerializer<T>();
-        public XmlWriterSettings XMLWriterSettings { get { return this._Serializer.XMLWriterSettings; } set { this._Serializer.XMLWriterSettings = value; } }
-        public Encoding Encoding = new UTF8Encoding(false);
+        public Encoding FileEncoding { get; set; } = new UTF8Encoding(false);
+        public SimpleGenericXMLSerializer<T> Serializer { get; private set; } = new SimpleGenericXMLSerializer<T>();
         public static SimpleObjectPersistence<T> CreateByFile(string file)
         {
             file = Utilities.ResolveToFullPath(file);
@@ -33,13 +31,14 @@ namespace GRYLibrary.Core
             result.Object = @object;
             return result;
         }
+
         public void LoadObjectFromFile()
         {
-            if (!System.IO.File.Exists(this.File))
+            if (Utilities.FileIsEmpty(this.File) || !System.IO.File.Exists(this.File))
             {
                 this.ResetObject();
             }
-            this.Object = this._Serializer.Deserialize(System.IO.File.ReadAllText(this.File, this.Encoding));
+            this.Object = this.Serializer.Deserialize(System.IO.File.ReadAllText(this.File, this.FileEncoding));
         }
 
         public void ResetObject()
@@ -51,8 +50,8 @@ namespace GRYLibrary.Core
         public void SaveObjectToFile()
         {
             Utilities.EnsureFileExists(this.File, true);
-            string value = this._Serializer.Serialize(this.Object);
-            System.IO.File.WriteAllText(this.File, value, this.XMLWriterSettings.Encoding);
+            string value = this.Serializer.Serialize(this.Object);
+            System.IO.File.WriteAllText(this.File, value, this.FileEncoding);
         }
     }
 }

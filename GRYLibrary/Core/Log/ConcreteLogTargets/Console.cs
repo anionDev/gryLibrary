@@ -10,7 +10,7 @@ namespace GRYLibrary.Core.Log.ConcreteLogTargets
         {
             logItem.Format(logObject.Configuration, out string formattedMessage, out int cb, out int ce, out ConsoleColor _);
             System.Console.Write(formattedMessage.Substring(0, cb));
-            this.WriteWithColorToConsole(formattedMessage.Substring(cb, ce - cb), logItem.LogLevel,logObject);
+            this.WriteWithColorToConsole(formattedMessage[cb..ce], logItem.LogLevel,logObject);
             System.Console.Write(formattedMessage.Substring(ce) + Environment.NewLine);
         }
         private void WriteWithColorToConsole(string message, LogLevel logLevel, GRYLog logObject)

@@ -51,14 +51,12 @@ namespace GRYLibrary.Core
         private static void StartBackupInstance()
         {
             Process currentProcess = Process.GetCurrentProcess();
-            using (Process backupProcess = new Process
+            using Process backupProcess = new Process
             {
                 StartInfo = currentProcess.StartInfo//TODO test if this works
-            })
-            {
-                backupProcess.Start();
-                ProcessIdOfBackupProcess = backupProcess.Id;
-            }
+            };
+            backupProcess.Start();
+            ProcessIdOfBackupProcess = backupProcess.Id;
         }
 
         private static bool ThisProgramIsTheOnlyInstance()

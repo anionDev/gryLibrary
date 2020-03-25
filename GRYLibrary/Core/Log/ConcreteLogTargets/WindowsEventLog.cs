@@ -9,11 +9,9 @@ namespace GRYLibrary.Core.Log.ConcreteLogTargets
         public WindowsEventLog() { }
         protected override void ExecuteImplementation(LogItem logItem, GRYLog logObject)
         {
-            using (EventLog eventLog = new EventLog("Application"))
-            {
-                eventLog.Source = logObject.Configuration.Name;
-                eventLog.WriteEntry(logItem.PlainMessage, this.ConvertLogLevel(logItem.LogLevel), logItem.EventId, logItem.Category);
-            }
+            using EventLog eventLog = new EventLog("Application");
+            eventLog.Source = logObject.Configuration.Name;
+            eventLog.WriteEntry(logItem.PlainMessage, this.ConvertLogLevel(logItem.LogLevel), logItem.EventId, logItem.Category);
         }
 
         private EventLogEntryType ConvertLogLevel(LogLevel logLevel)

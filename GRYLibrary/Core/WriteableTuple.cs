@@ -5,6 +5,9 @@ namespace GRYLibrary.Core
 {
     public class WriteableTuple<T1, T2> : Tuple<T1, T2>
     {
+        public WriteableTuple() : base(default, default)
+        {
+        }
         public WriteableTuple(T1 item1, T2 item2) : base(item1, item2)
         {
             this.Item1 = item1;
@@ -14,7 +17,7 @@ namespace GRYLibrary.Core
         public new T2 Item2 { get; set; }
         public override int GetHashCode()
         {
-            if (EqualityComparer<T1>.Default.Equals(this.Item1, default(T1)))
+            if (EqualityComparer<T1>.Default.Equals(this.Item1, default))
             {
                 return 986987671;
             }

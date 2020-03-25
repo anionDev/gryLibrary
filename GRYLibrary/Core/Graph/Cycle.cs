@@ -1,5 +1,4 @@
 ﻿using GRYLibrary.Core.Graph.Exceptions;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -8,7 +7,7 @@ namespace GRYLibrary.Core.Graph
     public class Cycle
     {
         public IList<Edge> Edges { get { return new List<Edge>(this._Edges); } }
-        private IList<Edge> _Edges = new List<Edge>();
+        private readonly IList<Edge> _Edges = new List<Edge>();
         public Cycle(IList<Edge> edgesList)
         {
             List<Edge> edges = edgesList.ToList();

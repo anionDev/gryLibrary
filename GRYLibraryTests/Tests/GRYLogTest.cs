@@ -20,20 +20,18 @@ namespace GRYLibrary.Tests
             Utilities.EnsureFileDoesNotExist(logFile);
             try
             {
-                using (GRYLog logObject = GRYLog.Create(logFile))
-                {
-                    logObject.Configuration.Format = GRYLogLogFormat.OnlyMessage;
-                    string file = logFile;
-                    Assert.IsFalse(File.Exists(file));
-                    string fileWithRelativePath = logFile;
-                    logObject.Configuration.LogFile = fileWithRelativePath;
-                    Assert.AreEqual(fileWithRelativePath, logObject.Configuration.LogFile);
-                    Assert.IsFalse(File.Exists(fileWithRelativePath));
-                    string testContent = "test";
-                    logObject.Log(testContent);
-                    Assert.IsTrue(File.Exists(fileWithRelativePath));
-                    Assert.AreEqual(testContent, File.ReadAllText(logFile));
-                }
+                using GRYLog logObject = GRYLog.Create(logFile);
+                logObject.Configuration.Format = GRYLogLogFormat.OnlyMessage;
+                string file = logFile;
+                Assert.IsFalse(File.Exists(file));
+                string fileWithRelativePath = logFile;
+                logObject.Configuration.LogFile = fileWithRelativePath;
+                Assert.AreEqual(fileWithRelativePath, logObject.Configuration.LogFile);
+                Assert.IsFalse(File.Exists(fileWithRelativePath));
+                string testContent = "test";
+                logObject.Log(testContent);
+                Assert.IsTrue(File.Exists(fileWithRelativePath));
+                Assert.AreEqual(testContent, File.ReadAllText(logFile));
             }
             finally
             {
@@ -48,15 +46,13 @@ namespace GRYLibrary.Tests
             Utilities.EnsureFileDoesNotExist(logFile);
             try
             {
-                using (GRYLog logObject = GRYLog.Create(logFile))
-                {
-                    logObject.Configuration.Format = GRYLogLogFormat.OnlyMessage;
-                    Assert.IsFalse(File.Exists(logFile));
-                    string testContent = "x";
-                    logObject.Log(testContent);
-                    Assert.IsTrue(File.Exists(logFile));
-                    Assert.AreEqual(testContent, File.ReadAllText(logFile));
-                }
+                using GRYLog logObject = GRYLog.Create(logFile);
+                logObject.Configuration.Format = GRYLogLogFormat.OnlyMessage;
+                Assert.IsFalse(File.Exists(logFile));
+                string testContent = "x";
+                logObject.Log(testContent);
+                Assert.IsTrue(File.Exists(logFile));
+                Assert.AreEqual(testContent, File.ReadAllText(logFile));
             }
             finally
             {
@@ -80,31 +76,29 @@ namespace GRYLibrary.Tests
             UTF8Encoding encoding = new UTF8Encoding(false);
             try
             {
-                using (GRYLog logObject = GRYLog.CreateByConfigurationFile(configurationFile))
-                {
-                    logObject.Log("test1", LogLevel.Information);//will be logged
-                    logObject.Log("test2", LogLevel.Debug);//will not be logged because 'debug' is not contained in LogLevels by default
-                    Assert.AreEqual("test1", File.ReadAllText(logFile1, encoding));
+                using GRYLog logObject = GRYLog.CreateByConfigurationFile(configurationFile);
+                logObject.Log("test1", LogLevel.Information);//will be logged
+                logObject.Log("test2", LogLevel.Debug);//will not be logged because 'debug' is not contained in LogLevels by default
+                Assert.AreEqual("test1", File.ReadAllText(logFile1, encoding));
 
-                    GRYLogConfiguration reloadedConfiguration = GRYLogConfiguration.LoadConfiguration(configurationFile);
-                    reloadedConfiguration.GetLogTarget<LogFile>().LogLevels.Add(LogLevel.Debug);
-                    GRYLogConfiguration.SaveConfiguration(configurationFile, reloadedConfiguration);
+                GRYLogConfiguration reloadedConfiguration = GRYLogConfiguration.LoadConfiguration(configurationFile);
+                reloadedConfiguration.GetLogTarget<LogFile>().LogLevels.Add(LogLevel.Debug);
+                GRYLogConfiguration.SaveConfiguration(configurationFile, reloadedConfiguration);
 
-                    System.Threading.Thread.Sleep(1000);//wait until config is reloaded
+                System.Threading.Thread.Sleep(1000);//wait until config is reloaded
 
-                    logObject.Log("test3", LogLevel.Debug);// will now be logged
-                    Assert.AreEqual("test1" + Environment.NewLine + "test3", File.ReadAllText(logFile1, encoding));
+                logObject.Log("test3", LogLevel.Debug);// will now be logged
+                Assert.AreEqual("test1" + Environment.NewLine + "test3", File.ReadAllText(logFile1, encoding));
 
-                    reloadedConfiguration = GRYLogConfiguration.LoadConfiguration(configurationFile);
-                    reloadedConfiguration.LogFile = logFile2;
-                    GRYLogConfiguration.SaveConfiguration(configurationFile, reloadedConfiguration);
+                reloadedConfiguration = GRYLogConfiguration.LoadConfiguration(configurationFile);
+                reloadedConfiguration.LogFile = logFile2;
+                GRYLogConfiguration.SaveConfiguration(configurationFile, reloadedConfiguration);
 
-                    System.Threading.Thread.Sleep(1000);//wait until config is reloaded
+                System.Threading.Thread.Sleep(1000);//wait until config is reloaded
 
-                    logObject.Log("test4", LogLevel.Debug);// will be logged
-                    Assert.AreEqual("test1" + Environment.NewLine + "test3", File.ReadAllText(logFile1, encoding));
-                    Assert.AreEqual("test4", File.ReadAllText(logFile2, encoding));
-                }
+                logObject.Log("test4", LogLevel.Debug);// will be logged
+                Assert.AreEqual("test1" + Environment.NewLine + "test3", File.ReadAllText(logFile1, encoding));
+                Assert.AreEqual("test4", File.ReadAllText(logFile2, encoding));
             }
             finally
             {
