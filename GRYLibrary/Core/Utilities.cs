@@ -603,11 +603,6 @@ namespace GRYLibrary.Core
             return dictionary as ExpandoObject;
         }
 
-        public static int GenericGetHashCode(object obj)
-        {
-            return 684341483;
-        }
-
         private static readonly IFormatter _Formatter = new BinaryFormatter();
         public static T DeepClone<T>(this T @object)
         {
@@ -1415,20 +1410,25 @@ namespace GRYLibrary.Core
                 return false;
             }
         }
-        public static GitCommandResult ExecuteGitCommand(string repository, string argument, bool throwErrorIfExitCodeIsNotZero = false, int? timeoutInMilliseconds = null)
+        public static GitCommandResult ExecuteGitCommand(string repository, string argument, bool throwErrorIfExitCodeIsNotZero = false, int? timeoutInMilliseconds = null, bool printErrorsAsInformation = false)
         {
             ExternalProgramExecutor externalProgramExecutor = ExternalProgramExecutor.Create("git", argument, repository, string.Empty, false, timeoutInMilliseconds);
+            externalProgramExecutor.PrintErrorsAsInformation = printErrorsAsInformation;
             externalProgramExecutor.ThrowErrorIfExitCodeIsNotZero = throwErrorIfExitCodeIsNotZero;
             externalProgramExecutor.StartConsoleApplicationInCurrentConsoleWindow();
             return new GitCommandResult(argument, repository, externalProgramExecutor.AllStdOutLines, externalProgramExecutor.AllStdErrLines, externalProgramExecutor.ExitCode);
         }
         public static bool GitRepositoryContainsObligatoryFiles(string repositoryFolder, out ISet<string> missingFiles)
         {
-            missingFiles = new HashSet<string>();
             List<Tuple<string, ISet<string>>> fileLists = new List<Tuple<string/*file*/, ISet<string>/*aliase*/>>();
             fileLists.Add(Tuple.Create<string, ISet<string>>(".gitignore", new HashSet<string>()));
             fileLists.Add(Tuple.Create<string, ISet<string>>("License.txt", new HashSet<string>() { "License", "License.md" }));
             fileLists.Add(Tuple.Create<string, ISet<string>>("ReadMe.md", new HashSet<string>() { "ReadMe", "ReadMe.txt" }));
+            return GitRepositoryContainsObligatoryFiles(repositoryFolder, out missingFiles, fileLists);
+        }
+        public static bool GitRepositoryContainsObligatoryFiles(string repositoryFolder, out ISet<string> missingFiles, IEnumerable<Tuple<string/*file*/, ISet<string>/*aliase*/>> fileLists)
+        {
+            missingFiles = new HashSet<string>();
             foreach (Tuple<string, ISet<string>> file in fileLists)
             {
                 if (!(File.Exists(Path.Combine(repositoryFolder, file.Item1)) || AtLeastOneFileExistsInFolder(repositoryFolder, file.Item2, out string _)))
@@ -1475,22 +1475,23 @@ namespace GRYLibrary.Core
         {
             return Directory.Exists(Path.Combine(folder, ".git")) || File.Exists(Path.Combine(folder, ".git"));
         }
-        public static string GitCommit(string repository, string commitMessage)
+        public static string GitCommit(string repository, string commitMessage, out bool commitWasCreated)
         {
-            if (GitRepositoryHasUncommittedChanges(repository))
+            commitWasCreated = GitRepositoryHasUncommittedChanges(repository);
+            if (commitWasCreated)
             {
-                ExecuteGitCommand(repository, $"add -A");
-                ExecuteGitCommand(repository, $"commit -m \"{commitMessage}\"");
-                return GetLastGitCommitId(repository);
+                ExecuteGitCommand(repository, $"add -A", true);
+                ExecuteGitCommand(repository, $"commit -m \"{commitMessage}\"", true);
             }
-            else
-            {
-                throw new Exception($"Repository '{repository}' does not have any changes");
-            }
+            return GetLastGitCommitId(repository);
         }
         public static string GetLastGitCommitId(string repositoryFolder)
         {
             return ExecuteGitCommand(repositoryFolder, $"rev-parse HEAD", true).GetFirstStdOutLine();
+        }
+        public static void GitFetch(string repository, string remoteName = "--all", bool printErrorsAsInformation = true)
+        {
+            ExecuteGitCommand(repository, $"fetch {remoteName} --tags --prune", true, null, printErrorsAsInformation);
         }
 
         public static bool GitRepositoryHasUncommittedChanges(string repository)
@@ -1509,9 +1510,9 @@ namespace GRYLibrary.Core
                 throw new Exception("Could not calculate uncommitted changes in '" + repository + "'");
             }
         }
-        public static int GetAmountOfCommitsInGitRepository(string repositoryFolder)
+        public static int GetAmountOfCommitsInGitRepository(string repositoryFolder, string revision = "HEAD")
         {
-            return int.Parse(ExecuteGitCommand(repositoryFolder, $"rev-list --count <revision>", true).GetFirstStdOutLine());
+            return int.Parse(ExecuteGitCommand(repositoryFolder, $"rev-list --count {revision}", true).GetFirstStdOutLine());
         }
         public static string GetCurrentGitRepositoryBranch(string repositoryFolder)
         {
