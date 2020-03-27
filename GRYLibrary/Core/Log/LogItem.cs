@@ -143,7 +143,7 @@ namespace GRYLibrary.Core.Log
                     colorEnd = 0;
                     break;
                 default:
-                    throw new KeyNotFoundException($"Formatting {nameof(GRYLogLogFormat)} '{loglevel.ToString()}' is not implemented yet.");
+                    throw new KeyNotFoundException($"Formatting {nameof(GRYLogLogFormat)} '{loglevel}' is not implemented yet.");
             }
         }
     }

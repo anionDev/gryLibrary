@@ -177,7 +177,7 @@ namespace GRYLibrary.Core
                     this.ExecutionState = ExecutionState.Terminated;
                     if (this.ThrowErrorIfExitCodeIsNotZero && this.ExitCode != 0)
                     {
-                        throw new UnexpectedExitCodeException($"'{executionInfoAsString}' had exitcode {this.ExitCode.ToString()}.", this);
+                        throw new UnexpectedExitCodeException($"'{executionInfoAsString}' had exitcode {this.ExitCode}.", this);
                     }
                     else
                     {
@@ -322,7 +322,7 @@ namespace GRYLibrary.Core
                 string result = $"{nameof(ExternalProgramExecutor)}-summary:";
                 result = result + Environment.NewLine + $"Executed program: {this.WorkingDirectory}>{this.ProgramPathAndFile} {this.Arguments}";
                 result = result + Environment.NewLine + $"Exit-code: {this.ExitCode}";
-                result = result + Environment.NewLine + $"Execution-duration: {this.ExecutionDuration.ToString("d'd 'h'h 'm'm 's's'")} ({this.ExecutionDuration.TotalSeconds.ToString()} seconds total)";
+                result = result + Environment.NewLine + $"Execution-duration: {this.ExecutionDuration:d'd 'h'h 'm'm 's's'} ({this.ExecutionDuration.TotalSeconds} seconds total)";
                 result = result + Environment.NewLine + $"StdOut:" + Environment.NewLine + string.Join(Environment.NewLine + "    ", this.AllStdOutLines);
                 result = result + Environment.NewLine + $"StdErr:" + Environment.NewLine + string.Join(Environment.NewLine + "    ", this.AllStdErrLines);
                 return result;
