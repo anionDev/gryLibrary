@@ -49,7 +49,7 @@ namespace GRYLibrary.Core.Graph
         }
         public override int GetHashCode()
         {
-            return base.GetHashCode();
+            return HashCode.Combine(base.GetHashCode());
         }
 
         public override IEnumerable<Vertex> GetConnectedVertices()

@@ -69,8 +69,9 @@ namespace GRYLibrary.Core.Log
         }
         public override int GetHashCode()
         {
-            return this.Configuration.GetHashCode();
+            return HashCode.Combine(this.Configuration);
         }
+
         public override bool Equals(object obj)
         {
             GRYLog typedObject = obj as GRYLog;

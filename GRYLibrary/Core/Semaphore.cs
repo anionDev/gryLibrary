@@ -39,7 +39,7 @@ namespace GRYLibrary.Core
         }
         public override int GetHashCode()
         {
-            return this.Name.GetHashCode();
+            return HashCode.Combine(this.Name);
         }
     }
 }

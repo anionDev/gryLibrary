@@ -26,7 +26,7 @@ namespace GRYLibrary.Core.XMLSerializer
         }
         public override int GetHashCode()
         {
-            return this.Key.GetHashCode();
+            return HashCode.Combine(this.Key);
         }
     }
 }
