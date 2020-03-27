@@ -24,7 +24,7 @@ namespace GRYLibrary.Core
             this.InformationAboutInvoker = informationAboutInvoker;
             this.Action = action;
             this.Id = Guid.NewGuid();
-            this.Name = $"{nameof(SupervisedThread)} {this.Id.ToString()} " + (string.IsNullOrEmpty(name) ? string.Empty : $"({name})");
+            this.Name = $"{nameof(SupervisedThread)} {this.Id} " + (string.IsNullOrEmpty(name) ? string.Empty : $"({name})");
             this.LogObject = log;
         }
         public bool LogOverhead { get; set; } = false;

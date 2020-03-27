@@ -150,8 +150,8 @@ namespace GRYLibrary.Core.Log
 
         public void LogSummary()
         {
-            this.Log($"Amount of occurred Errors and Criticals: { this.GetAmountOfErrors().ToString()}", LogLevel.Information);
-            this.Log($"Amount of occurred Warnings: { this.GetAmountOfWarnings().ToString()}", LogLevel.Information);
+            this.Log($"Amount of occurred Errors and Criticals: { this.GetAmountOfErrors()}", LogLevel.Information);
+            this.Log($"Amount of occurred Warnings: { this.GetAmountOfWarnings()}", LogLevel.Information);
         }
 
         private bool LineShouldBePrinted(string message)

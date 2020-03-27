@@ -40,7 +40,7 @@ namespace GRYLibrary.Core.Log.ConcreteLogTargets
             {
                 return EventLogEntryType.Error;
             }
-            throw new KeyNotFoundException($"Loglevel '{logLevel.ToString()}' is not writeable to windows-eventlog");
+            throw new KeyNotFoundException($"Loglevel '{logLevel}' is not writeable to windows-eventlog");
         }
     }
 }
