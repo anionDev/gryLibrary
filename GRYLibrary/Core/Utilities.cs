@@ -93,7 +93,7 @@ namespace GRYLibrary.Core
             return result;
         }
 
-        private static string RenameFolderIfRequired(string folder, IDictionary<string, string> replacements, bool IntegrateContentIfTargetFolderAlreadyExists = true)
+        private static string RenameFolderIfRequired(string folder, IDictionary<string, string> replacements)
         {
             string originalFoldername = new DirectoryInfo(folder).Name;
             string newFoldername = ReplaceUnderscores(originalFoldername, replacements);
@@ -1127,22 +1127,7 @@ namespace GRYLibrary.Core
                 return Path.GetFullPath(new Uri(Path.Combine(baseDirectory, path)).LocalPath);
             }
         }
-        public static byte[] DecryptAsymmetrical(byte[] content, string privateKey)
-        {
-            throw new NotImplementedException();
-        }
-        public static byte[] EncryptAsymmetrical(byte[] content, string publicKey)
-        {
-            throw new NotImplementedException();
-        }
-        public static byte[] DecryptSymmetrical(byte[] content, string key)
-        {
-            throw new NotImplementedException();
-        }
-        public static byte[] EncryptSymmetrical(byte[] content, string key)
-        {
-            throw new NotImplementedException();
-        }
+        
         public static bool ValidateXMLAgainstXSD(string xml, string xsd, out IList<object> errorMessages)
         {
             try

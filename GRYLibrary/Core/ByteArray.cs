@@ -58,8 +58,9 @@ namespace GRYLibrary.Core
         }
         public override int GetHashCode()
         {
-            return this.Data.GetHashCode();
+            return HashCode.Combine(this.Data);
         }
+
         public bool StartsWith(ByteArray value)
         {
             if (value.Data.LongLength > this.Data.LongLength)

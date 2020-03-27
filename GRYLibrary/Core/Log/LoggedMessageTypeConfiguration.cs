@@ -25,7 +25,7 @@ namespace GRYLibrary.Core.Log
         }
         public override int GetHashCode()
         {
-            return this.CustomText.GetHashCode();
+            return HashCode.Combine(this.CustomText);
         }
     }
 

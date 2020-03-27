@@ -2,7 +2,7 @@
 using System.IO;
 using System.Collections.Immutable;
 
-namespace GRYLibrary.Core
+namespace GRYLibrary.Core.Streams
 {
     internal class StreamMixer
     {

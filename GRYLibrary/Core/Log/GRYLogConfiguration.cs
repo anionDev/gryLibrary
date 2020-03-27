@@ -104,8 +104,9 @@ namespace GRYLibrary.Core.Log
 
         public override int GetHashCode()
         {
-            return this.DateFormat.GetHashCode();
+            return HashCode.Combine(this.DateFormat);
         }
+
         public override bool Equals(object obj)
         {
             GRYLogConfiguration typedConfiguration = obj as GRYLogConfiguration;

@@ -11,13 +11,19 @@ namespace GRYLibrary.Core
     }
     public class ReadOnlyProperty<T> : ReadOnlyProperty
     {
-        private Property<T> _Property { get; set; }
+        private readonly Property<T> _Property;
         private readonly Func<Tuple<bool/*calculateValueWasSuccessful*/, T/*value*/>> _SetValueFunction;
         public DateTime LastUpdate() { return this._Property.LastWriteTime; }
-        public ReadOnlyProperty(Func<Tuple<bool, T>> SetValueFunction)
+        /// <param name="setValueFunction">
+        /// Represents the function which can update the <see cref="Value"/>.
+        /// This function must return a tuple which contains
+        /// a value which indicates whether the operation was successful or not and
+        /// the updated value if the  operation was successful.
+        /// </param>
+        public ReadOnlyProperty(Func<Tuple<bool, T>> setValueFunction)
         {
             this._Property = new Property<T>(default, string.Empty, false);
-            this._SetValueFunction = SetValueFunction;
+            this._SetValueFunction = setValueFunction;
         }
         public override void UpdateValue()
         {

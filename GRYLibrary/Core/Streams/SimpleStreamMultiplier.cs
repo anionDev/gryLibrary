@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 
-namespace GRYLibrary.Core
+namespace GRYLibrary.Core.Streams
 {
     public class SimpleStreamMultiplier
     {

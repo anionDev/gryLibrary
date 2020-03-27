@@ -40,8 +40,9 @@ namespace GRYLibrary.Core.Graph
         }
         public override int GetHashCode()
         {
-            return this.Name.GetHashCode();
+            return HashCode.Combine(this.Name);
         }
+
         public override string ToString()
         {
             return this.Name;
