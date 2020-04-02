@@ -39,10 +39,6 @@
     <PackageReference Include="System.Collections.Immutable" Version="1.7.0" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Properties\" />
-  </ItemGroup>
-
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
     <Exec Command="copy &quot;$(ProjectDir)..\License.txt&quot; &quot;$(OutDir)\GRYLibrary.License.txt&quot;&#xD;&#xA;rm  &quot;$(OutDir)\GRYLibrary.deps.json&quot;" />
   </Target>
