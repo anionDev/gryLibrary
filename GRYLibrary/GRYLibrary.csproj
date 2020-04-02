@@ -4,13 +4,14 @@
     <TargetFramework>netstandard2.1</TargetFramework>
     <Authors>Marius Göcke</Authors>
     <Company />
-    <Version>0.6.3</Version>
+    <Version>0.6.7</Version>
     <Description>The GRYLibrary is a collection with some useful .NET classes and functions which are very easy (re)usable.</Description>
     <Copyright>Copyright © 2020</Copyright>
-    <PackageLicenseExpression>GRYL-1.1</PackageLicenseExpression>
+    <PackageLicenseExpression>GRYL-1.2</PackageLicenseExpression>
     <PackageProjectUrl>https://aniondev.github.io/gryLibraryReference/Reference/index.html</PackageProjectUrl>
     <RepositoryUrl>https://github.com/anionDev/gryLibrary</RepositoryUrl>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <AssemblyVersion>0.6.7.0</AssemblyVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

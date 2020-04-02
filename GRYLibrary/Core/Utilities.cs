@@ -1127,7 +1127,7 @@ namespace GRYLibrary.Core
                 return Path.GetFullPath(new Uri(Path.Combine(baseDirectory, path)).LocalPath);
             }
         }
-        
+
         public static bool ValidateXMLAgainstXSD(string xml, string xsd, out IList<object> errorMessages)
         {
             try
@@ -1458,42 +1458,89 @@ namespace GRYLibrary.Core
         }
         public static bool IsGitRepository(string folder)
         {
-            return Directory.Exists(Path.Combine(folder, ".git")) || File.Exists(Path.Combine(folder, ".git"));
+            string combinedPath = Path.Combine(folder, ".git");
+            return Directory.Exists(combinedPath) || File.Exists(combinedPath);
         }
+        /// <summary>
+        /// Commits all staged and unstaged changes in <paramref name="repository"/> (excluding uncommitted changes in submodules).
+        /// </summary>
+        /// <param name="repository">Repository where changes should be committed</param>
+        /// <param name="commitMessage">Message for the commit</param>
+        /// <param name="commitWasCreated">Will be set to true if and only if really a commit was created. Will be set to false if and only if there are no changes to get committed.</param>
+        /// <returns>Returns the commit-id of the currently checked out commit. This returns the id of the new created commit if there were changes which were committed by this function.</returns>
         public static string GitCommit(string repository, string commitMessage, out bool commitWasCreated)
         {
-            commitWasCreated = GitRepositoryHasUncommittedChanges(repository);
-            if (commitWasCreated)
+            commitWasCreated = false;
+            if (GitRepositoryHasUncommittedChanges(repository))
             {
                 ExecuteGitCommand(repository, $"add -A", true);
                 ExecuteGitCommand(repository, $"commit -m \"{commitMessage}\"", true);
+                commitWasCreated = true;
             }
             return GetLastGitCommitId(repository);
         }
-        public static string GetLastGitCommitId(string repositoryFolder)
+        /// <returns>Returns the commit-id of the given <paramref name="revision"/>.</returns>
+        public static string GetLastGitCommitId(string repositoryFolder, string revision = "HEAD")
         {
-            return ExecuteGitCommand(repositoryFolder, $"rev-parse HEAD", true).GetFirstStdOutLine();
+            return ExecuteGitCommand(repositoryFolder, $"rev-parse " + revision, true).GetFirstStdOutLine();
         }
         public static void GitFetch(string repository, string remoteName = "--all", bool printErrorsAsInformation = true)
         {
             ExecuteGitCommand(repository, $"fetch {remoteName} --tags --prune", true, null, printErrorsAsInformation);
         }
 
-        public static bool GitRepositoryHasUncommittedChanges(string repository)
+        public static bool GitRepositoryHasUnstagedChanges(string repository)
         {
-            int exitCode = ExecuteGitCommand(repository, "diff-index --quiet HEAD --", false).ExitCode;
-            if (exitCode == 0)
-            {
-                return false;
-            }
-            else if (exitCode == 1)
+            if (GitRepositoryHasUnstagedChangesOfTrackedFiles(repository))
             {
                 return true;
             }
-            else
+            if (GitRepositoryHaNewUntrackedFiles(repository))
             {
-                throw new Exception("Could not calculate uncommitted changes in '" + repository + "'");
+                return true;
             }
+            return false;
+        }
+
+        public static bool GitRepositoryHaNewUntrackedFiles(string repository)
+        {
+            return GitChangesHelper(repository, "ls-files --exclude-standard --others");
+        }
+
+        public static bool GitRepositoryHasUnstagedChangesOfTrackedFiles(string repository)
+        {
+            return GitChangesHelper(repository, "diff");
+        }
+
+        public static bool GitRepositoryHasStagedChanges(string repository)
+        {
+            return GitChangesHelper(repository, "diff --cached");
+        }
+
+        private static bool GitChangesHelper(string repository, string argument)
+        {
+            GitCommandResult result = ExecuteGitCommand(repository, argument, true);
+            foreach (string line in result.StdOutLines)
+            {
+                if (!string.IsNullOrWhiteSpace(line))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public static bool GitRepositoryHasUncommittedChanges(string repository)
+        {
+            if (GitRepositoryHasUnstagedChanges(repository))
+            {
+                return true;
+            }
+            if (GitRepositoryHasStagedChanges(repository))
+            {
+                return true;
+            }
+            return false;
         }
         public static int GetAmountOfCommitsInGitRepository(string repositoryFolder, string revision = "HEAD")
         {
