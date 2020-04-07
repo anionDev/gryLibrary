@@ -10,6 +10,7 @@ namespace GRYLibrary.Core.Graph
     public class UndirectedEdge : Edge
     {
         public IList<Vertex> ConnectedVertices { get; private set; }
+        public UndirectedEdge() { }
         public UndirectedEdge(IEnumerable<Vertex> connectedVertices, string name, double weight = 1) : base(name, weight)
         {
             if (connectedVertices.Count() != 2)

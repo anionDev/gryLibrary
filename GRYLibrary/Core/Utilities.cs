@@ -122,6 +122,51 @@ namespace GRYLibrary.Core
             return @string;
         }
 
+        public static bool ObjectIsEnumerable(this object @object)
+        {
+            throw new NotImplementedException();
+        }
+        public static IList<object> ObjectToEnumerable(this object @object)
+        {
+            throw new NotImplementedException();
+        }
+        public static bool EnumerableEquals<T>(this IEnumerable<T> set1, IEnumerable<T> set2, IEqualityComparer<T> comparer)
+        {
+            throw new NotImplementedException();
+        }
+        public static bool ObjectIsList(this object @object)
+        {
+            throw new NotImplementedException();
+        }
+        public static IList<object> ObjectToList(this object @object)
+        {
+            throw new NotImplementedException();
+        }
+        public static bool ObjectIsSet(this object @object)
+        {
+            throw new NotImplementedException();
+        }
+        public static ISet<object> ObjectToSet(this object @object)
+        {
+            throw new NotImplementedException();
+        }
+        public static bool SetEquals<T>(this ISet<T> set1, ISet<T> set2, IEqualityComparer<T> comparer)
+        {
+            throw new NotImplementedException();
+        }
+        public static bool ObjectIsDictionary(this object @object)
+        {
+            throw new NotImplementedException();
+        }
+        public static IDictionary<object, object> ObjectToDictionary(this object @object)
+        {
+            throw new NotImplementedException();
+        }
+        public static bool DictionaryEquals<T, U>(this IDictionary<T, U> dictionary1, IDictionary<T, U> dictionary2, IEqualityComparer<T> keyComparer, IEqualityComparer<T> valueComparer)
+        {
+            throw new NotImplementedException();
+        }
+
         public static void ReplaceUnderscoresInFile(string file, IDictionary<string, string> replacements)
         {
             ReplaceUnderscoresInFile(file, replacements, new UTF8Encoding(false));
@@ -590,7 +635,7 @@ namespace GRYLibrary.Core
         }
         public static ISet<string> ToCaseInsensitiveSet(this ISet<string> input)
         {
-            ISet<TupleWithValueComparisonEquals<string, string>> tupleList = new HashSet<TupleWithValueComparisonEquals<string, string>>(input.Select((item) => new TupleWithValueComparisonEquals<string, string>(item, item.ToLower())));
+            ISet<WriteableTuple<string, string>> tupleList = new HashSet<WriteableTuple<string, string>>(input.Select((item) => new WriteableTuple<string, string>(item, item.ToLower())));
             return new HashSet<string>(tupleList.Select((item) => item.Item1));
         }
         public static dynamic ToDynamic(this object value)
@@ -1558,6 +1603,29 @@ namespace GRYLibrary.Core
                 result.Add(kvp.Key, kvp.Value);
             }
             return result;
+        }
+
+        public static bool IsDefault(object @object)
+        {
+            if (@object == null)
+            {
+                return true;
+            }
+            else
+            {
+                return EqualityComparer<object>.Default.Equals(@object, GetDefault(@object.GetType()));
+            }
+        }
+        public static object GetDefault(Type type)
+        {
+            if (type.IsValueType)
+            {
+                return Activator.CreateInstance(type);
+            }
+            else
+            {
+                return null;
+            }
         }
     }
 }

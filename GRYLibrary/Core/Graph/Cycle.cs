@@ -8,6 +8,7 @@ namespace GRYLibrary.Core.Graph
     {
         public IList<Edge> Edges { get { return new List<Edge>(this._Edges); } }
         private readonly IList<Edge> _Edges = new List<Edge>();
+        public Cycle() { }
         public Cycle(IList<Edge> edgesList)
         {
             List<Edge> edges = edgesList.ToList();
