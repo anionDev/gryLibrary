@@ -20,6 +20,7 @@ using System.Reflection;
 using System.Dynamic;
 using System.ComponentModel;
 using GRYLibrary.Core.XMLSerializer;
+using System.Net.Sockets;
 
 namespace GRYLibrary.Core
 {
@@ -1439,6 +1440,24 @@ namespace GRYLibrary.Core
             {
                 return false;
             }
+        }
+        public static DateTime GetTimeFromInternetUtC()
+        {
+            return GetTimeFromInternet(TimeZoneInfo.Utc);
+        }
+        public static DateTime GetTimeFromInternetCurrentTimeZone()
+        {
+            return GetTimeFromInternet(TimeZoneInfo.Local);
+        }
+        public static DateTime GetTimeFromInternet(TimeZoneInfo timezone)
+        {
+            return GetTimeFromInternet(timezone, "yy-MM-dd HH:mm:ss", "time.nist.gov", 13, 7, 17);
+        }
+        public static DateTime GetTimeFromInternet(TimeZoneInfo timezone, string format, string domain, int port, int begin, int length)
+        {
+            using StreamReader streamReader = new StreamReader(new TcpClient(domain, port).GetStream());
+            DateTime originalDateTime = DateTime.ParseExact(streamReader.ReadToEnd().Substring(begin, length), format, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal);
+            return TimeZoneInfo.ConvertTime(originalDateTime, timezone);
         }
         public static GitCommandResult ExecuteGitCommand(string repository, string argument, bool throwErrorIfExitCodeIsNotZero = false, int? timeoutInMilliseconds = null, bool printErrorsAsInformation = false)
         {
