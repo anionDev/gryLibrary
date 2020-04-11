@@ -123,31 +123,69 @@ namespace GRYLibrary.Core
             return @string;
         }
 
+        /// <returns>Returns true if and only if the most concrete type of <paramref name="object"/> implements <see cref="System.Collections.IEnumerable"/>.</returns>
         public static bool ObjectIsEnumerable(this object @object)
         {
-            throw new NotImplementedException();
+            return IsAssignableFrom(@object, typeof(System.Collections.IEnumerable));
         }
-        public static IList<object> ObjectToEnumerable(this object @object)
+        public static System.Collections.IEnumerable ObjectToEnumerable(this object @object)
         {
             throw new NotImplementedException();
         }
-        public static bool EnumerableEquals<T>(this IEnumerable<T> set1, IEnumerable<T> set2, IEqualityComparer<T> comparer)
+        public static IEnumerable<T> ObjectToEnumerable<T>(this object @object)
         {
             throw new NotImplementedException();
         }
+         public static bool EnumerableEquals<T>(this IEnumerable<T> set1, IEnumerable<T> set2, IEqualityComparer<T> comparer)
+        {
+            throw new NotImplementedException();
+        }
+        /// <returns>Returns true if and only if the most concrete type of <paramref name="object"/> implements <see cref="IList{T}"/>.</returns>
         public static bool ObjectIsList(this object @object)
         {
-            throw new NotImplementedException();
+            return IsAssignableFrom(@object, typeof(IList<>));
+        }
+        public static bool IsAssignableFrom(object @object, Type genericTypeToCompare)
+        {
+            return IsAssignableFrom(@object.GetType(), genericTypeToCompare);
+        }
+        public static bool IsAssignableFrom(Type typeForCheck, Type genericTypeToCompare)
+        {
+            Type[] interfacesOfTypeForCheck = typeForCheck.GetInterfaces();
+            foreach (Type interfaceTyoe in interfacesOfTypeForCheck)
+            {
+                if (interfaceTyoe.IsGenericType && interfaceTyoe.GetGenericTypeDefinition().Equals(genericTypeToCompare))
+                {
+                    return true;
+                }
+            }
+            if (typeForCheck.IsGenericType && typeForCheck.GetGenericTypeDefinition().Equals(genericTypeToCompare))
+            {
+                return true;
+            }
+            if (typeForCheck.BaseType == null)
+            {
+                return false;
+            }
+            else
+            {
+                return IsAssignableFrom(typeForCheck.BaseType, genericTypeToCompare);
+            }
         }
         public static IList<object> ObjectToList(this object @object)
         {
             throw new NotImplementedException();
         }
+        /// <returns>Returns true if and only if the most concrete type of <paramref name="object"/> implements <see cref="ISet{T}"/>.</returns>
         public static bool ObjectIsSet(this object @object)
+        {
+            return IsAssignableFrom(@object, typeof(ISet<>));
+        }
+        public static ISet<object> ObjectToSet(this object @object)
         {
             throw new NotImplementedException();
         }
-        public static ISet<object> ObjectToSet(this object @object)
+        public static ISet<T> ObjectToSet<T>(this object @object)
         {
             throw new NotImplementedException();
         }
@@ -155,9 +193,10 @@ namespace GRYLibrary.Core
         {
             throw new NotImplementedException();
         }
+        /// <returns>Returns true if and only if the most concrete type of <paramref name="object"/> implements <see cref="IDictionary{TKey, TValue}"/>.</returns>
         public static bool ObjectIsDictionary(this object @object)
         {
-            throw new NotImplementedException();
+            return IsAssignableFrom(@object, typeof(IDictionary<,>));
         }
         public static IDictionary<object, object> ObjectToDictionary(this object @object)
         {

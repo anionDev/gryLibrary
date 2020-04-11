@@ -3,6 +3,9 @@ using GRYLibrary.Core.XMLSerializer;
 using GRYLibrary.TestData.TestTypes.SimpleDataStructure1;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -156,6 +159,34 @@ namespace GRYLibrary.Tests
             Assert.AreEqual(2, reloadedDictionary.Count);
             Assert.AreEqual("test1", reloadedDictionary[1]);
             Assert.AreEqual("test2", reloadedDictionary[2]);
+        }
+        [TestMethod]
+        public void IsListTest()
+        {
+            Assert.IsTrue(Utilities.ObjectIsList(new List<int>()));
+            Assert.IsTrue(Utilities.ObjectIsList(new ArraySegment< int>()));
+            Assert.IsFalse(Utilities.ObjectIsList(new ArrayList()));
+            Assert.IsFalse(Utilities.ObjectIsList(new LinkedList<int>()));
+            Assert.IsFalse(Utilities.ObjectIsList(new object()));
+            Assert.IsFalse(Utilities.ObjectIsList("somestring"));
+        }
+        [TestMethod]
+        public void IsDictionaryTest()
+        {
+            Assert.IsTrue(Utilities.ObjectIsDictionary(new Dictionary<int,string>()));
+            Assert.IsTrue(Utilities.ObjectIsDictionary(ImmutableDictionary.CreateBuilder<long,object>().ToImmutable()));
+            Assert.IsFalse(Utilities.ObjectIsDictionary(new LinkedList<int>()));
+            Assert.IsFalse(Utilities.ObjectIsDictionary(new object()));
+            Assert.IsFalse(Utilities.ObjectIsDictionary("somestring"));
+        }
+        [TestMethod]
+        public void ISettTest()
+        {
+            Assert.IsTrue(Utilities.ObjectIsSet(new HashSet<int>()));
+            Assert.IsTrue(Utilities.ObjectIsSet(new SortedSet<string>()));
+            Assert.IsFalse(Utilities.ObjectIsSet(new LinkedList<int>()));
+            Assert.IsFalse(Utilities.ObjectIsSet(new object()));
+            Assert.IsFalse(Utilities.ObjectIsSet("somestring"));
         }
     }
 }

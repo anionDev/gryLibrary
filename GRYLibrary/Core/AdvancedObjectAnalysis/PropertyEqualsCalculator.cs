@@ -127,8 +127,8 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis
             {
                 specialComparer = (object object1, object object2) =>
                 {
-                    IEnumerable<object> object1AsEnumerable = object1.ObjectToEnumerable();
-                    IEnumerable<object> object2AsEnumerable = object1.ObjectToEnumerable();
+                    IEnumerable<object> object1AsEnumerable = object1.ObjectToEnumerable<object>();
+                    IEnumerable<object> object2AsEnumerable = object1.ObjectToEnumerable<object>();
                     return object1AsEnumerable.EnumerableEquals(object2AsEnumerable, this);
                 };
                 return true;

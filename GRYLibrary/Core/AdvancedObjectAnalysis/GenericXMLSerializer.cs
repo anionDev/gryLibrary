@@ -5,7 +5,7 @@ namespace GRYLibrary.Core.AdvancedXMLSerialysis
 {
     public class GenericXMLSerializer<T>
     {
-        public Dictionary<Type/*interface-type or abstract-type*/, Type/*type which should be used*/> Mapping { get; set; } = new Dictionary<Type, Type>();
+        public Dictionary<Func<Type,bool>/*IsApplicable-function*/,Func<object, object>/*Convert-function*/> Mapping { get; set; } = new Dictionary<Func<Type, bool>, Func<object, object>>();
 
         public string Serialize(T @object)
         {
@@ -17,9 +17,8 @@ namespace GRYLibrary.Core.AdvancedXMLSerialysis
         }
         public void AddDefaultTypeMapping()
         {
-            this.Mapping.Add(typeof(IList<>), typeof(List<>));
-            this.Mapping.Add(typeof(ISet<>), typeof(HashSet<>));
-            this.Mapping.Add(typeof(IDictionary<,>), typeof(Dictionary<,>));
+            //this.Mapping.Add(()=>Utilities.ObjectIsList/*TODO*/, null/*todo*/);
+            //todo do this for dictionary, array, set, enumerable as well
         }
     }
 }
