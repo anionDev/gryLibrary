@@ -47,11 +47,16 @@ namespace GRYLibrary.Core.AdvancedXMLSerialysis
             writer.WriteString(@object.GetType().ToString());
             writer.WriteEndElement();
 
-            writer.WriteStartElement("AttributeGraph");
-            //TODO
+            Guid rootObjectId = default;//todo
+            writer.WriteStartElement("RootObjectId");
+            writer.WriteString(rootObjectId.ToString());
             writer.WriteEndElement();
 
             writer.WriteStartElement("ReferencedObjects");
+            //TODO
+            writer.WriteEndElement();
+
+            writer.WriteStartElement("AttributeGraph");
             //TODO
             writer.WriteEndElement();
 
