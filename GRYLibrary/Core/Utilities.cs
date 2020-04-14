@@ -154,16 +154,37 @@ namespace GRYLibrary.Core
             }
             return result;
         }
+        public static bool EnumerableEquals<T>(this IEnumerable<T> enumerable1, IEnumerable<T> enumerable2)
+        {
+            return EnumerableEquals(enumerable1, enumerable2, PropertyEqualsCalculator.GetDefaultInstance<T>());
+        }
         public static bool EnumerableEquals<T>(this IEnumerable<T> enumerable1, IEnumerable<T> enumerable2, IEqualityComparer<T> comparer)
         {
-            throw new NotImplementedException();
+            if (enumerable1.Count() != enumerable2.Count())
+            {
+                return false;
+            }
+            List<T> enumerable1copy = new List<T>(enumerable1);
+            foreach (T item in enumerable2)
+            {
+                if (enumerable2.Contains(item, comparer))
+                {
+                    enumerable1copy.Remove(item);
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            return enumerable1copy.Count == 0;
+
         }
         /// <returns>Returns true if and only if the most concrete type of <paramref name="object"/> implements <see cref="IList{T}"/>.</returns>
         public static bool ObjectIsList(this object @object)
         {
             return IsAssignableFrom(@object, typeof(IList<>));
         }
-          public static IList<T> ObjectToList<T>(this object @object)
+        public static IList<T> ObjectToList<T>(this object @object)
         {
             if (!ObjectIsList(@object))
             {
@@ -229,7 +250,7 @@ namespace GRYLibrary.Core
         }
         public static bool SequanceEqual<T>(this IList<T> list1, IList<T> list2)
         {
-            return SequanceEqual(ObjectToList<object>(list1), ObjectToList<object>(list2), PropertyEqualsCalculator.DefaultInstance);
+            return SequanceEqual(list1, list2, PropertyEqualsCalculator.GetDefaultInstance<T>());
         }
         public static bool SequanceEqual<T>(this IList<T> list1, IList<T> list2, IEqualityComparer<T> comparer)
         {
@@ -248,7 +269,7 @@ namespace GRYLibrary.Core
         }
         public static bool SetEquals<T>(this ISet<T> set1, ISet<T> set2)
         {
-            return SetEquals(ObjectToSet<object>(set1), ObjectToSet<object>(set2), PropertyEqualsCalculator.DefaultInstance);
+            return SetEquals(set1, set2, PropertyEqualsCalculator.GetDefaultInstance<T>());
         }
         public static bool SetEquals<T>(this ISet<T> set1, ISet<T> set2, IEqualityComparer<T> comparer)
         {
@@ -256,12 +277,12 @@ namespace GRYLibrary.Core
             {
                 return false;
             }
-            SortedSet<T>.Enumerator set1Copy = new SortedSet<T>(set1).GetEnumerator();
-            SortedSet<T>.Enumerator set2Copy = new SortedSet<T>(set2).GetEnumerator();
-            while (set1Copy.MoveNext())
+            SortedSet<T>.Enumerator sortedSet1 = new SortedSet<T>(set1).GetEnumerator();
+            SortedSet<T>.Enumerator sortedSet2 = new SortedSet<T>(set2).GetEnumerator();
+            while (sortedSet1.MoveNext())
             {
-                set2Copy.MoveNext();
-                if (!comparer.Equals(set1Copy.Current, set2Copy.Current))
+                sortedSet2.MoveNext();
+                if (!comparer.Equals(sortedSet1.Current, sortedSet2.Current))
                 {
                     return false;
                 }
@@ -292,7 +313,7 @@ namespace GRYLibrary.Core
         }
         public static bool DictionaryEquals<TKey, TValue>(this IDictionary<TKey, TValue> dictionary1, IDictionary<TKey, TValue> dictionary2)
         {
-            return DictionaryEquals(ObjectToDictionary<object, object>(dictionary1), ObjectToDictionary<object, object>(dictionary2), KeyValuePairComparer.Instance);
+            return DictionaryEquals(dictionary1, dictionary2, PropertyEqualsCalculator.GetDefaultInstance<System.Collections.Generic.KeyValuePair<TKey, TValue>>());
         }
         public static bool DictionaryEquals<TKey, TValue>(this IDictionary<TKey, TValue> dictionary1, IDictionary<TKey, TValue> dictionary2, IEqualityComparer<System.Collections.Generic.KeyValuePair<TKey, TValue>> comparer)
         {

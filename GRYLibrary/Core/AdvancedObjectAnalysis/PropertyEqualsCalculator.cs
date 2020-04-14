@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -18,6 +19,10 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis
             return false;
         };
         public static IEqualityComparer<object> DefaultInstance { get; } = new PropertyEqualsCalculator();
+        public static IEqualityComparer<T> GetDefaultInstance<T>()
+        {
+            return PropertyEqualsCalculator<T>.Instance;
+        }
 
         public PropertyEqualsCalculator()
         {
@@ -160,7 +165,6 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis
             return false;
         }
 
-
         public int GetHashCode(object @object)
         {
             if (!this._HashCodes.ContainsKey(@object))
@@ -243,6 +247,19 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis
         public int GetHashCode(System.Tuple<object, object> obj)
         {
             return RuntimeHelpers.GetHashCode(obj);
+        }
+    }
+    public class PropertyEqualsCalculator<T> : IEqualityComparer<T>
+    {
+        internal static PropertyEqualsCalculator<T> Instance { get; } = new PropertyEqualsCalculator<T>();
+        public bool Equals(T x, T y)
+        {
+            return PropertyEqualsCalculator.DefaultInstance.Equals(x, y);
+        }
+
+        public int GetHashCode(T obj)
+        {
+            return PropertyEqualsCalculator.DefaultInstance.GetHashCode(obj);
         }
     }
 }
