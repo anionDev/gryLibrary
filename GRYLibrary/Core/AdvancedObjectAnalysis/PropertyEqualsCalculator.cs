@@ -10,11 +10,11 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis
     {
 
         private readonly Dictionary<object, int> _HashCodes = new Dictionary<object, int>(ReferenceEqualsComparer.Instance);
-        public System.Func<PropertyInfo, bool> PropertySelector { get; set; } = (PropertyInfo propertyInfo) =>
+        public Func<PropertyInfo, bool> PropertySelector { get; set; } = (PropertyInfo propertyInfo) =>
         {
             return propertyInfo.CanWrite && propertyInfo.GetMethod.IsPublic;
         };
-        public System.Func<FieldInfo, bool> FieldSelector { get; set; } = (FieldInfo propertyInfo) =>
+        public Func<FieldInfo, bool> FieldSelector { get; set; } = (FieldInfo propertyInfo) =>
         {
             return false;
         };
@@ -37,13 +37,13 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis
             bool object2IsDefault = Utilities.IsDefault(object2);
             if (object1IsDefault == false && object2IsDefault == false)
             {
-                System.Type object1Type = object1.GetType();
-                System.Type object2Type = object2.GetType();
+                Type object1Type = object1.GetType();
+                Type object2Type = object2.GetType();
                 if (visitedObjects.Contains(new Tuple(object1, object2)))
                 {
                     return true;
                 }
-                if (this.SpecialComparerShouldBeApplied(object1Type, object2Type, out System.Func<object, object, bool> specialComparer))
+                if (this.SpecialComparerShouldBeApplied(object1Type, object2Type, out Func<object, object, bool> specialComparer))
                 {
                     bool result = specialComparer(object1, object2);
                     if (result)
@@ -54,7 +54,7 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis
                 }
                 if (object1Type.Equals(object2Type))
                 {
-                    System.Type type = object1Type;
+                    Type type = object1Type;
                     List<WriteableTuple<object, object>> propertyValues = new List<WriteableTuple<object, object>>();
                     foreach (FieldInfo field in type.GetFields())
                     {
@@ -95,7 +95,9 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis
             return false;
         }
 
-        private bool SpecialComparerShouldBeApplied(System.Type object1Type, System.Type object2Type, out System.Func<object, object, bool> specialComparer)
+#pragma warning disable IDE0060 // Warning "Remove unused parameter" should be ignored because object2Type may be needed in future
+        private bool SpecialComparerShouldBeApplied(Type object1Type, Type object2Type, out Func<object, object, bool> specialComparer)
+#pragma warning restore IDE0060 // Remove unused parameter
         {
             if (object1Type.ObjectIsKeyValuePair())
             {
@@ -235,16 +237,16 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis
             return RuntimeHelpers.GetHashCode(obj);
         }
     }
-    public class TupleComparer : IEqualityComparer<System.Tuple<object, object>>
+    public class TupleComparer : IEqualityComparer<Tuple<object, object>>
     {
-        public static IEqualityComparer<System.Tuple<object, object>> Instance { get; } = new TupleComparer();
+        public static IEqualityComparer<Tuple<object, object>> Instance { get; } = new TupleComparer();
         private TupleComparer() { }
-        public bool Equals(System.Tuple<object, object> x, System.Tuple<object, object> y)
+        public bool Equals(Tuple<object, object> x, Tuple<object, object> y)
         {
             return new PropertyEqualsCalculator().Equals(x, y);
         }
 
-        public int GetHashCode(System.Tuple<object, object> obj)
+        public int GetHashCode(Tuple<object, object> obj)
         {
             return RuntimeHelpers.GetHashCode(obj);
         }

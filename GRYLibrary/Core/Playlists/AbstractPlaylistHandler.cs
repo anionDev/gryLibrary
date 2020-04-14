@@ -163,7 +163,7 @@ namespace GRYLibrary.Core.Playlists
         public static bool IsReadablePlaylist(string file)
         {
             file = file.ToLower();
-            foreach (System.Collections.Generic.KeyValuePair<string, AbstractPlaylistHandler> keyValuePair in ExtensionsOfReadablePlaylists)
+            foreach (KeyValuePair<string, AbstractPlaylistHandler> keyValuePair in ExtensionsOfReadablePlaylists)
             {
                 if (file.EndsWith("." + keyValuePair.Key))
                 {
