@@ -21,6 +21,7 @@ using System.Dynamic;
 using System.ComponentModel;
 using GRYLibrary.Core.XMLSerializer;
 using System.Net.Sockets;
+using GRYLibrary.Core.AdvancedObjectAnalysis;
 
 namespace GRYLibrary.Core
 {
@@ -130,13 +131,30 @@ namespace GRYLibrary.Core
         }
         public static System.Collections.IEnumerable ObjectToEnumerable(this object @object)
         {
-            throw new NotImplementedException();
+            if (!ObjectIsEnumerable(@object))
+            {
+                throw new InvalidCastException();
+            }
+            return @object as System.Collections.IEnumerable;
         }
-        public static IEnumerable<T> ObjectToEnumerable<T>(this object @object)
+        public static IEnumerable<T> ObjectToEnumerableGeneric<T>(this object @object)
         {
-            throw new NotImplementedException();
+            System.Collections.IEnumerable objects = ObjectToEnumerable(@object);
+            List<T> result = new List<T>();
+            foreach (object obj in objects)
+            {
+                if (obj is T)
+                {
+                    result.Add((T)obj);
+                }
+                else
+                {
+                    throw new InvalidCastException();
+                }
+            }
+            return result;
         }
-         public static bool EnumerableEquals<T>(this IEnumerable<T> set1, IEnumerable<T> set2, IEqualityComparer<T> comparer)
+        public static bool EnumerableEquals<T>(this IEnumerable<T> enumerable1, IEnumerable<T> enumerable2, IEqualityComparer<T> comparer)
         {
             throw new NotImplementedException();
         }
@@ -145,68 +163,208 @@ namespace GRYLibrary.Core
         {
             return IsAssignableFrom(@object, typeof(IList<>));
         }
-        public static bool IsAssignableFrom(object @object, Type genericTypeToCompare)
+          public static IList<T> ObjectToList<T>(this object @object)
         {
-            return IsAssignableFrom(@object.GetType(), genericTypeToCompare);
-        }
-        public static bool IsAssignableFrom(Type typeForCheck, Type genericTypeToCompare)
-        {
-            Type[] interfacesOfTypeForCheck = typeForCheck.GetInterfaces();
-            foreach (Type interfaceTyoe in interfacesOfTypeForCheck)
+            if (!ObjectIsList(@object))
             {
-                if (interfaceTyoe.IsGenericType && interfaceTyoe.GetGenericTypeDefinition().Equals(genericTypeToCompare))
+                throw new InvalidCastException();
+            }
+            System.Collections.IEnumerable objects = ObjectToEnumerable(@object);
+            List<T> result = new List<T>();
+            foreach (object obj in objects)
+            {
+                if (obj is T)
                 {
-                    return true;
+                    result.Add((T)obj);
+                }
+                else
+                {
+                    throw new InvalidCastException();
                 }
             }
-            if (typeForCheck.IsGenericType && typeForCheck.GetGenericTypeDefinition().Equals(genericTypeToCompare))
-            {
-                return true;
-            }
-            if (typeForCheck.BaseType == null)
-            {
-                return false;
-            }
-            else
-            {
-                return IsAssignableFrom(typeForCheck.BaseType, genericTypeToCompare);
-            }
-        }
-        public static IList<object> ObjectToList(this object @object)
-        {
-            throw new NotImplementedException();
+            return result;
         }
         /// <returns>Returns true if and only if the most concrete type of <paramref name="object"/> implements <see cref="ISet{T}"/>.</returns>
         public static bool ObjectIsSet(this object @object)
         {
             return IsAssignableFrom(@object, typeof(ISet<>));
         }
-        public static ISet<object> ObjectToSet(this object @object)
+        public static bool ObjectIsKeyValuePair(this object @object)
         {
-            throw new NotImplementedException();
+            return IsAssignableFrom(@object, typeof(System.Collections.Generic.KeyValuePair<,>));
+        }
+        public static System.Collections.Generic.KeyValuePair<TKey, TValue> ObjectToKeyValuePair<TKey, TValue>(this object @object)
+        {
+            if (!ObjectIsKeyValuePair(@object))
+            {
+                throw new InvalidCastException();
+            }
+            object key = ((dynamic)@object).Key;
+            object value = ((dynamic)@object).Value;
+            if (key is TKey && value is TValue)
+            {
+                return new System.Collections.Generic.KeyValuePair<TKey, TValue>((TKey)key, (TValue)value);
+            }
+            else
+            {
+                throw new InvalidCastException();
+            }
         }
         public static ISet<T> ObjectToSet<T>(this object @object)
         {
-            throw new NotImplementedException();
+            IEnumerable<object> objects = ObjectToEnumerableGeneric<object>(@object);
+            HashSet<T> result = new HashSet<T>();
+            foreach (object obj in objects)
+            {
+                if (obj is T)
+                {
+                    result.Add((T)obj);
+                }
+                else
+                {
+                    throw new InvalidCastException();
+                }
+            }
+            return result;
+        }
+        public static bool SequanceEqual<T>(this IList<T> list1, IList<T> list2)
+        {
+            return SequanceEqual(ObjectToList<object>(list1), ObjectToList<object>(list2), PropertyEqualsCalculator.DefaultInstance);
+        }
+        public static bool SequanceEqual<T>(this IList<T> list1, IList<T> list2, IEqualityComparer<T> comparer)
+        {
+            if (list1.Count != list2.Count)
+            {
+                return false;
+            }
+            for (int i = 0; i < list1.Count; i++)
+            {
+                if (!comparer.Equals(list1[i], list2[i]))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+        public static bool SetEquals<T>(this ISet<T> set1, ISet<T> set2)
+        {
+            return SetEquals(ObjectToSet<object>(set1), ObjectToSet<object>(set2), PropertyEqualsCalculator.DefaultInstance);
         }
         public static bool SetEquals<T>(this ISet<T> set1, ISet<T> set2, IEqualityComparer<T> comparer)
         {
-            throw new NotImplementedException();
+            if (set1.Count != set2.Count)
+            {
+                return false;
+            }
+            SortedSet<T>.Enumerator set1Copy = new SortedSet<T>(set1).GetEnumerator();
+            SortedSet<T>.Enumerator set2Copy = new SortedSet<T>(set2).GetEnumerator();
+            while (set1Copy.MoveNext())
+            {
+                set2Copy.MoveNext();
+                if (!comparer.Equals(set1Copy.Current, set2Copy.Current))
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
+
         /// <returns>Returns true if and only if the most concrete type of <paramref name="object"/> implements <see cref="IDictionary{TKey, TValue}"/>.</returns>
         public static bool ObjectIsDictionary(this object @object)
         {
             return IsAssignableFrom(@object, typeof(IDictionary<,>));
         }
-        public static IDictionary<object, object> ObjectToDictionary(this object @object)
+        public static IDictionary<TKey, TValue> ObjectToDictionary<TKey, TValue>(this object @object)
         {
-            throw new NotImplementedException();
+            if (!ObjectIsDictionary(@object))
+            {
+                throw new InvalidCastException();
+            }
+            IEnumerable<object> objects = ObjectToEnumerableGeneric<object>(@object);
+            Dictionary<TKey, TValue> result = new Dictionary<TKey, TValue>();
+            foreach (object obj in objects)
+            {
+                System.Collections.Generic.KeyValuePair<TKey, TValue> kvp = ObjectToKeyValuePair<TKey, TValue>(obj);
+                result.Add(kvp.Key, kvp.Value);
+            }
+            return result;
         }
-        public static bool DictionaryEquals<T, U>(this IDictionary<T, U> dictionary1, IDictionary<T, U> dictionary2, IEqualityComparer<T> keyComparer, IEqualityComparer<T> valueComparer)
+        public static bool DictionaryEquals<TKey, TValue>(this IDictionary<TKey, TValue> dictionary1, IDictionary<TKey, TValue> dictionary2)
         {
-            throw new NotImplementedException();
+            return DictionaryEquals(ObjectToDictionary<object, object>(dictionary1), ObjectToDictionary<object, object>(dictionary2), KeyValuePairComparer.Instance);
+        }
+        public static bool DictionaryEquals<TKey, TValue>(this IDictionary<TKey, TValue> dictionary1, IDictionary<TKey, TValue> dictionary2, IEqualityComparer<System.Collections.Generic.KeyValuePair<TKey, TValue>> comparer)
+        {
+            if (dictionary1.Count == dictionary2.Count)
+            {
+                foreach (TKey key in dictionary1.Keys)
+                {
+                    if (dictionary2.ContainsKey(key))
+                    {
+                        if (!PropertyEqualsCalculator.DefaultInstance.Equals(dictionary1[key], dictionary2[key]))
+                        {
+                            return false;
+                        }
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+            }
+            else
+            {
+                return false;
+            }
+            return true;
         }
 
+        public static bool IsAssignableFrom(object @object, Type genericTypeToCompare)
+        {
+            return IsAssignableFrom(@object.GetType(), genericTypeToCompare);
+        }
+        public static bool IsAssignableFrom(Type typeForCheck, Type parentType)
+        {
+            ISet<Type> typesToCheck = GetParentTypesAndInterfaces(typeForCheck);
+            typesToCheck.Add(typeForCheck);
+            return typesToCheck.Contains(parentType, TypeComparerIgnoringGenerics);
+        }
+        private static ISet<Type> GetParentTypesAndInterfaces(Type type)
+        {
+            HashSet<Type> result = new HashSet<Type>();
+            result.UnionWith(type.GetInterfaces());
+            if (type.BaseType != null)
+            {
+                result.UnionWith(GetParentTypesAndInterfaces(type.BaseType));
+            }
+            return result;
+        }
+        public static IEqualityComparer<Type> TypeComparerIgnoringGenerics { get; } = new TypeComparerIgnoringGenericsType();
+        private class TypeComparerIgnoringGenericsType : IEqualityComparer<Type>
+        {
+            public bool Equals(Type x, Type y)
+            {
+                if (!x.Name.Equals(y.Name))
+                {
+                    return false;
+                }
+                if (!x.Namespace.Equals(y.Namespace))
+                {
+                    return false;
+                }
+                if (!x.Assembly.Equals(y.Assembly))
+                {
+                    return false;
+                }
+                return true;
+            }
+
+            public int GetHashCode(Type obj)
+            {
+                return obj.GetHashCode();
+            }
+        }
         public static void ReplaceUnderscoresInFile(string file, IDictionary<string, string> replacements)
         {
             ReplaceUnderscoresInFile(file, replacements, new UTF8Encoding(false));
