@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace GRYLibrary.TestData.TestTypes.SimpleDataStructure1
+namespace GRYLibrary.TestData.TestTypes.SimpleDataStructure
 {
     public class SimpleDataStructure2
     {

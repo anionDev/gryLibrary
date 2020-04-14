@@ -1,45 +1,83 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Reflection;
+using System.Text;
 using System.Xml;
 
 namespace GRYLibrary.Core.AdvancedXMLSerialysis
 {
     public class GenericXMLSerializer<T>
     {
+        public Encoding Encoding { get; set; } = new UTF8Encoding(false);
+        public bool Indent { get; set; } = true;
         public IList<CustomSerializer> CustomSerializer { get; set; } = new List<CustomSerializer>();
         public Func<PropertyInfo, bool> PropertySelector { get; set; } = (PropertyInfo propertyInfo) =>
         {
             return propertyInfo.CanWrite && propertyInfo.GetMethod.IsPublic;
         };
         public Func<FieldInfo, bool> FieldSelector { get; set; } = (FieldInfo propertyInfo) =>
+            {
+                return false;
+            };
+        private XmlWriterSettings GetXmlWriterSettings()
         {
-            return false;
-        };
-
+            var result = new XmlWriterSettings();
+            result.Encoding = this.Encoding;
+            result.Indent = this.Indent;
+            result.IndentChars = "    ";
+            return result;
+        }
         public string Serialize(T @object)
         {
-            throw new NotImplementedException();
+            using (MemoryStream memoryStream = new MemoryStream())
+            {
+                using (XmlWriter xmlWriter = XmlWriter.Create(memoryStream, this.GetXmlWriterSettings()))
+                {
+                    this.Serialize(@object, xmlWriter);
+                }
+                return this.Encoding.GetString(memoryStream.ToArray());
+            }
         }
         public void Serialize(T @object, XmlWriter writer)
         {
-            throw new NotImplementedException();
+            writer.WriteStartElement("Object");
+
+            writer.WriteStartElement("Type");
+            writer.WriteString(@object.GetType().ToString());
+            writer.WriteEndElement();
+
+            writer.WriteStartElement("AttributeGraph");
+            //TODO
+            writer.WriteEndElement();
+
+            writer.WriteStartElement("ReferencedObjects");
+            //TODO
+            writer.WriteEndElement();
+
+            writer.WriteEndElement();
         }
         public T Deserialize(string serializedObject)
         {
-            throw new NotImplementedException();
+            using (StringReader stringReader = new StringReader(serializedObject))
+            {
+                using (XmlReader xmlReader = XmlReader.Create(stringReader))
+                {
+                    return this.Deserialize(xmlReader);
+                }
+            }
         }
-        public void Deserialize(string serializedObject, XmlReader reader)
+        public T Deserialize(XmlReader reader)
         {
             throw new NotImplementedException();
         }
         public void AddDefaultCustomSerializer()
         {
-            CustomSerializer.Add(AdvancedXMLSerialysis.CustomSerializer.ISetOfTSerializer);
-            CustomSerializer.Add(AdvancedXMLSerialysis.CustomSerializer.IListOfTSerializer);
-            CustomSerializer.Add(AdvancedXMLSerialysis.CustomSerializer.IDictionaryOfT2Serializer);
-            CustomSerializer.Add(AdvancedXMLSerialysis.CustomSerializer.IEnumerableOfTSerializer);
-            CustomSerializer.Add(AdvancedXMLSerialysis.CustomSerializer.KeyValuePairfTSerializer);
+            this.CustomSerializer.Add(AdvancedXMLSerialysis.CustomSerializer.ISetOfTSerializer);
+            this.CustomSerializer.Add(AdvancedXMLSerialysis.CustomSerializer.IListOfTSerializer);
+            this.CustomSerializer.Add(AdvancedXMLSerialysis.CustomSerializer.IDictionaryOfT2Serializer);
+            this.CustomSerializer.Add(AdvancedXMLSerialysis.CustomSerializer.IEnumerableOfTSerializer);
+            this.CustomSerializer.Add(AdvancedXMLSerialysis.CustomSerializer.KeyValuePairfTSerializer);
         }
     }
     public class CustomSerializer
@@ -118,5 +156,14 @@ namespace GRYLibrary.Core.AdvancedXMLSerialysis
                 throw new NotImplementedException();
             });
         #endregion
+    }
+    public class GenericXMLSerializer
+    {
+        public static GenericXMLSerializer<object> GetDefaultInstance()
+        {
+            GenericXMLSerializer<object> result = new GenericXMLSerializer<object>();
+            result.AddDefaultCustomSerializer();
+            return result;
+        }
     }
 }

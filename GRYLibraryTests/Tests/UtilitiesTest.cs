@@ -1,7 +1,7 @@
 ﻿using GRYLibrary.Core;
 using GRYLibrary.Core.AdvancedObjectAnalysis;
 using GRYLibrary.Core.XMLSerializer;
-using GRYLibrary.TestData.TestTypes.SimpleDataStructure1;
+using GRYLibrary.TestData.TestTypes.SimpleDataStructure;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections;

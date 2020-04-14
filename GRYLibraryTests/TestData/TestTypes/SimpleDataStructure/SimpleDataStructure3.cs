@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace GRYLibrary.TestData.TestTypes.SimpleDataStructure1
+namespace GRYLibrary.TestData.TestTypes.SimpleDataStructure
 {
     public class SimpleDataStructure3
     {
