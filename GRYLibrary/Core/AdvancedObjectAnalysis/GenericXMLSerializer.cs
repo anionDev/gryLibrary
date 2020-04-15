@@ -4,11 +4,13 @@ using System.IO;
 using System.Reflection;
 using System.Text;
 using System.Xml;
+using System.Xml.Serialization;
 
 namespace GRYLibrary.Core.AdvancedXMLSerialysis
 {
     public class GenericXMLSerializer<T>
     {
+        XmlSerializer xmlSerializer { get; set; } = new XmlSerializer(typeof(T));
         public Encoding Encoding { get; set; } = new UTF8Encoding(false);
         public bool Indent { get; set; } = true;
         public IList<CustomSerializer> CustomSerializer { get; set; } = new List<CustomSerializer>();
@@ -22,7 +24,7 @@ namespace GRYLibrary.Core.AdvancedXMLSerialysis
             };
         private XmlWriterSettings GetXmlWriterSettings()
         {
-            var result = new XmlWriterSettings();
+            XmlWriterSettings result = new XmlWriterSettings();
             result.Encoding = this.Encoding;
             result.Indent = this.Indent;
             result.IndentChars = "    ";
@@ -30,47 +32,22 @@ namespace GRYLibrary.Core.AdvancedXMLSerialysis
         }
         public string Serialize(T @object)
         {
-            using (MemoryStream memoryStream = new MemoryStream())
+            using MemoryStream memoryStream = new MemoryStream();
+            using (XmlWriter xmlWriter = XmlWriter.Create(memoryStream, this.GetXmlWriterSettings()))
             {
-                using (XmlWriter xmlWriter = XmlWriter.Create(memoryStream, this.GetXmlWriterSettings()))
-                {
-                    this.Serialize(@object, xmlWriter);
-                }
-                return this.Encoding.GetString(memoryStream.ToArray());
+                this.Serialize(@object, xmlWriter);
             }
+            return this.Encoding.GetString(memoryStream.ToArray());
         }
         public void Serialize(T @object, XmlWriter writer)
         {
-            writer.WriteStartElement("Object");
-
-            writer.WriteStartElement("Type");
-            writer.WriteString(@object.GetType().ToString());
-            writer.WriteEndElement();
-
-            Guid rootObjectId = default;//todo
-            writer.WriteStartElement("RootObjectId");
-            writer.WriteString(rootObjectId.ToString());
-            writer.WriteEndElement();
-
-            writer.WriteStartElement("ReferencedObjects");
-            //TODO
-            writer.WriteEndElement();
-
-            writer.WriteStartElement("AttributeGraph");
-            //TODO
-            writer.WriteEndElement();
-
-            writer.WriteEndElement();
+            xmlSerializer.Serialize(writer, GenericallySerializedObject.Create(@object));
         }
         public T Deserialize(string serializedObject)
         {
-            using (StringReader stringReader = new StringReader(serializedObject))
-            {
-                using (XmlReader xmlReader = XmlReader.Create(stringReader))
-                {
-                    return this.Deserialize(xmlReader);
-                }
-            }
+            using StringReader stringReader = new StringReader(serializedObject);
+            using XmlReader xmlReader = XmlReader.Create(stringReader);
+            return this.Deserialize(xmlReader);
         }
         public T Deserialize(XmlReader reader)
         {
@@ -85,6 +62,62 @@ namespace GRYLibrary.Core.AdvancedXMLSerialysis
             this.CustomSerializer.Add(AdvancedXMLSerialysis.CustomSerializer.KeyValuePairfTSerializer);
         }
     }
+    public class GenericXMLSerializer
+    {
+        public static GenericXMLSerializer<object> GetDefaultInstance()
+        {
+            GenericXMLSerializer<object> result = new GenericXMLSerializer<object>();
+            result.AddDefaultCustomSerializer();
+            return result;
+        }
+    }
+    #region internal Helper types for serialized content
+    public class GenericallySerializedObject
+    {
+        public HashSet<SimplifiedObject> SimplifiedObject { get; set; }
+        public Guid RootObjectId { get; set; }
+        public static GenericallySerializedObject Create(object @object)
+        {
+            throw new NotImplementedException();
+        }
+    }
+    public class SimplifiedObject
+    {
+        public Guid ObjectId { get; set; }
+        public Type Type { get; set; }
+        public List<Attribute> Attribute { get; set; }
+        public override bool Equals(object obj)
+        {
+            SimplifiedObject typedObject = obj as SimplifiedObject;
+            if (typedObject == null)
+            {
+                return false;
+            }
+            else
+            {
+                return this.ObjectId.Equals(typedObject.ObjectId);
+            }
+        }
+        public override int GetHashCode()
+        {
+            return this.ObjectId.GetHashCode();
+        }
+    }
+    public abstract class Attribute
+    {
+        public string Name { get; set; }
+        public Type Type { get; set; }
+    }
+    public abstract class PrimitiveTarget : Attribute
+    {
+        public object Value { get; set; }
+    }
+    public abstract class ComplexTarget : Attribute
+    {
+        public Guid ObjectId { get; set; }
+    }
+
+    #endregion
     public class CustomSerializer
     {
         public Func<object, string> Serialize { get; set; }
@@ -161,14 +194,5 @@ namespace GRYLibrary.Core.AdvancedXMLSerialysis
                 throw new NotImplementedException();
             });
         #endregion
-    }
-    public class GenericXMLSerializer
-    {
-        public static GenericXMLSerializer<object> GetDefaultInstance()
-        {
-            GenericXMLSerializer<object> result = new GenericXMLSerializer<object>();
-            result.AddDefaultCustomSerializer();
-            return result;
-        }
     }
 }
