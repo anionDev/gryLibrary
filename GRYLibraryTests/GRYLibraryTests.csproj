@@ -50,10 +50,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Properties\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <None Update="TestData\TestXMLSerialization\GRYLogConfiguration2.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

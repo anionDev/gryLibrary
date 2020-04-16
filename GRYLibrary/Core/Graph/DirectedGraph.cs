@@ -10,6 +10,7 @@ namespace GRYLibrary.Core.Graph
         public override ISet<Edge> Edges { get { return new HashSet<Edge>(this._DirectedEdges); } }
         public ISet<Edge> DirectedEdges { get { return new HashSet<Edge>(this._DirectedEdges); } }
         private readonly ISet<DirectedEdge> _DirectedEdges = new HashSet<DirectedEdge>();
+        public DirectedGraph() { }
 
         public override void Accept(IGraphVisitor visitor)
         {

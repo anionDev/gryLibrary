@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Xml.Serialization;
 
 namespace GRYLibrary.Core.Graph
 {
@@ -11,6 +12,8 @@ namespace GRYLibrary.Core.Graph
     /// <remarks>
     /// This graph does not support two edges between the same two vertices.
     /// </remarks>
+    [XmlInclude(typeof(UndirectedGraph))]
+    [XmlInclude(typeof(DirectedGraph))]
     public abstract class Graph
     {
         public ISet<Vertex> Vertices { get { return new HashSet<Vertex>(this._Vertices); } }

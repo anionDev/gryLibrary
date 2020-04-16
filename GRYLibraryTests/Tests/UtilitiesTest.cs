@@ -1,8 +1,13 @@
 ﻿using GRYLibrary.Core;
+using GRYLibrary.Core.AdvancedObjectAnalysis;
 using GRYLibrary.Core.XMLSerializer;
-using GRYLibrary.TestData.TestTypes.SimpleDataStructure1;
+using GRYLibrary.TestData.TestTypes.SimpleDataStructure;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using System.Collections;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -156,6 +161,85 @@ namespace GRYLibrary.Tests
             Assert.AreEqual(2, reloadedDictionary.Count);
             Assert.AreEqual("test1", reloadedDictionary[1]);
             Assert.AreEqual("test2", reloadedDictionary[2]);
+        }
+        [TestMethod]
+        public void IsListTest()
+        {
+            Assert.IsTrue(Utilities.ObjectIsList(new List<int>()));
+            Assert.IsTrue(Utilities.ObjectIsList(new ArraySegment<int>()));
+            Assert.IsFalse(Utilities.ObjectIsList(new ArrayList()));
+            Assert.IsFalse(Utilities.ObjectIsList(new LinkedList<int>()));
+            Assert.IsFalse(Utilities.ObjectIsList(new object()));
+            Assert.IsFalse(Utilities.ObjectIsList("somestring"));
+        }
+        [TestMethod]
+        public void IsDictionaryTest()
+        {
+            Assert.IsTrue(Utilities.ObjectIsDictionary(new Dictionary<int, string>()));
+            Assert.IsTrue(Utilities.ObjectIsDictionary(ImmutableDictionary.CreateBuilder<long, object>().ToImmutable()));
+            Assert.IsFalse(Utilities.ObjectIsDictionary(new LinkedList<int>()));
+            Assert.IsFalse(Utilities.ObjectIsDictionary(new object()));
+            Assert.IsFalse(Utilities.ObjectIsDictionary("somestring"));
+        }
+        [TestMethod]
+        public void ISettTest()
+        {
+            Assert.IsTrue(Utilities.ObjectIsSet(new HashSet<int>()));
+            Assert.IsTrue(Utilities.ObjectIsSet(new SortedSet<string>()));
+            Assert.IsFalse(Utilities.ObjectIsSet(new LinkedList<int>()));
+            Assert.IsFalse(Utilities.ObjectIsSet(new object()));
+            Assert.IsFalse(Utilities.ObjectIsSet("somestring"));
+        }
+        [TestMethod]
+        public void ObjectToSettTest()
+        {
+            Assert.ThrowsException<InvalidCastException>(() => Utilities.ObjectToSet<object>(new object()));
+            Assert.ThrowsException<InvalidCastException>(() => Utilities.ObjectToSet<object>(5));
+
+            Assert.IsTrue(Utilities.SetEquals(new HashSet<char> { 's' , 'o' , 'm' , 'e' , 't' }, Utilities.ObjectToSet<char>("sometest")));
+
+            HashSet<int> testSet = new HashSet<int> { 3, 4, 5 };
+            object testSetAsObject = testSet;
+            Assert.IsTrue(Utilities.SetEquals(testSet, Utilities.ObjectToSet<int>(testSetAsObject)));
+        }
+        [TestMethod]
+        public void ObjectToListTest()
+        {
+            Assert.ThrowsException<InvalidCastException>(() => Utilities.ObjectToList<object>(new object()));
+            Assert.ThrowsException<InvalidCastException>(() => Utilities.ObjectToList<object>("sometest"));
+
+            List<int> testList = new List<int> { 3, 4, 5 };
+            object testListAsObject = testList;
+            Assert.IsTrue(Utilities.SequanceEqual(testList, Utilities.ObjectToList<int>(testListAsObject)));
+
+            Assert.IsTrue(Utilities.SequanceEqual(testList, new List<int> { 3, 4, 5 }.ToImmutableList()));
+        }
+        [TestMethod]
+        public void ObjectToDictionarytTest()
+        {
+            Assert.ThrowsException<InvalidCastException>(() => Utilities.ObjectToDictionary<object, object>(new object()));
+            Assert.ThrowsException<InvalidCastException>(() => Utilities.ObjectToDictionary<object, object>("somestring"));
+
+            Dictionary<int, string> testDictionary = new Dictionary<int, string> { { 3, "3s" }, { 4, "4s" }, { 5, "5s" } };
+            object testDictionaryAsObject = testDictionary;
+            Assert.IsTrue(Utilities.DictionaryEquals(testDictionary, Utilities.ObjectToDictionary<int, string>(testDictionaryAsObject)));
+
+            IDictionary<int, string> testDictionary2 = new ConcurrentDictionary<int, string>();
+            testDictionary2.Add(3, "3s");
+            testDictionary2.Add(4, "4s");
+            testDictionary2.Add(5, "5s");
+            object testDictionaryAsObject2 = testDictionary2;
+            Assert.IsTrue(Utilities.DictionaryEquals(testDictionary2, Utilities.ObjectToDictionary<int, string>(testDictionaryAsObject2)));
+
+            Assert.IsTrue(Utilities.DictionaryEquals(testDictionary, testDictionary2));
+        }
+        [TestMethod]
+        public void ObjectIsEnumerableTest()
+        {
+            IEnumerable setAsEnumerable = new HashSet<object> { 3, 4, 5 };
+            Assert.IsTrue(Utilities.ObjectIsEnumerable(setAsEnumerable));
+            Assert.IsTrue(Utilities.ObjectIsEnumerable(new HashSet<object> { 3, 4, 5 }));
+            Assert.IsTrue(Utilities.ObjectIsEnumerable(new HashSet<int> { 3, 4, 5 }));
         }
     }
 }

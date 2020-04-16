@@ -20,6 +20,8 @@ using System.Reflection;
 using System.Dynamic;
 using System.ComponentModel;
 using GRYLibrary.Core.XMLSerializer;
+using System.Net.Sockets;
+using GRYLibrary.Core.AdvancedObjectAnalysis;
 
 namespace GRYLibrary.Core
 {
@@ -122,6 +124,268 @@ namespace GRYLibrary.Core
             return @string;
         }
 
+        /// <returns>Returns true if and only if the most concrete type of <paramref name="object"/> implements <see cref="System.Collections.IEnumerable"/>.</returns>
+        public static bool ObjectIsEnumerable(this object @object)
+        {
+            return IsAssignableFrom(@object, typeof(System.Collections.IEnumerable));
+        }
+        public static System.Collections.IEnumerable ObjectToEnumerable(this object @object)
+        {
+            if (!ObjectIsEnumerable(@object))
+            {
+                throw new InvalidCastException();
+            }
+            return @object as System.Collections.IEnumerable;
+        }
+        public static IEnumerable<T> ObjectToEnumerableGeneric<T>(this object @object)
+        {
+            System.Collections.IEnumerable objects = ObjectToEnumerable(@object);
+            List<T> result = new List<T>();
+            foreach (object obj in objects)
+            {
+                if (obj is T)
+                {
+                    result.Add((T)obj);
+                }
+                else
+                {
+                    throw new InvalidCastException();
+                }
+            }
+            return result;
+        }
+        public static bool EnumerableEquals<T>(this IEnumerable<T> enumerable1, IEnumerable<T> enumerable2)
+        {
+            return EnumerableEquals(enumerable1, enumerable2, PropertyEqualsCalculator.GetDefaultInstance<T>());
+        }
+        public static bool EnumerableEquals<T>(this IEnumerable<T> enumerable1, IEnumerable<T> enumerable2, IEqualityComparer<T> comparer)
+        {
+            if (enumerable1.Count() != enumerable2.Count())
+            {
+                return false;
+            }
+            List<T> enumerable1copy = new List<T>(enumerable1);
+            foreach (T item in enumerable2)
+            {
+                if (enumerable2.Contains(item, comparer))
+                {
+                    enumerable1copy.Remove(item);
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            return enumerable1copy.Count == 0;
+
+        }
+        /// <returns>Returns true if and only if the most concrete type of <paramref name="object"/> implements <see cref="IList{T}"/>.</returns>
+        public static bool ObjectIsList(this object @object)
+        {
+            return IsAssignableFrom(@object, typeof(IList<>));
+        }
+        public static IList<T> ObjectToList<T>(this object @object)
+        {
+            if (!ObjectIsList(@object))
+            {
+                throw new InvalidCastException();
+            }
+            System.Collections.IEnumerable objects = ObjectToEnumerable(@object);
+            List<T> result = new List<T>();
+            foreach (object obj in objects)
+            {
+                if (obj is T)
+                {
+                    result.Add((T)obj);
+                }
+                else
+                {
+                    throw new InvalidCastException();
+                }
+            }
+            return result;
+        }
+        /// <returns>Returns true if and only if the most concrete type of <paramref name="object"/> implements <see cref="ISet{T}"/>.</returns>
+        public static bool ObjectIsSet(this object @object)
+        {
+            return IsAssignableFrom(@object, typeof(ISet<>));
+        }
+        public static bool ObjectIsKeyValuePair(this object @object)
+        {
+            return IsAssignableFrom(@object, typeof(System.Collections.Generic.KeyValuePair<,>));
+        }
+        public static System.Collections.Generic.KeyValuePair<TKey, TValue> ObjectToKeyValuePair<TKey, TValue>(this object @object)
+        {
+            if (!ObjectIsKeyValuePair(@object))
+            {
+                throw new InvalidCastException();
+            }
+            object key = ((dynamic)@object).Key;
+            object value = ((dynamic)@object).Value;
+            if (key is TKey && value is TValue)
+            {
+                return new System.Collections.Generic.KeyValuePair<TKey, TValue>((TKey)key, (TValue)value);
+            }
+            else
+            {
+                throw new InvalidCastException();
+            }
+        }
+        public static ISet<T> ObjectToSet<T>(this object @object)
+        {
+            IEnumerable<object> objects = ObjectToEnumerableGeneric<object>(@object);
+            HashSet<T> result = new HashSet<T>();
+            foreach (object obj in objects)
+            {
+                if (obj is T)
+                {
+                    result.Add((T)obj);
+                }
+                else
+                {
+                    throw new InvalidCastException();
+                }
+            }
+            return result;
+        }
+        public static bool SequanceEqual<T>(this IList<T> list1, IList<T> list2)
+        {
+            return SequanceEqual(list1, list2, PropertyEqualsCalculator.GetDefaultInstance<T>());
+        }
+        public static bool SequanceEqual<T>(this IList<T> list1, IList<T> list2, IEqualityComparer<T> comparer)
+        {
+            if (list1.Count != list2.Count)
+            {
+                return false;
+            }
+            for (int i = 0; i < list1.Count; i++)
+            {
+                if (!comparer.Equals(list1[i], list2[i]))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+        public static bool SetEquals<T>(this ISet<T> set1, ISet<T> set2)
+        {
+            return SetEquals(set1, set2, PropertyEqualsCalculator.GetDefaultInstance<T>());
+        }
+        public static bool SetEquals<T>(this ISet<T> set1, ISet<T> set2, IEqualityComparer<T> comparer)
+        {
+            if (set1.Count != set2.Count)
+            {
+                return false;
+            }
+            SortedSet<T>.Enumerator sortedSet1 = new SortedSet<T>(set1).GetEnumerator();
+            SortedSet<T>.Enumerator sortedSet2 = new SortedSet<T>(set2).GetEnumerator();
+            while (sortedSet1.MoveNext())
+            {
+                sortedSet2.MoveNext();
+                if (!comparer.Equals(sortedSet1.Current, sortedSet2.Current))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        /// <returns>Returns true if and only if the most concrete type of <paramref name="object"/> implements <see cref="IDictionary{TKey, TValue}"/>.</returns>
+        public static bool ObjectIsDictionary(this object @object)
+        {
+            return IsAssignableFrom(@object, typeof(IDictionary<,>));
+        }
+        public static IDictionary<TKey, TValue> ObjectToDictionary<TKey, TValue>(this object @object)
+        {
+            if (!ObjectIsDictionary(@object))
+            {
+                throw new InvalidCastException();
+            }
+            IEnumerable<object> objects = ObjectToEnumerableGeneric<object>(@object);
+            Dictionary<TKey, TValue> result = new Dictionary<TKey, TValue>();
+            foreach (object obj in objects)
+            {
+                System.Collections.Generic.KeyValuePair<TKey, TValue> kvp = ObjectToKeyValuePair<TKey, TValue>(obj);
+                result.Add(kvp.Key, kvp.Value);
+            }
+            return result;
+        }
+        public static bool DictionaryEquals<TKey, TValue>(this IDictionary<TKey, TValue> dictionary1, IDictionary<TKey, TValue> dictionary2)
+        {
+            return DictionaryEquals(dictionary1, dictionary2, PropertyEqualsCalculator.GetDefaultInstance<System.Collections.Generic.KeyValuePair<TKey, TValue>>());
+        }
+        public static bool DictionaryEquals<TKey, TValue>(this IDictionary<TKey, TValue> dictionary1, IDictionary<TKey, TValue> dictionary2, IEqualityComparer<System.Collections.Generic.KeyValuePair<TKey, TValue>> comparer)
+        {
+            if (dictionary1.Count == dictionary2.Count)
+            {
+                foreach (TKey key in dictionary1.Keys)
+                {
+                    if (dictionary2.ContainsKey(key))
+                    {
+                        if (!PropertyEqualsCalculator.DefaultInstance.Equals(dictionary1[key], dictionary2[key]))
+                        {
+                            return false;
+                        }
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+            }
+            else
+            {
+                return false;
+            }
+            return true;
+        }
+
+        public static bool IsAssignableFrom(object @object, Type genericTypeToCompare)
+        {
+            return IsAssignableFrom(@object.GetType(), genericTypeToCompare);
+        }
+        public static bool IsAssignableFrom(Type typeForCheck, Type parentType)
+        {
+            ISet<Type> typesToCheck = GetParentTypesAndInterfaces(typeForCheck);
+            typesToCheck.Add(typeForCheck);
+            return typesToCheck.Contains(parentType, TypeComparerIgnoringGenerics);
+        }
+        private static ISet<Type> GetParentTypesAndInterfaces(Type type)
+        {
+            HashSet<Type> result = new HashSet<Type>();
+            result.UnionWith(type.GetInterfaces());
+            if (type.BaseType != null)
+            {
+                result.UnionWith(GetParentTypesAndInterfaces(type.BaseType));
+            }
+            return result;
+        }
+        public static IEqualityComparer<Type> TypeComparerIgnoringGenerics { get; } = new TypeComparerIgnoringGenericsType();
+        private class TypeComparerIgnoringGenericsType : IEqualityComparer<Type>
+        {
+            public bool Equals(Type x, Type y)
+            {
+                if (!x.Name.Equals(y.Name))
+                {
+                    return false;
+                }
+                if (!x.Namespace.Equals(y.Namespace))
+                {
+                    return false;
+                }
+                if (!x.Assembly.Equals(y.Assembly))
+                {
+                    return false;
+                }
+                return true;
+            }
+
+            public int GetHashCode(Type obj)
+            {
+                return obj.GetHashCode();
+            }
+        }
         public static void ReplaceUnderscoresInFile(string file, IDictionary<string, string> replacements)
         {
             ReplaceUnderscoresInFile(file, replacements, new UTF8Encoding(false));
@@ -590,7 +854,7 @@ namespace GRYLibrary.Core
         }
         public static ISet<string> ToCaseInsensitiveSet(this ISet<string> input)
         {
-            ISet<TupleWithValueComparisonEquals<string, string>> tupleList = new HashSet<TupleWithValueComparisonEquals<string, string>>(input.Select((item) => new TupleWithValueComparisonEquals<string, string>(item, item.ToLower())));
+            ISet<WriteableTuple<string, string>> tupleList = new HashSet<WriteableTuple<string, string>>(input.Select((item) => new WriteableTuple<string, string>(item, item.ToLower())));
             return new HashSet<string>(tupleList.Select((item) => item.Item1));
         }
         public static dynamic ToDynamic(this object value)
@@ -1127,7 +1391,7 @@ namespace GRYLibrary.Core
                 return Path.GetFullPath(new Uri(Path.Combine(baseDirectory, path)).LocalPath);
             }
         }
-        
+
         public static bool ValidateXMLAgainstXSD(string xml, string xsd, out IList<object> errorMessages)
         {
             try
@@ -1395,6 +1659,24 @@ namespace GRYLibrary.Core
                 return false;
             }
         }
+        public static DateTime GetTimeFromInternetUtC()
+        {
+            return GetTimeFromInternet(TimeZoneInfo.Utc);
+        }
+        public static DateTime GetTimeFromInternetCurrentTimeZone()
+        {
+            return GetTimeFromInternet(TimeZoneInfo.Local);
+        }
+        public static DateTime GetTimeFromInternet(TimeZoneInfo timezone)
+        {
+            return GetTimeFromInternet(timezone, "yy-MM-dd HH:mm:ss", "time.nist.gov", 13, 7, 17);
+        }
+        public static DateTime GetTimeFromInternet(TimeZoneInfo timezone, string format, string domain, int port, int begin, int length)
+        {
+            using StreamReader streamReader = new StreamReader(new TcpClient(domain, port).GetStream());
+            DateTime originalDateTime = DateTime.ParseExact(streamReader.ReadToEnd().Substring(begin, length), format, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal);
+            return TimeZoneInfo.ConvertTime(originalDateTime, timezone);
+        }
         public static GitCommandResult ExecuteGitCommand(string repository, string argument, bool throwErrorIfExitCodeIsNotZero = false, int? timeoutInMilliseconds = null, bool printErrorsAsInformation = false)
         {
             ExternalProgramExecutor externalProgramExecutor = ExternalProgramExecutor.Create("git", argument, repository, string.Empty, false, timeoutInMilliseconds);
@@ -1458,42 +1740,89 @@ namespace GRYLibrary.Core
         }
         public static bool IsGitRepository(string folder)
         {
-            return Directory.Exists(Path.Combine(folder, ".git")) || File.Exists(Path.Combine(folder, ".git"));
+            string combinedPath = Path.Combine(folder, ".git");
+            return Directory.Exists(combinedPath) || File.Exists(combinedPath);
         }
+        /// <summary>
+        /// Commits all staged and unstaged changes in <paramref name="repository"/> (excluding uncommitted changes in submodules).
+        /// </summary>
+        /// <param name="repository">Repository where changes should be committed</param>
+        /// <param name="commitMessage">Message for the commit</param>
+        /// <param name="commitWasCreated">Will be set to true if and only if really a commit was created. Will be set to false if and only if there are no changes to get committed.</param>
+        /// <returns>Returns the commit-id of the currently checked out commit. This returns the id of the new created commit if there were changes which were committed by this function.</returns>
         public static string GitCommit(string repository, string commitMessage, out bool commitWasCreated)
         {
-            commitWasCreated = GitRepositoryHasUncommittedChanges(repository);
-            if (commitWasCreated)
+            commitWasCreated = false;
+            if (GitRepositoryHasUncommittedChanges(repository))
             {
                 ExecuteGitCommand(repository, $"add -A", true);
                 ExecuteGitCommand(repository, $"commit -m \"{commitMessage}\"", true);
+                commitWasCreated = true;
             }
             return GetLastGitCommitId(repository);
         }
-        public static string GetLastGitCommitId(string repositoryFolder)
+        /// <returns>Returns the commit-id of the given <paramref name="revision"/>.</returns>
+        public static string GetLastGitCommitId(string repositoryFolder, string revision = "HEAD")
         {
-            return ExecuteGitCommand(repositoryFolder, $"rev-parse HEAD", true).GetFirstStdOutLine();
+            return ExecuteGitCommand(repositoryFolder, $"rev-parse " + revision, true).GetFirstStdOutLine();
         }
         public static void GitFetch(string repository, string remoteName = "--all", bool printErrorsAsInformation = true)
         {
             ExecuteGitCommand(repository, $"fetch {remoteName} --tags --prune", true, null, printErrorsAsInformation);
         }
 
-        public static bool GitRepositoryHasUncommittedChanges(string repository)
+        public static bool GitRepositoryHasUnstagedChanges(string repository)
         {
-            int exitCode = ExecuteGitCommand(repository, "diff-index --quiet HEAD --", false).ExitCode;
-            if (exitCode == 0)
-            {
-                return false;
-            }
-            else if (exitCode == 1)
+            if (GitRepositoryHasUnstagedChangesOfTrackedFiles(repository))
             {
                 return true;
             }
-            else
+            if (GitRepositoryHaNewUntrackedFiles(repository))
             {
-                throw new Exception("Could not calculate uncommitted changes in '" + repository + "'");
+                return true;
             }
+            return false;
+        }
+
+        public static bool GitRepositoryHaNewUntrackedFiles(string repository)
+        {
+            return GitChangesHelper(repository, "ls-files --exclude-standard --others");
+        }
+
+        public static bool GitRepositoryHasUnstagedChangesOfTrackedFiles(string repository)
+        {
+            return GitChangesHelper(repository, "diff");
+        }
+
+        public static bool GitRepositoryHasStagedChanges(string repository)
+        {
+            return GitChangesHelper(repository, "diff --cached");
+        }
+
+        private static bool GitChangesHelper(string repository, string argument)
+        {
+            GitCommandResult result = ExecuteGitCommand(repository, argument, true);
+            foreach (string line in result.StdOutLines)
+            {
+                if (!string.IsNullOrWhiteSpace(line))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public static bool GitRepositoryHasUncommittedChanges(string repository)
+        {
+            if (GitRepositoryHasUnstagedChanges(repository))
+            {
+                return true;
+            }
+            if (GitRepositoryHasStagedChanges(repository))
+            {
+                return true;
+            }
+            return false;
         }
         public static int GetAmountOfCommitsInGitRepository(string repositoryFolder, string revision = "HEAD")
         {
@@ -1511,6 +1840,29 @@ namespace GRYLibrary.Core
                 result.Add(kvp.Key, kvp.Value);
             }
             return result;
+        }
+
+        public static bool IsDefault(object @object)
+        {
+            if (@object == null)
+            {
+                return true;
+            }
+            else
+            {
+                return EqualityComparer<object>.Default.Equals(@object, GetDefault(@object.GetType()));
+            }
+        }
+        public static object GetDefault(Type type)
+        {
+            if (type.IsValueType)
+            {
+                return Activator.CreateInstance(type);
+            }
+            else
+            {
+                return null;
+            }
         }
     }
 }
