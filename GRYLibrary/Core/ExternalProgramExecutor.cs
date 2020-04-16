@@ -90,6 +90,7 @@ namespace GRYLibrary.Core
                 catch
                 {
                 }
+                this.ProcessWasAbortedDueToTimeout = false;
                 Process process = null;
                 try
                 {
@@ -159,6 +160,7 @@ namespace GRYLibrary.Core
                         if (!process.WaitForExit(this.TimeoutInMilliseconds.Value))
                         {
                             process.Kill();
+                            this.ProcessWasAbortedDueToTimeout = true;
                         }
                     }
                     else
@@ -250,6 +252,25 @@ namespace GRYLibrary.Core
             return $"'{name}' is not available if the execution state is not '{nameof(ExecutionState.Terminated)}'.";
         }
 
+        private bool _processWasAbortedDueToTimeout;
+        public bool ProcessWasAbortedDueToTimeout
+        {
+            get
+            {
+                if (this.ExecutionState == ExecutionState.Terminated)
+                {
+                    return this._processWasAbortedDueToTimeout;
+                }
+                else
+                {
+                    throw new InvalidOperationException(this.GetInvalidOperationDueToNotTerminatedMessageByMembername(nameof(this.ProcessWasAbortedDueToTimeout)));
+                }
+            }
+            private set
+            {
+                this._processWasAbortedDueToTimeout = value;
+            }
+        }
         private int _ExitCode;
         public int ExitCode
         {
