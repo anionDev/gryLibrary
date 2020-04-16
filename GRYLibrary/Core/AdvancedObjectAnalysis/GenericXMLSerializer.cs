@@ -1,4 +1,5 @@
-﻿using System;
+﻿using GRYLibrary.Core.AdvancedObjectAnalysis;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
@@ -41,7 +42,7 @@ namespace GRYLibrary.Core.AdvancedXMLSerialysis
         }
         public void Serialize(T @object, XmlWriter writer)
         {
-            xmlSerializer.Serialize(writer, GenericallySerializedObject.Create(@object));
+            xmlSerializer.Serialize(writer, GenericallySerializedObject.Create(@object, PropertySelector, FieldSelector));
         }
         public T Deserialize(string serializedObject)
         {
@@ -76,7 +77,41 @@ namespace GRYLibrary.Core.AdvancedXMLSerialysis
     {
         public HashSet<SimplifiedObject> SimplifiedObject { get; set; }
         public Guid RootObjectId { get; set; }
-        public static GenericallySerializedObject Create(object @object)
+        public static GenericallySerializedObject Create(object @object, Func<PropertyInfo, bool> propertySelector, Func<FieldInfo, bool> fieldSelector)
+        {
+            Dictionary<object, SimplifiedObject> dictionary = new Dictionary<object, SimplifiedObject>(ReferenceEqualsComparer.Instance);
+            FillDictionary(dictionary, @object, propertySelector, fieldSelector);
+            GenericallySerializedObject result = new GenericallySerializedObject();
+            result.SimplifiedObject = new HashSet<SimplifiedObject>(dictionary.Values);
+            result.RootObjectId = dictionary[@object].ObjectId;
+            return result;
+        }
+
+        private static void FillDictionary(Dictionary<object, SimplifiedObject> dictionary, object @object, Func<PropertyInfo, bool> propertySelector, Func<FieldInfo, bool> fieldSelector)
+        {
+            if (!dictionary.ContainsKey(@object))
+            {
+                SimplifiedObject simplification = new SimplifiedObject();
+                simplification.ObjectId = Guid.NewGuid();
+                dictionary.Add(@object, simplification);
+                foreach (PropertyInfo property in @object.GetType().GetProperties())
+                {
+                    if (propertySelector(property))
+                    {
+                        AddSimplifiedAttribute(simplification, property.Name, property.GetValue(@object), property.PropertyType, dictionary);
+                    }
+                }
+                foreach (FieldInfo field in @object.GetType().GetFields())
+                {
+                    if (fieldSelector(field))
+                    {
+                        AddSimplifiedAttribute(simplification, field.Name, field.GetValue(@object), field.FieldType, dictionary);
+                    }
+                }
+            }
+        }
+
+        private static void AddSimplifiedAttribute(SimplifiedObject parent, string name, object @object, Type propertyType, Dictionary<object, SimplifiedObject> dictionary)
         {
             throw new NotImplementedException();
         }
