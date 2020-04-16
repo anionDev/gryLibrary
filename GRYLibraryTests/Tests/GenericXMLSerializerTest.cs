@@ -10,12 +10,12 @@ namespace GRYLibrary.Tests
     [TestClass]
     public class GenericXMLSerializerTest
     {
+        [Ignore]
         [TestMethod]
         public void SerializeSimpleObjects()
         {
             GenericXMLSerializer<object> serializer = GenericXMLSerializer.GetDefaultInstance();
-          Console.WriteLine(  serializer.Serialize(SimpleDataStructure1.GetTestObject()));
-
+            Console.WriteLine(serializer.Serialize(SimpleDataStructure1.GetTestObject()));
         }
     }
 }
