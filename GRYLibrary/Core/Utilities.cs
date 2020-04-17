@@ -131,7 +131,7 @@ namespace GRYLibrary.Core
         }
         public static bool TypeIsEnumerable(this Type type)
         {
-            throw new NotImplementedException();
+            return IsAssignableFrom(type, typeof(System.Collections.IEnumerable));
         }
         public static System.Collections.IEnumerable ObjectToEnumerable(this object @object)
         {
@@ -186,11 +186,11 @@ namespace GRYLibrary.Core
         /// <returns>Returns true if and only if the most concrete type of <paramref name="object"/> implements <see cref="IList{T}"/>.</returns>
         public static bool ObjectIsList(this object @object)
         {
-            return IsAssignableFrom(@object, typeof(IList<>));
+            return TypeIsList(@object.GetType());
         }
         public static bool TypeIsList(this Type type)
         {
-            throw new NotImplementedException();
+            return IsAssignableFrom(type, typeof(IList<>));
         }
         public static IList<T> ObjectToList<T>(this object @object)
         {
@@ -216,11 +216,11 @@ namespace GRYLibrary.Core
         /// <returns>Returns true if and only if the most concrete type of <paramref name="object"/> implements <see cref="ISet{T}"/>.</returns>
         public static bool ObjectIsSet(this object @object)
         {
-            return IsAssignableFrom(@object, typeof(ISet<>));
+            return TypeIsSet(@object.GetType());
         }
         public static bool TypeIsSet(this Type type)
         {
-            throw new NotImplementedException();
+            return IsAssignableFrom(type, typeof(ISet<>));
         }
         public static bool ObjectIsKeyValuePair(this object @object)
         {

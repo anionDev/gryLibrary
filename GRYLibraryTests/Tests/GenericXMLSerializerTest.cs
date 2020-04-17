@@ -11,11 +11,11 @@ namespace GRYLibrary.Tests
         [TestMethod]
         public void SerializeSimpleObjects()
         {
-            GenericXMLSerializer<object> serializer = GenericXMLSerializer.GetDefaultInstance();
+            GenericXMLSerializer<SimpleDataStructure1> serializer = new GenericXMLSerializer<SimpleDataStructure1>();
             SimpleDataStructure1 testObject = SimpleDataStructure1.GetTestObject();
             string serialized = serializer.Serialize(testObject);
-            Console.WriteLine(serialized);
-            Assert.AreEqual(testObject, serializer.Deserialize(serialized));
+            SimpleDataStructure1 actualObject = serializer.Deserialize(serialized);
+            Assert.AreEqual(testObject, actualObject);
         }
     }
 }

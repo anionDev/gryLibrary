@@ -136,12 +136,34 @@ namespace GRYLibrary.Core.AdvancedXMLSerialysis
             }
             public void Handle(SimplifiedObject simplifiedObject)
             {
-                throw new NotImplementedException();//TODO assign properties
+                object @object = _DeserializedObjects[simplifiedObject.ObjectId];
+                Type typeOfObject = @object.GetType();
+                foreach (SimplifiedAttribute attribute in simplifiedObject.Attributes)
+                {
+                    PropertyInfo property = typeOfObject.GetProperty(attribute.Name);
+                    if (property != null)
+                    {
+                        property.SetValue(@object, _DeserializedObjects[attribute.ObjectId]);
+                        return;
+                    }
+                    FieldInfo field = typeOfObject.GetField(attribute.Name);
+                    if (field == null)
+                    {
+                        field.SetValue(@object, _DeserializedObjects[attribute.ObjectId]);
+                        return;
+                    }
+                    throw new KeyNotFoundException($"Can not find attribute {attribute.Name} in type {typeOfObject}");
+                }
             }
 
             public void Handle(SimplifiedEnumerable simplifiedEnumerable)
             {
-                throw new NotImplementedException();//TODO assign items
+                object enumerable = _DeserializedObjects[simplifiedEnumerable.ObjectId];
+                MethodInfo addOperation = enumerable.GetType().GetMethod("Add");
+                foreach (Guid item in simplifiedEnumerable.Items)
+                {
+                    addOperation.Invoke(enumerable, new object[] { _DeserializedObjects[item] });
+                }
             }
 
             public void Handle(SimplifiedPrimitive simplifiedPrimitive)
@@ -164,7 +186,30 @@ namespace GRYLibrary.Core.AdvancedXMLSerialysis
 
             public object Handle(SimplifiedEnumerable simplifiedEnumerable)
             {
-                throw new NotImplementedException();
+                Type typeOfSimplifiedEnumerable = Type.GetType(simplifiedEnumerable.TypeName);
+                Type ConcreteTypeOfEnumerable = null;
+                if (Utilities.TypeIsList(typeOfSimplifiedEnumerable))
+                {
+                    ConcreteTypeOfEnumerable = typeof(List<>);
+                }
+                else if (Utilities.TypeIsSet(typeOfSimplifiedEnumerable))
+                {
+                    ConcreteTypeOfEnumerable = typeof(HashSet<>);
+                }
+                else if (Utilities.TypeIsDictionary(typeOfSimplifiedEnumerable))
+                {
+                    ConcreteTypeOfEnumerable = typeof(Dictionary<,>);
+                }
+                else if (Utilities.TypeIsEnumerable(typeOfSimplifiedEnumerable))
+                {
+                    ConcreteTypeOfEnumerable = typeof(List<>);
+                }
+                else
+                {
+                    throw new NotImplementedException();
+                }
+                ConcreteTypeOfEnumerable = ConcreteTypeOfEnumerable.MakeGenericType(typeOfSimplifiedEnumerable.GenericTypeArguments);
+                return Activator.CreateInstance(ConcreteTypeOfEnumerable);
             }
 
             public object Handle(SimplifiedPrimitive simplifiedPrimitive)
@@ -259,6 +304,7 @@ namespace GRYLibrary.Core.AdvancedXMLSerialysis
     public class SimplifiedEnumerable : Simplified
     {
         public List<Guid> Items { get; set; }
+
         public override void Accept(ISimplifiedVisitor visitor)
         {
             visitor.Handle(this);
