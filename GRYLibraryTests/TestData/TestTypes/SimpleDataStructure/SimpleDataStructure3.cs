@@ -1,4 +1,5 @@
 ﻿using GRYLibrary.Core;
+using GRYLibrary.Core.AdvancedObjectAnalysis;
 using System;
 using System.Collections.Generic;
 
@@ -22,9 +23,7 @@ namespace GRYLibrary.TestData.TestTypes.SimpleDataStructure
 
         public override bool Equals(object obj)
         {
-            return obj is SimpleDataStructure3 structure &&
-                   this.Property4 == structure.Property4 &&
-                  this.Property5.SequanceEqual( structure.Property5);
+            return PropertyEqualsCalculator.DefaultInstance.Equals(this, obj);
         }
 
         public override int GetHashCode()
@@ -33,7 +32,7 @@ namespace GRYLibrary.TestData.TestTypes.SimpleDataStructure
         }
         public override string ToString()
         {
-            return $"{nameof(SimpleDataStructure3)}{{{nameof(Property4)}={Property4},{nameof(Property5)}=(List with {Property5.Count} item(s))}}";
+            return $"{nameof(SimpleDataStructure3)}{{{nameof(this.Property4)}={this.Property4},{nameof(this.Property5)}=(List with {this.Property5.Count} item(s))}}";
         }
     }
 }

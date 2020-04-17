@@ -228,7 +228,7 @@ namespace GRYLibrary.Core
         }
         public static bool TypeIsKeyValuePair(this Type type)
         {
-            throw new NotImplementedException();
+            return IsAssignableFrom(type, typeof(System.Collections.Generic.KeyValuePair<,>));
         }
         public static System.Collections.Generic.KeyValuePair<TKey, TValue> ObjectToKeyValuePair<TKey, TValue>(this object @object)
         {
@@ -314,7 +314,7 @@ namespace GRYLibrary.Core
         }
         public static bool TypeIsDictionary(this Type type)
         {
-            throw new NotImplementedException();
+            return IsAssignableFrom(type, typeof(IDictionary<,>));
         }
         public static IDictionary<TKey, TValue> ObjectToDictionary<TKey, TValue>(this object @object)
         {
@@ -343,7 +343,9 @@ namespace GRYLibrary.Core
                 {
                     if (dictionary2.ContainsKey(key))
                     {
-                        if (!PropertyEqualsCalculator.DefaultInstance.Equals(dictionary1[key], dictionary2[key]))
+                        System.Collections.Generic.KeyValuePair<TKey, TValue> kvp1 = new System.Collections.Generic.KeyValuePair<TKey, TValue>(key, dictionary1[key]);
+                        System.Collections.Generic.KeyValuePair<TKey, TValue> kvp2 = new System.Collections.Generic.KeyValuePair<TKey, TValue>(key, dictionary2[key]);
+                        if (!comparer.Equals(kvp1, kvp2))
                         {
                             return false;
                         }

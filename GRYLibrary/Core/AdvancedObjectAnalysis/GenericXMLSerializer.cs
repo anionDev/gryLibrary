@@ -53,7 +53,7 @@ namespace GRYLibrary.Core.AdvancedXMLSerialysis
         public T Deserialize(XmlReader reader)
         {
             GRYSerializedObject grySerializedObject = (GRYSerializedObject)this.SerializationConfiguration.XmlSerializer.Deserialize(reader);
-            return (T)grySerializedObject.Get(this.SerializationConfiguration);
+            return (T)grySerializedObject.Get();
         }
     }
     public class GenericXMLSerializer
@@ -97,7 +97,7 @@ namespace GRYLibrary.Core.AdvancedXMLSerialysis
             else
             {
                 Simplified simplification;
-                if (IsPrimitiveType(typeOfObject, serializationConfiguration))
+                if (IsPrimitiveType(typeOfObject))
                 {
                     simplification = new SimplifiedPrimitive();
                 }
@@ -118,39 +118,35 @@ namespace GRYLibrary.Core.AdvancedXMLSerialysis
             }
         }
 
-        private static bool IsPrimitiveType(Type typeOfObject, SerializationConfiguration serializationConfiguration)
+        private static bool IsPrimitiveType(Type typeOfObject)
         {
             return typeOfObject.IsPrimitive || typeOfObject.Equals(typeof(string));
         }
 
         private class DeserializeVisitor : Simplified.ISimplifiedVisitor
         {
-            private readonly SerializationConfiguration _SerializationConfiguration;
             private readonly Dictionary<Guid, object> _DeserializedObjects;
-            private readonly GRYSerializedObject _GRYSerializedObject;
-            public DeserializeVisitor(Dictionary<Guid, object> deserializedObjects, GRYSerializedObject gRYSerializedObject, SerializationConfiguration serializationConfiguration)
+            public DeserializeVisitor(Dictionary<Guid, object> deserializedObjects)
             {
-                this._SerializationConfiguration = serializationConfiguration;
                 this._DeserializedObjects = deserializedObjects;
-                this._GRYSerializedObject = gRYSerializedObject;
             }
             public void Handle(SimplifiedObject simplifiedObject)
             {
-                object @object = _DeserializedObjects[simplifiedObject.ObjectId];
+                object @object = this._DeserializedObjects[simplifiedObject.ObjectId];
                 Type typeOfObject = @object.GetType();
                 foreach (SimplifiedAttribute attribute in simplifiedObject.Attributes)
                 {
                     PropertyInfo property = typeOfObject.GetProperty(attribute.Name);
                     if (property != null)
                     {
-                        property.SetValue(@object, _DeserializedObjects[attribute.ObjectId]);
-                        return;
+                        property.SetValue(@object, this._DeserializedObjects[attribute.ObjectId]);
+                        continue;
                     }
                     FieldInfo field = typeOfObject.GetField(attribute.Name);
                     if (field == null)
                     {
-                        field.SetValue(@object, _DeserializedObjects[attribute.ObjectId]);
-                        return;
+                        field.SetValue(@object, this._DeserializedObjects[attribute.ObjectId]);
+                        continue;
                     }
                     throw new KeyNotFoundException($"Can not find attribute {attribute.Name} in type {typeOfObject}");
                 }
@@ -158,11 +154,11 @@ namespace GRYLibrary.Core.AdvancedXMLSerialysis
 
             public void Handle(SimplifiedEnumerable simplifiedEnumerable)
             {
-                object enumerable = _DeserializedObjects[simplifiedEnumerable.ObjectId];
+                object enumerable = this._DeserializedObjects[simplifiedEnumerable.ObjectId];
                 MethodInfo addOperation = enumerable.GetType().GetMethod("Add");
                 foreach (Guid item in simplifiedEnumerable.Items)
                 {
-                    addOperation.Invoke(enumerable, new object[] { _DeserializedObjects[item] });
+                    addOperation.Invoke(enumerable, new object[] { this._DeserializedObjects[item] });
                 }
             }
 
@@ -173,12 +169,7 @@ namespace GRYLibrary.Core.AdvancedXMLSerialysis
         }
         private class CreateObjectVisitor : Simplified.ISimplifiedVisitor<object>
         {
-            private readonly SerializationConfiguration _SerializationConfiguration;
-            public CreateObjectVisitor(SerializationConfiguration serializationConfiguration)
-            {
-                this._SerializationConfiguration = serializationConfiguration;
-            }
-            public object Handle(SimplifiedObject simplifiedObject)
+                   public object Handle(SimplifiedObject simplifiedObject)
             {
                 Type type = Type.GetType(simplifiedObject.TypeName);
                 return Activator.CreateInstance(type);
@@ -187,7 +178,7 @@ namespace GRYLibrary.Core.AdvancedXMLSerialysis
             public object Handle(SimplifiedEnumerable simplifiedEnumerable)
             {
                 Type typeOfSimplifiedEnumerable = Type.GetType(simplifiedEnumerable.TypeName);
-                Type ConcreteTypeOfEnumerable = null;
+                Type ConcreteTypeOfEnumerable ;
                 if (Utilities.TypeIsList(typeOfSimplifiedEnumerable))
                 {
                     ConcreteTypeOfEnumerable = typeof(List<>);
@@ -271,16 +262,16 @@ namespace GRYLibrary.Core.AdvancedXMLSerialysis
             container.Attributes.Add(attribute);
         }
 
-        internal object Get(SerializationConfiguration serializationConfiguration)
+        internal object Get()
         {
             Dictionary<Guid, object> deserializedObjects = new Dictionary<Guid, object>();
             foreach (Simplified simplified in this.Objects)
             {
-                deserializedObjects.Add(simplified.ObjectId, simplified.Accept(new CreateObjectVisitor(serializationConfiguration)));
+                deserializedObjects.Add(simplified.ObjectId, simplified.Accept(new CreateObjectVisitor()));
             }
             foreach (Simplified simplified in this.Objects)
             {
-                simplified.Accept(new DeserializeVisitor(deserializedObjects, this, serializationConfiguration));
+                simplified.Accept(new DeserializeVisitor(deserializedObjects));
             }
             return deserializedObjects[this.RootObjectId];
         }
