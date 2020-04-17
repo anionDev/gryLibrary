@@ -127,7 +127,11 @@ namespace GRYLibrary.Core
         /// <returns>Returns true if and only if the most concrete type of <paramref name="object"/> implements <see cref="System.Collections.IEnumerable"/>.</returns>
         public static bool ObjectIsEnumerable(this object @object)
         {
-            return IsAssignableFrom(@object, typeof(System.Collections.IEnumerable));
+            return @object is System.Collections.IEnumerable;
+        }
+        public static bool TypeIsEnumerable(this Type type)
+        {
+            throw new NotImplementedException();
         }
         public static System.Collections.IEnumerable ObjectToEnumerable(this object @object)
         {
@@ -184,6 +188,10 @@ namespace GRYLibrary.Core
         {
             return IsAssignableFrom(@object, typeof(IList<>));
         }
+        public static bool TypeIsList(this Type type)
+        {
+            throw new NotImplementedException();
+        }
         public static IList<T> ObjectToList<T>(this object @object)
         {
             if (!ObjectIsList(@object))
@@ -210,9 +218,17 @@ namespace GRYLibrary.Core
         {
             return IsAssignableFrom(@object, typeof(ISet<>));
         }
+        public static bool TypeIsSet(this Type type)
+        {
+            throw new NotImplementedException();
+        }
         public static bool ObjectIsKeyValuePair(this object @object)
         {
             return IsAssignableFrom(@object, typeof(System.Collections.Generic.KeyValuePair<,>));
+        }
+        public static bool TypeIsKeyValuePair(this Type type)
+        {
+            throw new NotImplementedException();
         }
         public static System.Collections.Generic.KeyValuePair<TKey, TValue> ObjectToKeyValuePair<TKey, TValue>(this object @object)
         {
@@ -295,6 +311,10 @@ namespace GRYLibrary.Core
         public static bool ObjectIsDictionary(this object @object)
         {
             return IsAssignableFrom(@object, typeof(IDictionary<,>));
+        }
+        public static bool TypeIsDictionary(this Type type)
+        {
+            throw new NotImplementedException();
         }
         public static IDictionary<TKey, TValue> ObjectToDictionary<TKey, TValue>(this object @object)
         {
