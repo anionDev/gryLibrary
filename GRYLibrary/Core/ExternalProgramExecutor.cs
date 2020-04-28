@@ -105,7 +105,8 @@ namespace GRYLibrary.Core
                     {
                         Utilities.NoOperation();
                     }
-                    ProcessStartInfo StartInfo = new ProcessStartInfo(this.ResolvePathOfProgram(this.ProgramPathAndFile))
+                    this.ResolvePathOfProgram();
+                    ProcessStartInfo StartInfo = new ProcessStartInfo(this.ProgramPathAndFile)
                     {
                         UseShellExecute = false,
                         ErrorDialog = false,
@@ -214,22 +215,15 @@ namespace GRYLibrary.Core
                 }
             }
         }
-        private string ResolvePathOfProgram(string program)
-        {
-            if (File.Exists(program))
-            {
-                return program;
-            }
-            if (!(program.Contains("/") || program.Contains("\\") || program.Contains(":")))
-            {
-                if (Utilities.TryResolvePathByPathVariable(program, out string programWithFullPath))
-                {
-                    return programWithFullPath;
-                }
-            }
-            throw new FileNotFoundException($"Program '{program}' can not be found");
-        }
 
+        private void ResolvePathOfProgram()
+        {
+            string newProgram = this.ProgramPathAndFile;
+            string newArgument = this.Arguments;
+            Utilities.ResolvePathOfProgram(ref newProgram, ref newArgument);
+            this.ProgramPathAndFile = newProgram;
+            this.Arguments = newArgument;
+        }
         private readonly IList<string> _AllStdErrLines = new List<string>();
         private string[] _AllStdErrLinesAsArray;
         public string[] AllStdErrLines

@@ -265,6 +265,12 @@ namespace GRYLibrary.Core
             }
             return result;
         }
+
+        public static bool FileIsExecutable(string file)
+        {
+            throw new NotImplementedException();
+        }
+
         /// <returns>Returns true if and only if the items in <paramref name="list1"/> and <paramref name="list2"/> are equal using <see cref="PropertyEqualsCalculator{T}"/> as comparer.</returns>
         public static bool SequanceEqual<T>(this IList<T> list1, IList<T> list2)
         {
@@ -1891,5 +1897,36 @@ namespace GRYLibrary.Core
                 return null;
             }
         }
+        public static void ResolvePathOfProgram(ref string program, ref string argument)
+        {
+            if (File.Exists(program))
+            {
+                string resultProgram;
+                string resultArgument;
+                if (FileIsExecutable(program))
+                {
+                    resultProgram = program;
+                    resultArgument = argument;
+                }
+                else
+                {
+                    throw new NotImplementedException();
+                    //open program with default program;argument can be ignored
+                }
+                program = resultProgram;
+                argument = resultArgument;
+                return;
+            }
+            if (!(program.Contains("/") || program.Contains("\\") || program.Contains(":")))
+            {
+                if (TryResolvePathByPathVariable(program, out string programWithFullPath))
+                {
+                    program = programWithFullPath;
+                    return;
+                }
+            }
+            throw new FileNotFoundException($"Program '{program}' can not be found");
+        }
+
     }
 }
