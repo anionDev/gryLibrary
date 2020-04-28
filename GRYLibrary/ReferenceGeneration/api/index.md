@@ -1,1 +1,0 @@
-# This is the API-documentation of the [GRYLibrary](https://github.com/anionDev/gryLibrary)
