@@ -183,14 +183,15 @@ namespace GRYLibrary.Core
             return enumerable1copy.Count == 0;
 
         }
-        /// <returns>Returns true if and only if the most concrete type of <paramref name="object"/> implements <see cref="IList{T}"/>.</returns>
+        /// <returns>Returns true if and only if the most concrete type of <paramref name="object"/> implements <see cref="IList{T}"/> or <see cref="System.Collections.IList"/>.</returns>
+        /// <remarks></remarks>
         public static bool ObjectIsList(this object @object)
         {
             return TypeIsList(@object.GetType());
         }
         public static bool TypeIsList(this Type type)
         {
-            return IsAssignableFrom(type, typeof(IList<>));
+            return IsAssignableFrom(type, typeof(IList<>)) || IsAssignableFrom(type, typeof(System.Collections.IList));
         }
         public static IList<T> ObjectToList<T>(this object @object)
         {
@@ -264,10 +265,12 @@ namespace GRYLibrary.Core
             }
             return result;
         }
+        /// <returns>Returns true if and only if the items in <paramref name="list1"/> and <paramref name="list2"/> are equal using <see cref="PropertyEqualsCalculator{T}"/> as comparer.</returns>
         public static bool SequanceEqual<T>(this IList<T> list1, IList<T> list2)
         {
             return SequanceEqual(list1, list2, PropertyEqualsCalculator.GetDefaultInstance<T>());
         }
+        /// <returns>Returns true if and only if the items in <paramref name="list1"/> and <paramref name="list2"/> are equal using the given <paramref name="comparer"/>.</returns>
         public static bool SequanceEqual<T>(this IList<T> list1, IList<T> list2, IEqualityComparer<T> comparer)
         {
             if (list1.Count != list2.Count)
@@ -283,10 +286,12 @@ namespace GRYLibrary.Core
             }
             return true;
         }
+        /// <returns>Returns true if and only if the items in <paramref name="list1"/> and <paramref name="list2"/> are equal (ignoring the order) using <see cref="PropertyEqualsCalculator{T}"/> as comparer.</returns>
         public static bool SetEquals<T>(this ISet<T> set1, ISet<T> set2)
         {
             return SetEquals(set1, set2, PropertyEqualsCalculator.GetDefaultInstance<T>());
         }
+        /// <returns>Returns true if and only if the items in <paramref name="list1"/> and <paramref name="list2"/> are equal (ignoring the order) using the given <paramref name="comparer"/>.</returns>
         public static bool SetEquals<T>(this ISet<T> set1, ISet<T> set2, IEqualityComparer<T> comparer)
         {
             if (set1.Count != set2.Count)
