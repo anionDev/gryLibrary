@@ -321,9 +321,12 @@ namespace GRYLibrary.Core.Log
             this.Log($"Action '{nameOfAction}' will be started now.", logLevelForOverhead);
             try
             {
+                Stopwatch stopWatch = new Stopwatch();
                 using (this.UseSubNamespace(subNamespaceForLog))
                 {
+                    stopWatch.Start();
                     action();
+                    stopWatch.Stop();
                 }
             }
             catch (Exception exception)
@@ -342,11 +345,15 @@ namespace GRYLibrary.Core.Log
         public TResult ExecuteAndLog<TResult>(Func<TResult> action, string nameOfAction, bool preventThrowingExceptions = false, LogLevel logLevelForOverhead = LogLevel.Debug, TResult defaultValue = default, string subNamespaceForLog = "")
         {
             this.Log($"Action '{nameOfAction}' will be started now.", logLevelForOverhead);
+            Stopwatch stopWatch = new Stopwatch();
             try
             {
                 using (this.UseSubNamespace(subNamespaceForLog))
                 {
-                    return action();
+                    stopWatch.Start();
+                    TResult result= action();
+                    stopWatch.Stop();
+                    return result;
                 }
             }
             catch (Exception exception)
@@ -363,7 +370,7 @@ namespace GRYLibrary.Core.Log
             }
             finally
             {
-                this.Log($"Action '{nameOfAction}' finished.", logLevelForOverhead);
+                this.Log($"Action '{nameOfAction}' finished. Duration: {Utilities.DurationToUserFriendlyString(stopWatch.Elapsed)}", logLevelForOverhead);
             }
         }
 

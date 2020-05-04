@@ -137,12 +137,12 @@ namespace GRYLibrary.Core
                     SupervisedThread readLogItemsThread = SupervisedThread.Create(this.LogOutput);
                     readLogItemsThread.Name = $"Logger-Thread for '{this.Title}' ({nameof(ExternalProgramExecutor)}({this.ProgramPathAndFile} {this.Arguments}))";
                     readLogItemsThread.LogOverhead = this.LogOverhead;
+                    string executionInfoAsString = $"{ this.WorkingDirectory }>{ this.ProgramPathAndFile } { this.Arguments }";
                     if (this.LogOverhead)
                     {
-                        this.EnqueueInformation($"Start '{this.ProgramPathAndFile} {this.Arguments}' in '{this.WorkingDirectory}'");
+                        this.EnqueueInformation($"Start '{executionInfoAsString}'");
                     }
                     Stopwatch stopWatch = new Stopwatch();
-                    string executionInfoAsString = $"{ this.WorkingDirectory }>{ this.ProgramPathAndFile } { this.Arguments }";
                     stopWatch.Start();
                     try
                     {
@@ -180,7 +180,7 @@ namespace GRYLibrary.Core
                     this.ExecutionState = ExecutionState.Terminated;
                     if (this.ThrowErrorIfExitCodeIsNotZero && this.ExitCode != 0)
                     {
-                        throw new UnexpectedExitCodeException($"'{executionInfoAsString}' had exitcode {this.ExitCode}.", this);
+                        throw new UnexpectedExitCodeException($"'{executionInfoAsString}' had exitcode {this.ExitCode}. Duration: {Utilities.DurationToUserFriendlyString(this.ExecutionDuration)}", this);
                     }
                     else
                     {
