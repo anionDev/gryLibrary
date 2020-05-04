@@ -66,7 +66,7 @@ namespace GRYLibrary.Core
         {
             return this._Running;
         }
-        private readonly ConcurrentQueue<Tuple<LogLevel, string>> _NotLoggedOutputLines = new ConcurrentQueue<Tuple<LogLevel, string>>();
+        private readonly ConcurrentQueue<(LogLevel, string)> _NotLoggedOutputLines = new ConcurrentQueue<(LogLevel, string)>();
         /// <summary>
         /// Starts the program which was set in the properties.
         /// </summary>
@@ -123,7 +123,10 @@ namespace GRYLibrary.Core
                 }
                 process = new Process();
                 process.StartInfo = StartInfo;
-                process.OutputDataReceived += (object sender, DataReceivedEventArgs e) => this.EnqueueInformation(e.Data);
+                process.OutputDataReceived += (object sender, DataReceivedEventArgs e) =>
+                {
+                    this.EnqueueInformation(e.Data);
+                };
                 process.ErrorDataReceived += (object sender, DataReceivedEventArgs e) =>
                 {
                     if (this.PrintErrorsAsInformation)
@@ -154,9 +157,9 @@ namespace GRYLibrary.Core
                 process.BeginOutputReadLine();
                 process.BeginErrorReadLine();
                 this._Running = true;
-                if (this.WriteOutputToConsole)
+                if (this.LogOutput)
                 {
-                    readLogItemsThread = SupervisedThread.Create(this.LogOutput);
+                    readLogItemsThread = SupervisedThread.Create(this.LogOutputImplementation);
                     readLogItemsThread.Name = $"Logger-Thread for '{this.Title}' ({nameof(ExternalProgramExecutor)}({executionInfoAsString}))";
                     readLogItemsThread.LogOverhead = this.LogOverhead;
                     readLogItemsThread.Start();
@@ -294,11 +297,15 @@ namespace GRYLibrary.Core
             if (data != null)
             {
                 this._AllStdErrLines.Add(data);
-                this._NotLoggedOutputLines.Enqueue(new Tuple<LogLevel, string>(LogLevel.Error, data));
+                if (this.LogOutput)
+                {
+                    this._NotLoggedOutputLines.Enqueue((LogLevel.Error, data));
+
+                }
             }
         }
         private readonly IList<string> _AllStdOutLines = new List<string>();
-        public bool WriteOutputToConsole { get; set; } = true;
+        public bool LogOutput { get; set; } = true;
         private string[] _AllStdOutLinesAsArray;
         public string[] AllStdOutLines
         {
@@ -319,14 +326,17 @@ namespace GRYLibrary.Core
             if (data != null)
             {
                 this._AllStdOutLines.Add(data);
-                this._NotLoggedOutputLines.Enqueue(new Tuple<LogLevel, string>(LogLevel.Information, data));
+                if (this.LogOutput)
+                {
+                    this._NotLoggedOutputLines.Enqueue((LogLevel.Information, data));
+                }
             }
         }
-        private void LogOutput()
+        private void LogOutputImplementation()
         {
             while (this.Running() || this._NotLoggedOutputLines.Count > 0)
             {
-                if (this._NotLoggedOutputLines.TryDequeue(out Tuple<LogLevel, string> logItem))
+                if (this._NotLoggedOutputLines.TryDequeue(out (LogLevel, string) logItem))
                 {
                     this.LogObject?.Log(logItem.Item2, logItem.Item1);
                 }

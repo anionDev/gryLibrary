@@ -167,7 +167,7 @@ namespace GRYLibrary.Tests
         {
             Assert.IsTrue(Utilities.ObjectIsList(new List<int>()));
             Assert.IsTrue(Utilities.ObjectIsList(new ArraySegment<int>()));
-            Assert.IsFalse(Utilities.ObjectIsList(new ArrayList()));
+            Assert.IsTrue(Utilities.ObjectIsList(new ArrayList()));
             Assert.IsFalse(Utilities.ObjectIsList(new LinkedList<int>()));
             Assert.IsFalse(Utilities.ObjectIsList(new object()));
             Assert.IsFalse(Utilities.ObjectIsList("somestring"));

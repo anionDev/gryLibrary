@@ -8,6 +8,7 @@ namespace GRYLibrary.Tests
     [TestClass]
     public class GenericXMLSerializerTest
     {
+        [Ignore]
         [TestMethod]
         public void SerializeSimpleObjects()
         {
