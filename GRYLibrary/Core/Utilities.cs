@@ -1710,12 +1710,13 @@ namespace GRYLibrary.Core
             DateTime originalDateTime = DateTime.ParseExact(streamReader.ReadToEnd().Substring(begin, length), format, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal);
             return TimeZoneInfo.ConvertTime(originalDateTime, timezone);
         }
-        public static GitCommandResult ExecuteGitCommand(string repository, string argument, bool throwErrorIfExitCodeIsNotZero = false, int? timeoutInMilliseconds = null, bool printErrorsAsInformation = false)
+        public static GitCommandResult ExecuteGitCommand(string repository, string argument, bool throwErrorIfExitCodeIsNotZero = false, int? timeoutInMilliseconds = null, bool printErrorsAsInformation = false, bool writeOutputToConsole = true)
         {
             ExternalProgramExecutor externalProgramExecutor = ExternalProgramExecutor.Create("git", argument, repository, string.Empty, false, timeoutInMilliseconds);
             externalProgramExecutor.PrintErrorsAsInformation = printErrorsAsInformation;
             externalProgramExecutor.ThrowErrorIfExitCodeIsNotZero = throwErrorIfExitCodeIsNotZero;
             externalProgramExecutor.StartConsoleApplicationInCurrentConsoleWindow();
+            externalProgramExecutor.WriteOutputToConsole = writeOutputToConsole;
             return new GitCommandResult(argument, repository, externalProgramExecutor.AllStdOutLines, externalProgramExecutor.AllStdErrLines, externalProgramExecutor.ExitCode);
         }
         public static bool GitRepositoryContainsObligatoryFiles(string repositoryFolder, out ISet<string> missingFiles)
@@ -1769,7 +1770,7 @@ namespace GRYLibrary.Core
         }
         private static string GetGitBaseRepositoryPathHelper(string repositoryFolder)
         {
-            return ExecuteGitCommand(repositoryFolder, "rev-parse --show-superproject-working-tree", true).GetFirstStdOutLine();
+            return ExecuteGitCommand(repositoryFolder, "rev-parse --show-superproject-working-tree", true, null, false, false).GetFirstStdOutLine();
         }
         public static bool IsGitRepository(string folder)
         {
@@ -1783,27 +1784,26 @@ namespace GRYLibrary.Core
         /// <param name="commitMessage">Message for the commit</param>
         /// <param name="commitWasCreated">Will be set to true if and only if really a commit was created. Will be set to false if and only if there are no changes to get committed.</param>
         /// <returns>Returns the commit-id of the currently checked out commit. This returns the id of the new created commit if there were changes which were committed by this function.</returns>
-        public static string GitCommit(string repository, string commitMessage, out bool commitWasCreated)
+        public static string GitCommit(string repository, string commitMessage, out bool commitWasCreated, bool writeOutputToConsole = false)
         {
             commitWasCreated = false;
             if (GitRepositoryHasUncommittedChanges(repository))
             {
-                ExecuteGitCommand(repository, $"add -A", true);
-                ExecuteGitCommand(repository, $"commit -m \"{commitMessage}\"", true);
+                ExecuteGitCommand(repository, $"add -A", true, null, false, writeOutputToConsole);
+                ExecuteGitCommand(repository, $"commit -m \"{commitMessage}\"", true, null, false, writeOutputToConsole);
                 commitWasCreated = true;
             }
-            return GetLastGitCommitId(repository);
+            return GetLastGitCommitId(repository, "HEAD");
         }
         /// <returns>Returns the commit-id of the given <paramref name="revision"/>.</returns>
         public static string GetLastGitCommitId(string repositoryFolder, string revision = "HEAD")
         {
-            return ExecuteGitCommand(repositoryFolder, $"rev-parse " + revision, true).GetFirstStdOutLine();
+            return ExecuteGitCommand(repositoryFolder, $"rev-parse " + revision, true, null, false, false).GetFirstStdOutLine();
         }
-        public static void GitFetch(string repository, string remoteName = "--all", bool printErrorsAsInformation = true)
+        public static void GitFetch(string repository, string remoteName = "--all", bool printErrorsAsInformation = true, bool writeOutputToConsole = false)
         {
-            ExecuteGitCommand(repository, $"fetch {remoteName} --tags --prune", true, null, printErrorsAsInformation);
+            ExecuteGitCommand(repository, $"fetch {remoteName} --tags --prune", true, null, printErrorsAsInformation, writeOutputToConsole);
         }
-
         public static bool GitRepositoryHasUnstagedChanges(string repository)
         {
             if (GitRepositoryHasUnstagedChangesOfTrackedFiles(repository))
@@ -1834,7 +1834,7 @@ namespace GRYLibrary.Core
 
         private static bool GitChangesHelper(string repository, string argument)
         {
-            GitCommandResult result = ExecuteGitCommand(repository, argument, true);
+            GitCommandResult result = ExecuteGitCommand(repository, argument, true, null, false, false);
             foreach (string line in result.StdOutLines)
             {
                 if (!string.IsNullOrWhiteSpace(line))
