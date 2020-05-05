@@ -10,6 +10,15 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis
     {
 
         private readonly Dictionary<object, int> _HashCodes = new Dictionary<object, int>(ReferenceEqualsComparer.Instance);
+        public static IEqualityComparer<object> DefaultInstance { get; } = new PropertyEqualsCalculator();
+        public IList<CustomComparer> CustomComparer { get; set; } = new List<CustomComparer>() {
+            ComparerUtilities.DefaultPrimitiveComparer,
+            ComparerUtilities.DefaultKeyValuePairComparer,
+            ComparerUtilities.DefaultListComparer,
+            ComparerUtilities.DefaultSetComparer,
+            ComparerUtilities.DefaultDictionaryComparer,
+            ComparerUtilities.DefaultEnumerableComparer,
+        };
         public Func<PropertyInfo, bool> PropertySelector { get; set; } = (PropertyInfo propertyInfo) =>
         {
             return propertyInfo.CanWrite && propertyInfo.GetMethod.IsPublic;
@@ -18,15 +27,15 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis
         {
             return false;
         };
-        public static IEqualityComparer<object> DefaultInstance { get; } = new PropertyEqualsCalculator();
+        public PropertyEqualsCalculator()
+        {
+        }
         public static IEqualityComparer<T> GetDefaultInstance<T>()
         {
             return PropertyEqualsCalculator<T>.Instance;
         }
 
-        public PropertyEqualsCalculator()
-        {
-        }
+        /// <remarks>This function assumes that 2 objects are not equal if their types are not equal.</remarks>
         public new bool Equals(object object1, object object2)
         {
             return this.Equals(object1, object2, new HashSet<Tuple>());
@@ -43,45 +52,50 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis
                 {
                     return true;
                 }
-                if (this.SpecialComparerShouldBeApplied(object1Type, object2Type, out Func<object, object, bool> specialComparer))
-                {
-                    bool result = specialComparer(object1, object2);
-                    if (result)
-                    {
-                        visitedObjects.Add(new Tuple(object1, object2));
-                    }
-                    return result;
-                }
                 if (object1Type.Equals(object2Type))
                 {
-                    Type type = object1Type;
-                    List<WriteableTuple<object, object>> propertyValues = new List<WriteableTuple<object, object>>();
-                    foreach (FieldInfo field in type.GetFields())
+                    if (this.CustomComparerShouldBeApplied(object1Type, out CustomComparer customComparer))
                     {
-                        if (this.FieldSelector(field))
-                        {
-                            propertyValues.Add(new WriteableTuple<object, object>(field.GetValue(object1), field.GetValue(object2)));
-                        }
-                    }
-                    foreach (PropertyInfo property in type.GetProperties())
-                    {
-                        if (this.PropertySelector(property))
-                        {
-                            propertyValues.Add(new WriteableTuple<object, object>(property.GetValue(object1), property.GetValue(object2)));
-                        }
-                    }
-                    foreach (WriteableTuple<object, object> entry in propertyValues)
-                    {
-                        if (this.Equals(entry.Item1, entry.Item2, visitedObjects))
+                        //use custom comparer
+                        bool result = customComparer.ObjectsAreEqual(object1, object2);
+                        if (result)
                         {
                             visitedObjects.Add(new Tuple(object1, object2));
                         }
-                        else
-                        {
-                            return false;
-                        }
+                        return result;
                     }
-                    return true;
+                    else
+                    {
+                        //use default comparer
+                        Type type = object1Type;
+                        List<WriteableTuple<object, object>> propertyValues = new List<WriteableTuple<object, object>>();
+                        foreach (FieldInfo field in type.GetFields())
+                        {
+                            if (this.FieldSelector(field))
+                            {
+                                propertyValues.Add(new WriteableTuple<object, object>(field.GetValue(object1), field.GetValue(object2)));
+                            }
+                        }
+                        foreach (PropertyInfo property in type.GetProperties())
+                        {
+                            if (this.PropertySelector(property))
+                            {
+                                propertyValues.Add(new WriteableTuple<object, object>(property.GetValue(object1), property.GetValue(object2)));
+                            }
+                        }
+                        foreach (WriteableTuple<object, object> entry in propertyValues)
+                        {
+                            if (this.Equals(entry.Item1, entry.Item2, visitedObjects))
+                            {
+                                visitedObjects.Add(new Tuple(object1, object2));
+                            }
+                            else
+                            {
+                                return false;
+                            }
+                        }
+                        return true;
+                    }
                 }
                 else
                 {
@@ -95,78 +109,19 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis
             return false;
         }
 
-#pragma warning disable IDE0060 // Warning "Remove unused parameter" should be ignored because object2Type may be needed in future
-        private bool SpecialComparerShouldBeApplied(Type object1Type, Type object2Type, out Func<object, object, bool> specialComparer)
-#pragma warning restore IDE0060 // Remove unused parameter
+        private bool CustomComparerShouldBeApplied(Type object1Type, out CustomComparer customComparer)
         {
-            if (object1Type.ObjectIsKeyValuePair())
+            foreach (CustomComparer comparer in this.CustomComparer)
             {
-                specialComparer = (object object1, object object2) =>
+                if (comparer.IsApplicable(object1Type))
                 {
-                    KeyValuePair<object, object> object1AsKeyValuePair = object1.ObjectToKeyValuePair<object, object>();
-                    KeyValuePair<object, object> object2AsKeyValuePair = object2.ObjectToKeyValuePair<object, object>();
-                    return this.Equals(object1AsKeyValuePair.Key, object2AsKeyValuePair.Key) && this.Equals(object1AsKeyValuePair.Value, object2AsKeyValuePair.Value);
-                };
-                return true;
+                    customComparer = comparer;
+                    return true;
+                }
             }
-
-            if (object1Type.ObjectIsSet())
-            {
-                specialComparer = (object object1, object object2) =>
-                {
-                    ISet<object> object1AsSet = object1.ObjectToSet<object>();
-                    ISet<object> object2AsSet = object2.ObjectToSet<object>();
-                    return object1AsSet.SetEquals(object2AsSet, this);
-                };
-                return true;
-            }
-
-            if (object1Type.ObjectIsDictionary())
-            {
-                specialComparer = (object object1, object object2) =>
-                {
-                    IDictionary<object, object> object1AsDictionary = object1.ObjectToDictionary<object, object>();
-                    IDictionary<object, object> object2AsDictionary = object1.ObjectToDictionary<object, object>();
-                    return object1AsDictionary.DictionaryEquals(object2AsDictionary, KeyValuePairComparer.Instance);
-                };
-                return true;
-            }
-
-            if (object1Type.ObjectIsList())
-            {
-                specialComparer = (object object1, object object2) =>
-                {
-                    IList<object> object1AsList = object1.ObjectToList<object>();
-                    IList<object> object2AsList = object1.ObjectToList<object>();
-                    return object1AsList.SequenceEqual(object2AsList, this);
-                };
-                return true;
-            }
-
-            if (object1Type.ObjectIsEnumerable())
-            {
-                specialComparer = (object object1, object object2) =>
-                {
-                    IEnumerable<object> object1AsEnumerable = object1.ObjectToEnumerableGeneric<object>();
-                    IEnumerable<object> object2AsEnumerable = object1.ObjectToEnumerableGeneric<object>();
-                    return object1AsEnumerable.EnumerableEquals(object2AsEnumerable, this);
-                };
-                return true;
-            }
-
-            if (object1Type.IsPrimitive)
-            {
-                specialComparer = (object object1, object object2) =>
-                {
-                    return object1.Equals(object2);
-                };
-                return true;
-            }
-
-            specialComparer = null;
+            customComparer = null;
             return false;
         }
-
         public int GetHashCode(object @object)
         {
             if (!this._HashCodes.ContainsKey(@object))
@@ -209,6 +164,24 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis
             }
         }
     }
+    public class CustomComparer
+    {
+        private readonly Func<Type, bool> _IsApplicable;
+        private readonly Func<object, object, bool> _EqualsFunction;
+        public CustomComparer(Func<Type, bool> isApplicable, Func<object, object, bool> equalsFunction)
+        {
+            this._IsApplicable = isApplicable;
+            this._EqualsFunction = equalsFunction;
+        }
+        public bool IsApplicable(Type objectType)
+        {
+            return this._IsApplicable(objectType);
+        }
+        public bool ObjectsAreEqual(object object1, object object2)
+        {
+            return this._EqualsFunction(object1, object2);
+        }
+    }
     public class ReferenceEqualsComparer : IEqualityComparer<object>
     {
         public static IEqualityComparer<object> Instance { get; } = new ReferenceEqualsComparer();
@@ -225,11 +198,11 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis
     }
     public class KeyValuePairComparer : IEqualityComparer<KeyValuePair<object, object>>
     {
-        public static IEqualityComparer<KeyValuePair<object, object>> Instance { get; } = new KeyValuePairComparer();
+        public static IEqualityComparer<KeyValuePair<object, object>> DefaultInstance { get; } = new KeyValuePairComparer();
         private KeyValuePairComparer() { }
         public bool Equals(KeyValuePair<object, object> x, KeyValuePair<object, object> y)
         {
-            return PropertyEqualsCalculator.DefaultInstance.Equals(x, y);
+            return PropertyEqualsCalculator.DefaultInstance.Equals(x.Key, y.Key) && PropertyEqualsCalculator.DefaultInstance.Equals(x.Value, y.Value);
         }
 
         public int GetHashCode(KeyValuePair<object, object> obj)
@@ -263,5 +236,61 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis
         {
             return PropertyEqualsCalculator.DefaultInstance.GetHashCode(obj);
         }
+    }
+    public class ComparerUtilities
+    {
+        public static readonly CustomComparer DefaultPrimitiveComparer = new CustomComparer(
+            (Type objType) => objType.IsPrimitive || objType.Equals(typeof(string)),
+            (object object1, object object2) =>
+            {
+                return object1.Equals(object2);
+            });
+
+        public static readonly CustomComparer DefaultListComparer = new CustomComparer(
+            (Type objType) => objType.TypeIsList(),
+            (object object1, object object2) =>
+            {
+                IList<object> object1AsList = object1.ObjectToList<object>();
+                IList<object> object2AsList = object1.ObjectToList<object>();
+                return object1AsList.SequenceEqual(object2AsList, PropertyEqualsCalculator.DefaultInstance);
+            });
+
+        public static readonly CustomComparer DefaultSetComparer = new CustomComparer(
+            (Type objType) => objType.TypeIsSet(),
+            (object object1, object object2) =>
+            {
+                ISet<object> object1AsSet = object1.ObjectToSet<object>();
+                ISet<object> object2AsSet = object2.ObjectToSet<object>();
+                return object1AsSet.SetEquals(object2AsSet, PropertyEqualsCalculator.DefaultInstance);
+            });
+
+        public static readonly CustomComparer DefaultDictionaryComparer = new CustomComparer(
+            (Type objType) => objType.TypeIsDictionary(),
+            (object object1, object object2) =>
+            {
+                IDictionary<object, object> object1AsDictionary = object1.ObjectToDictionary<object, object>();
+                IDictionary<object, object> object2AsDictionary = object1.ObjectToDictionary<object, object>();
+                return object1AsDictionary.DictionaryEquals(object2AsDictionary, KeyValuePairComparer.DefaultInstance);
+            });
+
+        public static readonly CustomComparer DefaultKeyValuePairComparer = new CustomComparer(
+               (Type objType) => objType.TypeIsKeyValuePair(),
+               (object object1, object object2) =>
+               {
+                   KeyValuePair<object, object> object1AsKeyValuePair = object1.ObjectToKeyValuePair<object, object>();
+                   KeyValuePair<object, object> object2AsKeyValuePair = object2.ObjectToKeyValuePair<object, object>();
+                   return KeyValuePairComparer.DefaultInstance.Equals(object1AsKeyValuePair, object2AsKeyValuePair);
+               });
+
+        public static readonly CustomComparer DefaultEnumerableComparer = new CustomComparer(
+            (Type objType) => objType.TypeIsEnumerable(),
+            (object object1, object object2) =>
+            {
+                IEnumerable<object> object1AsEnumerable = object1.ObjectToEnumerableGeneric<object>();
+                IEnumerable<object> object2AsEnumerable = object1.ObjectToEnumerableGeneric<object>();
+                return object1AsEnumerable.EnumerableEquals(object2AsEnumerable, PropertyEqualsCalculator.DefaultInstance);
+            });
+
+
     }
 }
