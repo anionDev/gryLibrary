@@ -240,7 +240,7 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis
     public class ComparerUtilities
     {
         public static readonly CustomComparer DefaultPrimitiveComparer = new CustomComparer(
-            (Type objType) => objType.IsPrimitive || objType.Equals(typeof(string)),
+            (Type objType) => objType.IsPrimitive || objType.Equals(typeof(string) )||objType.IsValueType,
             (object object1, object object2) =>
             {
                 return object1.Equals(object2);

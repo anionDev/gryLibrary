@@ -120,7 +120,7 @@ namespace GRYLibrary.Core.AdvancedXMLSerialysis
 
         private static bool IsPrimitiveType(Type typeOfObject)
         {
-            return typeOfObject.IsPrimitive || typeOfObject.Equals(typeof(string));
+            return ComparerUtilities.DefaultPrimitiveComparer.IsApplicable(typeOfObject);
         }
 
         private class DeserializeVisitor : Simplified.ISimplifiedVisitor
@@ -169,7 +169,7 @@ namespace GRYLibrary.Core.AdvancedXMLSerialysis
         }
         private class CreateObjectVisitor : Simplified.ISimplifiedVisitor<object>
         {
-                   public object Handle(SimplifiedObject simplifiedObject)
+            public object Handle(SimplifiedObject simplifiedObject)
             {
                 Type type = Type.GetType(simplifiedObject.TypeName);
                 return Activator.CreateInstance(type);
@@ -178,7 +178,7 @@ namespace GRYLibrary.Core.AdvancedXMLSerialysis
             public object Handle(SimplifiedEnumerable simplifiedEnumerable)
             {
                 Type typeOfSimplifiedEnumerable = Type.GetType(simplifiedEnumerable.TypeName);
-                Type ConcreteTypeOfEnumerable ;
+                Type ConcreteTypeOfEnumerable;
                 if (Utilities.TypeIsList(typeOfSimplifiedEnumerable))
                 {
                     ConcreteTypeOfEnumerable = typeof(List<>);
