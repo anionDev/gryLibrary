@@ -22,6 +22,8 @@ using System.ComponentModel;
 using GRYLibrary.Core.XMLSerializer;
 using System.Net.Sockets;
 using GRYLibrary.Core.AdvancedObjectAnalysis;
+using GRYLibrary.Core.OperatingSystem;
+using GRYLibrary.Core.OperatingSystem.ConcreteOperatingSystems;
 
 namespace GRYLibrary.Core
 {
@@ -265,12 +267,101 @@ namespace GRYLibrary.Core
             }
             return result;
         }
-
+        #region Execute or open file
         public static bool FileIsExecutable(string file)
         {
-            throw new NotImplementedException();
+            return OperatingSystem.OperatingSystem.GetCurrentOperatingSystem().Accept(new FileIsExecutableVisitor(file));
+        }
+        public static void ExecuteFile(string file)
+        {
+            if (FileIsExecutable(file))
+            {
+                OperatingSystem.OperatingSystem.GetCurrentOperatingSystem().Accept(new FileIsExecutableVisitor(file));
+            }
+            else
+            {
+                throw new Exception($"File '{file}' can not be executed");
+            }
+        }
+        public static void OpenFileWithDefaultProgram(string file)
+        {
+            OperatingSystem.OperatingSystem.GetCurrentOperatingSystem().Accept(new OpenFileWithDefaultProgramVisitor(file));
+        }
+        private class FileIsExecutableVisitor : IOperatingSystemVisitor<bool>
+        {
+            private readonly string _File;
+
+            public FileIsExecutableVisitor(string file)
+            {
+                this._File = file;
+            }
+
+            public bool Handle(OSX operatingSystem)
+            {
+                throw new NotImplementedException();
+            }
+
+            public bool Handle(Windows operatingSystem)
+            {
+                throw new NotImplementedException();
+            }
+
+            public bool Handle(Linux operatingSystem)
+            {
+                throw new NotImplementedException();
+            }
+        }
+        private class ExecutableFileVisitor : IOperatingSystemVisitor
+        {
+
+            private readonly string _File;
+
+            public ExecutableFileVisitor(string file)
+            {
+                this._File = file;
+            }
+            public void Handle(OSX operatingSystem)
+            {
+                throw new NotImplementedException();
+            }
+
+            public void Handle(Windows operatingSystem)
+            {
+                throw new NotImplementedException();
+            }
+
+            public void Handle(Linux operatingSystem)
+            {
+                throw new NotImplementedException();
+            }
         }
 
+        private class OpenFileWithDefaultProgramVisitor : IOperatingSystemVisitor
+        {
+
+            private readonly string _File;
+
+            public OpenFileWithDefaultProgramVisitor(string file)
+            {
+                this._File = file;
+            }
+            public void Handle(OSX operatingSystem)
+            {
+                throw new NotImplementedException();
+            }
+
+            public void Handle(Windows operatingSystem)
+            {
+                throw new NotImplementedException();
+            }
+
+            public void Handle(Linux operatingSystem)
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        #endregion
         /// <returns>Returns true if and only if the items in <paramref name="list1"/> and <paramref name="list2"/> are equal using <see cref="PropertyEqualsCalculator{T}"/> as comparer.</returns>
         public static bool SequanceEqual<T>(this IList<T> list1, IList<T> list2)
         {
