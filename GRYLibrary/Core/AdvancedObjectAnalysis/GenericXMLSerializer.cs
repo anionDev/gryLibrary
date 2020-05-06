@@ -13,7 +13,7 @@ namespace GRYLibrary.Core.AdvancedXMLSerialysis
         public GenericXMLSerializer()
         {
             this.SerializationConfiguration = new SerializationConfiguration();
-            this.SerializationConfiguration.XmlSerializer = new XmlSerializer(typeof(GRYSerializedObject));
+            this.SerializationConfiguration.XmlSerializer = new XmlSerializer(typeof(GRYSObject));
             this.SerializationConfiguration.PropertySelector = (PropertyInfo propertyInfo) => { return propertyInfo.CanWrite && propertyInfo.GetMethod.IsPublic; };
             this.SerializationConfiguration.FieldSelector = (FieldInfo propertyInfo) => { return false; };
             this.SerializationConfiguration.Encoding = new UTF8Encoding(false);
@@ -38,8 +38,12 @@ namespace GRYLibrary.Core.AdvancedXMLSerialysis
         }
         public void Serialize(T @object, XmlWriter writer)
         {
-            GRYSerializedObject genericallySerializedObject = GRYSerializedObject.Create(@object, this.SerializationConfiguration);
+            GRYSObject genericallySerializedObject = GRYSObject.Create(@object, this.SerializationConfiguration);
             this.SerializationConfiguration.XmlSerializer.Serialize(writer, genericallySerializedObject);
+        }
+        public U Deserialize<U>(string serializedObject)
+        {
+            return (U)(object)this.Deserialize(serializedObject);
         }
         public T Deserialize(string serializedObject)
         {
@@ -49,7 +53,7 @@ namespace GRYLibrary.Core.AdvancedXMLSerialysis
         }
         public T Deserialize(XmlReader reader)
         {
-            GRYSerializedObject grySerializedObject = (GRYSerializedObject)this.SerializationConfiguration.XmlSerializer.Deserialize(reader);
+            GRYSObject grySerializedObject = (GRYSObject)this.SerializationConfiguration.XmlSerializer.Deserialize(reader);
             return (T)grySerializedObject.Get();
         }
     }

@@ -1,7 +1,6 @@
 ﻿using GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 
@@ -165,9 +164,6 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis
             }
         }
     }
-
-
-
     public class PropertyEqualsCalculator<T> : IEqualityComparer<T>
     {
         internal static PropertyEqualsCalculator<T> Instance { get; } = new PropertyEqualsCalculator<T>();

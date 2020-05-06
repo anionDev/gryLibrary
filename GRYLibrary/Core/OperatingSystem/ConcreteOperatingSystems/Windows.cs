@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace GRYLibrary.Core.OperatingSystem.ConcreteOperatingSystems
+﻿namespace GRYLibrary.Core.OperatingSystem.ConcreteOperatingSystems
 {
     public class Windows : OperatingSystem
     {

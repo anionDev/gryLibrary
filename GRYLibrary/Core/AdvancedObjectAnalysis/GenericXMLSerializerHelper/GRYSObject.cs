@@ -7,15 +7,18 @@ using System.Runtime.Serialization;
 
 namespace GRYLibrary.Core.AdvancedObjectAnalysis.GenericXMLSerializerHelper
 {
-    public class GRYSerializedObject
+    /// <summary>
+    /// Represents a GRYSerializedObject
+    /// </summary>
+    public class GRYSObject
     {
         public Guid RootObjectId { get; set; }
         public HashSet<Simplified> Objects { get; set; }
-        public static GRYSerializedObject Create(object @object, SerializationConfiguration serializationConfiguration)
+        public static GRYSObject Create(object @object, SerializationConfiguration serializationConfiguration)
         {
             Dictionary<object, Simplified> dictionary = new Dictionary<object, Simplified>(ReferenceEqualsComparer.Instance);
             FillDictionary(dictionary, @object, serializationConfiguration);
-            GRYSerializedObject result = new GRYSerializedObject();
+            GRYSObject result = new GRYSObject();
             result.Objects = new HashSet<Simplified>(dictionary.Values);
             result.RootObjectId = dictionary[@object].ObjectId;
             return result;
@@ -41,15 +44,15 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.GenericXMLSerializerHelper
                 Simplified simplification;
                 if (IsPrimitiveType(typeOfObject))
                 {
-                    simplification = new SimplifiedPrimitive();
+                    simplification = new SPrimitive();
                 }
                 else if (Utilities.ObjectIsEnumerable(@object))
                 {
-                    simplification = new SimplifiedEnumerable();
+                    simplification = new SEnumerable();
                 }
                 else
                 {
-                    simplification = new SimplifiedObject();
+                    simplification = new SObject();
                 }
                 simplification.ObjectId = Guid.NewGuid();
                 simplification.TypeName = @object.GetType().AssemblyQualifiedName;
@@ -72,11 +75,11 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.GenericXMLSerializerHelper
             {
                 this._DeserializedObjects = deserializedObjects;
             }
-            public void Handle(SimplifiedObject simplifiedObject)
+            public void Handle(SObject simplifiedObject)
             {
                 object @object = this._DeserializedObjects[simplifiedObject.ObjectId];
                 Type typeOfObject = @object.GetType();
-                foreach (SimplifiedAttribute attribute in simplifiedObject.Attributes)
+                foreach (SAttribute attribute in simplifiedObject.Attributes)
                 {
                     PropertyInfo property = typeOfObject.GetProperty(attribute.Name);
                     if (property != null)
@@ -94,7 +97,7 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.GenericXMLSerializerHelper
                 }
             }
 
-            public void Handle(SimplifiedEnumerable simplifiedEnumerable)
+            public void Handle(SEnumerable simplifiedEnumerable)
             {
                 object enumerable = this._DeserializedObjects[simplifiedEnumerable.ObjectId];
                 MethodInfo addOperation = enumerable.GetType().GetMethod("Add");
@@ -104,20 +107,20 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.GenericXMLSerializerHelper
                 }
             }
 
-            public void Handle(SimplifiedPrimitive simplifiedPrimitive)
+            public void Handle(SPrimitive simplifiedPrimitive)
             {
                 Utilities.NoOperation();
             }
         }
         private class CreateObjectVisitor : Simplified.ISimplifiedVisitor<object>
         {
-            public object Handle(SimplifiedObject simplifiedObject)
+            public object Handle(SObject simplifiedObject)
             {
                 Type type = Type.GetType(simplifiedObject.TypeName);
                 return Activator.CreateInstance(type);
             }
 
-            public object Handle(SimplifiedEnumerable simplifiedEnumerable)
+            public object Handle(SEnumerable simplifiedEnumerable)
             {
                 Type typeOfSimplifiedEnumerable = Type.GetType(simplifiedEnumerable.TypeName);
                 Type ConcreteTypeOfEnumerable;
@@ -145,7 +148,7 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.GenericXMLSerializerHelper
                 return Activator.CreateInstance(ConcreteTypeOfEnumerable);
             }
 
-            public object Handle(SimplifiedPrimitive simplifiedPrimitive)
+            public object Handle(SPrimitive simplifiedPrimitive)
             {
                 return simplifiedPrimitive.Value;
             }
@@ -163,7 +166,7 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.GenericXMLSerializerHelper
                 this._SerializationConfiguration = serializationConfiguration;
             }
 
-            public void Handle(SimplifiedObject simplifiedObject)
+            public void Handle(SObject simplifiedObject)
             {
                 foreach (PropertyInfo property in this._Object.GetType().GetProperties())
                 {
@@ -181,7 +184,7 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.GenericXMLSerializerHelper
                 }
             }
 
-            public void Handle(SimplifiedEnumerable simplifiedEnumerable)
+            public void Handle(SEnumerable simplifiedEnumerable)
             {
                 simplifiedEnumerable.Items = new List<Guid>();
                 foreach (object @object in Utilities.ObjectToEnumerableGeneric<object>(this._Object))
@@ -190,14 +193,14 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.GenericXMLSerializerHelper
                 }
             }
 
-            public void Handle(SimplifiedPrimitive simplifiedPrimitive)
+            public void Handle(SPrimitive simplifiedPrimitive)
             {
                 simplifiedPrimitive.Value = this._Object;
             }
         }
-        private static void AddSimplifiedAttribute(SimplifiedObject container, string attributeName, Type attributeType, object attributeValue, Dictionary<object, Simplified> dictionary, SerializationConfiguration serializationConfiguration)
+        private static void AddSimplifiedAttribute(SObject container, string attributeName, Type attributeType, object attributeValue, Dictionary<object, Simplified> dictionary, SerializationConfiguration serializationConfiguration)
         {
-            SimplifiedAttribute attribute = new SimplifiedAttribute();
+            SAttribute attribute = new SAttribute();
             attribute.ObjectId = FillDictionary(dictionary, attributeValue, serializationConfiguration);
             attribute.Name = attributeName;
             attribute.TypeName = attributeType.AssemblyQualifiedName;

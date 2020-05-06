@@ -2,9 +2,12 @@
 
 namespace GRYLibrary.Core.AdvancedObjectAnalysis.GenericXMLSerializerHelper.ConcreteSimplifiedObjects
 {
-    public class SimplifiedObject : Simplified
+    /// <summary>
+    /// Represents a SimplifiedObject for <see cref="GRYSObject"/>
+    /// </summary>
+    public class SObject : Simplified
     {
-        public List<SimplifiedAttribute> Attributes { get; set; } = new List<SimplifiedAttribute>();
+        public List<SAttribute> Attributes { get; set; } = new List<SAttribute>();
 
         public override void Accept(ISimplifiedVisitor visitor)
         {

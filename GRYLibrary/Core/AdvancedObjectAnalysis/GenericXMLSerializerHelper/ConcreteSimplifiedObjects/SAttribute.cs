@@ -2,7 +2,10 @@
 
 namespace GRYLibrary.Core.AdvancedObjectAnalysis.GenericXMLSerializerHelper.ConcreteSimplifiedObjects
 {
-    public class SimplifiedAttribute
+    /// <summary>
+    /// Represents a SimplifiedAttribute for <see cref="GRYSObject"/>
+    /// </summary>
+    public class SAttribute
     {
         public string Name { get; set; }
         public string TypeName { get; set; }

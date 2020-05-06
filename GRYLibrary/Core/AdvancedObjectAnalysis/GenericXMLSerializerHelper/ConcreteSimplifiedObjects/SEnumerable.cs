@@ -3,7 +3,10 @@ using System.Collections.Generic;
 
 namespace GRYLibrary.Core.AdvancedObjectAnalysis.GenericXMLSerializerHelper.ConcreteSimplifiedObjects
 {
-    public class SimplifiedEnumerable : Simplified
+    /// <summary>
+    /// Represents a SimplifiedEnumerable for <see cref="GRYSObject"/>
+    /// </summary>
+    public class SEnumerable : Simplified
     {
         public List<Guid> Items { get; set; }
 

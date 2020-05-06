@@ -4,16 +4,16 @@ using System.Xml.Serialization;
 
 namespace GRYLibrary.Core.AdvancedObjectAnalysis.GenericXMLSerializerHelper
 {
-    [XmlInclude(typeof(SimplifiedEnumerable))]
-    [XmlInclude(typeof(SimplifiedObject))]
-    [XmlInclude(typeof(SimplifiedPrimitive))]
+    [XmlInclude(typeof(SEnumerable))]
+    [XmlInclude(typeof(SObject))]
+    [XmlInclude(typeof(SPrimitive))]
     public abstract class Simplified
     {
         public Guid ObjectId { get; set; }
         public string TypeName { get; set; }
         public override bool Equals(object obj)
         {
-            SimplifiedObject typedObject = obj as SimplifiedObject;
+            SObject typedObject = obj as SObject;
             if (typedObject == null)
             {
                 return false;
@@ -31,15 +31,15 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.GenericXMLSerializerHelper
         public abstract T Accept<T>(ISimplifiedVisitor<T> visitor);
         public interface ISimplifiedVisitor
         {
-            void Handle(SimplifiedObject simplifiedObject);
-            void Handle(SimplifiedEnumerable simplifiedEnumerable);
-            void Handle(SimplifiedPrimitive simplifiedPrimitive);
+            void Handle(SObject simplifiedObject);
+            void Handle(SEnumerable simplifiedEnumerable);
+            void Handle(SPrimitive simplifiedPrimitive);
         }
         public interface ISimplifiedVisitor<T>
         {
-            T Handle(SimplifiedObject simplifiedObject);
-            T Handle(SimplifiedEnumerable simplifiedEnumerable);
-            T Handle(SimplifiedPrimitive simplifiedPrimitive);
+            T Handle(SObject simplifiedObject);
+            T Handle(SEnumerable simplifiedEnumerable);
+            T Handle(SPrimitive simplifiedPrimitive);
         }
     }
 
