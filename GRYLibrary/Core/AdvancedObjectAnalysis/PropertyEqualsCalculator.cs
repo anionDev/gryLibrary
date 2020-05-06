@@ -1,4 +1,5 @@
-﻿using System;
+﻿using GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -164,66 +165,9 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis
             }
         }
     }
-    public class CustomComparer
-    {
-        private readonly Func<Type, bool> _IsApplicable;
-        private readonly Func<object, object, bool> _EqualsFunction;
-        public CustomComparer(Func<Type, bool> isApplicable, Func<object, object, bool> equalsFunction)
-        {
-            this._IsApplicable = isApplicable;
-            this._EqualsFunction = equalsFunction;
-        }
-        public bool IsApplicable(Type objectType)
-        {
-            return this._IsApplicable(objectType);
-        }
-        public bool ObjectsAreEqual(object object1, object object2)
-        {
-            return this._EqualsFunction(object1, object2);
-        }
-    }
-    public class ReferenceEqualsComparer : IEqualityComparer<object>
-    {
-        public static IEqualityComparer<object> Instance { get; } = new ReferenceEqualsComparer();
-        private ReferenceEqualsComparer() { }
-        public new bool Equals(object x, object y)
-        {
-            return ReferenceEquals(x, y);
-        }
 
-        public int GetHashCode(object obj)
-        {
-            return RuntimeHelpers.GetHashCode(obj);
-        }
-    }
-    public class KeyValuePairComparer : IEqualityComparer<KeyValuePair<object, object>>
-    {
-        public static IEqualityComparer<KeyValuePair<object, object>> DefaultInstance { get; } = new KeyValuePairComparer();
-        private KeyValuePairComparer() { }
-        public bool Equals(KeyValuePair<object, object> x, KeyValuePair<object, object> y)
-        {
-            return PropertyEqualsCalculator.DefaultInstance.Equals(x.Key, y.Key) && PropertyEqualsCalculator.DefaultInstance.Equals(x.Value, y.Value);
-        }
 
-        public int GetHashCode(KeyValuePair<object, object> obj)
-        {
-            return RuntimeHelpers.GetHashCode(obj);
-        }
-    }
-    public class TupleComparer : IEqualityComparer<Tuple<object, object>>
-    {
-        public static IEqualityComparer<Tuple<object, object>> Instance { get; } = new TupleComparer();
-        private TupleComparer() { }
-        public bool Equals(Tuple<object, object> x, Tuple<object, object> y)
-        {
-            return new PropertyEqualsCalculator().Equals(x, y);
-        }
 
-        public int GetHashCode(Tuple<object, object> obj)
-        {
-            return RuntimeHelpers.GetHashCode(obj);
-        }
-    }
     public class PropertyEqualsCalculator<T> : IEqualityComparer<T>
     {
         internal static PropertyEqualsCalculator<T> Instance { get; } = new PropertyEqualsCalculator<T>();
@@ -236,61 +180,5 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis
         {
             return PropertyEqualsCalculator.DefaultInstance.GetHashCode(obj);
         }
-    }
-    public class ComparerUtilities
-    {
-        public static readonly CustomComparer DefaultPrimitiveComparer = new CustomComparer(
-            (Type objType) => objType.IsPrimitive || objType.Equals(typeof(string) )||objType.IsValueType,
-            (object object1, object object2) =>
-            {
-                return object1.Equals(object2);
-            });
-
-        public static readonly CustomComparer DefaultListComparer = new CustomComparer(
-            (Type objType) => objType.TypeIsList(),
-            (object object1, object object2) =>
-            {
-                IList<object> object1AsList = object1.ObjectToList<object>();
-                IList<object> object2AsList = object1.ObjectToList<object>();
-                return object1AsList.SequenceEqual(object2AsList, PropertyEqualsCalculator.DefaultInstance);
-            });
-
-        public static readonly CustomComparer DefaultSetComparer = new CustomComparer(
-            (Type objType) => objType.TypeIsSet(),
-            (object object1, object object2) =>
-            {
-                ISet<object> object1AsSet = object1.ObjectToSet<object>();
-                ISet<object> object2AsSet = object2.ObjectToSet<object>();
-                return object1AsSet.SetEquals(object2AsSet, PropertyEqualsCalculator.DefaultInstance);
-            });
-
-        public static readonly CustomComparer DefaultDictionaryComparer = new CustomComparer(
-            (Type objType) => objType.TypeIsDictionary(),
-            (object object1, object object2) =>
-            {
-                IDictionary<object, object> object1AsDictionary = object1.ObjectToDictionary<object, object>();
-                IDictionary<object, object> object2AsDictionary = object1.ObjectToDictionary<object, object>();
-                return object1AsDictionary.DictionaryEquals(object2AsDictionary, KeyValuePairComparer.DefaultInstance);
-            });
-
-        public static readonly CustomComparer DefaultKeyValuePairComparer = new CustomComparer(
-               (Type objType) => objType.TypeIsKeyValuePair(),
-               (object object1, object object2) =>
-               {
-                   KeyValuePair<object, object> object1AsKeyValuePair = object1.ObjectToKeyValuePair<object, object>();
-                   KeyValuePair<object, object> object2AsKeyValuePair = object2.ObjectToKeyValuePair<object, object>();
-                   return KeyValuePairComparer.DefaultInstance.Equals(object1AsKeyValuePair, object2AsKeyValuePair);
-               });
-
-        public static readonly CustomComparer DefaultEnumerableComparer = new CustomComparer(
-            (Type objType) => objType.TypeIsEnumerable(),
-            (object object1, object object2) =>
-            {
-                IEnumerable<object> object1AsEnumerable = object1.ObjectToEnumerableGeneric<object>();
-                IEnumerable<object> object2AsEnumerable = object1.ObjectToEnumerableGeneric<object>();
-                return object1AsEnumerable.EnumerableEquals(object2AsEnumerable, PropertyEqualsCalculator.DefaultInstance);
-            });
-
-
     }
 }

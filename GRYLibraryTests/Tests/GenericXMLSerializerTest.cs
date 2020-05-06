@@ -1,7 +1,6 @@
 ﻿using GRYLibrary.Core.AdvancedXMLSerialysis;
 using GRYLibrary.TestData.TestTypes.SimpleDataStructure;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
 
 namespace GRYLibrary.Tests
 {
