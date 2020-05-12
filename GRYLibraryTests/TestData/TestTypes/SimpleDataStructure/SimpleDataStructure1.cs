@@ -1,4 +1,5 @@
-﻿using System;
+﻿using GRYLibrary.Core.AdvancedObjectAnalysis;
+using System;
 using System.Collections.Generic;
 
 namespace GRYLibrary.TestData.TestTypes.SimpleDataStructure
@@ -22,5 +23,18 @@ namespace GRYLibrary.TestData.TestTypes.SimpleDataStructure
             return result;
         }
 
+        public override bool Equals(object obj)
+        {
+            return PropertyEqualsCalculator.DefaultInstance.Equals(this, obj);
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(this.Property1, this.Property2, this.Property3);
+        }
+        public override string ToString()
+        {
+            return $"{nameof(SimpleDataStructure1)}{{{nameof(this.Property1)}=(List with {this.Property1.Count} item(s)),{nameof(this.Property2)}={this.Property2},{nameof(this.Property3)}={this.Property3}}}";
+        }
     }
 }

@@ -4,7 +4,6 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
 
 namespace GRYLibrary.Core
@@ -66,7 +65,7 @@ namespace GRYLibrary.Core
         {
             return this._Running;
         }
-        private readonly ConcurrentQueue<Tuple<LogLevel, string>> _NotLoggedOutputLines = new ConcurrentQueue<Tuple<LogLevel, string>>();
+        private readonly ConcurrentQueue<(LogLevel, string)> _NotLoggedOutputLines = new ConcurrentQueue<(LogLevel, string)>();
         /// <summary>
         /// Starts the program which was set in the properties.
         /// </summary>
@@ -82,154 +81,155 @@ namespace GRYLibrary.Core
                     throw new InvalidOperationException("This process was already started");
                 }
                 this.ExecutionState = ExecutionState.Running;
-                string originalConsoleTitle = null;
+            }
+            string originalConsoleTitle = null;
+            try
+            {
+                originalConsoleTitle = Console.Title;
+            }
+            catch
+            {
+            }
+            this.ProcessWasAbortedDueToTimeout = false;
+            Process process = null;
+            try
+            {
                 try
                 {
-                    originalConsoleTitle = Console.Title;
+                    if (!string.IsNullOrWhiteSpace(this.Title))
+                    {
+                        Console.Title = this.Title;
+                    }
                 }
                 catch
                 {
+                    Utilities.NoOperation();
                 }
-                this.ProcessWasAbortedDueToTimeout = false;
-                Process process = null;
+                this.ResolvePathOfProgram();
+                ProcessStartInfo StartInfo = new ProcessStartInfo(this.ProgramPathAndFile)
+                {
+                    UseShellExecute = false,
+                    ErrorDialog = false,
+                    Arguments = this.Arguments,
+                    WorkingDirectory = this.WorkingDirectory,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    CreateNoWindow = !this.CreateWindow,
+                };
+                if (this.RunAsAdministrator)
+                {
+                    StartInfo.Verb = "Runas";
+                }
+                process = new Process();
+                process.StartInfo = StartInfo;
+                process.OutputDataReceived += (object sender, DataReceivedEventArgs e) =>
+                {
+                    this.EnqueueInformation(e.Data);
+                };
+                process.ErrorDataReceived += (object sender, DataReceivedEventArgs e) =>
+                {
+                    if (this.PrintErrorsAsInformation)
+                    {
+                        this.EnqueueInformation(e.Data);
+                    }
+                    else
+                    {
+                        this.EnqueueError(e.Data);
+                    }
+                };
+                SupervisedThread readLogItemsThread;
+                string executionInfoAsString = $"{ this.WorkingDirectory }>{ this.ProgramPathAndFile } { this.Arguments }";
+                if (this.LogOverhead)
+                {
+                    this.EnqueueInformation($"Start '{executionInfoAsString}'");
+                }
+                Stopwatch stopWatch = new Stopwatch();
+                stopWatch.Start();
                 try
                 {
-                    try
-                    {
-                        if (!string.IsNullOrWhiteSpace(this.Title))
-                        {
-                            Console.Title = this.Title;
-                        }
-                    }
-                    catch
-                    {
-                        Utilities.NoOperation();
-                    }
-                    ProcessStartInfo StartInfo = new ProcessStartInfo(this.ResolvePathOfProgram(this.ProgramPathAndFile))
-                    {
-                        UseShellExecute = false,
-                        ErrorDialog = false,
-                        Arguments = this.Arguments,
-                        WorkingDirectory = this.WorkingDirectory,
-                        RedirectStandardOutput = true,
-                        RedirectStandardError = true,
-                        CreateNoWindow = !this.CreateWindow,
-                    };
-                    if (this.RunAsAdministrator)
-                    {
-                        StartInfo.Verb = "Runas";
-                    }
-                    process = new Process();
-                    process.StartInfo = StartInfo;
-                    process.OutputDataReceived += (object sender, DataReceivedEventArgs e) => this.EnqueueInformation(e.Data);
-                    process.ErrorDataReceived += (object sender, DataReceivedEventArgs e) =>
-                    {
-                        if (this.PrintErrorsAsInformation)
-                        {
-                            this.EnqueueInformation(e.Data);
-                        }
-                        else
-                        {
-                            this.EnqueueError(e.Data);
-                        }
-                    };
-                    SupervisedThread readLogItemsThread = SupervisedThread.Create(this.LogOutput);
-                    readLogItemsThread.Name = $"Logger-Thread for '{this.Title}' ({nameof(ExternalProgramExecutor)}({this.ProgramPathAndFile} {this.Arguments}))";
+                    process.Start();
+                }
+                catch (Exception exception)
+                {
+                    throw new Exception($"Exception occurred while start execution '{executionInfoAsString}'", exception);
+                }
+                process.BeginOutputReadLine();
+                process.BeginErrorReadLine();
+                this._Running = true;
+                if (this.LogOutput)
+                {
+                    readLogItemsThread = SupervisedThread.Create(this.LogOutputImplementation);
+                    readLogItemsThread.Name = $"Logger-Thread for '{this.Title}' ({nameof(ExternalProgramExecutor)}({executionInfoAsString}))";
                     readLogItemsThread.LogOverhead = this.LogOverhead;
-                    if (this.LogOverhead)
-                    {
-                        this.EnqueueInformation($"Start '{this.ProgramPathAndFile} {this.Arguments}' in '{this.WorkingDirectory}'");
-                    }
-                    Stopwatch stopWatch = new Stopwatch();
-                    string executionInfoAsString = $"{ this.WorkingDirectory }>{ this.ProgramPathAndFile } { this.Arguments }";
-                    stopWatch.Start();
-                    try
-                    {
-                        process.Start();
-                    }
-                    catch (Exception exception)
-                    {
-                        throw new Exception($"Exception occurred while start execution '{executionInfoAsString}'", exception);
-                    }
-                    process.BeginOutputReadLine();
-                    process.BeginErrorReadLine();
-                    this._Running = true;
                     readLogItemsThread.Start();
-                    if (this.TimeoutInMilliseconds.HasValue)
-                    {
-                        if (!process.WaitForExit(this.TimeoutInMilliseconds.Value))
-                        {
-                            process.Kill();
-                            this.ProcessWasAbortedDueToTimeout = true;
-                        }
-                    }
-                    else
-                    {
-                        process.WaitForExit();
-                    }
-                    stopWatch.Stop();
-                    this.ExecutionDuration = stopWatch.Elapsed;
-                    if (this.LogOverhead)
-                    {
-                        this.EnqueueInformation($"Finished '{this.ProgramPathAndFile} {this.Arguments}'");
-                    }
-                    this.ExitCode = process.ExitCode;
-                    this._AllStdErrLinesAsArray = this._AllStdErrLines.ToArray();
-                    this._AllStdOutLinesAsArray = this._AllStdOutLines.ToArray();
-                    this.ExecutionState = ExecutionState.Terminated;
-                    if (this.ThrowErrorIfExitCodeIsNotZero && this.ExitCode != 0)
-                    {
-                        throw new UnexpectedExitCodeException($"'{executionInfoAsString}' had exitcode {this.ExitCode}.", this);
-                    }
-                    else
-                    {
-                        return this.ExitCode;
-                    }
                 }
-                finally
+                if (this.TimeoutInMilliseconds.HasValue)
                 {
-                    try
+                    if (!process.WaitForExit(this.TimeoutInMilliseconds.Value))
                     {
-                        this._Running = false;
-                        while (this._NotLoggedOutputLines.Count > 0)
-                        {
-                            System.Threading.Thread.Sleep(30);
-                        }
-                        process?.Dispose();
-                        if (originalConsoleTitle != null)
-                        {
-                            try
-                            {
-                                Console.Title = originalConsoleTitle;
-                            }
-                            catch
-                            {
-                            }
-                        }
-                    }
-                    catch
-                    {
-                        Utilities.NoOperation();
+                        process.Kill();
+                        this.ProcessWasAbortedDueToTimeout = true;
                     }
                 }
-            }
-        }
-        private string ResolvePathOfProgram(string program)
-        {
-            if (File.Exists(program))
-            {
-                return program;
-            }
-            if (!(program.Contains("/") || program.Contains("\\") || program.Contains(":")))
-            {
-                if (Utilities.TryResolvePathByPathVariable(program, out string programWithFullPath))
+                else
                 {
-                    return programWithFullPath;
+                    process.WaitForExit();
+                }
+                stopWatch.Stop();
+                this.ExecutionDuration = stopWatch.Elapsed;
+                if (this.LogOverhead)
+                {
+                    this.EnqueueInformation($"Finished '{this.ProgramPathAndFile} {this.Arguments}'");
+                }
+                this.ExitCode = process.ExitCode;
+                this._AllStdErrLinesAsArray = this._AllStdErrLines.ToArray();
+                this._AllStdOutLinesAsArray = this._AllStdOutLines.ToArray();
+                this.ExecutionState = ExecutionState.Terminated;
+                if (this.ThrowErrorIfExitCodeIsNotZero && this.ExitCode != 0)
+                {
+                    throw new UnexpectedExitCodeException($"'{executionInfoAsString}' had exitcode {this.ExitCode}. Duration: {Utilities.DurationToUserFriendlyString(this.ExecutionDuration)}", this);
+                }
+                else
+                {
+                    return this.ExitCode;
                 }
             }
-            throw new FileNotFoundException($"Program '{program}' can not be found");
+            finally
+            {
+                try
+                {
+                    this._Running = false;
+                    while (this._NotLoggedOutputLines.Count > 0)
+                    {
+                        System.Threading.Thread.Sleep(30);
+                    }
+                    process?.Dispose();
+                    if (originalConsoleTitle != null)
+                    {
+                        try
+                        {
+                            Console.Title = originalConsoleTitle;
+                        }
+                        catch
+                        {
+                        }
+                    }
+                }
+                catch
+                {
+                    Utilities.NoOperation();
+                }
+            }
         }
 
+        private void ResolvePathOfProgram()
+        {
+            string newProgram = this.ProgramPathAndFile;
+            string newArgument = this.Arguments;
+            Utilities.ResolvePathOfProgram(ref newProgram, ref newArgument);
+            this.ProgramPathAndFile = newProgram;
+            this.Arguments = newArgument;
+        }
         private readonly IList<string> _AllStdErrLines = new List<string>();
         private string[] _AllStdErrLinesAsArray;
         public string[] AllStdErrLines
@@ -296,10 +296,15 @@ namespace GRYLibrary.Core
             if (data != null)
             {
                 this._AllStdErrLines.Add(data);
-                this._NotLoggedOutputLines.Enqueue(new Tuple<LogLevel, string>(LogLevel.Error, data));
+                if (this.LogOutput)
+                {
+                    this._NotLoggedOutputLines.Enqueue((LogLevel.Error, data));
+
+                }
             }
         }
         private readonly IList<string> _AllStdOutLines = new List<string>();
+        public bool LogOutput { get; set; } = true;
         private string[] _AllStdOutLinesAsArray;
         public string[] AllStdOutLines
         {
@@ -320,14 +325,17 @@ namespace GRYLibrary.Core
             if (data != null)
             {
                 this._AllStdOutLines.Add(data);
-                this._NotLoggedOutputLines.Enqueue(new Tuple<LogLevel, string>(LogLevel.Information, data));
+                if (this.LogOutput)
+                {
+                    this._NotLoggedOutputLines.Enqueue((LogLevel.Information, data));
+                }
             }
         }
-        private void LogOutput()
+        private void LogOutputImplementation()
         {
             while (this.Running() || this._NotLoggedOutputLines.Count > 0)
             {
-                if (this._NotLoggedOutputLines.TryDequeue(out Tuple<LogLevel, string> logItem))
+                if (this._NotLoggedOutputLines.TryDequeue(out (LogLevel, string) logItem))
                 {
                     this.LogObject?.Log(logItem.Item2, logItem.Item1);
                 }
