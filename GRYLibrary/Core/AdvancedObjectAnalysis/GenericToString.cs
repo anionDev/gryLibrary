@@ -9,7 +9,7 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis
         private GenericToString() { }
         public static GenericToString Instance { get; } = new GenericToString();
 
-        internal string ToString(object @object)
+        public string ToString(object @object)
         {
             throw new NotImplementedException();
         }
