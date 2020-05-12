@@ -18,8 +18,8 @@ namespace GRYLibrary.TestData.TestTypes.CyclicDataStructure
             return PropertyEqualsCalculator.DefaultInstance.GetHashCode(this);
         }
         public override string ToString()
-        {
-            throw new NotImplementedException();//  return GenericToString.Instance.ToString(this);
+        {            
+            return GenericToString.Instance.ToString(this);
         }
     }
 }
