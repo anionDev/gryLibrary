@@ -19,7 +19,7 @@ namespace GRYLibrary.TestData.TestTypes.CyclicDataStructure
         }
         public override string ToString()
         {
-          return GenericToString.Instance.ToString(this);
+            throw new NotImplementedException();//  return GenericToString.Instance.ToString(this);
         }
     }
 }
