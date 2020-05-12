@@ -3,16 +3,16 @@ using System.Runtime.CompilerServices;
 
 namespace GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper
 {
-    public class ReferenceEqualsComparer : IEqualityComparer<object>
+    public class ReferenceEqualsComparer : GRYEqualityComparer<object>
     {
-        public static IEqualityComparer<object> Instance { get; } = new ReferenceEqualsComparer();
+        public static GRYEqualityComparer<object> Instance { get; } = new ReferenceEqualsComparer();
         private ReferenceEqualsComparer() { }
-        public new bool Equals(object x, object y)
+        public override  bool Equals(object x, object y, ISet<PropertyEqualsCalculatorTuple> visitedObjects)
         {
             return ReferenceEquals(x, y);
         }
 
-        public int GetHashCode(object obj)
+        public override  int GetHashCode(object obj)
         {
             return RuntimeHelpers.GetHashCode(obj);
         }

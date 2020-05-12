@@ -1,23 +1,25 @@
 ﻿using GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper;
+using GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper.CustomComparer;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 
 namespace GRYLibrary.Core.AdvancedObjectAnalysis
 {
-    public class PropertyEqualsCalculator : IEqualityComparer<object>
+    public class PropertyEqualsCalculator : GRYEqualityComparer<object>
     {
 
         private readonly Dictionary<object, int> _HashCodes = new Dictionary<object, int>(ReferenceEqualsComparer.Instance);
-        public static IEqualityComparer<object> DefaultInstance { get; } = new PropertyEqualsCalculator();
-        public IList<CustomComparer> CustomComparer { get; set; } = new List<CustomComparer>() {
-            ComparerUtilities.DefaultPrimitiveComparer,
-            ComparerUtilities.DefaultKeyValuePairComparer,
-            ComparerUtilities.DefaultListComparer,
-            ComparerUtilities.DefaultSetComparer,
-            ComparerUtilities.DefaultDictionaryComparer,
-            ComparerUtilities.DefaultEnumerableComparer,
+        public static GRYEqualityComparer<object> DefaultInstance { get; } = new PropertyEqualsCalculator();
+        public List<AbstractCustomComparer> CustomComparer { get; set; } = new List<AbstractCustomComparer>() {
+            PrimitiveComparer.DefaultInstance,
+            KeyValuePairComparer.DefaultInstance,
+            ListComparer.DefaultInstance,
+            SetComparer.DefaultInstance,
+            DictionaryComparer.DefaultInstance,
+            EnumerableComparer.DefaultInstance,
         };
         public Func<PropertyInfo, bool> PropertySelector { get; set; } = (PropertyInfo propertyInfo) =>
         {
@@ -36,31 +38,31 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis
         }
 
         /// <remarks>This function assumes that 2 objects are not equal if their types are not equal.</remarks>
-        public new bool Equals(object object1, object object2)
-        {
-            return this.Equals(object1, object2, new HashSet<Tuple>());
-        }
-        private bool Equals(object object1, object object2, ISet<Tuple> visitedObjects)
+        public override bool Equals(object object1, object object2, ISet<PropertyEqualsCalculatorTuple> visitedObjects)
         {
             bool object1IsDefault = Utilities.IsDefault(object1);
             bool object2IsDefault = Utilities.IsDefault(object2);
+            if (object1IsDefault == true && object2IsDefault == true)
+            {
+                return true;
+            }
             if (object1IsDefault == false && object2IsDefault == false)
             {
                 Type object1Type = object1.GetType();
                 Type object2Type = object2.GetType();
-                if (visitedObjects.Contains(new Tuple(object1, object2)))
+                if (visitedObjects.Contains(new PropertyEqualsCalculatorTuple(object1, object2)))
                 {
                     return true;
                 }
                 if (object1Type.Equals(object2Type))
                 {
-                    if (this.CustomComparerShouldBeApplied(object1Type, out CustomComparer customComparer))
+                    if (this.CustomComparerShouldBeApplied(object1Type, out AbstractCustomComparer customComparer))
                     {
                         //use custom comparer
-                        bool result = customComparer.ObjectsAreEqual(object1, object2);
+                        bool result = customComparer.Equals(object1, object2, visitedObjects);
                         if (result)
                         {
-                            visitedObjects.Add(new Tuple(object1, object2));
+                            visitedObjects.Add(new PropertyEqualsCalculatorTuple(object1, object2));
                         }
                         return result;
                     }
@@ -87,7 +89,7 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis
                         {
                             if (this.Equals(entry.Item1, entry.Item2, visitedObjects))
                             {
-                                visitedObjects.Add(new Tuple(object1, object2));
+                                visitedObjects.Add(new PropertyEqualsCalculatorTuple(object1, object2));
                             }
                             else
                             {
@@ -102,16 +104,12 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis
                     return false;
                 }
             }
-            if (object1IsDefault == true && object2IsDefault == true)
-            {
-                return true;
-            }
             return false;
         }
 
-        private bool CustomComparerShouldBeApplied(Type object1Type, out CustomComparer customComparer)
+        private bool CustomComparerShouldBeApplied(Type object1Type, out AbstractCustomComparer customComparer)
         {
-            foreach (CustomComparer comparer in this.CustomComparer)
+            foreach (AbstractCustomComparer comparer in this.CustomComparer)
             {
                 if (comparer.IsApplicable(object1Type))
                 {
@@ -122,7 +120,7 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis
             customComparer = null;
             return false;
         }
-        public int GetHashCode(object @object)
+        public override int GetHashCode(object @object)
         {
             if (!this._HashCodes.ContainsKey(@object))
             {
@@ -131,38 +129,6 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis
             return this._HashCodes[@object];
         }
 
-        private class Tuple
-        {
-            public Tuple(object item1, object item2)
-            {
-                this.Item1 = item1;
-                this.Item2 = item2;
-            }
-
-            public object Item1 { get; set; }
-            public object Item2 { get; set; }
-            public override bool Equals(object obj)
-            {
-                Tuple tuple = obj as Tuple;
-                if (tuple == null)
-                {
-                    return false;
-                }
-                if (!ReferenceEquals(this.Item1, tuple.Item1))
-                {
-                    return false;
-                }
-                if (!ReferenceEquals(this.Item2, tuple.Item2))
-                {
-                    return false;
-                }
-                return true;
-            }
-            public override int GetHashCode()
-            {
-                return 6843;
-            }
-        }
     }
     public class PropertyEqualsCalculator<T> : IEqualityComparer<T>
     {

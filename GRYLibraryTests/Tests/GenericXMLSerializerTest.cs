@@ -9,6 +9,7 @@ namespace GRYLibrary.Tests
     [TestClass]
     public class GenericXMLSerializerTest
     {
+        [Ignore]
         [TestMethod]
         public void SerializeSimpleObject()
         {
@@ -18,6 +19,7 @@ namespace GRYLibrary.Tests
             SimpleDataStructure1 actualObject = serializer.Deserialize<SimpleDataStructure1>(serialized);
             Assert.AreEqual(testObject, actualObject);
         }
+        [Ignore]
         [TestMethod]
         public void SerializeComplexObject()
         {
@@ -27,6 +29,7 @@ namespace GRYLibrary.Tests
             SimpleDataStructure1 actualObject = serializer.Deserialize<SimpleDataStructure1>(serialized);
             Assert.AreEqual(testObject, actualObject);
         }
+        [Ignore]
         [TestMethod]
         public void SerializeCyclicObject()
         {

@@ -65,7 +65,7 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.GenericXMLSerializerHelper
 
         private static bool IsPrimitiveType(Type typeOfObject)
         {
-            return ComparerUtilities.DefaultPrimitiveComparer.IsApplicable(typeOfObject);
+            throw new NotImplementedException();
         }
 
         private class DeserializeVisitor : Simplified.ISimplifiedVisitor

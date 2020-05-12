@@ -166,24 +166,7 @@ namespace GRYLibrary.Core
         }
         public static bool EnumerableEquals<T>(this IEnumerable<T> enumerable1, IEnumerable<T> enumerable2, IEqualityComparer<T> comparer)
         {
-            if (enumerable1.Count() != enumerable2.Count())
-            {
-                return false;
-            }
-            List<T> enumerable1copy = new List<T>(enumerable1);
-            foreach (T item in enumerable2)
-            {
-                if (enumerable2.Contains(item, comparer))
-                {
-                    enumerable1copy.Remove(item);
-                }
-                else
-                {
-                    return false;
-                }
-            }
-            return enumerable1copy.Count == 0;
-
+            throw new NotImplementedException();
         }
         /// <returns>Returns true if and only if the most concrete type of <paramref name="object"/> implements <see cref="IList{T}"/> or <see cref="System.Collections.IList"/>.</returns>
         /// <remarks></remarks>

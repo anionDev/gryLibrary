@@ -12,6 +12,8 @@
     <RepositoryUrl>https://github.com/anionDev/gryLibrary</RepositoryUrl>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <AssemblyVersion>0.6.8.0</AssemblyVersion>
+    <SignAssembly>false</SignAssembly>
+    <AssemblyOriginatorKeyFile>GRYLibrary.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
