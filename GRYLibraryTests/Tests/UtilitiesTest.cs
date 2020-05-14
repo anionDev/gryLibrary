@@ -196,7 +196,7 @@ namespace GRYLibrary.Tests
             Assert.ThrowsException<InvalidCastException>(() => Utilities.ObjectToSet<object>(new object()));
             Assert.ThrowsException<InvalidCastException>(() => Utilities.ObjectToSet<object>(5));
 
-            Assert.IsTrue(Utilities.SetEquals(new HashSet<char> { 's' , 'o' , 'm' , 'e' , 't' }, Utilities.ObjectToSet<char>("sometest")));
+            Assert.IsTrue(Utilities.SetEquals(new HashSet<char> { 's', 'o', 'm', 'e', 't' }, Utilities.ObjectToSet<char>("sometest")));
 
             HashSet<int> testSet = new HashSet<int> { 3, 4, 5 };
             object testSetAsObject = testSet;
@@ -243,5 +243,13 @@ namespace GRYLibrary.Tests
             Assert.IsTrue(Utilities.ObjectIsEnumerable(new HashSet<object> { 3, 4, 5 }));
             Assert.IsTrue(Utilities.ObjectIsEnumerable(new HashSet<int> { 3, 4, 5 }));
         }
+        [TestMethod]
+        public void EnumerableCount()
+        {
+            List<object> list = new List<object> { 3, 4, 5 };
+            IEnumerable listAsEnumerable = list;
+            Assert.AreEqual(list.Count, Utilities.Count(listAsEnumerable));
+        }
+
     }
 }

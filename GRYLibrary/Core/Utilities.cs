@@ -80,7 +80,8 @@ namespace GRYLibrary.Core
         public static int Count(this System.Collections.IEnumerable enumerable)
         {
             int result = 0;
-            while (enumerable.GetEnumerator().MoveNext())
+            System.Collections.IEnumerator enumerator = enumerable.GetEnumerator();
+            while (enumerator.MoveNext())
             {
                 result += 1;
             }
