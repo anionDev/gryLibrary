@@ -1,4 +1,6 @@
 ﻿using GRYLibrary.Core.Log;
+using GRYLibrary.Core.OperatingSystem;
+using GRYLibrary.Core.OperatingSystem.ConcreteOperatingSystems;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Concurrent;
@@ -18,7 +20,7 @@ namespace GRYLibrary.Core
         {
             return new ExternalProgramExecutor(programPathAndFile, arguments, title, workingDirectory, log, printErrorsAsInformation, timeoutInMilliseconds);
         }
-        public static ExternalProgramExecutor Create(string programPathAndFile, string arguments, string workingDirectory = "", string title = "", bool printErrorsAsInformation = false, int? timeoutInMilliseconds = null)
+        public static ExternalProgramExecutor Create(string programPathAndFile, string arguments = "", string workingDirectory = "", string title = "", bool printErrorsAsInformation = false, int? timeoutInMilliseconds = null)
         {
             return CreateByLogFile(programPathAndFile, arguments, string.Empty, workingDirectory, title, printErrorsAsInformation, timeoutInMilliseconds);
         }
@@ -118,7 +120,7 @@ namespace GRYLibrary.Core
                 };
                 if (this.RunAsAdministrator)
                 {
-                    StartInfo.Verb = "Runas";
+                    OperatingSystem.OperatingSystem.GetCurrentOperatingSystem().Accept(new EscalatePrivilegesVisitor(StartInfo));
                 }
                 process = new Process();
                 process.StartInfo = StartInfo;
@@ -359,6 +361,32 @@ namespace GRYLibrary.Core
             else
             {
                 throw new InvalidOperationException(this.GetInvalidOperationDueToNotTerminatedMessageByMembername(nameof(this.GetResult)));
+            }
+        }
+        private class EscalatePrivilegesVisitor : IOperatingSystemVisitor
+        {
+            private readonly ProcessStartInfo _StartInfo;
+
+            public EscalatePrivilegesVisitor(ProcessStartInfo startInfo)
+            {
+                this._StartInfo = startInfo;
+            }
+
+            public void Handle(OSX operatingSystem)
+            {
+                this._StartInfo.Arguments = $"{this._StartInfo.FileName} {this._StartInfo.Arguments}";
+                this._StartInfo.FileName = "sudo";
+            }
+
+            public void Handle(Windows operatingSystem)
+            {
+                this._StartInfo.Verb = "Runas";
+            }
+
+            public void Handle(Linux operatingSystem)
+            {
+                this._StartInfo.Arguments = $"{this._StartInfo.FileName} {this._StartInfo.Arguments}";
+                this._StartInfo.FileName = "sudo";
             }
         }
     }

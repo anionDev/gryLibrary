@@ -1,4 +1,5 @@
-﻿using System;
+﻿using GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
@@ -24,6 +25,8 @@ using System.Net.Sockets;
 using GRYLibrary.Core.AdvancedObjectAnalysis;
 using GRYLibrary.Core.OperatingSystem;
 using GRYLibrary.Core.OperatingSystem.ConcreteOperatingSystems;
+using GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper.CustomComparer;
+using System.Runtime.InteropServices;
 
 namespace GRYLibrary.Core
 {
@@ -74,6 +77,15 @@ namespace GRYLibrary.Core
             return result;
         }
 
+        public static int Count(this System.Collections.IEnumerable enumerable)
+        {
+            int result = 0;
+            while (enumerable.GetEnumerator().MoveNext())
+            {
+                result += 1;
+            }
+            return result;
+        }
         public static void NoOperation()
         {
             //nothing to do
@@ -126,6 +138,61 @@ namespace GRYLibrary.Core
             return @string;
         }
 
+        #region Execute or open file
+        public static bool FileIsExecutable(string file)
+        {
+            return OperatingSystem.OperatingSystem.GetCurrentOperatingSystem().Accept(new FileIsExecutableVisitor(file));
+        }
+        public static ExternalProgramExecutor ExecuteFile(string file)
+        {
+            if (FileIsExecutable(file))
+            {
+                ExternalProgramExecutor result = ExternalProgramExecutor.Create(file, string.Empty);
+                result.StartConsoleApplicationInCurrentConsoleWindow();
+                return result;
+            }
+            else
+            {
+                throw new Exception($"File '{file}' can not be executed");
+            }
+        }
+        public static void OpenFileWithDefaultProgram(string file)
+        {
+            ExternalProgramExecutor.Create(file, string.Empty).StartConsoleApplicationInCurrentConsoleWindow();
+        }
+        private class FileIsExecutableVisitor : IOperatingSystemVisitor<bool>
+        {
+            private readonly string _File;
+
+            public FileIsExecutableVisitor(string file)
+            {
+                this._File = file;
+            }
+
+            public bool Handle(OSX operatingSystem)
+            {
+                return true;
+            }
+
+            public bool Handle(Windows operatingSystem)
+            {
+                string fileToLower = this._File.ToLower();
+                return fileToLower.EndsWith(".exe")
+                    || fileToLower.EndsWith(".cmd")
+                    || fileToLower.EndsWith(".bat");
+            }
+
+            public bool Handle(Linux operatingSystem)
+            {
+                return true;
+            }
+        }
+
+
+        #endregion
+        #region Enumerable
+
+        #region IsEnumerable
         /// <returns>Returns true if and only if the most concrete type of <paramref name="object"/> implements <see cref="System.Collections.IEnumerable"/>.</returns>
         public static bool ObjectIsEnumerable(this object @object)
         {
@@ -135,6 +202,43 @@ namespace GRYLibrary.Core
         {
             return IsAssignableFrom(type, typeof(System.Collections.IEnumerable));
         }
+        /// <returns>Returns true if and only if the most concrete type of <paramref name="object"/> implements <see cref="ISet{T}"/>.</returns>
+        public static bool ObjectIsSet(this object @object)
+        {
+            return TypeIsSet(@object.GetType());
+        }
+        public static bool TypeIsSet(this Type type)
+        {
+            return IsAssignableFrom(type, typeof(ISet<>));
+        }
+        public static bool ObjectIsList(this object @object)
+        {
+            return TypeIsList(@object.GetType());
+        }
+        public static bool TypeIsList(this Type type)
+        {
+            return IsAssignableFrom(type, typeof(IList<>)) || IsAssignableFrom(type, typeof(System.Collections.IList));
+        }
+        /// <returns>Returns true if and only if the most concrete type of <paramref name="object"/> implements <see cref="IDictionary{TKey, TValue}"/> or <see cref="System.Collections.IDictionary"/>.</returns>
+        public static bool ObjectIsDictionary(this object @object)
+        {
+            return TypeIsDictionary(@object.GetType());
+        }
+        public static bool TypeIsDictionary(this Type type)
+        {
+            return IsAssignableFrom(type, typeof(IDictionary<,>)) || IsAssignableFrom(type, typeof(System.Collections.IDictionary));
+        }
+        public static bool ObjectIsKeyValuePair(this object @object)
+        {
+            return TypeIsKeyValuePair(@object.GetType());
+        }
+        public static bool TypeIsKeyValuePair(this Type type)
+        {
+            return IsAssignableFrom(type, typeof(System.Collections.Generic.KeyValuePair<,>));
+        }
+
+        #endregion
+        #region ToEnumerable
         public static System.Collections.IEnumerable ObjectToEnumerable(this object @object)
         {
             if (!ObjectIsEnumerable(@object))
@@ -143,8 +247,12 @@ namespace GRYLibrary.Core
             }
             return @object as System.Collections.IEnumerable;
         }
-        public static IEnumerable<T> ObjectToEnumerableGeneric<T>(this object @object)
+        public static IEnumerable<T> ObjectToEnumerable<T>(this object @object)
         {
+            if (!ObjectIsEnumerable(@object))
+            {
+                throw new InvalidCastException();
+            }
             System.Collections.IEnumerable objects = ObjectToEnumerable(@object);
             List<T> result = new List<T>();
             foreach (object obj in objects)
@@ -160,23 +268,31 @@ namespace GRYLibrary.Core
             }
             return result;
         }
-        public static bool EnumerableEquals<T>(this IEnumerable<T> enumerable1, IEnumerable<T> enumerable2)
+        public static ISet<T> ObjectToSet<T>(this object @object)
         {
-            return EnumerableEquals(enumerable1, enumerable2, PropertyEqualsCalculator.GetDefaultInstance<T>());
-        }
-        public static bool EnumerableEquals<T>(this IEnumerable<T> enumerable1, IEnumerable<T> enumerable2, IEqualityComparer<T> comparer)
-        {
-            throw new NotImplementedException();
+            if (!ObjectIsSet(@object))
+            {
+                throw new InvalidCastException();
+            }
+            System.Collections.IEnumerable objects = ObjectToEnumerable(@object);
+            HashSet<T> result = new HashSet<T>();
+            foreach (object obj in objects)
+            {
+                if (obj is T)
+                {
+                    result.Add((T)obj);
+                }
+                else
+                {
+                    throw new InvalidCastException();
+                }
+            }
+            return result;
         }
         /// <returns>Returns true if and only if the most concrete type of <paramref name="object"/> implements <see cref="IList{T}"/> or <see cref="System.Collections.IList"/>.</returns>
-        /// <remarks></remarks>
-        public static bool ObjectIsList(this object @object)
+        public static System.Collections.IList ObjectToList(this object @object)
         {
-            return TypeIsList(@object.GetType());
-        }
-        public static bool TypeIsList(this Type type)
-        {
-            return IsAssignableFrom(type, typeof(IList<>)) || IsAssignableFrom(type, typeof(System.Collections.IList));
+            return ObjectToList<object>(@object).ToList();
         }
         public static IList<T> ObjectToList<T>(this object @object)
         {
@@ -199,22 +315,29 @@ namespace GRYLibrary.Core
             }
             return result;
         }
-        /// <returns>Returns true if and only if the most concrete type of <paramref name="object"/> implements <see cref="ISet{T}"/>.</returns>
-        public static bool ObjectIsSet(this object @object)
+        public static System.Collections.IDictionary ObjectToDictionary(this object @object)
         {
-            return TypeIsSet(@object.GetType());
+            System.Collections.IDictionary result = new System.Collections.Hashtable();
+            foreach (System.Collections.Generic.KeyValuePair<object, object> item in ObjectToDictionary<object, object>(@object))
+            {
+                result.Add(item.Key, item.Value);
+            }
+            return result;
         }
-        public static bool TypeIsSet(this Type type)
+        public static IDictionary<TKey, TValue> ObjectToDictionary<TKey, TValue>(this object @object)
         {
-            return IsAssignableFrom(type, typeof(ISet<>));
-        }
-        public static bool ObjectIsKeyValuePair(this object @object)
-        {
-            return IsAssignableFrom(@object, typeof(System.Collections.Generic.KeyValuePair<,>));
-        }
-        public static bool TypeIsKeyValuePair(this Type type)
-        {
-            return IsAssignableFrom(type, typeof(System.Collections.Generic.KeyValuePair<,>));
+            if (!ObjectIsDictionary(@object))
+            {
+                throw new InvalidCastException();
+            }
+            IEnumerable<object> objects = ObjectToEnumerable<object>(@object);
+            Dictionary<TKey, TValue> result = new Dictionary<TKey, TValue>();
+            foreach (object obj in objects)
+            {
+                System.Collections.Generic.KeyValuePair<TKey, TValue> kvp = ObjectToKeyValuePair<TKey, TValue>(obj);
+                result.Add(kvp.Key, kvp.Value);
+            }
+            return result;
         }
         public static System.Collections.Generic.KeyValuePair<TKey, TValue> ObjectToKeyValuePair<TKey, TValue>(this object @object)
         {
@@ -233,220 +356,43 @@ namespace GRYLibrary.Core
                 throw new InvalidCastException();
             }
         }
-        public static ISet<T> ObjectToSet<T>(this object @object)
-        {
-            IEnumerable<object> objects = ObjectToEnumerableGeneric<object>(@object);
-            HashSet<T> result = new HashSet<T>();
-            foreach (object obj in objects)
-            {
-                if (obj is T)
-                {
-                    result.Add((T)obj);
-                }
-                else
-                {
-                    throw new InvalidCastException();
-                }
-            }
-            return result;
-        }
-        #region Execute or open file
-        public static bool FileIsExecutable(string file)
-        {
-            return OperatingSystem.OperatingSystem.GetCurrentOperatingSystem().Accept(new FileIsExecutableVisitor(file));
-        }
-        public static void ExecuteFile(string file)
-        {
-            if (FileIsExecutable(file))
-            {
-                OperatingSystem.OperatingSystem.GetCurrentOperatingSystem().Accept(new FileIsExecutableVisitor(file));
-            }
-            else
-            {
-                throw new Exception($"File '{file}' can not be executed");
-            }
-        }
-        public static void OpenFileWithDefaultProgram(string file)
-        {
-            OperatingSystem.OperatingSystem.GetCurrentOperatingSystem().Accept(new OpenFileWithDefaultProgramVisitor(file));
-        }
-        private class FileIsExecutableVisitor : IOperatingSystemVisitor<bool>
-        {
-            private readonly string _File;
-
-            public FileIsExecutableVisitor(string file)
-            {
-                this._File = file;
-            }
-
-            public bool Handle(OSX operatingSystem)
-            {
-                throw new NotImplementedException();
-            }
-
-            public bool Handle(Windows operatingSystem)
-            {
-                throw new NotImplementedException();
-            }
-
-            public bool Handle(Linux operatingSystem)
-            {
-                throw new NotImplementedException();
-            }
-        }
-        private class ExecutableFileVisitor : IOperatingSystemVisitor
-        {
-
-            private readonly string _File;
-
-            public ExecutableFileVisitor(string file)
-            {
-                this._File = file;
-            }
-            public void Handle(OSX operatingSystem)
-            {
-                throw new NotImplementedException();
-            }
-
-            public void Handle(Windows operatingSystem)
-            {
-                throw new NotImplementedException();
-            }
-
-            public void Handle(Linux operatingSystem)
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-        private class OpenFileWithDefaultProgramVisitor : IOperatingSystemVisitor
-        {
-
-            private readonly string _File;
-
-            public OpenFileWithDefaultProgramVisitor(string file)
-            {
-                this._File = file;
-            }
-            public void Handle(OSX operatingSystem)
-            {
-                throw new NotImplementedException();
-            }
-
-            public void Handle(Windows operatingSystem)
-            {
-                throw new NotImplementedException();
-            }
-
-            public void Handle(Linux operatingSystem)
-            {
-                throw new NotImplementedException();
-            }
-        }
 
         #endregion
-        /// <returns>Returns true if and only if the items in <paramref name="list1"/> and <paramref name="list2"/> are equal using <see cref="PropertyEqualsCalculator{T}"/> as comparer.</returns>
-        public static bool SequanceEqual<T>(this IList<T> list1, IList<T> list2)
+        #region EqualsEnumerable
+        public static bool EnumerableEquals(this System.Collections.IEnumerable enumerable1, System.Collections.IEnumerable enumerable2)
         {
-            return SequanceEqual(list1, list2, PropertyEqualsCalculator.GetDefaultInstance<T>());
-        }
-        /// <returns>Returns true if and only if the items in <paramref name="list1"/> and <paramref name="list2"/> are equal using the given <paramref name="comparer"/>.</returns>
-        public static bool SequanceEqual<T>(this IList<T> list1, IList<T> list2, IEqualityComparer<T> comparer)
-        {
-            if (list1.Count != list2.Count)
-            {
-                return false;
-            }
-            for (int i = 0; i < list1.Count; i++)
-            {
-                if (!comparer.Equals(list1[i], list2[i]))
-                {
-                    return false;
-                }
-            }
-            return true;
+            return EnumerableComparer.DefaultInstance.EqualsTyped(enumerable1, enumerable2, new HashSet<PropertyEqualsCalculatorTuple>());
         }
         /// <returns>Returns true if and only if the items in <paramref name="list1"/> and <paramref name="list2"/> are equal (ignoring the order) using <see cref="PropertyEqualsCalculator{T}"/> as comparer.</returns>
         public static bool SetEquals<T>(this ISet<T> set1, ISet<T> set2)
         {
-            return SetEquals(set1, set2, PropertyEqualsCalculator.GetDefaultInstance<T>());
+            return SetComparer.DefaultInstance.EqualsTyped(set1, set2, new HashSet<PropertyEqualsCalculatorTuple>());
         }
-        /// <returns>Returns true if and only if the items in <paramref name="list1"/> and <paramref name="list2"/> are equal (ignoring the order) using the given <paramref name="comparer"/>.</returns>
-        public static bool SetEquals<T>(this ISet<T> set1, ISet<T> set2, IEqualityComparer<T> comparer)
+        public static bool ListEquals(this System.Collections.IList list1, System.Collections.IList list2)
         {
-            if (set1.Count != set2.Count)
-            {
-                return false;
-            }
-            SortedSet<T>.Enumerator sortedSet1 = new SortedSet<T>(set1).GetEnumerator();
-            SortedSet<T>.Enumerator sortedSet2 = new SortedSet<T>(set2).GetEnumerator();
-            while (sortedSet1.MoveNext())
-            {
-                sortedSet2.MoveNext();
-                if (!comparer.Equals(sortedSet1.Current, sortedSet2.Current))
-                {
-                    return false;
-                }
-            }
-
-            return true;
+            return ListComparer.DefaultInstance.Equals(list1, list2, new HashSet<PropertyEqualsCalculatorTuple>());
         }
-
-        /// <returns>Returns true if and only if the most concrete type of <paramref name="object"/> implements <see cref="IDictionary{TKey, TValue}"/>.</returns>
-        public static bool ObjectIsDictionary(this object @object)
+        /// <returns>Returns true if and only if the items in <paramref name="list1"/> and <paramref name="list2"/> are equal using <see cref="PropertyEqualsCalculator{T}"/> as comparer.</returns>
+        public static bool ListEquals<T>(this IList<T> list1, IList<T> list2)
         {
-            return IsAssignableFrom(@object, typeof(IDictionary<,>));
+            return ListComparer.DefaultInstance.EqualsTyped<T>(list1, list2, new HashSet<PropertyEqualsCalculatorTuple>());
         }
-        public static bool TypeIsDictionary(this Type type)
+        public static bool DictionaryEquals(this System.Collections.IDictionary dictionary1, System.Collections.IDictionary dictionary2)
         {
-            return IsAssignableFrom(type, typeof(IDictionary<,>));
-        }
-        public static IDictionary<TKey, TValue> ObjectToDictionary<TKey, TValue>(this object @object)
-        {
-            if (!ObjectIsDictionary(@object))
-            {
-                throw new InvalidCastException();
-            }
-            IEnumerable<object> objects = ObjectToEnumerableGeneric<object>(@object);
-            Dictionary<TKey, TValue> result = new Dictionary<TKey, TValue>();
-            foreach (object obj in objects)
-            {
-                System.Collections.Generic.KeyValuePair<TKey, TValue> kvp = ObjectToKeyValuePair<TKey, TValue>(obj);
-                result.Add(kvp.Key, kvp.Value);
-            }
-            return result;
+            return DictionaryComparer.DefaultInstance.Equals(dictionary1, dictionary2, new HashSet<PropertyEqualsCalculatorTuple>());
         }
         public static bool DictionaryEquals<TKey, TValue>(this IDictionary<TKey, TValue> dictionary1, IDictionary<TKey, TValue> dictionary2)
         {
-            return DictionaryEquals(dictionary1, dictionary2, PropertyEqualsCalculator.GetDefaultInstance<System.Collections.Generic.KeyValuePair<TKey, TValue>>());
+            return DictionaryComparer.DefaultInstance.EqualsTyped(dictionary1, dictionary2, new HashSet<PropertyEqualsCalculatorTuple>());
         }
-        public static bool DictionaryEquals<TKey, TValue>(this IDictionary<TKey, TValue> dictionary1, IDictionary<TKey, TValue> dictionary2, IEqualityComparer<System.Collections.Generic.KeyValuePair<TKey, TValue>> comparer)
+        public static bool KeyValuePairEquals<TKey, TValue>(this System.Collections.Generic.KeyValuePair<TKey, TValue> keyValuePair1, System.Collections.Generic.KeyValuePair<TKey, TValue> keyValuePair2)
         {
-            if (dictionary1.Count == dictionary2.Count)
-            {
-                foreach (TKey key in dictionary1.Keys)
-                {
-                    if (dictionary2.ContainsKey(key))
-                    {
-                        System.Collections.Generic.KeyValuePair<TKey, TValue> kvp1 = new System.Collections.Generic.KeyValuePair<TKey, TValue>(key, dictionary1[key]);
-                        System.Collections.Generic.KeyValuePair<TKey, TValue> kvp2 = new System.Collections.Generic.KeyValuePair<TKey, TValue>(key, dictionary2[key]);
-                        if (!comparer.Equals(kvp1, kvp2))
-                        {
-                            return false;
-                        }
-                    }
-                    else
-                    {
-                        return false;
-                    }
-                }
-            }
-            else
-            {
-                return false;
-            }
-            return true;
+            return KeyValuePairComparer.DefaultInstance.Equals(keyValuePair1, keyValuePair2, new HashSet<PropertyEqualsCalculatorTuple>());
         }
+
+        #endregion
+        #endregion
+
 
         public static bool IsAssignableFrom(object @object, Type genericTypeToCompare)
         {
@@ -697,30 +643,55 @@ namespace GRYLibrary.Core
 
         internal static bool TryResolvePathByPathVariable(string program, out string programWithFullPath)
         {
-            programWithFullPath = null;
-            string[] knownExtension = new string[] { ".exe", ".cmd" };
-            string paths = Environment.ExpandEnvironmentVariables("%PATH%");
-            bool @break = false;
-            foreach (string path in paths.Split(';'))
+            (bool, string) result = OperatingSystem.OperatingSystem.GetCurrentOperatingSystem().Accept(new TryResolvePathByPathVariableVisitor(program));
+            programWithFullPath = result.Item2;
+            return result.Item1;
+        }
+
+        private class TryResolvePathByPathVariableVisitor : IOperatingSystemVisitor<(bool/*Success*/, string/*programWithFullPath*/)>
+        {
+            private readonly string _Programname;
+
+            public TryResolvePathByPathVariableVisitor(string programname)
             {
-                foreach (string combined in GetCombinations(path, knownExtension, program))
+                this._Programname = programname;
+            }
+
+            public (bool, string) Handle(OSX operatingSystem)
+            {
+                throw new NotImplementedException();
+            }
+
+            public (bool, string) Handle(Windows operatingSystem)
+            {
+                string program = null;
+                string[] knownExtension = new string[] { ".exe", ".cmd" };
+                string paths = Environment.ExpandEnvironmentVariables("%PATH%");
+                bool @break = false;
+                foreach (string path in paths.Split(';'))
                 {
-                    if (File.Exists(combined))
+                    foreach (string combined in GetCombinations(path, knownExtension, this._Programname))
                     {
-                        programWithFullPath = combined;
-                        @break = true;
+                        if (File.Exists(combined))
+                        {
+                            program = combined;
+                            @break = true;
+                            break;
+                        }
+                    }
+                    if (@break)
+                    {
                         break;
                     }
                 }
-                if (@break)
-                {
-                    break;
-                }
+                return (program != null, program);
             }
-            return programWithFullPath != null;
 
+            public (bool, string) Handle(Linux operatingSystem)
+            {
+                throw new NotImplementedException();
+            }
         }
-
         private static IEnumerable<string> GetCombinations(string path, string[] knownExtensions, string program)
         {
             string programToLower = program.ToLower();
@@ -1984,8 +1955,16 @@ namespace GRYLibrary.Core
                 }
                 else
                 {
-                    throw new NotImplementedException();
-                    //open program with default program;argument can be ignored
+                    if (OperatingSystem.OperatingSystem.GetCurrentOperatingSystem() is Windows)
+                    {
+                        resultProgram = Utilities.GetDefaultProgramToOpenFile(Path.GetExtension(program));
+                        resultArgument = program;
+                    }
+                    else
+                    {
+                        resultProgram = program;
+                        resultArgument = argument;
+                    }
                 }
                 program = resultProgram;
                 argument = resultArgument;
@@ -2008,5 +1987,50 @@ namespace GRYLibrary.Core
                 action(item);
             }
         }
+        #region Get file extension on windows
+        private static string GetDefaultProgramToOpenFile(string extensionWithDot)
+        {
+            return FileExtentionInfo(AssocStr.Executable, extensionWithDot);
+        }
+        [DllImport("Shlwapi.dll", SetLastError = true, CharSet = CharSet.Auto)]
+        static extern uint AssocQueryString(AssocF flags, AssocStr str, string pszAssoc, string pszExtra, [Out] StringBuilder pszOut, [In][Out] ref uint pcchOut);
+        private static string FileExtentionInfo(AssocStr assocStr, string extensionWithDot)
+        {
+            uint pcchOut = 0;
+            AssocQueryString(AssocF.Verify, assocStr, extensionWithDot, null, null, ref pcchOut);
+            StringBuilder pszOut = new StringBuilder((int)pcchOut);
+            AssocQueryString(AssocF.Verify, assocStr, extensionWithDot, null, pszOut, ref pcchOut);
+            return pszOut.ToString();
+        }
+        [Flags]
+        private enum AssocF
+        {
+            Init_NoRemapCLSID = 0x1,
+            Init_ByExeName = 0x2,
+            Open_ByExeName = 0x2,
+            Init_DefaultToStar = 0x4,
+            Init_DefaultToFolder = 0x8,
+            NoUserSettings = 0x10,
+            NoTruncate = 0x20,
+            Verify = 0x40,
+            RemapRunDll = 0x80,
+            NoFixUps = 0x100,
+            IgnoreBaseClass = 0x200
+        }
+
+        private enum AssocStr
+        {
+            Command = 1,
+            Executable,
+            FriendlyDocName,
+            FriendlyAppName,
+            NoOpen,
+            ShellNewValue,
+            DDECommand,
+            DDEIfExec,
+            DDEApplication,
+            DDETopic
+        }
+        #endregion
     }
 }

@@ -211,9 +211,9 @@ namespace GRYLibrary.Tests
 
             List<int> testList = new List<int> { 3, 4, 5 };
             object testListAsObject = testList;
-            Assert.IsTrue(Utilities.SequanceEqual(testList, Utilities.ObjectToList<int>(testListAsObject)));
+            Assert.IsTrue(Utilities.ListEquals(testList, Utilities.ObjectToList<int>(testListAsObject)));
 
-            Assert.IsTrue(Utilities.SequanceEqual(testList, new List<int> { 3, 4, 5 }.ToImmutableList()));
+            Assert.IsTrue(Utilities.ListEquals(testList, (IList)new List<int> { 3, 4, 5 }.ToImmutableList()));
         }
         [Ignore]
         [TestMethod]

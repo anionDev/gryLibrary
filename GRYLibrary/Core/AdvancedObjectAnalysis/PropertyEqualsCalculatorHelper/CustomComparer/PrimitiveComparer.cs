@@ -1,27 +1,28 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Runtime.CompilerServices;
 
 namespace GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper.CustomComparer
 {
     public class PrimitiveComparer : AbstractCustomComparer
     {
         private PrimitiveComparer() { }
-        public static AbstractCustomComparer DefaultInstance { get; } = new PrimitiveComparer();
+        public static PrimitiveComparer DefaultInstance { get; } = new PrimitiveComparer();
 
         public override bool Equals(object x, object y, ISet<PropertyEqualsCalculatorTuple> visitedObjects)
         {
-            throw new NotImplementedException();
+            return x.Equals(y);
         }
 
         public override int GetHashCode(object obj)
         {
-            throw new NotImplementedException();
+            return RuntimeHelpers.GetHashCode(obj);
         }
 
         public override bool IsApplicable(Type type)
         {
-            throw new NotImplementedException();
+            return type.IsPrimitive || typeof(string).Equals(type) || type.IsValueType;
         }
     }
 }

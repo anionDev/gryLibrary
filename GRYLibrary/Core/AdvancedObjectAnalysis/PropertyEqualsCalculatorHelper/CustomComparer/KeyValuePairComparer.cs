@@ -7,26 +7,26 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper.
     public class KeyValuePairComparer : AbstractCustomComparer
     {
         private KeyValuePairComparer() { }
-        public static AbstractCustomComparer DefaultInstance { get; } = new KeyValuePairComparer();
+        public static KeyValuePairComparer DefaultInstance { get; } = new KeyValuePairComparer();
 
-        public override bool Equals(object x, object y, ISet<PropertyEqualsCalculatorTuple> visitedObjects)
+        public override bool Equals(object keyValuePair1, object keyValuePair2, ISet<PropertyEqualsCalculatorTuple> visitedObjects)
         {
-            throw new NotImplementedException();
+            return this.EqualsTyped(Utilities.ObjectToKeyValuePair<object, object>(keyValuePair1), Utilities.ObjectToKeyValuePair<object, object>(keyValuePair2), visitedObjects);
         }
 
-        public  bool EqualsTyped(KeyValuePair<object, object> x, KeyValuePair<object, object> y, ISet<PropertyEqualsCalculatorTuple> visitedObjects)
+        public bool EqualsTyped(KeyValuePair<object, object> keyValuePair1, KeyValuePair<object, object> keyValuePair2, ISet<PropertyEqualsCalculatorTuple> visitedObjects)
         {
-            return PropertyEqualsCalculator.DefaultInstance.Equals(x.Key, y.Key, visitedObjects) && PropertyEqualsCalculator.DefaultInstance.Equals(x.Value, y.Value, visitedObjects);
+            return PropertyEqualsCalculator.DefaultInstance.Equals(keyValuePair1.Key, keyValuePair2.Key, visitedObjects) && PropertyEqualsCalculator.DefaultInstance.Equals(keyValuePair1.Value, keyValuePair2.Value, visitedObjects);
         }
 
         public override int GetHashCode(object obj)
         {
-            throw new NotImplementedException();
+            return RuntimeHelpers.GetHashCode(obj);
         }
 
         public override bool IsApplicable(Type type)
         {
-            throw new NotImplementedException();
+            return Utilities.TypeIsKeyValuePair(type);
         }
     }
 }
