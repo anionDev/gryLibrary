@@ -242,6 +242,7 @@ namespace GRYLibrary.Tests
             Assert.IsTrue(Utilities.ObjectIsEnumerable(setAsEnumerable));
             Assert.IsTrue(Utilities.ObjectIsEnumerable(new HashSet<object> { 3, 4, 5 }));
             Assert.IsTrue(Utilities.ObjectIsEnumerable(new HashSet<int> { 3, 4, 5 }));
+            Assert.IsTrue(Utilities.ObjectIsEnumerable(new List<SimpleDataStructure3>()));
         }
         [TestMethod]
         public void EnumerableCount()

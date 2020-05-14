@@ -5,6 +5,7 @@ using System.Runtime.CompilerServices;
 
 namespace GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper
 {
+    //todo this type must be replaced by EquivalenceClass completely
     public class PropertyEqualsCalculatorTuple
     {
         public PropertyEqualsCalculatorTuple(object item1, object item2)

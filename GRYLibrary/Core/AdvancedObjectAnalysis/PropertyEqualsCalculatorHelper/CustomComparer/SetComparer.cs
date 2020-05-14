@@ -5,16 +5,18 @@ using System.Runtime.CompilerServices;
 
 namespace GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper.CustomComparer
 {
-    public class SetComparer : AbstractCustomComparer
+    internal class SetComparer : AbstractCustomComparer
     {
-        private SetComparer() { }
-        public static SetComparer DefaultInstance { get; } = new SetComparer();
-
-        public override bool Equals(object x, object y, ISet<PropertyEqualsCalculatorTuple> visitedObjects)
+        internal SetComparer(PropertyEqualsCalculatorConfiguration cacheAndConfiguration)
         {
-            return this.EqualsTyped(Utilities.ObjectToSet<object>(x), Utilities.ObjectToSet<object>(y), visitedObjects);
+            this.Configuration = cacheAndConfiguration;
         }
-        public bool EqualsTyped<T>(ISet<T> set1, ISet<T> set2, ISet<PropertyEqualsCalculatorTuple> visitedObjects)
+
+        public override bool DefaultEquals(object item1, object item2)
+        {
+            return this.EqualsTyped(Utilities.ObjectToSet<object>(item1), Utilities.ObjectToSet<object>(item2));
+        }
+        internal bool EqualsTyped<T>(ISet<T> set1, ISet<T> set2)
         {
             if (set1.Count != set2.Count)
             {
@@ -22,7 +24,7 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper.
             }
             foreach (T obj in set1)
             {
-                if (!this.Contains(set2, obj, visitedObjects))
+                if (!this.Contains(set2, obj))
                 {
                     return false;
                 }
@@ -30,11 +32,11 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper.
             return true;
         }
 
-        private bool Contains<T>(ISet<T> set, T obj, ISet<PropertyEqualsCalculatorTuple> visitedObjects)
+        private bool Contains<T>(ISet<T> set, T obj)
         {
             foreach (ISet<T> item in set)
             {
-                if (PropertyEqualsCalculator.DefaultInstance.Equals(item, obj, visitedObjects))
+                if (new PropertyEqualsCalculator(Configuration).Equals(item, obj))
                 {
                     return true;
                 }
@@ -42,14 +44,14 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper.
             return false;
         }
 
-        public override int GetHashCode(object obj)
-        {
-            return RuntimeHelpers.GetHashCode(obj);
-        }
-
         public override bool IsApplicable(Type type)
         {
             return Utilities.TypeIsSet(type);
+        }
+
+        public override int DefaultGetHashCode(object obj)
+        {
+            return Configuration.GetRuntimeHashCode(obj);
         }
     }
 }

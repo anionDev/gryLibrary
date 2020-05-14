@@ -237,6 +237,14 @@ namespace GRYLibrary.Core
         {
             return IsAssignableFrom(type, typeof(System.Collections.Generic.KeyValuePair<,>));
         }
+        public static bool ObjectIsTuple(this object @object)
+        {
+            return TypeIsTuple(@object.GetType());
+        }
+        public static bool TypeIsTuple(this Type type)
+        {
+            return IsAssignableFrom(type, typeof(Tuple<,>));
+        }
 
         #endregion
         #region ToEnumerable
@@ -357,38 +365,46 @@ namespace GRYLibrary.Core
                 throw new InvalidCastException();
             }
         }
+        public static Tuple<T1, T2> ObjectToTuple<T1, T2>(this object @object)
+        {
+            throw new NotImplementedException();
+        }
 
         #endregion
         #region EqualsEnumerable
         public static bool EnumerableEquals(this System.Collections.IEnumerable enumerable1, System.Collections.IEnumerable enumerable2)
         {
-            return EnumerableComparer.DefaultInstance.EqualsTyped(enumerable1, enumerable2, new HashSet<PropertyEqualsCalculatorTuple>());
+            return new EnumerableComparer(new PropertyEqualsCalculatorConfiguration()).EqualsTyped(enumerable1, enumerable2);
         }
         /// <returns>Returns true if and only if the items in <paramref name="list1"/> and <paramref name="list2"/> are equal (ignoring the order) using <see cref="PropertyEqualsCalculator{T}"/> as comparer.</returns>
         public static bool SetEquals<T>(this ISet<T> set1, ISet<T> set2)
         {
-            return SetComparer.DefaultInstance.EqualsTyped(set1, set2, new HashSet<PropertyEqualsCalculatorTuple>());
+            return new SetComparer(new PropertyEqualsCalculatorConfiguration()).EqualsTyped(set1, set2);
         }
         public static bool ListEquals(this System.Collections.IList list1, System.Collections.IList list2)
         {
-            return ListComparer.DefaultInstance.Equals(list1, list2, new HashSet<PropertyEqualsCalculatorTuple>());
+            return new ListComparer(new PropertyEqualsCalculatorConfiguration()).Equals(list1, list2);
         }
         /// <returns>Returns true if and only if the items in <paramref name="list1"/> and <paramref name="list2"/> are equal using <see cref="PropertyEqualsCalculator{T}"/> as comparer.</returns>
         public static bool ListEquals<T>(this IList<T> list1, IList<T> list2)
         {
-            return ListComparer.DefaultInstance.EqualsTyped<T>(list1, list2, new HashSet<PropertyEqualsCalculatorTuple>());
+            return new ListComparer(new PropertyEqualsCalculatorConfiguration()).EqualsTyped<T>(list1, list2);
         }
         public static bool DictionaryEquals(this System.Collections.IDictionary dictionary1, System.Collections.IDictionary dictionary2)
         {
-            return DictionaryComparer.DefaultInstance.Equals(dictionary1, dictionary2, new HashSet<PropertyEqualsCalculatorTuple>());
+            return new DictionaryComparer(new PropertyEqualsCalculatorConfiguration()).Equals(dictionary1, dictionary2);
         }
         public static bool DictionaryEquals<TKey, TValue>(this IDictionary<TKey, TValue> dictionary1, IDictionary<TKey, TValue> dictionary2)
         {
-            return DictionaryComparer.DefaultInstance.EqualsTyped(dictionary1, dictionary2, new HashSet<PropertyEqualsCalculatorTuple>());
+            return new DictionaryComparer(new PropertyEqualsCalculatorConfiguration()).EqualsTyped(dictionary1, dictionary2);
         }
         public static bool KeyValuePairEquals<TKey, TValue>(this System.Collections.Generic.KeyValuePair<TKey, TValue> keyValuePair1, System.Collections.Generic.KeyValuePair<TKey, TValue> keyValuePair2)
         {
-            return KeyValuePairComparer.DefaultInstance.Equals(keyValuePair1, keyValuePair2, new HashSet<PropertyEqualsCalculatorTuple>());
+            return new KeyValuePairComparer(new PropertyEqualsCalculatorConfiguration()).Equals(keyValuePair1, keyValuePair2);
+        }
+        public static bool TupleEquals<TKey, TValue>(this Tuple<TKey, TValue> tuple1, Tuple<TKey, TValue> tuple2)
+        {
+            return new TupleComparer(new PropertyEqualsCalculatorConfiguration()).Equals(tuple1, tuple2);
         }
 
         #endregion

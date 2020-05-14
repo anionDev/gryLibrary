@@ -6,16 +6,18 @@ using System.Collections;
 
 namespace GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper.CustomComparer
 {
-    public class EnumerableComparer : AbstractCustomComparer
+    internal class EnumerableComparer : AbstractCustomComparer
     {
-        private EnumerableComparer() { }
-        public static EnumerableComparer DefaultInstance { get; } = new EnumerableComparer();
-
-        public override bool Equals(object x, object y, ISet<PropertyEqualsCalculatorTuple> visitedObjects)
+        internal EnumerableComparer(PropertyEqualsCalculatorConfiguration cacheAndConfiguration)
         {
-            return this.EqualsTyped(Utilities.ObjectToEnumerable(x), Utilities.ObjectToEnumerable(y), visitedObjects);
+            this.Configuration = cacheAndConfiguration;
         }
-        public bool EqualsTyped(IEnumerable enumerable1, IEnumerable enumerable2, ISet<PropertyEqualsCalculatorTuple> visitedObjects)
+
+        public override bool DefaultEquals(object item1, object item2)
+        {
+            return this.EqualsTyped(Utilities.ObjectToEnumerable(item1), Utilities.ObjectToEnumerable(item2));
+        }
+        internal bool EqualsTyped(IEnumerable enumerable1, IEnumerable enumerable2)
         {
             if (enumerable1.Count() != enumerable2.Count())
             {
@@ -23,7 +25,7 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper.
             }
             foreach (object item in enumerable1)
             {
-                if (this.GetCountOfItemInEnumerable(enumerable1, item, visitedObjects) != this.GetCountOfItemInEnumerable(enumerable2, item, visitedObjects))
+                if (this.GetCountOfItemInEnumerable(enumerable1, item) != this.GetCountOfItemInEnumerable(enumerable2, item))
                 {
                     return false;
                 }
@@ -31,12 +33,12 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper.
             return true;
         }
 
-        private int GetCountOfItemInEnumerable(IEnumerable enumerable, object item, ISet<PropertyEqualsCalculatorTuple> visitedObjects)
+        private int GetCountOfItemInEnumerable(IEnumerable enumerable, object item)
         {
             int result = 0;
             foreach (object enumerableEntry in enumerable)
             {
-                if (PropertyEqualsCalculator.DefaultInstance.Equals(item, visitedObjects))
+                if (new PropertyEqualsCalculator(Configuration).Equals(item))
                 {
                     result += 1;
                 }
@@ -44,12 +46,10 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper.
 
             return result;
         }
-
-        public override int GetHashCode(object obj)
+        public override int DefaultGetHashCode(object obj)
         {
-            return RuntimeHelpers.GetHashCode(obj);
+            return Configuration.GetRuntimeHashCode(obj);
         }
-
         public override bool IsApplicable(Type type)
         {
             return Utilities.TypeIsEnumerable(type);

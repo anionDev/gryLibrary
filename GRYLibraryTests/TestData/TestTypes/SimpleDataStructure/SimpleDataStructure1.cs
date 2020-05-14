@@ -25,7 +25,7 @@ namespace GRYLibrary.TestData.TestTypes.SimpleDataStructure
 
         public override bool Equals(object obj)
         {
-            return PropertyEqualsCalculator.DefaultInstance.Equals(this, obj);
+            return new PropertyEqualsCalculator().Equals(this, obj);
         }
 
         public override int GetHashCode()
@@ -34,7 +34,7 @@ namespace GRYLibrary.TestData.TestTypes.SimpleDataStructure
         }
         public override string ToString()
         {
-            return $"{nameof(SimpleDataStructure1)}{{{nameof(this.Property1)}=(List with {this.Property1.Count} item(s)),{nameof(this.Property2)}={this.Property2},{nameof(this.Property3)}={this.Property3}}}";
+            return GenericToString.Instance.ToString(this);
         }
     }
 }

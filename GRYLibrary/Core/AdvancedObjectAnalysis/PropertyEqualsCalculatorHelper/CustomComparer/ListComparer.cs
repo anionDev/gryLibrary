@@ -5,25 +5,27 @@ using System.Runtime.CompilerServices;
 
 namespace GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper.CustomComparer
 {
-    public class ListComparer : AbstractCustomComparer
+    internal class ListComparer : AbstractCustomComparer
     {
-        private ListComparer() { }
-        public static ListComparer DefaultInstance { get; } = new ListComparer();
-    
-        public override bool Equals(object x, object y, ISet<PropertyEqualsCalculatorTuple> visitedObjects)
+        internal ListComparer(PropertyEqualsCalculatorConfiguration cacheAndConfiguration)
         {
-            return this.EqualsTyped(Utilities.ObjectToList<object>(x), Utilities.ObjectToList<object>(y), visitedObjects);
+            this.Configuration = cacheAndConfiguration;
         }
 
-        public bool EqualsTyped<T>(IList<T> x, IList<T> y, ISet<PropertyEqualsCalculatorTuple> visitedObjects)
+        public override bool DefaultEquals(object item1, object item2)
         {
-            if (x.Count != y.Count)
+            return this.EqualsTyped(Utilities.ObjectToList<object>(item1), Utilities.ObjectToList<object>(item2));
+        }
+
+        internal bool EqualsTyped<T>(IList<T> list1, IList<T> list2)
+        {
+            if (list1.Count != list2.Count)
             {
                 return false;
             }
-            for (int i = 0; i < x.Count; i++)
+            for (int i = 0; i < list1.Count; i++)
             {
-                if (!PropertyEqualsCalculator.DefaultInstance.Equals(x, y, visitedObjects))
+                if (!new PropertyEqualsCalculator(Configuration).Equals(list1[i], list2[i]))
                 {
                     return false;
                 }
@@ -31,10 +33,9 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper.
             return true;
         }
 
-
-        public override int GetHashCode(object obj)
+        public override int DefaultGetHashCode(object obj)
         {
-            return RuntimeHelpers.GetHashCode(obj);
+            return Configuration.GetRuntimeHashCode(obj);
         }
 
         public override bool IsApplicable(Type type)

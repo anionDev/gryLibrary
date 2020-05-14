@@ -4,24 +4,26 @@ using System.Runtime.CompilerServices;
 
 namespace GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper.CustomComparer
 {
-    public class KeyValuePairComparer : AbstractCustomComparer
+    internal class KeyValuePairComparer : AbstractCustomComparer
     {
-        private KeyValuePairComparer() { }
-        public static KeyValuePairComparer DefaultInstance { get; } = new KeyValuePairComparer();
-
-        public override bool Equals(object keyValuePair1, object keyValuePair2, ISet<PropertyEqualsCalculatorTuple> visitedObjects)
+        internal KeyValuePairComparer(PropertyEqualsCalculatorConfiguration cacheAndConfiguration)
         {
-            return this.EqualsTyped(Utilities.ObjectToKeyValuePair<object, object>(keyValuePair1), Utilities.ObjectToKeyValuePair<object, object>(keyValuePair2), visitedObjects);
+            this.Configuration = cacheAndConfiguration;
         }
 
-        public bool EqualsTyped(KeyValuePair<object, object> keyValuePair1, KeyValuePair<object, object> keyValuePair2, ISet<PropertyEqualsCalculatorTuple> visitedObjects)
+        public override bool DefaultEquals(object item1, object item2)
         {
-            return PropertyEqualsCalculator.DefaultInstance.Equals(keyValuePair1.Key, keyValuePair2.Key, visitedObjects) && PropertyEqualsCalculator.DefaultInstance.Equals(keyValuePair1.Value, keyValuePair2.Value, visitedObjects);
+            return this.EqualsTyped(Utilities.ObjectToKeyValuePair<object, object>(item1), Utilities.ObjectToKeyValuePair<object, object>(item2));
         }
 
-        public override int GetHashCode(object obj)
+        internal bool EqualsTyped(KeyValuePair<object, object> keyValuePair1, KeyValuePair<object, object> keyValuePair2)
         {
-            return RuntimeHelpers.GetHashCode(obj);
+            return new PropertyEqualsCalculator(Configuration).Equals(keyValuePair1.Key, keyValuePair2.Key) && new PropertyEqualsCalculator(Configuration).Equals(keyValuePair1.Value, keyValuePair2.Value);
+        }
+
+        public override int DefaultGetHashCode(object obj)
+        {
+            return Configuration.GetRuntimeHashCode(obj);
         }
 
         public override bool IsApplicable(Type type)

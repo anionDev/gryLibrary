@@ -17,7 +17,7 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.GenericXMLSerializerHelper
         public HashSet<Simplified> Objects { get; set; }
         public static GRYSObject Create(object @object, SerializationConfiguration serializationConfiguration)
         {
-            Dictionary<object, Simplified> dictionary = new Dictionary<object, Simplified>(ReferenceEqualsComparer.Instance);
+            Dictionary<object, Simplified> dictionary = new Dictionary<object, Simplified>(new PropertyEqualsCalculator(serializationConfiguration.PropertyEqualsCalculatorConfiguration));
             FillDictionary(dictionary, @object, serializationConfiguration);
             GRYSObject result = new GRYSObject();
             result.Objects = new HashSet<Simplified>(dictionary.Values);
@@ -27,7 +27,7 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.GenericXMLSerializerHelper
 
         private static Guid FillDictionary(Dictionary<object, Simplified> dictionary, object @object, SerializationConfiguration serializationConfiguration)
         {
-            if (@object == null)
+            if (Utilities.IsDefault(@object))
             {
                 return default;
             }
@@ -43,7 +43,7 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.GenericXMLSerializerHelper
             else
             {
                 Simplified simplification;
-                if (PrimitiveComparer.DefaultInstance.IsApplicable(typeOfObject))
+                if (new PrimitiveComparer(serializationConfiguration.PropertyEqualsCalculatorConfiguration).IsApplicable(typeOfObject))
                 {
                     simplification = new SPrimitive();
                 }
@@ -80,7 +80,14 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.GenericXMLSerializerHelper
                     PropertyInfo property = typeOfObject.GetProperty(attribute.Name);
                     if (property != null)
                     {
-                        property.SetValue(@object, this._DeserializedObjects[attribute.ObjectId]);
+                        if (default(Guid).Equals(attribute.ObjectId))
+                        {
+                            property.SetValue(@object, Utilities.GetDefault(property.PropertyType));
+                        }
+                        else
+                        {
+                            property.SetValue(@object, this._DeserializedObjects[attribute.ObjectId]);
+                        }
                         continue;
                     }
                     FieldInfo field = typeOfObject.GetField(attribute.Name);

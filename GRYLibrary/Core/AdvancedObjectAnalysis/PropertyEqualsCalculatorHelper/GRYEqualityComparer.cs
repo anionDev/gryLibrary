@@ -6,11 +6,16 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper
 {
     public abstract class GRYEqualityComparer<T> : IEqualityComparer<T>
     {
-        public abstract bool Equals(T x, T y, ISet<PropertyEqualsCalculatorTuple> visitedObjects);
-        public abstract int GetHashCode(T obj);
+        internal PropertyEqualsCalculatorConfiguration Configuration { get;  set; }
+        public abstract bool DefaultEquals(T x, T y);
+        public abstract int DefaultGetHashCode(T obj);
+        public int GetHashCode(T obj)
+        {
+            return this.DefaultGetHashCode(obj);
+        }
         public bool Equals(T x, T y)
         {
-            return this.Equals(x, y, new HashSet<PropertyEqualsCalculatorTuple>());
+            return this.DefaultEquals(x, y);
         }
     }
 }
