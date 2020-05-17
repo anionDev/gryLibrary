@@ -35,7 +35,7 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis
                 Type object2Type = object2.GetType();
                 if (this.Configuration.AreInSameEquivalenceClass(object1, object2))
                 {
-                    //objects where already compared
+                    //objects where already compared and it was determined that they are equal
                     return true;
                 }
                 else if (this.CustomComparerShouldBeApplied(this.Configuration, object1Type, out AbstractCustomComparer customComparer))
@@ -44,8 +44,8 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis
                     bool result = customComparer.Equals(object1, object2);
                     if (result)
                     {
-                        visitedObjects.Add(new PropertyEqualsCalculatorTuple(object1, object2));
-                    }
+                        Configuration.AddEqualObjects(object1,object2);
+                          }
                     return result;
                 }
                 else if (object1Type.Equals(object2Type))
@@ -71,7 +71,7 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis
                     {
                         if (this.Equals(entry.Item1, entry.Item2))
                         {
-                            visitedObjects.Add(new PropertyEqualsCalculatorTuple(object1, object2));
+                            Configuration.AddEqualObjects(object1, object2);
                         }
                         else
                         {

@@ -20,18 +20,20 @@ namespace GRYLibrary.TestData.TestTypes.SimpleDataStructure
             return result;
         }
 
+
+        private readonly PropertyEqualsCalculator _PropertyEqualsCalculator = new PropertyEqualsCalculator();//TODO: avoid such an field
         public override bool Equals(object obj)
         {
-            return PropertyEqualsCalculator.DefaultInstance.Equals(this, obj);
+            return _PropertyEqualsCalculator.Equals(this, obj);
         }
 
         public override int GetHashCode()
         {
-            return HashCode.Combine(this.Property4, this.Property5);
+            return _PropertyEqualsCalculator.GetHashCode(this);
         }
         public override string ToString()
         {
-            return $"{nameof(SimpleDataStructure3)}{{{nameof(this.Property4)}={this.Property4},{nameof(this.Property5)}=(List with {this.Property5.Count} item(s))}}";
+            return GenericToString.Instance.ToString(this);
         }
     }
 }

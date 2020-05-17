@@ -24,9 +24,9 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis
 
         public string ToString(object @object)
         {
-            return this.ToString(@object, new PropertyEqualsCalculator(), 0);
+            return this.ToString(@object, new Dictionary<object, Guid>(), 0);
         }
-        private string ToString(object @object, PropertyEqualsCalculator propertyEqualsCalculator, int currentIndentationLevel)
+        private string ToString(object @object,IDictionary<object,Guid> visitedObjects, int currentIndentationLevel)
         {
             if (@object == null)
             {

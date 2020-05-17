@@ -7,18 +7,19 @@ namespace GRYLibrary.TestData.TestTypes.SimpleDataStructure
     {
         public Guid Guid { get; set; }
 
+        private readonly PropertyEqualsCalculator _PropertyEqualsCalculator = new PropertyEqualsCalculator();//TODO: avoid such an field
         public override bool Equals(object obj)
         {
-            return PropertyEqualsCalculator.DefaultInstance.Equals(this, obj);
+            return _PropertyEqualsCalculator.Equals(this, obj);
         }
 
         public override int GetHashCode()
         {
-            return HashCode.Combine(this.Guid);
+            return _PropertyEqualsCalculator.GetHashCode(this);
         }
         public override string ToString()
         {
-            return $"{nameof(SimpleDataStructure2)}{{{nameof(this.Guid)}={this.Guid}}}";
+            return GenericToString.Instance.ToString(this);
         }
     }
 

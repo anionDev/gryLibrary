@@ -8,18 +8,11 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper
     internal class EquivalenceClass
     {
         public Guid Id { get; }
-        private readonly object _ReferenceElement;
         public ISet<object> ContainedObjects { get; }
-        public EquivalenceClass(object referenceElement)
+        public EquivalenceClass()
         {
             this.Id = Guid.NewGuid();
-            this._ReferenceElement = referenceElement;
-            this.ContainedObjects = new HashSet<object>(GetComparer());
-        }
-
-        private IEqualityComparer<object> GetComparer()
-        {
-            throw new NotImplementedException();
+            this.ContainedObjects = new HashSet<object>(new ReferenceEqualsComparer());
         }
 
         public override bool Equals(object obj)
@@ -33,8 +26,19 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper
         }
         public bool BelongsToThisEquivalenceClass(object @object)
         {
-            //todo special treatments for enumerables and complexobjects
-            return _ReferenceElement.Equals(@object);
+            return ContainedObjects.Contains(@object);
+        }
+        private class ReferenceEqualsComparer : IEqualityComparer<object>
+        {
+            public new bool Equals(object item1, object item2)
+            {
+                return object.ReferenceEquals(item1, item2);
+            }
+
+            public int GetHashCode(object obj)
+            {
+                return RuntimeHelpers.GetHashCode(obj);
+            }
         }
     }
 }
