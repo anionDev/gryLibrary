@@ -1,34 +1,46 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Runtime.CompilerServices;
 
 namespace GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper.CustomComparer
 {
-    public class ListComparer : AbstractCustomComparer
+    internal class ListComparer : AbstractCustomComparer
     {
-        private ListComparer() { }
-        public static AbstractCustomComparer DefaultInstance { get; } = new ListComparer();
-
-    
-        public override bool Equals(object x, object y, ISet<PropertyEqualsCalculatorTuple> visitedObjects)
+        internal ListComparer(PropertyEqualsCalculatorConfiguration cacheAndConfiguration)
         {
-            throw new NotImplementedException();
+            this.Configuration = cacheAndConfiguration;
         }
 
-        public bool EqualsTyped(IList<object> x, IList<object> y, ISet<PropertyEqualsCalculatorTuple> visitedObjects)
+        public override bool DefaultEquals(object item1, object item2)
         {
-            throw new NotImplementedException();
+            return this.EqualsTyped(Utilities.ObjectToList<object>(item1), Utilities.ObjectToList<object>(item2));
         }
 
-
-        public override int GetHashCode(object obj)
+        internal bool EqualsTyped<T>(IList<T> list1, IList<T> list2)
         {
-            throw new NotImplementedException();
+            if (list1.Count != list2.Count)
+            {
+                return false;
+            }
+            for (int i = 0; i < list1.Count; i++)
+            {
+                if (!new PropertyEqualsCalculator(Configuration).Equals(list1[i], list2[i]))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        public override int DefaultGetHashCode(object obj)
+        {
+            return Configuration.GetRuntimeHashCode(obj);
         }
 
         public override bool IsApplicable(Type type)
         {
-            throw new NotImplementedException();
+            return Utilities.TypeIsList(type);
         }
     }
 }

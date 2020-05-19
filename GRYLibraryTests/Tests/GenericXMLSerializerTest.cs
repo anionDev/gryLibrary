@@ -1,4 +1,5 @@
-﻿using GRYLibrary.Core.AdvancedXMLSerialysis;
+﻿using GRYLibrary.Core.AdvancedObjectAnalysis;
+using GRYLibrary.Core.AdvancedXMLSerialysis;
 using GRYLibrary.TestData.TestTypes.ComplexDataStructure;
 using GRYLibrary.TestData.TestTypes.CyclicDataStructure;
 using GRYLibrary.TestData.TestTypes.SimpleDataStructure;
@@ -9,9 +10,8 @@ namespace GRYLibrary.Tests
     [TestClass]
     public class GenericXMLSerializerTest
     {
-        [Ignore]
         [TestMethod]
-        public void SerializeSimpleObject()
+        public void SerializeSimpleTestObject()
         {
             GenericXMLSerializer<object> serializer = GenericXMLSerializer.GetDefaultInstance();
             SimpleDataStructure1 testObject = SimpleDataStructure1.GetTestObject();
@@ -19,19 +19,17 @@ namespace GRYLibrary.Tests
             SimpleDataStructure1 actualObject = serializer.Deserialize<SimpleDataStructure1>(serialized);
             Assert.AreEqual(testObject, actualObject);
         }
-        [Ignore]
         [TestMethod]
-        public void SerializeComplexObject()
+        public void SerializeComplexTestObject()
         {
             GenericXMLSerializer<object> serializer = GenericXMLSerializer.GetDefaultInstance();
             object testObject = Company.GetRandom();
             string serialized = serializer.Serialize(testObject);
-            SimpleDataStructure1 actualObject = serializer.Deserialize<SimpleDataStructure1>(serialized);
+            Company actualObject = serializer.Deserialize<Company>(serialized);
             Assert.AreEqual(testObject, actualObject);
         }
-        [Ignore]
         [TestMethod]
-        public void SerializeCyclicObject()
+        public void SerializeCyclicTestObject()
         {
             GenericXMLSerializer<object> serializer = GenericXMLSerializer.GetDefaultInstance();
             object testObject = CycleA.GetRandom();

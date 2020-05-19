@@ -1,31 +1,58 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Runtime.CompilerServices;
+using System.Collections;
 
 namespace GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper.CustomComparer
 {
-    public class EnumerableComparer : AbstractCustomComparer
+    internal class EnumerableComparer : AbstractCustomComparer
     {
-        private EnumerableComparer() { }
-        public static AbstractCustomComparer DefaultInstance { get; } = new EnumerableComparer();
-
-        public override bool Equals(object x, object y, ISet<PropertyEqualsCalculatorTuple> visitedObjects)
+        internal EnumerableComparer(PropertyEqualsCalculatorConfiguration cacheAndConfiguration)
         {
-            throw new NotImplementedException();
-        }
-        public  bool EqualsTyped(IEnumerable<object> x, IEnumerable<object> y, ISet<PropertyEqualsCalculatorTuple> visitedObjects)
-        {
-            throw new NotImplementedException();
+            this.Configuration = cacheAndConfiguration;
         }
 
-        public override int GetHashCode(object obj)
+        public override bool DefaultEquals(object item1, object item2)
         {
-            throw new NotImplementedException();
+            return this.EqualsTyped(Utilities.ObjectToEnumerable(item1), Utilities.ObjectToEnumerable(item2));
+        }
+        internal bool EqualsTyped(IEnumerable enumerable1, IEnumerable enumerable2)
+        {
+            if (enumerable1.Count() != enumerable2.Count())
+            {
+                return false;
+            }
+            foreach (object item in enumerable1)
+            {
+                if (this.GetCountOfItemInEnumerable(enumerable1, item) != this.GetCountOfItemInEnumerable(enumerable2, item))
+                {
+                    return false;
+                }
+            }
+            return true;
         }
 
+        private int GetCountOfItemInEnumerable(IEnumerable enumerable, object item)
+        {
+            int result = 0;
+            foreach (object enumerableEntry in enumerable)
+            {
+                if (new PropertyEqualsCalculator(Configuration).Equals(item))
+                {
+                    result += 1;
+                }
+            }
+
+            return result;
+        }
+        public override int DefaultGetHashCode(object obj)
+        {
+            return Configuration.GetRuntimeHashCode(obj);
+        }
         public override bool IsApplicable(Type type)
         {
-            throw new NotImplementedException();
+            return Utilities.TypeIsEnumerable(type);
         }
     }
 }

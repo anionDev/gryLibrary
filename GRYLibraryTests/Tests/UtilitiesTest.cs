@@ -196,7 +196,7 @@ namespace GRYLibrary.Tests
             Assert.ThrowsException<InvalidCastException>(() => Utilities.ObjectToSet<object>(new object()));
             Assert.ThrowsException<InvalidCastException>(() => Utilities.ObjectToSet<object>(5));
 
-            Assert.IsTrue(Utilities.SetEquals(new HashSet<char> { 's' , 'o' , 'm' , 'e' , 't' }, Utilities.ObjectToSet<char>("sometest")));
+            Assert.IsTrue(Utilities.SetEquals(new HashSet<char> { 's', 'o', 'm', 'e', 't' }, Utilities.ObjectToSet<char>("sometest")));
 
             HashSet<int> testSet = new HashSet<int> { 3, 4, 5 };
             object testSetAsObject = testSet;
@@ -211,9 +211,9 @@ namespace GRYLibrary.Tests
 
             List<int> testList = new List<int> { 3, 4, 5 };
             object testListAsObject = testList;
-            Assert.IsTrue(Utilities.SequanceEqual(testList, Utilities.ObjectToList<int>(testListAsObject)));
+            Assert.IsTrue(Utilities.ListEquals(testList, Utilities.ObjectToList<int>(testListAsObject)));
 
-            Assert.IsTrue(Utilities.SequanceEqual(testList, new List<int> { 3, 4, 5 }.ToImmutableList()));
+            Assert.IsTrue(Utilities.ListEquals(testList, (IList)new List<int> { 3, 4, 5 }.ToImmutableList()));
         }
         [Ignore]
         [TestMethod]
@@ -242,6 +242,15 @@ namespace GRYLibrary.Tests
             Assert.IsTrue(Utilities.ObjectIsEnumerable(setAsEnumerable));
             Assert.IsTrue(Utilities.ObjectIsEnumerable(new HashSet<object> { 3, 4, 5 }));
             Assert.IsTrue(Utilities.ObjectIsEnumerable(new HashSet<int> { 3, 4, 5 }));
+            Assert.IsTrue(Utilities.ObjectIsEnumerable(new List<SimpleDataStructure3>()));
         }
+        [TestMethod]
+        public void EnumerableCount()
+        {
+            List<object> list = new List<object> { 3, 4, 5 };
+            IEnumerable listAsEnumerable = list;
+            Assert.AreEqual(list.Count, Utilities.Count(listAsEnumerable));
+        }
+
     }
 }

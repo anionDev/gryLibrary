@@ -1,32 +1,57 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Runtime.CompilerServices;
 
 namespace GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper.CustomComparer
 {
-    public class SetComparer: AbstractCustomComparer
+    internal class SetComparer : AbstractCustomComparer
     {
-        private SetComparer() { }
-        public static AbstractCustomComparer DefaultInstance { get; } = new SetComparer();
-
-        public override bool Equals(object x, object y, ISet<PropertyEqualsCalculatorTuple> visitedObjects)
+        internal SetComparer(PropertyEqualsCalculatorConfiguration cacheAndConfiguration)
         {
-            throw new NotImplementedException();
-        }
-        public bool EqualsTyped(ISet<object> x, ISet<object> y, ISet<PropertyEqualsCalculatorTuple> visitedObjects)
-        {
-            throw new NotImplementedException();
+            this.Configuration = cacheAndConfiguration;
         }
 
-
-        public override int GetHashCode(object obj)
+        public override bool DefaultEquals(object item1, object item2)
         {
-            throw new NotImplementedException();
+            return this.EqualsTyped(Utilities.ObjectToSet<object>(item1), Utilities.ObjectToSet<object>(item2));
+        }
+        internal bool EqualsTyped<T>(ISet<T> set1, ISet<T> set2)
+        {
+            if (set1.Count != set2.Count)
+            {
+                return false;
+            }
+            foreach (T obj in set1)
+            {
+                if (!this.Contains(set2, obj))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        private bool Contains<T>(ISet<T> set, T obj)
+        {
+            foreach (ISet<T> item in set)
+            {
+                if (new PropertyEqualsCalculator(Configuration).Equals(item, obj))
+                {
+                    return true;
+                }
+            }
+            return false;
         }
 
         public override bool IsApplicable(Type type)
         {
-            throw new NotImplementedException();
+            return Utilities.TypeIsSet(type);
+        }
+
+        public override int DefaultGetHashCode(object obj)
+        {
+            return Configuration.GetRuntimeHashCode(obj);
         }
     }
 }

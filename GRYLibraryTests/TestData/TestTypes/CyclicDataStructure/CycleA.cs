@@ -8,7 +8,7 @@ namespace GRYLibrary.TestData.TestTypes.CyclicDataStructure
 {
     public class CycleA
     {
-        public Guid Id { get; set; } = Guid.NewGuid();
+         public Guid Id { get; set; } = Guid.NewGuid();
         public CycleB B { get; set; }
 
         internal static CycleA GetRandom()
@@ -31,14 +31,19 @@ namespace GRYLibrary.TestData.TestTypes.CyclicDataStructure
             return a1;
         }
 
+        private readonly PropertyEqualsCalculator _PropertyEqualsCalculator = new PropertyEqualsCalculator();//TODO: avoid such an field
         public override bool Equals(object obj)
         {
-            return PropertyEqualsCalculator.DefaultInstance.Equals(this, obj);
+            return _PropertyEqualsCalculator.Equals(this, obj);
         }
 
         public override int GetHashCode()
         {
-            return PropertyEqualsCalculator.DefaultInstance.GetHashCode(this);
+            return _PropertyEqualsCalculator.GetHashCode(this);
+        }
+        public override string ToString()
+        {
+            return GenericToString.Instance.ToString(this);
         }
     }
 }

@@ -4,29 +4,31 @@ using System.Runtime.CompilerServices;
 
 namespace GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper.CustomComparer
 {
-    public class KeyValuePairComparer : AbstractCustomComparer
+    internal class KeyValuePairComparer : AbstractCustomComparer
     {
-        private KeyValuePairComparer() { }
-        public static AbstractCustomComparer DefaultInstance { get; } = new KeyValuePairComparer();
-
-        public override bool Equals(object x, object y, ISet<PropertyEqualsCalculatorTuple> visitedObjects)
+        internal KeyValuePairComparer(PropertyEqualsCalculatorConfiguration cacheAndConfiguration)
         {
-            throw new NotImplementedException();
+            this.Configuration = cacheAndConfiguration;
         }
 
-        public  bool EqualsTyped(KeyValuePair<object, object> x, KeyValuePair<object, object> y, ISet<PropertyEqualsCalculatorTuple> visitedObjects)
+        public override bool DefaultEquals(object item1, object item2)
         {
-            return PropertyEqualsCalculator.DefaultInstance.Equals(x.Key, y.Key, visitedObjects) && PropertyEqualsCalculator.DefaultInstance.Equals(x.Value, y.Value, visitedObjects);
+            return this.EqualsTyped(Utilities.ObjectToKeyValuePair<object, object>(item1), Utilities.ObjectToKeyValuePair<object, object>(item2));
         }
 
-        public override int GetHashCode(object obj)
+        internal bool EqualsTyped(KeyValuePair<object, object> keyValuePair1, KeyValuePair<object, object> keyValuePair2)
         {
-            throw new NotImplementedException();
+            return new PropertyEqualsCalculator(Configuration).Equals(keyValuePair1.Key, keyValuePair2.Key) && new PropertyEqualsCalculator(Configuration).Equals(keyValuePair1.Value, keyValuePair2.Value);
+        }
+
+        public override int DefaultGetHashCode(object obj)
+        {
+            return Configuration.GetRuntimeHashCode(obj);
         }
 
         public override bool IsApplicable(Type type)
         {
-            throw new NotImplementedException();
+            return Utilities.TypeIsKeyValuePair(type);
         }
     }
 }

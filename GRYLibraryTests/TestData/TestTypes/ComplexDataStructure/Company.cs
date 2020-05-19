@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using GRYLibrary.Core;
+using GRYLibrary.Core.AdvancedObjectAnalysis;
+
 namespace GRYLibrary.TestData.TestTypes.ComplexDataStructure
 {
     public class Company
@@ -59,6 +61,10 @@ namespace GRYLibrary.TestData.TestTypes.ComplexDataStructure
 
 
             return company;
+        }
+        public override string ToString()
+        {
+            return GenericToString.Instance.ToString(this);
         }
     }
 }

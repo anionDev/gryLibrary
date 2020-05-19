@@ -1,5 +1,6 @@
 ﻿using GRYLibrary.Core.AdvancedObjectAnalysis.GenericXMLSerializerHelper.ConcreteSimplifiedObjects;
 using GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper;
+using GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper.CustomComparer;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -16,7 +17,7 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.GenericXMLSerializerHelper
         public HashSet<Simplified> Objects { get; set; }
         public static GRYSObject Create(object @object, SerializationConfiguration serializationConfiguration)
         {
-            Dictionary<object, Simplified> dictionary = new Dictionary<object, Simplified>(ReferenceEqualsComparer.Instance);
+            Dictionary<object, Simplified> dictionary = new Dictionary<object, Simplified>(new PropertyEqualsCalculator(serializationConfiguration.PropertyEqualsCalculatorConfiguration));
             FillDictionary(dictionary, @object, serializationConfiguration);
             GRYSObject result = new GRYSObject();
             result.Objects = new HashSet<Simplified>(dictionary.Values);
@@ -26,7 +27,7 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.GenericXMLSerializerHelper
 
         private static Guid FillDictionary(Dictionary<object, Simplified> dictionary, object @object, SerializationConfiguration serializationConfiguration)
         {
-            if (@object == null)
+            if (Utilities.IsDefault(@object))
             {
                 return default;
             }
@@ -42,7 +43,7 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.GenericXMLSerializerHelper
             else
             {
                 Simplified simplification;
-                if (IsPrimitiveType(typeOfObject))
+                if (new PrimitiveComparer(serializationConfiguration.PropertyEqualsCalculatorConfiguration).IsApplicable(typeOfObject))
                 {
                     simplification = new SPrimitive();
                 }
@@ -63,11 +64,6 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.GenericXMLSerializerHelper
             }
         }
 
-        private static bool IsPrimitiveType(Type typeOfObject)
-        {
-            throw new NotImplementedException();
-        }
-
         private class DeserializeVisitor : Simplified.ISimplifiedVisitor
         {
             private readonly Dictionary<Guid, object> _DeserializedObjects;
@@ -84,7 +80,14 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.GenericXMLSerializerHelper
                     PropertyInfo property = typeOfObject.GetProperty(attribute.Name);
                     if (property != null)
                     {
-                        property.SetValue(@object, this._DeserializedObjects[attribute.ObjectId]);
+                        if (default(Guid).Equals(attribute.ObjectId))
+                        {
+                            property.SetValue(@object, Utilities.GetDefault(property.PropertyType));
+                        }
+                        else
+                        {
+                            property.SetValue(@object, this._DeserializedObjects[attribute.ObjectId]);
+                        }
                         continue;
                     }
                     FieldInfo field = typeOfObject.GetField(attribute.Name);
@@ -187,7 +190,7 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.GenericXMLSerializerHelper
             public void Handle(SEnumerable simplifiedEnumerable)
             {
                 simplifiedEnumerable.Items = new List<Guid>();
-                foreach (object @object in Utilities.ObjectToEnumerableGeneric<object>(this._Object))
+                foreach (object @object in Utilities.ObjectToEnumerable<object>(this._Object))
                 {
                     simplifiedEnumerable.Items.Add(FillDictionary(this._Dictionary, @object, this._SerializationConfiguration));
                 }

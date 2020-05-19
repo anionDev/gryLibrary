@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Runtime.CompilerServices;
 
 namespace GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper
 {
+    //todo this type must be replaced by EquivalenceClass completely
     public class PropertyEqualsCalculatorTuple
     {
         public PropertyEqualsCalculatorTuple(object item1, object item2)
@@ -33,7 +35,7 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper
         }
         public override int GetHashCode()
         {
-            return 6843;
+            return RuntimeHelpers.GetHashCode(this);
         }
     }
 }
