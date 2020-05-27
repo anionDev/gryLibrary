@@ -10,6 +10,7 @@ namespace GRYLibrary.Tests
     [TestClass]
     public class GenericToStringTest
     {
+        [Ignore]
         [TestMethod]
         public void SimpleDataStructureToString()
         {
