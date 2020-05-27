@@ -17,7 +17,7 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.GenericXMLSerializerHelper
         public HashSet<Simplified> Objects { get; set; }
         public static GRYSObject Create(object @object, SerializationConfiguration serializationConfiguration)
         {
-            Dictionary<object, Simplified> dictionary = new Dictionary<object, Simplified>(new PropertyEqualsCalculator(serializationConfiguration.PropertyEqualsCalculatorConfiguration));
+            Dictionary<object, Simplified> dictionary = new Dictionary<object, Simplified>(new ReferenceEqualsComparer());
             FillDictionary(dictionary, @object, serializationConfiguration);
             GRYSObject result = new GRYSObject();
             result.Objects = new HashSet<Simplified>(dictionary.Values);
@@ -34,7 +34,7 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.GenericXMLSerializerHelper
             Type typeOfObject = @object.GetType();
             if (!typeOfObject.IsPublic)
             {
-                throw new SerializationException($"Object of type {typeOfObject} can not be serialized because the type is not pubilc");
+                throw new SerializationException($"Object of type '{typeOfObject}' can not be serialized because the type is not pubilc");
             }
             if (dictionary.ContainsKey(@object))
             {
