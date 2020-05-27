@@ -27,7 +27,7 @@ namespace GRYLibrary.Tests
             object testObject = Company.GetRandom();
             string serialized = serializer.Serialize(testObject);
             Company actualObject = serializer.Deserialize<Company>(serialized);
-            Assert.AreEqual(testObject, actualObject);
+            Assert.AreEqual(testObject, actualObject,"Complex objects are not equal");
         }
         [TestMethod]
         public void SerializeCyclicTestObject()

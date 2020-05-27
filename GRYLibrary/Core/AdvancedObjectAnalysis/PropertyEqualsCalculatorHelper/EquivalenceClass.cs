@@ -12,7 +12,7 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper
         public EquivalenceClass()
         {
             this.Id = Guid.NewGuid();
-            this.ContainedObjects = new HashSet<object>(new ReferenceEqualsComparer());
+            this.ContainedObjects = new HashSet<object>(new ReferenceEqualsComparer()/*ReferenceEqualsComparer is not correct here. reason: it does not work for objects which are treated as equal but are not the same (for example 2 HashSet-objects which contain the same elements).*/);
         }
 
         public override bool Equals(object obj)
@@ -26,8 +26,9 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper
         }
         public bool BelongsToThisEquivalenceClass(object @object)
         {
-            return ContainedObjects.Contains(@object);
+            bool result = ContainedObjects.Contains(@object);
+            return result;
         }
-        
+
     }
 }

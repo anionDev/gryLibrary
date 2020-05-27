@@ -87,6 +87,10 @@ namespace GRYLibrary.Core
             }
             return result;
         }
+        /// <summary>
+        /// This function does nothing.
+        /// The purpose of this function is to say explicitly that nothing should be done at the point where this function is called.
+        /// </summary>
         public static void NoOperation()
         {
             //nothing to do

@@ -21,12 +21,27 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis
         };
         public static GenericToString Instance { get; } = new GenericToString();
         private GenericToString() { }
-
-        public string ToString(object @object)
+        /// <summary>
+        /// Represents a generic ToString-function which can handle cyclic references.
+        /// </summary>
+        /// <param name="object">The object which should be converted to a string</param>
+        /// <param name="maxOutputLength">Maximal length of the output</param>
+        /// <returns></returns>
+        public string ToString(object @object, int maxOutputLength = int.MaxValue)
         {
-            return this.ToString(@object, new Dictionary<object, Guid>(), 0);
+            int minimalOutputLength = 4;
+            if (maxOutputLength < minimalOutputLength)
+            {
+                throw new Exception($"The value of '{nameof(maxOutputLength)}' is {maxOutputLength} but must be {minimalOutputLength} or greater.");
+            }
+            string result = this.ToString(@object, new Dictionary<object, Guid>(), 0);
+            if (result.Length > maxOutputLength)
+            {
+                result = result.Substring(0, maxOutputLength - 3) + "...";
+            }
+            return result;
         }
-        private string ToString(object @object,IDictionary<object,Guid> visitedObjects, int currentIndentationLevel)
+        private string ToString(object @object, IDictionary<object, Guid> visitedObjects, int currentIndentationLevel)
         {
             if (@object == null)
             {
@@ -53,7 +68,7 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis
                     int count = objectAsEnumerable.Count();
                     for (int i = 0; i < count; i++)
                     {
-                        var current = objectAsEnumerable[i];
+                        object current = objectAsEnumerable[i];
                         result += this.ToString(current, visitedObjects, currentIndentationLevel + 1);
                         if (i < count - 1)
                         {

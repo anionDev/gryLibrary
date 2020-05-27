@@ -15,17 +15,17 @@ namespace GRYLibrary.Tests
         [TestMethod]
         public void SimpleDataStructureTestObjectToString()
         {
-            Assert.AreEqual(@"TODO", GenericToString.Instance.ToString(SimpleDataStructure1.GetTestObject()));
+            Assert.AreEqual(@"TODO", SimpleDataStructure1.GetTestObject().ToString());
         }
         [TestMethod]
         public void ComplexTestObjectToString()
         {
-            Assert.AreEqual(@"TODO", GenericToString.Instance.ToString(Company.GetRandom()));
+            Assert.AreEqual(@"TODO", Company.GetRandom().ToString());
         }
         [TestMethod]
         public void CyclicTestObjectToString()
         {
-            Assert.AreEqual(@"TODO", GenericToString.Instance.ToString(CycleA.GetRandom()));
+            Assert.AreEqual(@"TODO", CycleA.GetRandom().ToString());
         }
     }
 }

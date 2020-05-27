@@ -14,7 +14,7 @@ namespace GRYLibrary.TestData.TestTypes.ComplexDataStructure
         public ISet<OrganizationUnit> OrganizationUnits { get; set; } = new HashSet<OrganizationUnit>();
         public ISet<Order> OrderHistory { get; set; } = new HashSet<Order>();
         public string Name { get; set; }
-        public ISet<Product> Products { get;  set; } = new HashSet<Product>();
+        public ISet<Product> Products { get; set; } = new HashSet<Product>();
 
         internal static Company GetRandom()
         {
@@ -50,7 +50,7 @@ namespace GRYLibrary.TestData.TestTypes.ComplexDataStructure
             Employee employee17 = Employee.GetRandom(org3Accounting); company.Employees.Add(employee17);
             Employee employee18 = Employee.GetRandom(org3Accounting); company.Employees.Add(employee18);
 
-            Product product1 = Product.GetRandom();company.Products.Add(product1);
+            Product product1 = Product.GetRandom(); company.Products.Add(product1);
             Product product2 = Product.GetRandom(); company.Products.Add(product2);
             Product product3 = Product.GetRandom(); company.Products.Add(product3);
 
@@ -64,7 +64,7 @@ namespace GRYLibrary.TestData.TestTypes.ComplexDataStructure
         }
         public override string ToString()
         {
-            return GenericToString.Instance.ToString(this);
+            return GenericToString.Instance.ToString(this, 3000);
         }
     }
 }

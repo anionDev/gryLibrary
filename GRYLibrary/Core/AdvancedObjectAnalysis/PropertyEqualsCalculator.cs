@@ -46,6 +46,10 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis
                     {
                         Configuration.AddEqualObjects(object1, object2);
                     }
+                    else
+                    {
+                        Utilities.NoOperation();
+                    }
                     return result;
                 }
                 else if (object1Type.Equals(object2Type))

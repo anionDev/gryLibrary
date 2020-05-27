@@ -14,7 +14,8 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper.
 
         public override bool DefaultEquals(object item1, object item2)
         {
-            return this.EqualsTyped(Utilities.ObjectToDictionary<object, object>(item1), Utilities.ObjectToDictionary<object, object>(item2));
+            bool result = this.EqualsTyped(Utilities.ObjectToDictionary<object, object>(item1), Utilities.ObjectToDictionary<object, object>(item2));
+            return result;
         }
         internal bool EqualsTyped<TKey, TValue>(IDictionary<TKey, TValue> dictionary1, IDictionary<TKey, TValue> dictionary2)
         {

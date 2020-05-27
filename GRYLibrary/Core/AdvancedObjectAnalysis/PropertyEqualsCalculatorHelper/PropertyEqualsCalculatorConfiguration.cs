@@ -58,7 +58,7 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper
 
         internal void AddEqualObjects(object object1, object object2)
         {
-            foreach (var e in this.EquivalenceClasses)
+            foreach (EquivalenceClass e in this.EquivalenceClasses)
             {
                 if (e.BelongsToThisEquivalenceClass(object1))
                 {

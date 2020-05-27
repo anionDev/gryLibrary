@@ -15,7 +15,8 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper.
 
         public override bool DefaultEquals(object item1, object item2)
         {
-            return this.EqualsTyped(Utilities.ObjectToEnumerable(item1), Utilities.ObjectToEnumerable(item2));
+            bool result = this.EqualsTyped(Utilities.ObjectToEnumerable(item1), Utilities.ObjectToEnumerable(item2));
+            return result;
         }
         internal bool EqualsTyped(IEnumerable enumerable1, IEnumerable enumerable2)
         {

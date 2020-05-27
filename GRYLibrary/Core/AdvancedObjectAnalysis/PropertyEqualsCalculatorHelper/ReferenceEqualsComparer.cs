@@ -14,7 +14,8 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper
 
         public int GetHashCode(object obj)
         {
-            return RuntimeHelpers.GetHashCode(obj);
+            var result = RuntimeHelpers.GetHashCode(obj);
+            return result;
         }
     }
 }

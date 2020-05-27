@@ -13,7 +13,8 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper.
 
         public override bool DefaultEquals(object item1, object item2)
         {
-            return this.EqualsTyped(Utilities.ObjectToTuple<object, object>(item1), Utilities.ObjectToTuple<object, object>(item2));
+            bool result = this.EqualsTyped(Utilities.ObjectToTuple<object, object>(item1), Utilities.ObjectToTuple<object, object>(item2));
+            return result;
         }
 
         internal bool EqualsTyped(Tuple<object, object> Tuple1, Tuple<object, object> Tuple2)
