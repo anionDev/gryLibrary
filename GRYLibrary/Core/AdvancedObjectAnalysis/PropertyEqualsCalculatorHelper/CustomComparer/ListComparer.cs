@@ -26,7 +26,7 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper.
             }
             for (int i = 0; i < list1.Count; i++)
             {
-                if (!new PropertyEqualsCalculator(Configuration).Equals(list1[i], list2[i]))
+                if (!new PropertyEqualsCalculator(this.Configuration).Equals(list1[i], list2[i]))
                 {
                     return false;
                 }
@@ -36,7 +36,7 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper.
 
         public override int DefaultGetHashCode(object obj)
         {
-            return Configuration.GetRuntimeHashCode(obj);
+            return this.Configuration.GetRuntimeHashCode(obj);
         }
 
         public override bool IsApplicable(Type type)

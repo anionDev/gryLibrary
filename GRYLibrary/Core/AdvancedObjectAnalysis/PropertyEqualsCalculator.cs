@@ -44,7 +44,7 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis
                     bool result = customComparer.Equals(object1, object2);
                     if (result)
                     {
-                        Configuration.AddEqualObjects(object1, object2);
+                        this.Configuration.AddEqualObjects(object1, object2);
                     }
                     else
                     {
@@ -75,7 +75,7 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis
                     {
                         if (this.Equals(entry.Item1, entry.Item2))
                         {
-                            Configuration.AddEqualObjects(object1, object2);
+                            this.Configuration.AddEqualObjects(object1, object2);
                         }
                         else
                         {
@@ -110,7 +110,7 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis
         }
         public override int DefaultGetHashCode(object obj)
         {
-            return Configuration.GetRuntimeHashCode(obj);
+            return this.Configuration.GetRuntimeHashCode(obj);
         }
     }
 }

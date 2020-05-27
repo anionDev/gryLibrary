@@ -20,7 +20,7 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper
         public List<AbstractCustomComparer> CustomComparer { get; set; }
         public PropertyEqualsCalculatorConfiguration()
         {
-            CustomComparer = new List<AbstractCustomComparer>() {
+            this.CustomComparer = new List<AbstractCustomComparer>() {
               new PrimitiveComparer(this),
               new KeyValuePairComparer(this),
               new TupleComparer(this),
@@ -32,12 +32,12 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper
         }
         public int GetRuntimeHashCode(object @object)
         {
-            return GetEquivalenceClassOfObject(@object).GetHashCode();
+            return this.GetEquivalenceClassOfObject(@object).GetHashCode();
         }
 
         private EquivalenceClass GetEquivalenceClassOfObject(object @object)
         {
-            foreach (EquivalenceClass equivalenceClass in EquivalenceClasses)
+            foreach (EquivalenceClass equivalenceClass in this.EquivalenceClasses)
             {
                 if (equivalenceClass.BelongsToThisEquivalenceClass(@object))
                 {
@@ -53,7 +53,7 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper
 
         public bool AreInSameEquivalenceClass(object object1, object object2)
         {
-            return GetEquivalenceClassOfObject(object1).Equals(GetEquivalenceClassOfObject(object2));
+            return this.GetEquivalenceClassOfObject(object1).Equals(this.GetEquivalenceClassOfObject(object2));
         }
 
         internal void AddEqualObjects(object object1, object object2)

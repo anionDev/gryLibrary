@@ -19,12 +19,12 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper.
 
         internal bool EqualsTyped(KeyValuePair<object, object> keyValuePair1, KeyValuePair<object, object> keyValuePair2)
         {
-            return new PropertyEqualsCalculator(Configuration).Equals(keyValuePair1.Key, keyValuePair2.Key) && new PropertyEqualsCalculator(Configuration).Equals(keyValuePair1.Value, keyValuePair2.Value);
+            return new PropertyEqualsCalculator(this.Configuration).Equals(keyValuePair1.Key, keyValuePair2.Key) && new PropertyEqualsCalculator(this.Configuration).Equals(keyValuePair1.Value, keyValuePair2.Value);
         }
 
         public override int DefaultGetHashCode(object obj)
         {
-            return Configuration.GetRuntimeHashCode(obj);
+            return this.Configuration.GetRuntimeHashCode(obj);
         }
 
         public override bool IsApplicable(Type type)

@@ -39,7 +39,7 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper.
             int result = 0;
             foreach (object enumerableEntry in enumerable)
             {
-                if (new PropertyEqualsCalculator(Configuration).Equals(item))
+                if (new PropertyEqualsCalculator(this.Configuration).Equals(item))
                 {
                     result += 1;
                 }
@@ -49,7 +49,7 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper.
         }
         public override int DefaultGetHashCode(object obj)
         {
-            return Configuration.GetRuntimeHashCode(obj);
+            return this.Configuration.GetRuntimeHashCode(obj);
         }
         public override bool IsApplicable(Type type)
         {

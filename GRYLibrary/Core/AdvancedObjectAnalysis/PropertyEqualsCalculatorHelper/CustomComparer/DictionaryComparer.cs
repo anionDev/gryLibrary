@@ -29,7 +29,7 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper.
                 {
                     KeyValuePair<TKey, TValue> kvp1 = new KeyValuePair<TKey, TValue>(key, dictionary1[key]);
                     KeyValuePair<TKey, TValue> kvp2 = new KeyValuePair<TKey, TValue>(key, dictionary2[key]);
-                    if (!new PropertyEqualsCalculator(Configuration).Equals(kvp1, kvp2))
+                    if (!new PropertyEqualsCalculator(this.Configuration).Equals(kvp1, kvp2))
                     {
                         return false;
                     }
@@ -46,7 +46,7 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper.
         {
             foreach (KeyValuePair<TKey, TValue> kvp in dictionary)
             {
-                if (new PropertyEqualsCalculator(Configuration).Equals(kvp.Key, key))
+                if (new PropertyEqualsCalculator(this.Configuration).Equals(kvp.Key, key))
                 {
                     return true;
                 }
@@ -55,7 +55,7 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper.
         }
         public override int DefaultGetHashCode(object obj)
         {
-            return Configuration.GetRuntimeHashCode(obj);
+            return this.Configuration.GetRuntimeHashCode(obj);
         }
         public override bool IsApplicable(Type type)
         {

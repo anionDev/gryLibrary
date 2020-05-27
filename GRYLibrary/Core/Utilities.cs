@@ -1168,7 +1168,7 @@ namespace GRYLibrary.Core
                 return false;
             }
             string pathRoot = Path.GetPathRoot(path).Trim();
-            return pathRoot.Length <= 2 && pathRoot != "/" ? false : !(pathRoot == path && pathRoot.StartsWith(@"\\") && pathRoot.IndexOf('\\', 2) == -1);
+            return (pathRoot.Length > 2 || pathRoot == "/") && !(pathRoot == path && pathRoot.StartsWith(@"\\") && pathRoot.IndexOf('\\', 2) == -1);
         }
         public static string GetAbsolutePath(string basePath, string relativePath)
         {

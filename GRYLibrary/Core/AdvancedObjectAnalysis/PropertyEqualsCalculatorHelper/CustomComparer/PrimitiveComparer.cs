@@ -14,13 +14,13 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper.
 
         public override bool DefaultEquals(object item1, object item2 )
         {
-            bool result = Configuration.AreInSameEquivalenceClass(item1, item2);
+            bool result = this.Configuration.AreInSameEquivalenceClass(item1, item2);
             return result;
         }
 
         public override int DefaultGetHashCode(object obj)
         {
-            return Configuration.GetRuntimeHashCode(obj);
+            return this.Configuration.GetRuntimeHashCode(obj);
         }
 
         public override bool IsApplicable(Type type)

@@ -22,11 +22,12 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper
         }
         public override int GetHashCode()
         {
-            return this.Id.GetHashCode();
+            return HashCode.Combine(this.Id);
         }
+
         public bool BelongsToThisEquivalenceClass(object @object)
         {
-            bool result = ContainedObjects.Contains(@object);
+            bool result = this.ContainedObjects.Contains(@object);
             return result;
         }
 

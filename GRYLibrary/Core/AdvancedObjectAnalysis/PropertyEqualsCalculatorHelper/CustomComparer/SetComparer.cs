@@ -37,7 +37,7 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper.
         {
             foreach (ISet<T> item in set)
             {
-                if (new PropertyEqualsCalculator(Configuration).Equals(item, obj))
+                if (new PropertyEqualsCalculator(this.Configuration).Equals(item, obj))
                 {
                     return true;
                 }
@@ -52,7 +52,7 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper.
 
         public override int DefaultGetHashCode(object obj)
         {
-            return Configuration.GetRuntimeHashCode(obj);
+            return this.Configuration.GetRuntimeHashCode(obj);
         }
     }
 }

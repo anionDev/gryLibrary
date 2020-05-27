@@ -48,7 +48,7 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis
                 return this.GetIndentation(currentIndentationLevel) + "null";
             }
             Type type = @object.GetType();
-            if (new PrimitiveComparer(PropertyEqualsCalculator.Configuration).IsApplicable(type))
+            if (new PrimitiveComparer(this.PropertyEqualsCalculator.Configuration).IsApplicable(type))
             {
                 return this.GetIndentation(currentIndentationLevel) + $"(Type: {@object.GetType().Name}, Value: \"{@object.ToString().Replace("\"", "\\\"")}\")";
             }

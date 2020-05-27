@@ -34,12 +34,12 @@ namespace GRYLibrary.TestData.TestTypes.CyclicDataStructure
         private readonly PropertyEqualsCalculator _PropertyEqualsCalculator = new PropertyEqualsCalculator();//TODO: avoid such an field
         public override bool Equals(object obj)
         {
-            return _PropertyEqualsCalculator.Equals(this, obj);
+            return this._PropertyEqualsCalculator.Equals(this, obj);
         }
 
         public override int GetHashCode()
         {
-            return _PropertyEqualsCalculator.GetHashCode(this);
+            return this._PropertyEqualsCalculator.GetHashCode(this);
         }
         public override string ToString()
         {

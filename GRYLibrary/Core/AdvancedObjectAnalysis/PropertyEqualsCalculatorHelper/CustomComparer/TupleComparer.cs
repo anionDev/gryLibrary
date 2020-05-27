@@ -19,12 +19,12 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper.
 
         internal bool EqualsTyped(Tuple<object, object> Tuple1, Tuple<object, object> Tuple2)
         {
-            return new PropertyEqualsCalculator(Configuration).Equals(Tuple1.Item1, Tuple2.Item1) && new PropertyEqualsCalculator(Configuration).Equals(Tuple1.Item2, Tuple2.Item2);
+            return new PropertyEqualsCalculator(this.Configuration).Equals(Tuple1.Item1, Tuple2.Item1) && new PropertyEqualsCalculator(this.Configuration).Equals(Tuple1.Item2, Tuple2.Item2);
         }
 
         public override int DefaultGetHashCode(object obj)
         {
-            return Configuration.GetRuntimeHashCode(obj);
+            return this.Configuration.GetRuntimeHashCode(obj);
         }
 
         public override bool IsApplicable(Type type)
