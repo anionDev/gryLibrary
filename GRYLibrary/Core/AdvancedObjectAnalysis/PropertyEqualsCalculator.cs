@@ -44,8 +44,8 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis
                     bool result = customComparer.Equals(object1, object2);
                     if (result)
                     {
-                        Configuration.AddEqualObjects(object1,object2);
-                          }
+                        Configuration.AddEqualObjects(object1, object2);
+                    }
                     return result;
                 }
                 else if (object1Type.Equals(object2Type))

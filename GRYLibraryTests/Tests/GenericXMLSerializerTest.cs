@@ -1,4 +1,5 @@
 ﻿using GRYLibrary.Core.AdvancedObjectAnalysis;
+using GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper.CustomComparer;
 using GRYLibrary.Core.AdvancedXMLSerialysis;
 using GRYLibrary.TestData.TestTypes.ComplexDataStructure;
 using GRYLibrary.TestData.TestTypes.CyclicDataStructure;
@@ -36,6 +37,13 @@ namespace GRYLibrary.Tests
             string serialized = serializer.Serialize(testObject);
             CycleA actualObject = serializer.Deserialize<CycleA>(serialized);
             Assert.AreEqual(testObject, actualObject);
+        }
+        [TestMethod]
+        public void PrimitiveEqualsTest()
+        {
+            string testString = "test";
+            PropertyEqualsCalculator comparer = new PropertyEqualsCalculator();
+            Assert.IsTrue(comparer.DefaultEquals(testString, testString));
         }
     }
 }

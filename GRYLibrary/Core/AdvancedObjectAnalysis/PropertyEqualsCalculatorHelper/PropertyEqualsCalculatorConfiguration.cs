@@ -41,10 +41,12 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper
             {
                 if (equivalenceClass.BelongsToThisEquivalenceClass(@object))
                 {
+                    equivalenceClass.ContainedObjects.Add(@object);
                     return equivalenceClass;
                 }
             }
             EquivalenceClass newEquivalenceClass = new EquivalenceClass();
+            newEquivalenceClass.ContainedObjects.Add(@object);
             this.EquivalenceClasses.Add(newEquivalenceClass);
             return newEquivalenceClass;
         }
