@@ -39,14 +39,13 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper
         {
             foreach (EquivalenceClass equivalenceClass in this.EquivalenceClasses)
             {
-                if (equivalenceClass.BelongsToThisEquivalenceClass(@object))
+                if (equivalenceClass.AlreadyBelongsToThisEquivalenceClass(@object))
                 {
-                    equivalenceClass.ContainedObjects.Add(@object);
+                    equivalenceClass.Add(@object);
                     return equivalenceClass;
                 }
             }
-            EquivalenceClass newEquivalenceClass = new EquivalenceClass();
-            newEquivalenceClass.ContainedObjects.Add(@object);
+            EquivalenceClass newEquivalenceClass = new EquivalenceClass(@object);
             this.EquivalenceClasses.Add(newEquivalenceClass);
             return newEquivalenceClass;
         }
@@ -58,12 +57,12 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper
 
         internal void AddEqualObjects(object object1, object object2)
         {
-            foreach (EquivalenceClass e in this.EquivalenceClasses)
+            foreach (EquivalenceClass equivalenceClass in this.EquivalenceClasses)
             {
-                if (e.BelongsToThisEquivalenceClass(object1))
+                if (equivalenceClass.AlreadyBelongsToThisEquivalenceClass(object1))
                 {
-                    e.ContainedObjects.Add(object1);
-                    e.ContainedObjects.Add(object2);
+                    equivalenceClass.Add(object1);
+                    equivalenceClass.Add(object2);
                 }
             }
         }

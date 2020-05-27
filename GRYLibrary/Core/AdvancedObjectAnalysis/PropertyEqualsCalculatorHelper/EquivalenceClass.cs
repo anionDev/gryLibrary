@@ -8,13 +8,16 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper
     internal class EquivalenceClass
     {
         public Guid Id { get; }
-        public ISet<object> ContainedObjects { get; }
-        public EquivalenceClass()
+        public object ReferenceItem { get; }
+        public ISet<object> ContainedObjects { get { return new HashSet<object>(this._ContainedObjects, new ReferenceEqualsComparer()); } }
+        private readonly ISet<object> _ContainedObjects;
+        public EquivalenceClass(object @object)
         {
             this.Id = Guid.NewGuid();
-            this.ContainedObjects = new HashSet<object>(new ReferenceEqualsComparer()/*ReferenceEqualsComparer is not correct here. reason: it does not work for objects which are treated as equal but are not the same (for example 2 HashSet-objects which contain the same elements).*/);
+            this.ReferenceItem = @object;
+            this._ContainedObjects = new HashSet<object>(new ReferenceEqualsComparer());
+            this._ContainedObjects.Add(this.ReferenceItem);
         }
-
         public override bool Equals(object obj)
         {
             return obj is EquivalenceClass @class &&
@@ -25,11 +28,16 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper
             return HashCode.Combine(this.Id);
         }
 
-        public bool BelongsToThisEquivalenceClass(object @object)
+        public bool AlreadyBelongsToThisEquivalenceClass(object @object)
         {
             bool result = this.ContainedObjects.Contains(@object);
+            //TODO must also return true if @object equals ReferenceItem. problem here: how to calculate if this 2 objects are equal at this prosition?
             return result;
         }
 
+        internal void Add(object @object)
+        {
+            this._ContainedObjects.Add(@object);
+        }
     }
 }
