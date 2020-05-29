@@ -23,18 +23,20 @@ namespace GRYLibrary.TestData.TestTypes.SimpleDataStructure
             return result;
         }
 
-        public override bool Equals(object obj)
-        {
-            return new PropertyEqualsCalculator().Equals(this, obj);
-        }
 
+        #region Overhead
+        public override bool Equals(object @object)
+        {
+            return Generic.GenericEquals(this, @object);
+        }
         public override int GetHashCode()
         {
-            return HashCode.Combine(this.Property1, this.Property2, this.Property3);
+            return Generic.GenericGetHashCode(this);
         }
         public override string ToString()
         {
-            return GenericToString.Instance.ToString(this);
+            return Generic.GenericToString(this);
         }
+        #endregion
     }
 }

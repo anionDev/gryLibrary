@@ -21,7 +21,7 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis
         }
 
         /// <remarks>This function assumes that 2 objects which are not implementing <see cref="System.Collections.IEnumerable"/>are not equal if their types are not equal.</remarks>
-        public override bool DefaultEquals(object object1, object object2)
+        internal override bool DefaultEquals(object object1, object object2)
         {
             bool object1IsDefault = Utilities.IsDefault(object1);
             bool object2IsDefault = Utilities.IsDefault(object2);
@@ -42,11 +42,7 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis
                 {
                     //use custom comparer
                     bool result = customComparer.Equals(object1, object2);
-                    if (result)
-                    {
-                        this.Configuration.AddEqualObjects(object1, object2);
-                    }
-                    else
+                    if (!result)
                     {
                         Utilities.NoOperation();
                     }
@@ -75,7 +71,7 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis
                     {
                         if (this.Equals(entry.Item1, entry.Item2))
                         {
-                            this.Configuration.AddEqualObjects(object1, object2);
+                            this.Configuration.AddEqualObjectsToEquivalenceClasses(object1, object2);
                         }
                         else
                         {
@@ -108,9 +104,9 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis
             customComparer = null;
             return false;
         }
-        public override int DefaultGetHashCode(object obj)
+        internal override int DefaultGetHashCode(object obj)
         {
-            return this.Configuration.GetRuntimeHashCode(obj);
+            return this.Configuration.GetHashCode(obj);
         }
     }
 }

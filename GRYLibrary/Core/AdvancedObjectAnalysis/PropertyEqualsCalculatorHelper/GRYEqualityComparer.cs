@@ -7,15 +7,15 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper
     public abstract class GRYEqualityComparer<T> : IEqualityComparer<T>
     {
         internal PropertyEqualsCalculatorConfiguration Configuration { get;  set; }
-        public abstract bool DefaultEquals(T x, T y);
-        public abstract int DefaultGetHashCode(T obj);
-        public int GetHashCode(T obj)
+        internal abstract bool DefaultEquals(T item1, T item2);
+        internal abstract int DefaultGetHashCode(T @object);
+        public int GetHashCode(T @object)
         {
-            return this.DefaultGetHashCode(obj);
+            return this.DefaultGetHashCode(@object);
         }
-        public bool Equals(T x, T y)
+        public bool Equals(T item1, T item2)
         {
-            return this.DefaultEquals(x, y);
+            return this.DefaultEquals(item1, item2);
         }
     }
 }

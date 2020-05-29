@@ -31,19 +31,19 @@ namespace GRYLibrary.TestData.TestTypes.CyclicDataStructure
             return a1;
         }
 
-        private readonly PropertyEqualsCalculator _PropertyEqualsCalculator = new PropertyEqualsCalculator();//TODO: avoid such an field
-        public override bool Equals(object obj)
+        #region Overhead
+        public override bool Equals(object @object)
         {
-            return this._PropertyEqualsCalculator.Equals(this, obj);
+            return Generic.GenericEquals(this,@object);
         }
-
         public override int GetHashCode()
         {
-            return this._PropertyEqualsCalculator.GetHashCode(this);
+            return Generic.GenericGetHashCode(this);
         }
         public override string ToString()
         {
-            return GenericToString.Instance.ToString(this);
+            return Generic.GenericToString(this);
         }
+        #endregion
     }
 }

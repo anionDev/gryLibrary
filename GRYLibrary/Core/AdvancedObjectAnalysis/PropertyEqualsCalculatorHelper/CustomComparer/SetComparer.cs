@@ -12,7 +12,7 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper.
             this.Configuration = cacheAndConfiguration;
         }
 
-        public override bool DefaultEquals(object item1, object item2)
+        internal override bool DefaultEquals(object item1, object item2)
         {
             bool result = this.EqualsTyped(Utilities.ObjectToSet<object>(item1), Utilities.ObjectToSet<object>(item2));
             return result;
@@ -35,7 +35,7 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper.
 
         private bool Contains<T>(ISet<T> set, T obj)
         {
-            foreach (ISet<T> item in set)
+            foreach (T item in set)
             {
                 if (new PropertyEqualsCalculator(this.Configuration).Equals(item, obj))
                 {
@@ -50,9 +50,9 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper.
             return Utilities.TypeIsSet(type);
         }
 
-        public override int DefaultGetHashCode(object obj)
+        internal override int DefaultGetHashCode(object obj)
         {
-            return this.Configuration.GetRuntimeHashCode(obj);
+            return this.Configuration.GetHashCode(obj);
         }
     }
 }

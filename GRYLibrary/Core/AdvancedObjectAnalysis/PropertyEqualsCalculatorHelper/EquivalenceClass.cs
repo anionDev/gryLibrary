@@ -7,32 +7,26 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper
 {
     internal class EquivalenceClass
     {
+        public int HashChode { get; }
         public Guid Id { get; }
         public object ReferenceItem { get; }
         public ISet<object> ContainedObjects { get { return new HashSet<object>(this._ContainedObjects, new ReferenceEqualsComparer()); } }
         private readonly ISet<object> _ContainedObjects;
-        public EquivalenceClass(object @object)
+        public EquivalenceClass(object @object, int hashCode)
         {
             this.Id = Guid.NewGuid();
+            this.HashChode = hashCode;
             this.ReferenceItem = @object;
             this._ContainedObjects = new HashSet<object>(new ReferenceEqualsComparer());
             this._ContainedObjects.Add(this.ReferenceItem);
         }
-        public override bool Equals(object obj)
+        public override bool Equals(object @object)
         {
-            return obj is EquivalenceClass @class &&
-                   this.Id.Equals(@class.Id);
+            return @object is EquivalenceClass @class && this.Id.Equals(@class.Id);
         }
         public override int GetHashCode()
         {
-            return HashCode.Combine(this.Id);
-        }
-
-        public bool AlreadyBelongsToThisEquivalenceClass(object @object)
-        {
-            bool result = this.ContainedObjects.Contains(@object);
-            //TODO must also return true if @object equals ReferenceItem. problem here: how to calculate if this 2 objects are equal at this prosition?
-            return result;
+            return this.HashChode;
         }
 
         internal void Add(object @object)

@@ -34,14 +34,14 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis
             {
                 throw new Exception($"The value of '{nameof(maxOutputLength)}' is {maxOutputLength} but must be {minimalOutputLength} or greater.");
             }
-            string result = this.ToString(@object, new Dictionary<object, Guid>(), 0);
+            string result = this.ToString(@object, new Dictionary<object, int>(new ReferenceEqualsComparer()), 0);
             if (result.Length > maxOutputLength)
             {
                 result = result.Substring(0, maxOutputLength - 3) + "...";
             }
             return result;
         }
-        private string ToString(object @object, IDictionary<object, Guid> visitedObjects, int currentIndentationLevel)
+        private string ToString(object @object, IDictionary<object, int> visitedObjects, int currentIndentationLevel)
         {
             if (@object == null)
             {
@@ -58,7 +58,7 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis
             }
             try
             {
-                Guid id = Guid.NewGuid();
+                int id = this.PropertyEqualsCalculator.GetHashCode(@object);
                 visitedObjects.Add(@object, id);
 
                 if (Utilities.ObjectIsEnumerable(@object))

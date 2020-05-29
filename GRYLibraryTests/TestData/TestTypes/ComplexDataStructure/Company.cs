@@ -58,13 +58,22 @@ namespace GRYLibrary.TestData.TestTypes.ComplexDataStructure
             Enumerable.Range(10, 30).ForEach(index => company.OrderHistory.Add(Order.GetRandom(company.Products)));
             Enumerable.Range(10, 30).ForEach(index => company.OrderHistory.Add(Order.GetRandom(company.Products)));
 
-
-
             return company;
+        }
+
+        #region Overhead
+        public override bool Equals(object @object)
+        {
+            return Generic.GenericEquals(this, @object);
+        }
+        public override int GetHashCode()
+        {
+            return Generic.GenericGetHashCode(this);
         }
         public override string ToString()
         {
-            return GenericToString.Instance.ToString(this, 3000);
+            return GenericToString.Instance.ToString(this, 1000);
         }
+        #endregion
     }
 }

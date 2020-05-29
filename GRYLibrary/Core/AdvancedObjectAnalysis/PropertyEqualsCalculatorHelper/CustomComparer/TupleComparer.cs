@@ -11,7 +11,7 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper.
             this.Configuration = cacheAndConfiguration;
         }
 
-        public override bool DefaultEquals(object item1, object item2)
+        internal override bool DefaultEquals(object item1, object item2)
         {
             bool result = this.EqualsTyped(Utilities.ObjectToTuple<object, object>(item1), Utilities.ObjectToTuple<object, object>(item2));
             return result;
@@ -22,9 +22,9 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper.
             return new PropertyEqualsCalculator(this.Configuration).Equals(Tuple1.Item1, Tuple2.Item1) && new PropertyEqualsCalculator(this.Configuration).Equals(Tuple1.Item2, Tuple2.Item2);
         }
 
-        public override int DefaultGetHashCode(object obj)
+        internal override int DefaultGetHashCode(object obj)
         {
-            return this.Configuration.GetRuntimeHashCode(obj);
+            return this.Configuration.GetHashCode(obj);
         }
 
         public override bool IsApplicable(Type type)

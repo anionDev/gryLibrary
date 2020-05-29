@@ -6,7 +6,7 @@ using GRYLibrary.TestData.TestTypes.CyclicDataStructure;
 using GRYLibrary.TestData.TestTypes.SimpleDataStructure;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace GRYLibrary.Tests
+namespace GRYLibrary.Tests.AdvancedObjectAnalysisTests.Serializer
 {
     [TestClass]
     public class GenericXMLSerializerTest
@@ -27,7 +27,7 @@ namespace GRYLibrary.Tests
             object testObject = Company.GetRandom();
             string serialized = serializer.Serialize(testObject);
             Company actualObject = serializer.Deserialize<Company>(serialized);
-            Assert.AreEqual(testObject, actualObject,"Complex objects are not equal");
+            Assert.AreEqual(testObject, actualObject);
         }
         [TestMethod]
         public void SerializeCyclicTestObject()
@@ -37,13 +37,6 @@ namespace GRYLibrary.Tests
             string serialized = serializer.Serialize(testObject);
             CycleA actualObject = serializer.Deserialize<CycleA>(serialized);
             Assert.AreEqual(testObject, actualObject);
-        }
-        [TestMethod]
-        public void PrimitiveEqualsTest()
-        {
-            string testString = "test";
-            PropertyEqualsCalculator comparer = new PropertyEqualsCalculator();
-            Assert.IsTrue(comparer.DefaultEquals(testString, testString));
         }
     }
 }
