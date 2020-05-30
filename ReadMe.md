@@ -28,11 +28,11 @@ The entire documentation-website can be found [here](https://aniondev.github.io/
 
 # Hints
 
-### Platform
+## Platform
 
 The latest nuget-package is designed for .NET-standard 2.1.
 
-### Signing
+## Signing
 
 The GRYLibrary-nuget-packages are always signed. You can check the public key token by using [sn](https://docs.microsoft.com/en/dotnet/framework/tools/sn-exe-strong-name-tool): `sn -T GRYLibrary.dll`
 
@@ -40,5 +40,5 @@ The public key token of all official GRYLibrary-releases is `fa37b6e9de549c68`. 
 
 ## License
 
-GRYLibrary is licensed under the terms of GRYL-1.2. The concrete license-text for the GRYLibrary can be found [here](https://raw.githubusercontent.com/anionDev/gryLibrary/master/License.txt).
-If all of your usecases for this product satisfy the conditions for ethical usage which are defined in the GRYL-1.2 but your company is not allowed to use this product due to too high sales then please contact the productowner for a commercial license.
+GRYLibrary is licensed under the terms of GRYL. The concrete license-text can be found [here](https://raw.githubusercontent.com/anionDev/gryLibrary/master/License.txt).
+If you want to use the GRYLibrary in your company then please contact the owner of the GRYLibrary for a commercial license.
