@@ -1,6 +1,6 @@
 Copyright © 2020 Marius Göcke
 
-GRYLibrary is licensed under the terms of the GRYLibrary-License version 1.3 (see appendix 1).
+GRYLibrary itself is licensed under the terms of the GRYLibrary-License version 1.3 (see appendix 1).
 GRYLibrary uses dependencies which are released under their own license:
 -Microsoft.Extensions.Logging.Abstractions is licensed under the terms of the Apache-license version 2.0 (see appendix 2)
 -Microsoft.Extensions.Logging.EventLog is licensed under the terms of the Apache-license version 2.0 (see appendix 2)
@@ -9,7 +9,12 @@ GRYLibrary uses dependencies which are released under their own license:
 
 ----------------------------------------------------------------------
 Appendix 1:
-GRYLibrary-License version 1.3 (GRYL-1.3)
+GRYLibrary-License version 1.4 (GRYL-1.4)
+
+Definitions:
+ - "This license" means GRYLibrary-License.
+ - "This product" means the product which is licensed under the terms of this license.
+ - "Your product" means the product which uses this product.
 
 You are not allowed to use the product if you do not agree to this license.
 The licensor does not give any warranty that the product is flawless. The licensor is not liable for any damages or costs caused by the use of the product.
@@ -17,7 +22,10 @@ Licensor hereby grants permission by this license to use the product under terms
 Your license expires immediately if one of this conditions is not fulfilled anymore.
 
 GRYL-using-conditions:
-The licensee is allowed to use the product under the terms of the GNU lesser general public license version 3 (see appendix 4) with the restriction that the licensee is not allowed to exercise any right given by the GNU lesser general public license version 3 if it contradicts any condition defined in the GRYLibrary-License.
+The licensee is allowed to use the product under the terms of the GNU lesser general public license version 3 (see appendix 4) with the restriction that the licensee is not allowed to exercise any right given by the GNU lesser general public license version 3 if it contradicts any condition defined in this license.
+When you use this product as dependency in your project you are allowed to publish, release and distribute your product under the terms of any license you want as long as
+ - all of your usecases of this product in your product always comply with the terms of this license and
+ - you make it clear for everyone that this product (and the usage of this product as part in your product) is still licensed under the terms of this license regardless of the license under which your product is distributed.
 
 GRYL-using-conditions:
 You satisfy the GRYL-using-conditions if and only if you are
