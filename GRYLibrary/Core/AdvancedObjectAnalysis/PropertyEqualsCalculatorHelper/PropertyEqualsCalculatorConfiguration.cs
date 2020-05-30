@@ -11,7 +11,7 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper
         internal ISet<EquivalenceClass> EquivalenceClasses { get; } = new HashSet<EquivalenceClass>();
         public Func<PropertyInfo, bool> PropertySelector { get; set; } = (PropertyInfo propertyInfo) =>
         {
-            return propertyInfo.CanWrite && propertyInfo.GetMethod.IsPublic;
+            return propertyInfo.GetMethod.IsPublic && propertyInfo.SetMethod.IsPublic && !propertyInfo.GetMethod.IsStatic;
         };
         public Func<FieldInfo, bool> FieldSelector { get; set; } = (FieldInfo propertyInfo) =>
         {
