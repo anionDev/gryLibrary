@@ -1,15 +1,18 @@
-﻿using GRYLibrary.Core.Log.ConcreteLogTargets;
+﻿using GRYLibrary.Core.AdvancedObjectAnalysis;
+using GRYLibrary.Core.Log.ConcreteLogTargets;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Xml;
+using System.Xml.Schema;
 using System.Xml.Serialization;
 using Console = GRYLibrary.Core.Log.ConcreteLogTargets.Console;
 
 namespace GRYLibrary.Core.Log
 {
-    public class GRYLogConfiguration
+    public class GRYLogConfiguration : IXmlSerializable
     {
 
         /// <summary>
@@ -189,6 +192,24 @@ namespace GRYLibrary.Core.Log
                 item.Enabled = newEnabledValue;
             }
         }
+        #region Overhead
+
+        public XmlSchema GetSchema()
+        {
+            return Generic.GenericGetSchema(this.GetType());
+        }
+
+        public void ReadXml(XmlReader reader)
+        {
+            Generic.GenericReadXml(this, reader);
+        }
+
+        public void WriteXml(XmlWriter writer)
+        {
+            Generic.GenericWriteXml(this, writer);
+        }
+
+        #endregion
     }
 
 }

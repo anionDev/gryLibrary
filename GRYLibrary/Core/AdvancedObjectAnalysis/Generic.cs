@@ -1,6 +1,8 @@
 ﻿using GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper;
 using System;
 using System.Collections.Generic;
+using System.Xml;
+using System.Xml.Schema;
 
 namespace GRYLibrary.Core.AdvancedObjectAnalysis
 {
@@ -26,5 +28,23 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis
         {
             return AdvancedObjectAnalysis.GenericToString.Instance.ToString(@object);
         }
+
+#pragma warning disable IDE0060 // Suppress "Remove unused parameter 'object'"
+        internal static XmlSchema GenericGetSchema(object @object)
+#pragma warning restore IDE0060
+        {
+            return null;
+        }
+
+        internal static void GenericWriteXml(object @object, XmlWriter writer)
+        {
+            throw new NotImplementedException();
+        }
+
+        internal static void GenericReadXml(object @object, XmlReader reader)
+        {
+            throw new NotImplementedException();
+        }
+
     }
 }

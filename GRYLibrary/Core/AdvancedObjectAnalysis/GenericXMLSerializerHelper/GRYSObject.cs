@@ -77,6 +77,7 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.GenericXMLSerializerHelper
                 Type typeOfObject = @object.GetType();
                 foreach (SAttribute attribute in simplifiedObject.Attributes)
                 {
+
                     PropertyInfo property = typeOfObject.GetProperty(attribute.Name);
                     if (property != null)
                     {
@@ -90,13 +91,15 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.GenericXMLSerializerHelper
                         }
                         continue;
                     }
+
                     FieldInfo field = typeOfObject.GetField(attribute.Name);
-                    if (field == null)
+                    if (field != null)
                     {
                         field.SetValue(@object, this._DeserializedObjects[attribute.ObjectId]);
                         continue;
                     }
-                    throw new KeyNotFoundException($"Can not find attribute {attribute.Name} in type {typeOfObject}");
+
+                    throw new KeyNotFoundException($"Can not find attribute '{attribute.Name}' in type '{typeOfObject}'.");
                 }
             }
 
