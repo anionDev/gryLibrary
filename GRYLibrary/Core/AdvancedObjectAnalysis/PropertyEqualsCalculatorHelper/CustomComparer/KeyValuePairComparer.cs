@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 
 namespace GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper.CustomComparer
 {
-    internal class KeyValuePairComparer : AbstractCustomComparer
+    public class KeyValuePairComparer : AbstractCustomComparer
     {
-        internal KeyValuePairComparer(PropertyEqualsCalculatorConfiguration cacheAndConfiguration)
+        internal KeyValuePairComparer(PropertyEqualsCalculatorConfiguration cacheAndConfiguration) : base(cacheAndConfiguration)
         {
             this.Configuration = cacheAndConfiguration;
         }
@@ -19,7 +18,7 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper.
 
         internal bool EqualsTyped(KeyValuePair<object, object> keyValuePair1, KeyValuePair<object, object> keyValuePair2)
         {
-            return new PropertyEqualsCalculator(this.Configuration).Equals(keyValuePair1.Key, keyValuePair2.Key) && new PropertyEqualsCalculator(this.Configuration).Equals(keyValuePair1.Value, keyValuePair2.Value);
+            return this._PropertyEqualsCalculator.Equals(keyValuePair1.Key, keyValuePair2.Key) && this._PropertyEqualsCalculator.Equals(keyValuePair1.Value, keyValuePair2.Value);
         }
 
         internal override int DefaultGetHashCode(object obj)
@@ -27,9 +26,9 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper.
             return this.Configuration.GetHashCode(obj);
         }
 
-        public override bool IsApplicable(Type type)
+        public override bool IsApplicable(Type typeOfObject1, Type typeOfObject2)
         {
-            return Utilities.TypeIsKeyValuePair(type);
+            return Utilities.TypeIsKeyValuePair(typeOfObject1) && Utilities.TypeIsKeyValuePair(typeOfObject2);
         }
     }
 }

@@ -1,6 +1,4 @@
-﻿using GRYLibrary.Core.AdvancedObjectAnalysis;
-using GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper.CustomComparer;
-using GRYLibrary.Core.AdvancedXMLSerialysis;
+﻿using GRYLibrary.Core.AdvancedXMLSerialysis;
 using GRYLibrary.TestData.TestTypes.ComplexDataStructure;
 using GRYLibrary.TestData.TestTypes.CyclicDataStructure;
 using GRYLibrary.TestData.TestTypes.SimpleDataStructure;
@@ -27,6 +25,9 @@ namespace GRYLibrary.Tests.AdvancedObjectAnalysisTests.Serializer
             object testObject = Company.GetRandom();
             string serialized = serializer.Serialize(testObject);
             Company actualObject = serializer.Deserialize<Company>(serialized);
+            string o1 = testObject.ToString();
+            string o2 = actualObject.ToString();
+            Assert.AreEqual(o1,o2);
             Assert.AreEqual(testObject, actualObject);
         }
         [TestMethod]

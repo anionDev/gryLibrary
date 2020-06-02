@@ -1,12 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 
 namespace GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper.CustomComparer
 {
-    internal class TupleComparer : AbstractCustomComparer
+    public class TupleComparer : AbstractCustomComparer
     {
-        internal TupleComparer(PropertyEqualsCalculatorConfiguration cacheAndConfiguration)
+        internal TupleComparer(PropertyEqualsCalculatorConfiguration cacheAndConfiguration) : base(cacheAndConfiguration)
         {
             this.Configuration = cacheAndConfiguration;
         }
@@ -19,7 +17,7 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper.
 
         internal bool EqualsTyped(Tuple<object, object> Tuple1, Tuple<object, object> Tuple2)
         {
-            return new PropertyEqualsCalculator(this.Configuration).Equals(Tuple1.Item1, Tuple2.Item1) && new PropertyEqualsCalculator(this.Configuration).Equals(Tuple1.Item2, Tuple2.Item2);
+            return this._PropertyEqualsCalculator.Equals(Tuple1.Item1, Tuple2.Item1) && this._PropertyEqualsCalculator.Equals(Tuple1.Item2, Tuple2.Item2);
         }
 
         internal override int DefaultGetHashCode(object obj)
@@ -27,9 +25,9 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper.
             return this.Configuration.GetHashCode(obj);
         }
 
-        public override bool IsApplicable(Type type)
+        public override bool IsApplicable(Type typeOfObject1, Type typeOfObject2)
         {
-            return Utilities.TypeIsTuple(type);
+            return Utilities.TypeIsTuple(typeOfObject1) && Utilities.TypeIsTuple(typeOfObject2);
         }
     }
 }

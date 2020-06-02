@@ -22,7 +22,6 @@ using System.Dynamic;
 using System.ComponentModel;
 using GRYLibrary.Core.XMLSerializer;
 using System.Net.Sockets;
-using GRYLibrary.Core.AdvancedObjectAnalysis;
 using GRYLibrary.Core.OperatingSystem;
 using GRYLibrary.Core.OperatingSystem.ConcreteOperatingSystems;
 using GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper.CustomComparer;
@@ -222,7 +221,15 @@ namespace GRYLibrary.Core
         }
         public static bool TypeIsList(this Type type)
         {
-            return IsAssignableFrom(type, typeof(IList<>)) || IsAssignableFrom(type, typeof(System.Collections.IList));
+            return TypeIsListNotGeneric(type) || TypeIsListGeneric(type);
+        }
+        public static bool TypeIsListNotGeneric(this Type type)
+        {
+            return IsAssignableFrom(type, typeof(System.Collections.IList));
+        }
+        public static bool TypeIsListGeneric(this Type type)
+        {
+            return IsAssignableFrom(type, typeof(IList<>));
         }
         /// <returns>Returns true if and only if the most concrete type of <paramref name="object"/> implements <see cref="IDictionary{TKey, TValue}"/> or <see cref="System.Collections.IDictionary"/>.</returns>
         public static bool ObjectIsDictionary(this object @object)
@@ -231,7 +238,15 @@ namespace GRYLibrary.Core
         }
         public static bool TypeIsDictionary(this Type type)
         {
-            return IsAssignableFrom(type, typeof(IDictionary<,>)) || IsAssignableFrom(type, typeof(System.Collections.IDictionary));
+            return TypeIsDictionaryNotGeneric(type) || TypeIsDictionaryGeneric(type);
+        }
+        public static bool TypeIsDictionaryNotGeneric(this Type type)
+        {
+            return IsAssignableFrom(type, typeof(System.Collections.IDictionary));
+        }
+        public static bool TypeIsDictionaryGeneric(this Type type)
+        {
+            return IsAssignableFrom(type, typeof(IDictionary<,>));
         }
         public static bool ObjectIsKeyValuePair(this object @object)
         {
@@ -371,7 +386,20 @@ namespace GRYLibrary.Core
         }
         public static Tuple<T1, T2> ObjectToTuple<T1, T2>(this object @object)
         {
-            throw new NotImplementedException();
+            if (!ObjectIsTuple(@object))
+            {
+                throw new InvalidCastException();
+            }
+            object item1 = ((dynamic)@object).Item1;
+            object item2 = ((dynamic)@object).Item2;
+            if (item1 is T1 && item2 is T2)
+            {
+                return new Tuple<T1, T2>((T1)item1, (T2)item2);
+            }
+            else
+            {
+                throw new InvalidCastException();
+            }
         }
 
         #endregion
@@ -392,7 +420,7 @@ namespace GRYLibrary.Core
         /// <returns>Returns true if and only if the items in <paramref name="list1"/> and <paramref name="list2"/> are equal using <see cref="PropertyEqualsCalculator{T}"/> as comparer.</returns>
         public static bool ListEquals<T>(this IList<T> list1, IList<T> list2)
         {
-            return new ListComparer(new PropertyEqualsCalculatorConfiguration()).EqualsTyped<T>(list1, list2);
+            return new ListComparer(new PropertyEqualsCalculatorConfiguration()).EqualsTyped(list1, list2);
         }
         public static bool DictionaryEquals(this System.Collections.IDictionary dictionary1, System.Collections.IDictionary dictionary2)
         {
@@ -421,17 +449,17 @@ namespace GRYLibrary.Core
         }
         public static bool IsAssignableFrom(Type typeForCheck, Type parentType)
         {
-            ISet<Type> typesToCheck = GetParentTypesAndInterfaces(typeForCheck);
-            typesToCheck.Add(typeForCheck);
+            ISet<Type> typesToCheck = GetTypeWithParentTypesAndInterfaces(typeForCheck);
             return typesToCheck.Contains(parentType, TypeComparerIgnoringGenerics);
         }
-        private static ISet<Type> GetParentTypesAndInterfaces(Type type)
+        public static ISet<Type> GetTypeWithParentTypesAndInterfaces(Type type)
         {
             HashSet<Type> result = new HashSet<Type>();
+            result.Add(type);
             result.UnionWith(type.GetInterfaces());
             if (type.BaseType != null)
             {
-                result.UnionWith(GetParentTypesAndInterfaces(type.BaseType));
+                result.UnionWith(GetTypeWithParentTypesAndInterfaces(type.BaseType));
             }
             return result;
         }
@@ -1776,14 +1804,14 @@ namespace GRYLibrary.Core
             DateTime originalDateTime = DateTime.ParseExact(streamReader.ReadToEnd().Substring(begin, length), format, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal);
             return TimeZoneInfo.ConvertTime(originalDateTime, timezone);
         }
-        public static GitCommandResult ExecuteGitCommand(string repository, string argument, bool throwErrorIfExitCodeIsNotZero = false, int? timeoutInMilliseconds = null, bool printErrorsAsInformation = false, bool writeOutputToConsole = true)
+        public static GitCommandResult ExecuteGitCommand(string repositoryFolder, string argument, bool throwErrorIfExitCodeIsNotZero = false, int? timeoutInMilliseconds = null, bool printErrorsAsInformation = false, bool writeOutputToConsole = true)
         {
-            ExternalProgramExecutor externalProgramExecutor = ExternalProgramExecutor.Create("git", argument, repository, string.Empty, false, timeoutInMilliseconds);
+            ExternalProgramExecutor externalProgramExecutor = ExternalProgramExecutor.Create("git", argument, repositoryFolder, string.Empty, false, timeoutInMilliseconds);
             externalProgramExecutor.PrintErrorsAsInformation = printErrorsAsInformation;
             externalProgramExecutor.ThrowErrorIfExitCodeIsNotZero = throwErrorIfExitCodeIsNotZero;
             externalProgramExecutor.StartConsoleApplicationInCurrentConsoleWindow();
             externalProgramExecutor.LogOutput = writeOutputToConsole;
-            return new GitCommandResult(argument, repository, externalProgramExecutor.AllStdOutLines, externalProgramExecutor.AllStdErrLines, externalProgramExecutor.ExitCode);
+            return new GitCommandResult(argument, repositoryFolder, externalProgramExecutor.AllStdOutLines, externalProgramExecutor.AllStdErrLines, externalProgramExecutor.ExitCode);
         }
         public static bool GitRepositoryContainsObligatoryFiles(string repositoryFolder, out ISet<string> missingFiles)
         {
@@ -1844,63 +1872,63 @@ namespace GRYLibrary.Core
             return Directory.Exists(combinedPath) || File.Exists(combinedPath);
         }
         /// <summary>
-        /// Commits all staged and unstaged changes in <paramref name="repository"/> (excluding uncommitted changes in submodules).
+        /// Commits all staged and unstaged changes in <paramref name="repositoryFolder"/> (excluding uncommitted changes in submodules).
         /// </summary>
-        /// <param name="repository">Repository where changes should be committed</param>
+        /// <param name="repositoryFolder">Repository where changes should be committed</param>
         /// <param name="commitMessage">Message for the commit</param>
         /// <param name="commitWasCreated">Will be set to true if and only if really a commit was created. Will be set to false if and only if there are no changes to get committed.</param>
         /// <returns>Returns the commit-id of the currently checked out commit. This returns the id of the new created commit if there were changes which were committed by this function.</returns>
-        public static string GitCommit(string repository, string commitMessage, out bool commitWasCreated, bool writeOutputToConsole = false)
+        public static string GitCommit(string repositoryFolder, string commitMessage, out bool commitWasCreated, bool writeOutputToConsole = false)
         {
             commitWasCreated = false;
-            if (GitRepositoryHasUncommittedChanges(repository))
+            if (GitRepositoryHasUncommittedChanges(repositoryFolder))
             {
-                ExecuteGitCommand(repository, $"add -A", true, writeOutputToConsole: writeOutputToConsole);
-                ExecuteGitCommand(repository, $"commit -m \"{commitMessage}\"", true, writeOutputToConsole: writeOutputToConsole);
+                ExecuteGitCommand(repositoryFolder, $"add -A", true, writeOutputToConsole: writeOutputToConsole);
+                ExecuteGitCommand(repositoryFolder, $"commit -m \"{commitMessage}\"", true, writeOutputToConsole: writeOutputToConsole);
                 commitWasCreated = true;
             }
-            return GetLastGitCommitId(repository, "HEAD");
+            return GetLastGitCommitId(repositoryFolder, "HEAD");
         }
         /// <returns>Returns the commit-id of the given <paramref name="revision"/>.</returns>
         public static string GetLastGitCommitId(string repositoryFolder, string revision = "HEAD")
         {
             return ExecuteGitCommand(repositoryFolder, $"rev-parse " + revision, true, writeOutputToConsole: false).GetFirstStdOutLine();
         }
-        public static void GitFetch(string repository, string remoteName = "--all", bool printErrorsAsInformation = true, bool writeOutputToConsole = false)
+        public static void GitFetch(string repositoryFolder, string remoteName = "--all", bool printErrorsAsInformation = true, bool writeOutputToConsole = false)
         {
-            ExecuteGitCommand(repository, $"fetch {remoteName} --tags --prune", true, printErrorsAsInformation: printErrorsAsInformation, writeOutputToConsole: writeOutputToConsole);
+            ExecuteGitCommand(repositoryFolder, $"fetch {remoteName} --tags --prune", true, printErrorsAsInformation: printErrorsAsInformation, writeOutputToConsole: writeOutputToConsole);
         }
-        public static bool GitRepositoryHasUnstagedChanges(string repository)
+        public static bool GitRepositoryHasUnstagedChanges(string repositoryFolder)
         {
-            if (GitRepositoryHasUnstagedChangesOfTrackedFiles(repository))
+            if (GitRepositoryHasUnstagedChangesOfTrackedFiles(repositoryFolder))
             {
                 return true;
             }
-            if (GitRepositoryHaNewUntrackedFiles(repository))
+            if (GitRepositoryHaNewUntrackedFiles(repositoryFolder))
             {
                 return true;
             }
             return false;
         }
 
-        public static bool GitRepositoryHaNewUntrackedFiles(string repository)
+        public static bool GitRepositoryHaNewUntrackedFiles(string repositoryFolder)
         {
-            return GitChangesHelper(repository, "ls-files --exclude-standard --others");
+            return GitChangesHelper(repositoryFolder, "ls-files --exclude-standard --others");
         }
 
-        public static bool GitRepositoryHasUnstagedChangesOfTrackedFiles(string repository)
+        public static bool GitRepositoryHasUnstagedChangesOfTrackedFiles(string repositoryFolder)
         {
-            return GitChangesHelper(repository, "diff");
+            return GitChangesHelper(repositoryFolder, "diff");
         }
 
-        public static bool GitRepositoryHasStagedChanges(string repository)
+        public static bool GitRepositoryHasStagedChanges(string repositoryFolder)
         {
-            return GitChangesHelper(repository, "diff --cached");
+            return GitChangesHelper(repositoryFolder, "diff --cached");
         }
 
-        private static bool GitChangesHelper(string repository, string argument)
+        private static bool GitChangesHelper(string repositoryFolder, string argument)
         {
-            GitCommandResult result = ExecuteGitCommand(repository, argument, true, writeOutputToConsole: false);
+            GitCommandResult result = ExecuteGitCommand(repositoryFolder, argument, true, writeOutputToConsole: false);
             foreach (string line in result.StdOutLines)
             {
                 if (!string.IsNullOrWhiteSpace(line))
@@ -1911,18 +1939,21 @@ namespace GRYLibrary.Core
             return false;
         }
 
-        public static bool GitRepositoryHasUncommittedChanges(string repository)
+        public static bool GitRepositoryHasUncommittedChanges(string repositoryFolder)
         {
-            if (GitRepositoryHasUnstagedChanges(repository))
+            if (GitRepositoryHasUnstagedChanges(repositoryFolder))
             {
                 return true;
             }
-            if (GitRepositoryHasStagedChanges(repository))
+            if (GitRepositoryHasStagedChanges(repositoryFolder))
             {
                 return true;
             }
             return false;
         }
+        /// <remarks>
+        /// <paramref name="revision"/> can be all kinds of revision-labels, for example "HEAD" or branch-names (e. g. "master") oder revision-ids (e. g. "a1b2c3b4").
+        /// </remarks>
         public static int GetAmountOfCommitsInGitRepository(string repositoryFolder, string revision = "HEAD")
         {
             return int.Parse(ExecuteGitCommand(repositoryFolder, $"rev-list --count {revision}", true).GetFirstStdOutLine());
@@ -1930,6 +1961,13 @@ namespace GRYLibrary.Core
         public static string GetCurrentGitRepositoryBranch(string repositoryFolder)
         {
             return ExecuteGitCommand(repositoryFolder, $"rev-parse --abbrev-ref HEAD", true).GetFirstStdOutLine();
+        }
+        /// <remarks>
+        /// <paramref name="ancestor"/> and <paramref name="descendant"/> can be all kinds of revision-labels, for example "HEAD" or branch-names (e. g. "master") oder revision-ids (e. g. "a1b2c3b4").
+        /// </remarks>
+        public static bool IsGitCommitAncestor(string repositoryFolder, string ancestor, string descendant = "HEAD")
+        {
+            return ExecuteGitCommand(repositoryFolder, $"merge-base --is-ancestor {ancestor} {descendant}", false).ExitCode == 0;
         }
         public static SerializableDictionary<TKey, TValue> ToSerializableDictionary<TKey, TValue>(this IDictionary<TKey, TValue> dictionary)
         {
@@ -1978,7 +2016,7 @@ namespace GRYLibrary.Core
                 {
                     if (OperatingSystem.OperatingSystem.GetCurrentOperatingSystem() is Windows)
                     {
-                        resultProgram = Utilities.GetDefaultProgramToOpenFile(Path.GetExtension(program));
+                        resultProgram = GetDefaultProgramToOpenFile(Path.GetExtension(program));
                         resultArgument = program;
                     }
                     else

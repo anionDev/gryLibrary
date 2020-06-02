@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
-using System.Runtime.CompilerServices;
 
 namespace GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper.CustomComparer
 {
-    internal class DictionaryComparer : AbstractCustomComparer
+    public class DictionaryComparer : AbstractCustomComparer
     {
-        internal DictionaryComparer(PropertyEqualsCalculatorConfiguration cacheAndConfiguration)
+        internal DictionaryComparer(PropertyEqualsCalculatorConfiguration cacheAndConfiguration) : base(cacheAndConfiguration)
         {
             this.Configuration = cacheAndConfiguration;
         }
@@ -29,7 +27,7 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper.
                 {
                     KeyValuePair<TKey, TValue> kvp1 = new KeyValuePair<TKey, TValue>(key, dictionary1[key]);
                     KeyValuePair<TKey, TValue> kvp2 = new KeyValuePair<TKey, TValue>(key, dictionary2[key]);
-                    if (!new PropertyEqualsCalculator(this.Configuration).Equals(kvp1, kvp2))
+                    if (!this._PropertyEqualsCalculator.Equals(kvp1, kvp2))
                     {
                         return false;
                     }
@@ -57,9 +55,9 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper.
         {
             return this.Configuration.GetHashCode(obj);
         }
-        public override bool IsApplicable(Type type)
+        public override bool IsApplicable(Type typeOfObject1, Type typeOfObject2)
         {
-            return Utilities.TypeIsDictionary(type);
+            return Utilities.TypeIsDictionary(typeOfObject1) && Utilities.TypeIsDictionary(typeOfObject2);
         }
     }
 }

@@ -1,5 +1,7 @@
 ﻿using GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper;
+using GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper.CustomComparer;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Xml;
 using System.Xml.Schema;
@@ -12,11 +14,40 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis
         private static readonly Dictionary<object, int> _ObjectReferenceHashCodeCache = new Dictionary<object, int>(new ReferenceEqualsComparer());
         public static int GenericGetHashCode(object @object)
         {
-            if (!_ObjectReferenceHashCodeCache.ContainsKey(@object))
+            if (@object == null)
             {
-                _ObjectReferenceHashCodeCache.Add(@object, _IdGenerator.GenerateNewId());
+                return 684835431;
             }
-            return _ObjectReferenceHashCodeCache[@object];
+            Type type = @object.GetType();
+            if (PrimitiveComparer.TypeIsTreatedAsPrimitive(type))
+            {
+                Utilities.NoOperation();
+            }
+            else if (Utilities.TypeIsSet(type))
+            {
+                type = typeof(ISet<>);
+            }
+            else if (Utilities.TypeIsList(type))
+            {
+                type = typeof(IList<>);
+            }
+            else if (Utilities.TypeIsDictionary(type))
+            {
+                type = typeof(IDictionary<,>);
+            }
+            else if (Utilities.TypeIsEnumerable(type))
+            {
+                type = typeof(IEnumerable);
+            }
+            else
+            {
+                Utilities.NoOperation();
+            }
+            if (!_ObjectReferenceHashCodeCache.ContainsKey(type))
+            {
+                _ObjectReferenceHashCodeCache.Add(type, _IdGenerator.GenerateNewId());
+            }
+            return _ObjectReferenceHashCodeCache[type];
         }
 
         public static bool GenericEquals(object object1, object object2)
@@ -30,18 +61,18 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis
         }
 
 #pragma warning disable IDE0060 // Suppress "Remove unused parameter 'object'"
-        internal static XmlSchema GenericGetSchema(object @object)
+        public static XmlSchema GenericGetSchema(object @object)
 #pragma warning restore IDE0060
         {
             return null;
         }
 
-        internal static void GenericWriteXml(object @object, XmlWriter writer)
+        public static void GenericWriteXml(object @object, XmlWriter writer)
         {
             throw new NotImplementedException();
         }
 
-        internal static void GenericReadXml(object @object, XmlReader reader)
+        public static void GenericReadXml(object @object, XmlReader reader)
         {
             throw new NotImplementedException();
         }

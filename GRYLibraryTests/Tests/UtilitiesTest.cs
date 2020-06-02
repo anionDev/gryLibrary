@@ -181,7 +181,7 @@ namespace GRYLibrary.Tests
             Assert.IsFalse(Utilities.ObjectIsDictionary("somestring"));
         }
         [TestMethod]
-        public void ISettTest()
+        public void IsSetTest()
         {
             Assert.IsTrue(Utilities.ObjectIsSet(new HashSet<int>()));
             Assert.IsTrue(Utilities.ObjectIsSet(new SortedSet<string>()));
@@ -189,20 +189,105 @@ namespace GRYLibrary.Tests
             Assert.IsFalse(Utilities.ObjectIsSet(new object()));
             Assert.IsFalse(Utilities.ObjectIsSet("somestring"));
         }
-        [Ignore]
+        [TestMethod]
+        public void IsKeyValuePairTest11()
+        {
+            Assert.IsTrue(Utilities.ObjectIsKeyValuePair(new System.Collections.Generic.KeyValuePair<object, object>(new object(), new object())));
+        }
+        [TestMethod]
+        public void IsKeyValuePairTest12()
+        {
+            Assert.IsTrue(Utilities.ObjectIsKeyValuePair(new System.Collections.Generic.KeyValuePair<int, string>()));
+        }
+        [TestMethod]
+        public void IsKeyValuePairTest21()
+        {
+            Assert.IsTrue(Utilities.ObjectIsKeyValuePair(new System.Collections.Generic.KeyValuePair<object, object>(new object(), new object())));
+        }
+        [TestMethod]
+        public void IsKeyValuePairTest22()
+        {
+            Assert.IsTrue(Utilities.ObjectIsKeyValuePair(new System.Collections.Generic.KeyValuePair<int, string>()));
+        }
+        [TestMethod]
+        public void ObjectToKeyValuePairTest1()
+        {
+            object kvp11 = new object();
+            object kvp12 = new object();
+            object kvp1object = new System.Collections.Generic.KeyValuePair<object, object>(kvp11, kvp12);
+            System.Collections.Generic.KeyValuePair<object, object> kvp1Typed = Utilities.ObjectToKeyValuePair<object, object>(kvp1object);
+            Assert.IsTrue(Utilities.ObjectIsKeyValuePair(kvp1Typed));
+            Assert.AreEqual(kvp11, kvp1Typed.Key);
+            Assert.AreEqual(kvp12, kvp1Typed.Value);
+        }
+        [TestMethod]
+        public void ObjectToKeyValuePairTest2()
+        {
+            int kvp11 = 6;
+            string kvp12 = "test";
+            object kvp1object = new System.Collections.Generic.KeyValuePair<int, string>(kvp11, kvp12);
+            System.Collections.Generic.KeyValuePair<object, object> kvp1Typed = Utilities.ObjectToKeyValuePair<object, object>(kvp1object);
+            Assert.IsTrue(Utilities.ObjectIsKeyValuePair(kvp1Typed));
+            Assert.AreEqual(kvp11, kvp1Typed.Key);
+            Assert.AreEqual(kvp12, kvp1Typed.Value);
+        }
+
+        [TestMethod]
+        public void IsTupleTest11()
+        {
+            Assert.IsTrue(Utilities.ObjectIsTuple(new Tuple<object, object>(new object(), new object())));
+        }
+        [TestMethod]
+        public void IsTupleTest12()
+        {
+            Assert.IsTrue(Utilities.ObjectIsTuple(new WriteableTuple<object, object>()));
+        }
+        [TestMethod]
+        public void IsTupleTest21()
+        {
+            Assert.IsTrue(Utilities.ObjectIsTuple(new Tuple<int, string>(5, "test")));
+        }
+        [TestMethod]
+        public void IsTupleTest22()
+        {
+            Assert.IsTrue(Utilities.ObjectIsTuple(new WriteableTuple<int, string>()));
+        }
+        [TestMethod]
+        public void ObjectToTupleTest1()
+        {
+            object kvp11 = new object();
+            object kvp12 = new object();
+            object kvp1object = new Tuple<object, object>(kvp11, kvp12);
+            Tuple<object, object> kvp1Typed = Utilities.ObjectToTuple<object, object>(kvp1object);
+            Assert.IsTrue(Utilities.ObjectIsTuple(kvp1Typed));
+            Assert.AreEqual(kvp11, kvp1Typed.Item1);
+            Assert.AreEqual(kvp12, kvp1Typed.Item2);
+        }
+        [TestMethod]
+        public void ObjectToTupleTest2()
+        {
+            int kvp11 = 6;
+            string kvp12 = "test";
+            object kvp1object = new Tuple<int, string>(kvp11, kvp12);
+            Tuple<object, object> kvp1Typed = Utilities.ObjectToTuple<object, object>(kvp1object);
+            Assert.IsTrue(Utilities.ObjectIsTuple(kvp1Typed));
+            Assert.AreEqual(kvp11, kvp1Typed.Item1);
+            Assert.AreEqual(kvp12, kvp1Typed.Item2);
+        }
+
+
         [TestMethod]
         public void ObjectToSettTest()
         {
             Assert.ThrowsException<InvalidCastException>(() => Utilities.ObjectToSet<object>(new object()));
             Assert.ThrowsException<InvalidCastException>(() => Utilities.ObjectToSet<object>(5));
 
-            Assert.IsTrue(Utilities.SetEquals(new HashSet<char> { 's', 'o', 'm', 'e', 't' }, Utilities.ObjectToSet<char>("sometest")));
+            Assert.IsTrue(Utilities.SetEquals(new HashSet<char> { 's', 'o', 'm', 'e', 't' }, Utilities.ObjectToSet<char>(new HashSet<char> { 's', 'o', 'm', 'e', 't', 'e', 's', 't' })));
 
             HashSet<int> testSet = new HashSet<int> { 3, 4, 5 };
             object testSetAsObject = testSet;
             Assert.IsTrue(Utilities.SetEquals(testSet, Utilities.ObjectToSet<int>(testSetAsObject)));
         }
-        [Ignore]
         [TestMethod]
         public void ObjectToListTest()
         {
@@ -215,7 +300,6 @@ namespace GRYLibrary.Tests
 
             Assert.IsTrue(Utilities.ListEquals(testList, (IList)new List<int> { 3, 4, 5 }.ToImmutableList()));
         }
-        [Ignore]
         [TestMethod]
         public void ObjectToDictionarytTest()
         {

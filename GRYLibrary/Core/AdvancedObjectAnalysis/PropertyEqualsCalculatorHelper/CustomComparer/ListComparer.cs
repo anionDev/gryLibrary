@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
-using System.Runtime.CompilerServices;
 
 namespace GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper.CustomComparer
 {
-    internal class ListComparer : AbstractCustomComparer
+    public class ListComparer : AbstractCustomComparer
     {
-        internal ListComparer(PropertyEqualsCalculatorConfiguration cacheAndConfiguration)
+        internal ListComparer(PropertyEqualsCalculatorConfiguration cacheAndConfiguration) : base(cacheAndConfiguration)
         {
             this.Configuration = cacheAndConfiguration;
         }
@@ -26,7 +24,7 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper.
             }
             for (int i = 0; i < list1.Count; i++)
             {
-                if (!new PropertyEqualsCalculator(this.Configuration).Equals(list1[i], list2[i]))
+                if (!this._PropertyEqualsCalculator.Equals(list1[i], list2[i]))
                 {
                     return false;
                 }
@@ -39,9 +37,9 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper.
             return this.Configuration.GetHashCode(obj);
         }
 
-        public override bool IsApplicable(Type type)
+        public override bool IsApplicable(Type typeOfObject1, Type typeOfObject2)
         {
-            return Utilities.TypeIsList(type);
+            return Utilities.TypeIsList(typeOfObject1) && Utilities.TypeIsList(typeOfObject2);
         }
     }
 }

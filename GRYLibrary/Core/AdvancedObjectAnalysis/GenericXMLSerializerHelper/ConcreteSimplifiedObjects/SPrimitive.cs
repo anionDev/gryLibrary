@@ -1,8 +1,11 @@
-﻿namespace GRYLibrary.Core.AdvancedObjectAnalysis.GenericXMLSerializerHelper.ConcreteSimplifiedObjects
+﻿using System.Xml.Serialization;
+
+namespace GRYLibrary.Core.AdvancedObjectAnalysis.GenericXMLSerializerHelper.ConcreteSimplifiedObjects
 {
     /// <summary>
     /// Represents a SimplifiedPrimitive for <see cref="GRYSObject"/>
     /// </summary>
+    [XmlRoot(ElementName = "SP")]
     public class SPrimitive : Simplified
     {
         public object Value { get; set; }

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using GRYLibrary.Core;
 using GRYLibrary.Core.AdvancedObjectAnalysis;

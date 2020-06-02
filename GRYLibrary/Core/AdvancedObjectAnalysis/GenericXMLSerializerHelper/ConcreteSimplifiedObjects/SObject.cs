@@ -1,10 +1,12 @@
 ﻿using System.Collections.Generic;
+using System.Xml.Serialization;
 
 namespace GRYLibrary.Core.AdvancedObjectAnalysis.GenericXMLSerializerHelper.ConcreteSimplifiedObjects
 {
     /// <summary>
     /// Represents a SimplifiedObject for <see cref="GRYSObject"/>
     /// </summary>
+    [XmlRoot(ElementName = "SO")]
     public class SObject : Simplified
     {
         public List<SAttribute> Attributes { get; set; } = new List<SAttribute>();

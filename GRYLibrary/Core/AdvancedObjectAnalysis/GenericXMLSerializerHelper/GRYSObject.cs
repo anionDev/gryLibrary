@@ -2,6 +2,7 @@
 using GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper;
 using GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper.CustomComparer;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Runtime.Serialization;
@@ -43,7 +44,7 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.GenericXMLSerializerHelper
             else
             {
                 Simplified simplification;
-                if (new PrimitiveComparer(serializationConfiguration.PropertyEqualsCalculatorConfiguration).IsApplicable(typeOfObject))
+                if ( PrimitiveComparer.TypeIsTreatedAsPrimitive(typeOfObject))
                 {
                     simplification = new SPrimitive();
                 }
@@ -81,7 +82,7 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.GenericXMLSerializerHelper
                     PropertyInfo property = typeOfObject.GetProperty(attribute.Name);
                     if (property != null)
                     {
-                        if (default(Guid).Equals(attribute.ObjectId))
+                        if (attribute.ObjectId.Equals(default))
                         {
                             property.SetValue(@object, Utilities.GetDefault(property.PropertyType));
                         }
@@ -95,7 +96,14 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.GenericXMLSerializerHelper
                     FieldInfo field = typeOfObject.GetField(attribute.Name);
                     if (field != null)
                     {
-                        field.SetValue(@object, this._DeserializedObjects[attribute.ObjectId]);
+                        if (attribute.ObjectId.Equals(default))
+                        {
+                            field.SetValue(@object, Utilities.GetDefault(field.FieldType));
+                        }
+                        else
+                        {
+                            field.SetValue(@object, this._DeserializedObjects[attribute.ObjectId]);
+                        }
                         continue;
                     }
 
@@ -107,9 +115,21 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.GenericXMLSerializerHelper
             {
                 object enumerable = this._DeserializedObjects[simplifiedEnumerable.ObjectId];
                 MethodInfo addOperation = enumerable.GetType().GetMethod("Add");
-                foreach (Guid item in simplifiedEnumerable.Items)
+                bool isDictionary = Utilities.ObjectIsDictionary(enumerable);
+                foreach (Guid itemId in simplifiedEnumerable.Items)
                 {
-                    addOperation.Invoke(enumerable, new object[] { this._DeserializedObjects[item] });
+                    object itemForEnumerable = this._DeserializedObjects[itemId];
+                    object[] arguments;
+                    if (isDictionary)
+                    {
+                        KeyValuePair<object, object> keyValuePair = Utilities.ObjectToKeyValuePair<object, object>(itemForEnumerable);
+                        arguments = new object[] { keyValuePair.Key, keyValuePair.Value };
+                    }
+                    else
+                    {
+                        arguments = new object[] { itemForEnumerable };
+                    }
+                    addOperation.Invoke(enumerable, arguments);
                 }
             }
 
@@ -130,17 +150,25 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.GenericXMLSerializerHelper
             {
                 Type typeOfSimplifiedEnumerable = Type.GetType(simplifiedEnumerable.TypeName);
                 Type ConcreteTypeOfEnumerable;
-                if (Utilities.TypeIsList(typeOfSimplifiedEnumerable))
+                if (Utilities.TypeIsListGeneric(typeOfSimplifiedEnumerable))
                 {
                     ConcreteTypeOfEnumerable = typeof(List<>);
+                }
+                else if (Utilities.TypeIsListNotGeneric(typeOfSimplifiedEnumerable))
+                {
+                    ConcreteTypeOfEnumerable = typeof(ArrayList);
                 }
                 else if (Utilities.TypeIsSet(typeOfSimplifiedEnumerable))
                 {
                     ConcreteTypeOfEnumerable = typeof(HashSet<>);
                 }
-                else if (Utilities.TypeIsDictionary(typeOfSimplifiedEnumerable))
+                else if (Utilities.TypeIsDictionaryGeneric(typeOfSimplifiedEnumerable))
                 {
                     ConcreteTypeOfEnumerable = typeof(Dictionary<,>);
+                }
+                else if (Utilities.TypeIsDictionaryNotGeneric(typeOfSimplifiedEnumerable))
+                {
+                    ConcreteTypeOfEnumerable = typeof(Hashtable);
                 }
                 else if (Utilities.TypeIsEnumerable(typeOfSimplifiedEnumerable))
                 {
@@ -148,9 +176,12 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.GenericXMLSerializerHelper
                 }
                 else
                 {
-                    throw new NotImplementedException();
+                    throw new ArgumentException($"Unknown type of enumerable: {typeOfSimplifiedEnumerable}");
                 }
-                ConcreteTypeOfEnumerable = ConcreteTypeOfEnumerable.MakeGenericType(typeOfSimplifiedEnumerable.GenericTypeArguments);
+                if (typeOfSimplifiedEnumerable.GenericTypeArguments.Length > 0)
+                {
+                    ConcreteTypeOfEnumerable = ConcreteTypeOfEnumerable.MakeGenericType(typeOfSimplifiedEnumerable.GenericTypeArguments);
+                }
                 return Activator.CreateInstance(ConcreteTypeOfEnumerable);
             }
 

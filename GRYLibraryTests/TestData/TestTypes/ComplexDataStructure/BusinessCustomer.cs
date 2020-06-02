@@ -1,5 +1,4 @@
-﻿using System;
-using GRYLibrary.Core.AdvancedObjectAnalysis;
+﻿using GRYLibrary.Core.AdvancedObjectAnalysis;
 
 namespace GRYLibrary.TestData.TestTypes.ComplexDataStructure
 {

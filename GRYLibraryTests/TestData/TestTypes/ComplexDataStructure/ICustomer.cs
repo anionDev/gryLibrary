@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace GRYLibrary.TestData.TestTypes.ComplexDataStructure
+﻿namespace GRYLibrary.TestData.TestTypes.ComplexDataStructure
 {
     public interface ICustomer
     {

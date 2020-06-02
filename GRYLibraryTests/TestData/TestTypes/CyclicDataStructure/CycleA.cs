@@ -1,8 +1,5 @@
 ﻿using GRYLibrary.Core.AdvancedObjectAnalysis;
 using System;
-using System.Collections.Generic;
-using System.Security.Cryptography;
-using System.Text;
 
 namespace GRYLibrary.TestData.TestTypes.CyclicDataStructure
 {

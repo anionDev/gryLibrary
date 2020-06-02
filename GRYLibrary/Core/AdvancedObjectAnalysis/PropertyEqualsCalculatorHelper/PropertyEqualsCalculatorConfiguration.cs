@@ -5,7 +5,7 @@ using System.Reflection;
 
 namespace GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper
 {
-    internal class PropertyEqualsCalculatorConfiguration
+    public class PropertyEqualsCalculatorConfiguration
     {
         private static readonly IdGenerator<int> _IdGenerator = IdGenerator.GetDefaultIntIdGenerator();
         internal ISet<EquivalenceClass> EquivalenceClasses { get; } = new HashSet<EquivalenceClass>();
@@ -13,7 +13,7 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper
         {
             return propertyInfo.GetMethod.IsPublic && propertyInfo.SetMethod.IsPublic && !propertyInfo.GetMethod.IsStatic;
         };
-        public Func<FieldInfo, bool> FieldSelector { get; set; } = (FieldInfo propertyInfo) =>
+        public Func<FieldInfo, bool> FieldSelector { get; set; } = (FieldInfo fieldInfo) =>
         {
             return false;
         };
@@ -28,6 +28,7 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper
               new SetComparer(this),
               new DictionaryComparer(this),
               new EnumerableComparer(this),
+              new AttributeValueComparer(this),
             };
         }
         public int GetHashCode(object @object)
@@ -88,6 +89,7 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper
                     return;
                 }
             }
+
             foreach (EquivalenceClass loopEquivalenceClass in this.EquivalenceClasses)
             {
                 if (this.BelongsToEquivalenceClass(loopEquivalenceClass, object2))
@@ -96,6 +98,7 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper
                     return;
                 }
             }
+
             EquivalenceClass equivalenceClass = new EquivalenceClass(object1, _IdGenerator.GenerateNewId());
             equivalenceClass.Add(object2);
             this.EquivalenceClasses.Add(equivalenceClass);

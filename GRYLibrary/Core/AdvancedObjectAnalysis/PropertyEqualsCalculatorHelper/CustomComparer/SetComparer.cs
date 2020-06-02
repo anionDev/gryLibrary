@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
-using System.Runtime.CompilerServices;
 
 namespace GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper.CustomComparer
 {
-    internal class SetComparer : AbstractCustomComparer
+    public class SetComparer : AbstractCustomComparer
     {
-        internal SetComparer(PropertyEqualsCalculatorConfiguration cacheAndConfiguration)
+        internal SetComparer(PropertyEqualsCalculatorConfiguration cacheAndConfiguration) : base(cacheAndConfiguration)
         {
             this.Configuration = cacheAndConfiguration;
         }
@@ -37,7 +35,7 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper.
         {
             foreach (T item in set)
             {
-                if (new PropertyEqualsCalculator(this.Configuration).Equals(item, obj))
+                if (this._PropertyEqualsCalculator.Equals(item, obj))
                 {
                     return true;
                 }
@@ -45,9 +43,9 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper.
             return false;
         }
 
-        public override bool IsApplicable(Type type)
+        public override bool IsApplicable(Type typeOfObject1, Type typeOfObject2)
         {
-            return Utilities.TypeIsSet(type);
+            return Utilities.TypeIsSet(typeOfObject1) && Utilities.TypeIsSet(typeOfObject2);
         }
 
         internal override int DefaultGetHashCode(object obj)

@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 
 namespace GRYLibrary.Core.AdvancedObjectAnalysis
 {
@@ -48,7 +47,7 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis
                 return this.GetIndentation(currentIndentationLevel) + "null";
             }
             Type type = @object.GetType();
-            if (new PrimitiveComparer(this.PropertyEqualsCalculator.Configuration).IsApplicable(type))
+            if (PrimitiveComparer.TypeIsTreatedAsPrimitive(type))
             {
                 return this.GetIndentation(currentIndentationLevel) + $"(Type: {@object.GetType().Name}, Value: \"{@object.ToString().Replace("\"", "\\\"")}\")";
             }
