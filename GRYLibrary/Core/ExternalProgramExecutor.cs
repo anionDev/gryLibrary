@@ -6,6 +6,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 
 namespace GRYLibrary.Core
@@ -107,7 +108,11 @@ namespace GRYLibrary.Core
                 {
                     Utilities.NoOperation();
                 }
-                this.ResolvePathOfProgram();
+                this.ResolvePaths();
+                if (!Directory.Exists(this.WorkingDirectory))
+                {
+                    throw new ArgumentException($"The specified working-directory '{this.WorkingDirectory}' does not exist");
+                }
                 ProcessStartInfo StartInfo = new ProcessStartInfo(this.ProgramPathAndFile)
                 {
                     UseShellExecute = false,
@@ -224,13 +229,21 @@ namespace GRYLibrary.Core
             }
         }
 
-        private void ResolvePathOfProgram()
+        private void ResolvePaths()
         {
             string newProgram = this.ProgramPathAndFile;
             string newArgument = this.Arguments;
             Utilities.ResolvePathOfProgram(ref newProgram, ref newArgument);
             this.ProgramPathAndFile = newProgram;
             this.Arguments = newArgument;
+            if (string.IsNullOrWhiteSpace(this.WorkingDirectory))
+            {
+                this.WorkingDirectory = Directory.GetCurrentDirectory();
+            }
+            else
+            {
+                this.WorkingDirectory = Utilities.ResolveToFullPath(this.WorkingDirectory);
+            }
         }
         private readonly IList<string> _AllStdErrLines = new List<string>();
         private string[] _AllStdErrLinesAsArray;
