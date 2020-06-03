@@ -235,7 +235,7 @@ namespace GRYLibrary.Core
             string newArgument = this.Arguments;
             Utilities.ResolvePathOfProgram(ref newProgram, ref newArgument);
             this.ProgramPathAndFile = newProgram;
-            this.Arguments = newArgument;
+            this.Arguments = newArgument.Replace("\"", "\"\"\"");// '"' must be escaped by '"""', see https://msdn.microsoft.com/en-us/library/system.diagnostics.processstartinfo.arguments(v=vs.110).aspx
             if (string.IsNullOrWhiteSpace(this.WorkingDirectory))
             {
                 this.WorkingDirectory = Directory.GetCurrentDirectory();

@@ -14,12 +14,45 @@ namespace GRYLibrary.Tests
         {
             string testStdOut = "test";
             ExternalProgramExecutor e = ExternalProgramExecutor.Create("echo", testStdOut);
-            int result =e.StartConsoleApplicationInCurrentConsoleWindow();
+            int result = e.StartConsoleApplicationInCurrentConsoleWindow();
             Assert.AreEqual(0, result);
             Assert.AreEqual(1, e.AllStdOutLines.Length);
             Assert.AreEqual(testStdOut, e.AllStdOutLines[0]);
             Assert.AreEqual(0, e.AllStdErrLines.Length);
-
         }
+        [TestMethod]
+        public void TestSimpleEcho2()
+        {
+            string testStdOut = "test othertest";
+            ExternalProgramExecutor e = ExternalProgramExecutor.Create("echo", testStdOut);
+            int result = e.StartConsoleApplicationInCurrentConsoleWindow();
+            Assert.AreEqual(0, result);
+            Assert.AreEqual(1, e.AllStdOutLines.Length);
+            Assert.AreEqual(testStdOut, e.AllStdOutLines[0]);
+            Assert.AreEqual(0, e.AllStdErrLines.Length);
+        }
+        [TestMethod]
+        public void TestSimpleEcho3_SomeSpecialCharacterAnd1DoubleQuote()
+        {
+            string testStdOut = "test /othertest\" c+\\_-";
+            ExternalProgramExecutor e = ExternalProgramExecutor.Create("echo", testStdOut);
+            int result = e.StartConsoleApplicationInCurrentConsoleWindow();
+            Assert.AreEqual(0, result);
+            Assert.AreEqual(1, e.AllStdOutLines.Length);
+            Assert.AreEqual(testStdOut, e.AllStdOutLines[0]);
+            Assert.AreEqual(0, e.AllStdErrLines.Length);
+        }
+        [TestMethod]
+        public void TestSimpleEcho3_SomeSpecialCharacterAnd2DoubleQuote()
+        {
+            string testStdOut = "test /o\"thertest\" c+\\_-";
+            ExternalProgramExecutor e = ExternalProgramExecutor.Create("echo", testStdOut);
+            int result = e.StartConsoleApplicationInCurrentConsoleWindow();
+            Assert.AreEqual(0, result);
+            Assert.AreEqual(1, e.AllStdOutLines.Length);
+            Assert.AreEqual(testStdOut, e.AllStdOutLines[0]);
+            Assert.AreEqual(0, e.AllStdErrLines.Length);
+        }
+
     }
 }
