@@ -335,6 +335,28 @@ namespace GRYLibrary.Tests
             IEnumerable listAsEnumerable = list;
             Assert.AreEqual(list.Count, Utilities.Count(listAsEnumerable));
         }
+#if DEBUG
+        [TestMethod]
+        public void ManualTest()//for debugging purposes
+        {
+            Assert.AreEqual(true, Utilities.IsInGitSubmodule(@"C:\Data\Projects\Private\builderBuild\Submodules\builder\Builder"));
+            Assert.AreEqual(true, Utilities.IsInGitSubmodule(@"C:\Data\Projects\Private\builderBuild\Submodules\builder"));
+            Assert.AreEqual(false, Utilities.IsInGitSubmodule(@"C:\Data\Projects\Private\builderBuild\Submodules"));
+            Assert.AreEqual(false, Utilities.IsInGitSubmodule(@"C:\Data\Projects\Private\builderBuild"));
+            Assert.AreEqual(false, Utilities.IsInGitSubmodule(@"C:\Data\Projects\Private"));
 
+            Assert.AreEqual(@"C:/Data/Projects/Private/builderBuild", Utilities.GetParentGitRepositoryPath(@"C:\Data\Projects\Private\builderBuild\Submodules\builder\Builder"));
+            Assert.AreEqual(@"C:/Data/Projects/Private/builderBuild", Utilities.GetParentGitRepositoryPath(@"C:\Data\Projects\Private\builderBuild\Submodules\builder"));
+            Assert.ThrowsException<ArgumentException>(() => Utilities.GetParentGitRepositoryPath(@"C:\Data\Projects\Private\builderBuild\Submodules"));
+            Assert.ThrowsException<ArgumentException>(() => Utilities.GetParentGitRepositoryPath(@"C:\Data\Projects\Private\builderBuild"));
+            Assert.ThrowsException<ArgumentException>(() => Utilities.GetParentGitRepositoryPath(@"C:\Data\Projects\Private"));
+
+            Assert.AreEqual(@"C:/Data/Projects/Private/builderBuild/Submodules/builder", Utilities.GetTopLevelOfGitRepositoryPath(@"C:\Data\Projects\Private\builderBuild\Submodules\builder\Builder"));
+            Assert.AreEqual(@"C:/Data/Projects/Private/builderBuild/Submodules/builder", Utilities.GetTopLevelOfGitRepositoryPath(@"C:\Data\Projects\Private\builderBuild\Submodules\builder"));
+            Assert.AreEqual(@"C:/Data/Projects/Private/builderBuild", Utilities.GetTopLevelOfGitRepositoryPath(@"C:\Data\Projects\Private\builderBuild\Submodules"));
+            Assert.AreEqual(@"C:/Data/Projects/Private/builderBuild", Utilities.GetTopLevelOfGitRepositoryPath(@"C:\Data\Projects\Private\builderBuild"));
+            Assert.ThrowsException<ArgumentException>(() => Utilities.GetTopLevelOfGitRepositoryPath(@"C:\Data\Projects\Private"));
+        }
+#endif
     }
 }
