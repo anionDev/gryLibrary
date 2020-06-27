@@ -36,8 +36,8 @@ namespace GRYLibrary.Tests
         {
             string testStdOut = "test /othertest\" c+\\_-";
             ExternalProgramExecutor e = ExternalProgramExecutor.Create("echo", testStdOut);
-            int result = e.StartConsoleApplicationInCurrentConsoleWindow();
-            Assert.AreEqual(0, result);
+            int exitCode = e.StartConsoleApplicationInCurrentConsoleWindow();
+            Assert.AreEqual(0, exitCode);
             Assert.AreEqual(1, e.AllStdOutLines.Length);
             Assert.AreEqual(testStdOut, e.AllStdOutLines[0]);
             Assert.AreEqual(0, e.AllStdErrLines.Length);
