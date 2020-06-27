@@ -7,8 +7,7 @@
     <Version>0.7.0</Version>
     <Description>The GRYLibrary is a collection with some useful .NET classes and functions which are very easy (re)usable.</Description>
     <Copyright>Copyright © 2020 Marius Göcke</Copyright>
-    <PackageLicenseExpression>GRYL-1.2</PackageLicenseExpression>
-    <PackageProjectUrl>https://aniondev.github.io/gryLibraryReference/Reference/index.html</PackageProjectUrl>
+    <PackageLicenseExpression>GRYL-1.4</PackageLicenseExpression>
     <RepositoryUrl>https://github.com/anionDev/gryLibrary</RepositoryUrl>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <AssemblyVersion>0.7.0.0</AssemblyVersion>

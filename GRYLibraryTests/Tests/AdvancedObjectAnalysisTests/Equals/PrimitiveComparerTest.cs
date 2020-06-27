@@ -12,7 +12,7 @@ namespace GRYLibrary.Tests.AdvancedObjectAnalysisTests.Equals
         {
             string testString = "test";
             PropertyEqualsCalculator comparer = new PropertyEqualsCalculator();
-            Assert.IsTrue(comparer.DefaultEquals(testString, testString));
+            Assert.IsTrue(comparer.Equals(testString, testString));
         }
     }
 }
