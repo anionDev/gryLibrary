@@ -298,7 +298,7 @@ namespace GRYLibrary.Tests
             object testListAsObject = testList;
             Assert.IsTrue(Utilities.ListEquals(testList, Utilities.ObjectToList<int>(testListAsObject)));
 
-            Assert.IsTrue(Utilities.ListEquals(testList, (IList)new List<int> { 3, 4, 5 ,21}.ToImmutableList()));
+            Assert.IsTrue(Utilities.ListEquals(testList, (IList)new List<int> { 3, 4, 5 }.ToImmutableList()));
         }
         [TestMethod]
         public void ObjectToDictionarytTest()
