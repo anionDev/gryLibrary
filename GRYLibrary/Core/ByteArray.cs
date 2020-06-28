@@ -5,6 +5,9 @@ using System.Text;
 
 namespace GRYLibrary.Core
 {
+    /// <summary>
+    /// Represents a byte-array which can easily used in some common formats (e. g. hex-string).
+    /// </summary>
     public class ByteArray
     {
         public static Encoding DefaultEncoding { get; } = new UTF8Encoding(false);
