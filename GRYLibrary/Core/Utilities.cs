@@ -1828,6 +1828,7 @@ namespace GRYLibrary.Core
         {
             ExecuteGitCommand(repositoryFolder, $"remote add {remoteName} {remoteFolder}", true);
         }
+        /// <returns>Returns the address of the remote with the given <paramref name="remoteName"/>.</returns>
         public static string GetGitRemoteAddress(string repository, string remoteName)
         {
             return ExtractTextFromOutput(ExecuteGitCommand(repository, $"config --get remote.{remoteName}.url", true).StdOutLines);
@@ -1836,6 +1837,8 @@ namespace GRYLibrary.Core
         {
             ExecuteGitCommand(repositoryFolder, $"remote set-url {remoteName} {newRemoteAddress}", true);
         }
+        /// <summary>Removes unused internal files in the .git-folder of the given <paramref name="repositoryFolder"/>.</summary>
+        /// <remarks>Warning: After executing this function deleted commits can not be restored because then they are really deleted.</remarks>
         public static void GitTidyUp(string repositoryFolder)
         {
             ExecuteGitCommand(repositoryFolder, $"reflog expire --expire-unreachable=now --all", true);
@@ -1886,6 +1889,7 @@ namespace GRYLibrary.Core
                     }
                 });
         }
+        /// <returns>Returns the names of the remotes of the given <paramref name="repositoryFolder"/>.</returns>
         public static IEnumerable<string> GetGitRemotes(string repositoryFolder)
         {
             return ExecuteGitCommand(repositoryFolder, "remote", true).StdOutLines.Where(line => !string.IsNullOrWhiteSpace(line));
@@ -1898,9 +1902,7 @@ namespace GRYLibrary.Core
         {
             return ExecuteGitCommand(repositoryFolder, "branch", true).StdOutLines.Where(line => !string.IsNullOrWhiteSpace(line)).Select(line => line.Replace("*", string.Empty).Trim());
         }
-        /// <summary>
-        /// Returns the toplevel of the <paramref name="repositoryFolder"/>.
-        /// </summary>
+        /// <returns>Returns the toplevel of the <paramref name="repositoryFolder"/>.</returns>
         public static string GetTopLevelOfGitRepositoryPath(string repositoryFolder)
         {
             if (IsInGitRepository(repositoryFolder))
@@ -1916,9 +1918,7 @@ namespace GRYLibrary.Core
         {
             return string.Join(string.Empty, lines).Trim();
         }
-        /// <returns>
-        /// Returns true if and only if <paramref name="repositoryFolder"/> is in a repository which is used as submodule.
-        /// </returns>
+        /// <returns>Returns true if and only if <paramref name="repositoryFolder"/> is in a repository which is used as submodule.</returns>
         public static bool IsInGitSubmodule(string repositoryFolder)
         {
             if (IsInGitRepository(repositoryFolder))
