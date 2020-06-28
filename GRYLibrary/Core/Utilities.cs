@@ -1,4 +1,5 @@
-﻿using System;
+﻿using GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
@@ -21,9 +22,11 @@ using System.Dynamic;
 using System.ComponentModel;
 using GRYLibrary.Core.XMLSerializer;
 using System.Net.Sockets;
-using GRYLibrary.Core.AdvancedObjectAnalysis;
 using GRYLibrary.Core.OperatingSystem;
 using GRYLibrary.Core.OperatingSystem.ConcreteOperatingSystems;
+using GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper.CustomComparer;
+using System.Runtime.InteropServices;
+using GRYLibrary.Core.Log;
 
 namespace GRYLibrary.Core
 {
@@ -74,6 +77,20 @@ namespace GRYLibrary.Core
             return result;
         }
 
+        public static int Count(this System.Collections.IEnumerable enumerable)
+        {
+            int result = 0;
+            System.Collections.IEnumerator enumerator = enumerable.GetEnumerator();
+            while (enumerator.MoveNext())
+            {
+                result += 1;
+            }
+            return result;
+        }
+        /// <summary>
+        /// This function does nothing.
+        /// The purpose of this function is to say explicitly that nothing should be done at the point where this function is called.
+        /// </summary>
         public static void NoOperation()
         {
             //nothing to do
@@ -126,6 +143,61 @@ namespace GRYLibrary.Core
             return @string;
         }
 
+        #region Execute or open file
+        public static bool FileIsExecutable(string file)
+        {
+            return OperatingSystem.OperatingSystem.GetCurrentOperatingSystem().Accept(new FileIsExecutableVisitor(file));
+        }
+        public static ExternalProgramExecutor ExecuteFile(string file)
+        {
+            if (FileIsExecutable(file))
+            {
+                ExternalProgramExecutor result = ExternalProgramExecutor.Create(file, string.Empty);
+                result.StartConsoleApplicationInCurrentConsoleWindow();
+                return result;
+            }
+            else
+            {
+                throw new Exception($"File '{file}' can not be executed");
+            }
+        }
+        public static void OpenFileWithDefaultProgram(string file)
+        {
+            ExternalProgramExecutor.Create(file, string.Empty).StartConsoleApplicationInCurrentConsoleWindow();
+        }
+        private class FileIsExecutableVisitor : IOperatingSystemVisitor<bool>
+        {
+            private readonly string _File;
+
+            public FileIsExecutableVisitor(string file)
+            {
+                this._File = file;
+            }
+
+            public bool Handle(OSX operatingSystem)
+            {
+                return true;
+            }
+
+            public bool Handle(Windows operatingSystem)
+            {
+                string fileToLower = this._File.ToLower();
+                return fileToLower.EndsWith(".exe")
+                    || fileToLower.EndsWith(".cmd")
+                    || fileToLower.EndsWith(".bat");
+            }
+
+            public bool Handle(Linux operatingSystem)
+            {
+                return true;
+            }
+        }
+
+
+        #endregion
+        #region Enumerable
+
+        #region IsEnumerable
         /// <returns>Returns true if and only if the most concrete type of <paramref name="object"/> implements <see cref="System.Collections.IEnumerable"/>.</returns>
         public static bool ObjectIsEnumerable(this object @object)
         {
@@ -135,6 +207,67 @@ namespace GRYLibrary.Core
         {
             return IsAssignableFrom(type, typeof(System.Collections.IEnumerable));
         }
+        /// <returns>Returns true if and only if the most concrete type of <paramref name="object"/> implements <see cref="ISet{T}"/>.</returns>
+        public static bool ObjectIsSet(this object @object)
+        {
+            return TypeIsSet(@object.GetType());
+        }
+        public static bool TypeIsSet(this Type type)
+        {
+            return IsAssignableFrom(type, typeof(ISet<>));
+        }
+        public static bool ObjectIsList(this object @object)
+        {
+            return TypeIsList(@object.GetType());
+        }
+        public static bool TypeIsList(this Type type)
+        {
+            return TypeIsListNotGeneric(type) || TypeIsListGeneric(type);
+        }
+        public static bool TypeIsListNotGeneric(this Type type)
+        {
+            return IsAssignableFrom(type, typeof(System.Collections.IList));
+        }
+        public static bool TypeIsListGeneric(this Type type)
+        {
+            return IsAssignableFrom(type, typeof(IList<>));
+        }
+        /// <returns>Returns true if and only if the most concrete type of <paramref name="object"/> implements <see cref="IDictionary{TKey, TValue}"/> or <see cref="System.Collections.IDictionary"/>.</returns>
+        public static bool ObjectIsDictionary(this object @object)
+        {
+            return TypeIsDictionary(@object.GetType());
+        }
+        public static bool TypeIsDictionary(this Type type)
+        {
+            return TypeIsDictionaryNotGeneric(type) || TypeIsDictionaryGeneric(type);
+        }
+        public static bool TypeIsDictionaryNotGeneric(this Type type)
+        {
+            return IsAssignableFrom(type, typeof(System.Collections.IDictionary));
+        }
+        public static bool TypeIsDictionaryGeneric(this Type type)
+        {
+            return IsAssignableFrom(type, typeof(IDictionary<,>));
+        }
+        public static bool ObjectIsKeyValuePair(this object @object)
+        {
+            return TypeIsKeyValuePair(@object.GetType());
+        }
+        public static bool TypeIsKeyValuePair(this Type type)
+        {
+            return IsAssignableFrom(type, typeof(System.Collections.Generic.KeyValuePair<,>));
+        }
+        public static bool ObjectIsTuple(this object @object)
+        {
+            return TypeIsTuple(@object.GetType());
+        }
+        public static bool TypeIsTuple(this Type type)
+        {
+            return IsAssignableFrom(type, typeof(Tuple<,>));
+        }
+
+        #endregion
+        #region ToEnumerable
         public static System.Collections.IEnumerable ObjectToEnumerable(this object @object)
         {
             if (!ObjectIsEnumerable(@object))
@@ -143,8 +276,12 @@ namespace GRYLibrary.Core
             }
             return @object as System.Collections.IEnumerable;
         }
-        public static IEnumerable<T> ObjectToEnumerableGeneric<T>(this object @object)
+        public static IEnumerable<T> ObjectToEnumerable<T>(this object @object)
         {
+            if (!ObjectIsEnumerable(@object))
+            {
+                throw new InvalidCastException();
+            }
             System.Collections.IEnumerable objects = ObjectToEnumerable(@object);
             List<T> result = new List<T>();
             foreach (object obj in objects)
@@ -160,23 +297,31 @@ namespace GRYLibrary.Core
             }
             return result;
         }
-        public static bool EnumerableEquals<T>(this IEnumerable<T> enumerable1, IEnumerable<T> enumerable2)
+        public static ISet<T> ObjectToSet<T>(this object @object)
         {
-            return EnumerableEquals(enumerable1, enumerable2, PropertyEqualsCalculator.GetDefaultInstance<T>());
-        }
-        public static bool EnumerableEquals<T>(this IEnumerable<T> enumerable1, IEnumerable<T> enumerable2, IEqualityComparer<T> comparer)
-        {
-            throw new NotImplementedException();
+            if (!ObjectIsSet(@object))
+            {
+                throw new InvalidCastException();
+            }
+            System.Collections.IEnumerable objects = ObjectToEnumerable(@object);
+            HashSet<T> result = new HashSet<T>();
+            foreach (object obj in objects)
+            {
+                if (obj is T)
+                {
+                    result.Add((T)obj);
+                }
+                else
+                {
+                    throw new InvalidCastException();
+                }
+            }
+            return result;
         }
         /// <returns>Returns true if and only if the most concrete type of <paramref name="object"/> implements <see cref="IList{T}"/> or <see cref="System.Collections.IList"/>.</returns>
-        /// <remarks></remarks>
-        public static bool ObjectIsList(this object @object)
+        public static System.Collections.IList ObjectToList(this object @object)
         {
-            return TypeIsList(@object.GetType());
-        }
-        public static bool TypeIsList(this Type type)
-        {
-            return IsAssignableFrom(type, typeof(IList<>)) || IsAssignableFrom(type, typeof(System.Collections.IList));
+            return ObjectToList<object>(@object).ToList();
         }
         public static IList<T> ObjectToList<T>(this object @object)
         {
@@ -199,22 +344,29 @@ namespace GRYLibrary.Core
             }
             return result;
         }
-        /// <returns>Returns true if and only if the most concrete type of <paramref name="object"/> implements <see cref="ISet{T}"/>.</returns>
-        public static bool ObjectIsSet(this object @object)
+        public static System.Collections.IDictionary ObjectToDictionary(this object @object)
         {
-            return TypeIsSet(@object.GetType());
+            System.Collections.IDictionary result = new System.Collections.Hashtable();
+            foreach (System.Collections.Generic.KeyValuePair<object, object> item in ObjectToDictionary<object, object>(@object))
+            {
+                result.Add(item.Key, item.Value);
+            }
+            return result;
         }
-        public static bool TypeIsSet(this Type type)
+        public static IDictionary<TKey, TValue> ObjectToDictionary<TKey, TValue>(this object @object)
         {
-            return IsAssignableFrom(type, typeof(ISet<>));
-        }
-        public static bool ObjectIsKeyValuePair(this object @object)
-        {
-            return IsAssignableFrom(@object, typeof(System.Collections.Generic.KeyValuePair<,>));
-        }
-        public static bool TypeIsKeyValuePair(this Type type)
-        {
-            return IsAssignableFrom(type, typeof(System.Collections.Generic.KeyValuePair<,>));
+            if (!ObjectIsDictionary(@object))
+            {
+                throw new InvalidCastException();
+            }
+            IEnumerable<object> objects = ObjectToEnumerable<object>(@object);
+            Dictionary<TKey, TValue> result = new Dictionary<TKey, TValue>();
+            foreach (object obj in objects)
+            {
+                System.Collections.Generic.KeyValuePair<TKey, TValue> kvp = ObjectToKeyValuePair<TKey, TValue>(obj);
+                result.Add(kvp.Key, kvp.Value);
+            }
+            return result;
         }
         public static System.Collections.Generic.KeyValuePair<TKey, TValue> ObjectToKeyValuePair<TKey, TValue>(this object @object)
         {
@@ -233,220 +385,64 @@ namespace GRYLibrary.Core
                 throw new InvalidCastException();
             }
         }
-        public static ISet<T> ObjectToSet<T>(this object @object)
+        public static Tuple<T1, T2> ObjectToTuple<T1, T2>(this object @object)
         {
-            IEnumerable<object> objects = ObjectToEnumerableGeneric<object>(@object);
-            HashSet<T> result = new HashSet<T>();
-            foreach (object obj in objects)
+            if (!ObjectIsTuple(@object))
             {
-                if (obj is T)
-                {
-                    result.Add((T)obj);
-                }
-                else
-                {
-                    throw new InvalidCastException();
-                }
+                throw new InvalidCastException();
             }
-            return result;
-        }
-        #region Execute or open file
-        public static bool FileIsExecutable(string file)
-        {
-            return OperatingSystem.OperatingSystem.GetCurrentOperatingSystem().Accept(new FileIsExecutableVisitor(file));
-        }
-        public static void ExecuteFile(string file)
-        {
-            if (FileIsExecutable(file))
+            object item1 = ((dynamic)@object).Item1;
+            object item2 = ((dynamic)@object).Item2;
+            if (item1 is T1 && item2 is T2)
             {
-                OperatingSystem.OperatingSystem.GetCurrentOperatingSystem().Accept(new FileIsExecutableVisitor(file));
+                return new Tuple<T1, T2>((T1)item1, (T2)item2);
             }
             else
             {
-                throw new Exception($"File '{file}' can not be executed");
-            }
-        }
-        public static void OpenFileWithDefaultProgram(string file)
-        {
-            OperatingSystem.OperatingSystem.GetCurrentOperatingSystem().Accept(new OpenFileWithDefaultProgramVisitor(file));
-        }
-        private class FileIsExecutableVisitor : IOperatingSystemVisitor<bool>
-        {
-            private readonly string _File;
-
-            public FileIsExecutableVisitor(string file)
-            {
-                this._File = file;
-            }
-
-            public bool Handle(OSX operatingSystem)
-            {
-                throw new NotImplementedException();
-            }
-
-            public bool Handle(Windows operatingSystem)
-            {
-                throw new NotImplementedException();
-            }
-
-            public bool Handle(Linux operatingSystem)
-            {
-                throw new NotImplementedException();
-            }
-        }
-        private class ExecutableFileVisitor : IOperatingSystemVisitor
-        {
-
-            private readonly string _File;
-
-            public ExecutableFileVisitor(string file)
-            {
-                this._File = file;
-            }
-            public void Handle(OSX operatingSystem)
-            {
-                throw new NotImplementedException();
-            }
-
-            public void Handle(Windows operatingSystem)
-            {
-                throw new NotImplementedException();
-            }
-
-            public void Handle(Linux operatingSystem)
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-        private class OpenFileWithDefaultProgramVisitor : IOperatingSystemVisitor
-        {
-
-            private readonly string _File;
-
-            public OpenFileWithDefaultProgramVisitor(string file)
-            {
-                this._File = file;
-            }
-            public void Handle(OSX operatingSystem)
-            {
-                throw new NotImplementedException();
-            }
-
-            public void Handle(Windows operatingSystem)
-            {
-                throw new NotImplementedException();
-            }
-
-            public void Handle(Linux operatingSystem)
-            {
-                throw new NotImplementedException();
+                throw new InvalidCastException();
             }
         }
 
         #endregion
-        /// <returns>Returns true if and only if the items in <paramref name="list1"/> and <paramref name="list2"/> are equal using <see cref="PropertyEqualsCalculator{T}"/> as comparer.</returns>
-        public static bool SequanceEqual<T>(this IList<T> list1, IList<T> list2)
+        #region EqualsEnumerable
+        public static bool EnumerableEquals(this System.Collections.IEnumerable enumerable1, System.Collections.IEnumerable enumerable2)
         {
-            return SequanceEqual(list1, list2, PropertyEqualsCalculator.GetDefaultInstance<T>());
-        }
-        /// <returns>Returns true if and only if the items in <paramref name="list1"/> and <paramref name="list2"/> are equal using the given <paramref name="comparer"/>.</returns>
-        public static bool SequanceEqual<T>(this IList<T> list1, IList<T> list2, IEqualityComparer<T> comparer)
-        {
-            if (list1.Count != list2.Count)
-            {
-                return false;
-            }
-            for (int i = 0; i < list1.Count; i++)
-            {
-                if (!comparer.Equals(list1[i], list2[i]))
-                {
-                    return false;
-                }
-            }
-            return true;
+            return new EnumerableComparer(new PropertyEqualsCalculatorConfiguration()).EqualsTyped(enumerable1, enumerable2);
         }
         /// <returns>Returns true if and only if the items in <paramref name="list1"/> and <paramref name="list2"/> are equal (ignoring the order) using <see cref="PropertyEqualsCalculator{T}"/> as comparer.</returns>
         public static bool SetEquals<T>(this ISet<T> set1, ISet<T> set2)
         {
-            return SetEquals(set1, set2, PropertyEqualsCalculator.GetDefaultInstance<T>());
+            return new SetComparer(new PropertyEqualsCalculatorConfiguration()).EqualsTyped(set1, set2);
         }
-        /// <returns>Returns true if and only if the items in <paramref name="list1"/> and <paramref name="list2"/> are equal (ignoring the order) using the given <paramref name="comparer"/>.</returns>
-        public static bool SetEquals<T>(this ISet<T> set1, ISet<T> set2, IEqualityComparer<T> comparer)
+        public static bool ListEquals(this System.Collections.IList list1, System.Collections.IList list2)
         {
-            if (set1.Count != set2.Count)
-            {
-                return false;
-            }
-            SortedSet<T>.Enumerator sortedSet1 = new SortedSet<T>(set1).GetEnumerator();
-            SortedSet<T>.Enumerator sortedSet2 = new SortedSet<T>(set2).GetEnumerator();
-            while (sortedSet1.MoveNext())
-            {
-                sortedSet2.MoveNext();
-                if (!comparer.Equals(sortedSet1.Current, sortedSet2.Current))
-                {
-                    return false;
-                }
-            }
-
-            return true;
+            return new ListComparer(new PropertyEqualsCalculatorConfiguration()).Equals(list1, list2);
         }
-
-        /// <returns>Returns true if and only if the most concrete type of <paramref name="object"/> implements <see cref="IDictionary{TKey, TValue}"/>.</returns>
-        public static bool ObjectIsDictionary(this object @object)
+        /// <returns>Returns true if and only if the items in <paramref name="list1"/> and <paramref name="list2"/> are equal using <see cref="PropertyEqualsCalculator{T}"/> as comparer.</returns>
+        public static bool ListEquals<T>(this IList<T> list1, IList<T> list2)
         {
-            return IsAssignableFrom(@object, typeof(IDictionary<,>));
+            return new ListComparer(new PropertyEqualsCalculatorConfiguration()).EqualsTyped(list1, list2);
         }
-        public static bool TypeIsDictionary(this Type type)
+        public static bool DictionaryEquals(this System.Collections.IDictionary dictionary1, System.Collections.IDictionary dictionary2)
         {
-            return IsAssignableFrom(type, typeof(IDictionary<,>));
-        }
-        public static IDictionary<TKey, TValue> ObjectToDictionary<TKey, TValue>(this object @object)
-        {
-            if (!ObjectIsDictionary(@object))
-            {
-                throw new InvalidCastException();
-            }
-            IEnumerable<object> objects = ObjectToEnumerableGeneric<object>(@object);
-            Dictionary<TKey, TValue> result = new Dictionary<TKey, TValue>();
-            foreach (object obj in objects)
-            {
-                System.Collections.Generic.KeyValuePair<TKey, TValue> kvp = ObjectToKeyValuePair<TKey, TValue>(obj);
-                result.Add(kvp.Key, kvp.Value);
-            }
-            return result;
+            return new DictionaryComparer(new PropertyEqualsCalculatorConfiguration()).Equals(dictionary1, dictionary2);
         }
         public static bool DictionaryEquals<TKey, TValue>(this IDictionary<TKey, TValue> dictionary1, IDictionary<TKey, TValue> dictionary2)
         {
-            return DictionaryEquals(dictionary1, dictionary2, PropertyEqualsCalculator.GetDefaultInstance<System.Collections.Generic.KeyValuePair<TKey, TValue>>());
+            return new DictionaryComparer(new PropertyEqualsCalculatorConfiguration()).EqualsTyped(dictionary1, dictionary2);
         }
-        public static bool DictionaryEquals<TKey, TValue>(this IDictionary<TKey, TValue> dictionary1, IDictionary<TKey, TValue> dictionary2, IEqualityComparer<System.Collections.Generic.KeyValuePair<TKey, TValue>> comparer)
+        public static bool KeyValuePairEquals<TKey, TValue>(this System.Collections.Generic.KeyValuePair<TKey, TValue> keyValuePair1, System.Collections.Generic.KeyValuePair<TKey, TValue> keyValuePair2)
         {
-            if (dictionary1.Count == dictionary2.Count)
-            {
-                foreach (TKey key in dictionary1.Keys)
-                {
-                    if (dictionary2.ContainsKey(key))
-                    {
-                        System.Collections.Generic.KeyValuePair<TKey, TValue> kvp1 = new System.Collections.Generic.KeyValuePair<TKey, TValue>(key, dictionary1[key]);
-                        System.Collections.Generic.KeyValuePair<TKey, TValue> kvp2 = new System.Collections.Generic.KeyValuePair<TKey, TValue>(key, dictionary2[key]);
-                        if (!comparer.Equals(kvp1, kvp2))
-                        {
-                            return false;
-                        }
-                    }
-                    else
-                    {
-                        return false;
-                    }
-                }
-            }
-            else
-            {
-                return false;
-            }
-            return true;
+            return new KeyValuePairComparer(new PropertyEqualsCalculatorConfiguration()).Equals(keyValuePair1, keyValuePair2);
         }
+        public static bool TupleEquals<TKey, TValue>(this Tuple<TKey, TValue> tuple1, Tuple<TKey, TValue> tuple2)
+        {
+            return new TupleComparer(new PropertyEqualsCalculatorConfiguration()).Equals(tuple1, tuple2);
+        }
+
+        #endregion
+        #endregion
+
 
         public static bool IsAssignableFrom(object @object, Type genericTypeToCompare)
         {
@@ -454,17 +450,17 @@ namespace GRYLibrary.Core
         }
         public static bool IsAssignableFrom(Type typeForCheck, Type parentType)
         {
-            ISet<Type> typesToCheck = GetParentTypesAndInterfaces(typeForCheck);
-            typesToCheck.Add(typeForCheck);
+            ISet<Type> typesToCheck = GetTypeWithParentTypesAndInterfaces(typeForCheck);
             return typesToCheck.Contains(parentType, TypeComparerIgnoringGenerics);
         }
-        private static ISet<Type> GetParentTypesAndInterfaces(Type type)
+        public static ISet<Type> GetTypeWithParentTypesAndInterfaces(Type type)
         {
             HashSet<Type> result = new HashSet<Type>();
+            result.Add(type);
             result.UnionWith(type.GetInterfaces());
             if (type.BaseType != null)
             {
-                result.UnionWith(GetParentTypesAndInterfaces(type.BaseType));
+                result.UnionWith(GetTypeWithParentTypesAndInterfaces(type.BaseType));
             }
             return result;
         }
@@ -697,30 +693,55 @@ namespace GRYLibrary.Core
 
         internal static bool TryResolvePathByPathVariable(string program, out string programWithFullPath)
         {
-            programWithFullPath = null;
-            string[] knownExtension = new string[] { ".exe", ".cmd" };
-            string paths = Environment.ExpandEnvironmentVariables("%PATH%");
-            bool @break = false;
-            foreach (string path in paths.Split(';'))
+            (bool, string) result = OperatingSystem.OperatingSystem.GetCurrentOperatingSystem().Accept(new TryResolvePathByPathVariableVisitor(program));
+            programWithFullPath = result.Item2;
+            return result.Item1;
+        }
+
+        private class TryResolvePathByPathVariableVisitor : IOperatingSystemVisitor<(bool/*Success*/, string/*programWithFullPath*/)>
+        {
+            private readonly string _Programname;
+
+            public TryResolvePathByPathVariableVisitor(string programname)
             {
-                foreach (string combined in GetCombinations(path, knownExtension, program))
+                this._Programname = programname;
+            }
+
+            public (bool, string) Handle(OSX operatingSystem)
+            {
+                throw new NotImplementedException();
+            }
+
+            public (bool, string) Handle(Windows operatingSystem)
+            {
+                string program = null;
+                string[] knownExtension = new string[] { ".exe", ".cmd" };
+                string paths = Environment.ExpandEnvironmentVariables("%PATH%");
+                bool @break = false;
+                foreach (string path in paths.Split(';'))
                 {
-                    if (File.Exists(combined))
+                    foreach (string combined in GetCombinations(path, knownExtension, this._Programname))
                     {
-                        programWithFullPath = combined;
-                        @break = true;
+                        if (File.Exists(combined))
+                        {
+                            program = combined;
+                            @break = true;
+                            break;
+                        }
+                    }
+                    if (@break)
+                    {
                         break;
                     }
                 }
-                if (@break)
-                {
-                    break;
-                }
+                return (program != null, program);
             }
-            return programWithFullPath != null;
 
+            public (bool, string) Handle(Linux operatingSystem)
+            {
+                throw new NotImplementedException();
+            }
         }
-
         private static IEnumerable<string> GetCombinations(string path, string[] knownExtensions, string program)
         {
             string programToLower = program.ToLower();
@@ -1176,7 +1197,7 @@ namespace GRYLibrary.Core
                 return false;
             }
             string pathRoot = Path.GetPathRoot(path).Trim();
-            return pathRoot.Length <= 2 && pathRoot != "/" ? false : !(pathRoot == path && pathRoot.StartsWith(@"\\") && pathRoot.IndexOf('\\', 2) == -1);
+            return (pathRoot.Length > 2 || pathRoot == "/") && !(pathRoot == path && pathRoot.StartsWith(@"\\") && pathRoot.IndexOf('\\', 2) == -1);
         }
         public static string GetAbsolutePath(string basePath, string relativePath)
         {
@@ -1784,14 +1805,16 @@ namespace GRYLibrary.Core
             DateTime originalDateTime = DateTime.ParseExact(streamReader.ReadToEnd().Substring(begin, length), format, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal);
             return TimeZoneInfo.ConvertTime(originalDateTime, timezone);
         }
-        public static GitCommandResult ExecuteGitCommand(string repository, string argument, bool throwErrorIfExitCodeIsNotZero = false, int? timeoutInMilliseconds = null, bool printErrorsAsInformation = false, bool writeOutputToConsole = true)
+        public static GitCommandResult ExecuteGitCommand(string repositoryFolder, string argument, bool throwErrorIfExitCodeIsNotZero = false, int? timeoutInMilliseconds = null, bool printErrorsAsInformation = false, bool logEnabled = false)
         {
-            ExternalProgramExecutor externalProgramExecutor = ExternalProgramExecutor.Create("git", argument, repository, string.Empty, false, timeoutInMilliseconds);
+            using GRYLog log = GRYLog.Create();
+            log.Configuration.Enabled = false;
+            log.Configuration.GetLogTarget<Log.ConcreteLogTargets.Console>().Enabled = logEnabled;
+            ExternalProgramExecutor externalProgramExecutor = ExternalProgramExecutor.CreateByGRYLog("git", argument, log, repositoryFolder, string.Empty, false, timeoutInMilliseconds);
             externalProgramExecutor.PrintErrorsAsInformation = printErrorsAsInformation;
             externalProgramExecutor.ThrowErrorIfExitCodeIsNotZero = throwErrorIfExitCodeIsNotZero;
             externalProgramExecutor.StartConsoleApplicationInCurrentConsoleWindow();
-            externalProgramExecutor.LogOutput = writeOutputToConsole;
-            return new GitCommandResult(argument, repository, externalProgramExecutor.AllStdOutLines, externalProgramExecutor.AllStdErrLines, externalProgramExecutor.ExitCode);
+            return new GitCommandResult(argument, repositoryFolder, externalProgramExecutor.AllStdOutLines, externalProgramExecutor.AllStdErrLines, externalProgramExecutor.ExitCode);
         }
         public static bool GitRepositoryContainsObligatoryFiles(string repositoryFolder, out ISet<string> missingFiles)
         {
@@ -1799,9 +1822,26 @@ namespace GRYLibrary.Core
             fileLists.Add(Tuple.Create<string, ISet<string>>(".gitignore", new HashSet<string>()));
             fileLists.Add(Tuple.Create<string, ISet<string>>("License.txt", new HashSet<string>() { "License", "License.md" }));
             fileLists.Add(Tuple.Create<string, ISet<string>>("ReadMe.md", new HashSet<string>() { "ReadMe", "ReadMe.txt" }));
-            return GitRepositoryContainsObligatoryFiles(repositoryFolder, out missingFiles, fileLists);
+            return GitRepositoryContainsFiles(repositoryFolder, out missingFiles, fileLists);
         }
-        public static bool GitRepositoryContainsObligatoryFiles(string repositoryFolder, out ISet<string> missingFiles, IEnumerable<Tuple<string/*file*/, ISet<string>/*aliase*/>> fileLists)
+        public static void AddGitRemote(string repositoryFolder, string remoteFolder, string remoteName)
+        {
+            ExecuteGitCommand(repositoryFolder, $"remote add {remoteName} {remoteFolder}", true);
+        }
+        public static string GetGitRemoteAddress(string repository, string remoteName)
+        {
+            return ExtractTextFromOutput(ExecuteGitCommand(repository, $"config --get remote.{remoteName}.url", true).StdOutLines);
+        }
+        public static void SetRemoteAddress(string repositoryFolder, string remoteName, string newRemoteAddress)
+        {
+            ExecuteGitCommand(repositoryFolder, $"remote set-url {remoteName} {newRemoteAddress}", true);
+        }
+        public static void GitTidyUp(string repositoryFolder)
+        {
+            ExecuteGitCommand(repositoryFolder, $"reflog expire --expire-unreachable=now --all", true);
+            ExecuteGitCommand(repositoryFolder, $"gc --prune=now", true);
+        }
+        public static bool GitRepositoryContainsFiles(string repositoryFolder, out ISet<string> missingFiles, IEnumerable<Tuple<string/*file*/, ISet<string>/*aliase*/>> fileLists)
         {
             missingFiles = new HashSet<string>();
             foreach (Tuple<string, ISet<string>> file in fileLists)
@@ -1812,6 +1852,11 @@ namespace GRYLibrary.Core
                 }
             }
             return missingFiles.Count == 0;
+        }
+        /// <returns>Returns the names of all remotes of the given <paramref name="repository"/>. This function does not return the addresses of these remotes.</returns>
+        public static IEnumerable<string> GetAllGitRemotes(string repositoryFolder)
+        {
+            return ExecuteGitCommand(repositoryFolder, "remote", true).StdOutLines.Where(line => !string.IsNullOrWhiteSpace(line));
         }
         public static bool AtLeastOneFileExistsInFolder(string repositoryFolder, IEnumerable<string> files, out string foundFile)
         {
@@ -1826,89 +1871,187 @@ namespace GRYLibrary.Core
             foundFile = null;
             return false;
         }
-        public static bool IsInGitSubmodule(string repositoryFolder)
+        public static IEnumerable<Tuple<string/*remote-name*/, string/*branch-name*/>> GetAllGitRemoteBranches(string repository)
         {
-            return !GetGitBaseRepositoryPathHelper(repositoryFolder).Equals(string.Empty);
+            return ExecuteGitCommand(repository, "branch -r", true).StdOutLines.Where(line => !string.IsNullOrWhiteSpace(line)).Select(line =>
+          {
+              if (line.Contains("/"))
+              {
+                  string[] splitted = line.Split(new[] { '/' }, 2);
+                  return new Tuple<string, string>(splitted[0].Trim(), splitted[1].Trim());
+              }
+              else
+              {
+                  throw new Exception($"'{repository}> git branch' contained the unexpected output-line '{line}'");
+              }
+          });
         }
-        public static string GetGitBaseRepositoryPath(string repositoryFolder)
+        public static IEnumerable<string> GetGitRemotes(string repositoryFolder)
         {
-            string basePath = GetGitBaseRepositoryPathHelper(repositoryFolder);
-            if (basePath.Equals(string.Empty))
+            return ExecuteGitCommand(repositoryFolder, "remote", true).StdOutLines.Where(line => !string.IsNullOrWhiteSpace(line));
+        }
+        public static void RemoveRemote(string repositoryFolder, string remote)
+        {
+            ExecuteGitCommand(repositoryFolder, $"remote remove {remote}", true);
+        }
+        public static IEnumerable<string> GetLocalGitBranchNames(string repositoryFolder)
+        {
+            return ExecuteGitCommand(repositoryFolder, "branch", true).StdOutLines.Where(line => !string.IsNullOrWhiteSpace(line)).Select(line => line.Replace("*", string.Empty).Trim());
+        }
+        /// <summary>
+        /// Returns the toplevel of the <paramref name="repositoryFolder"/>.
+        /// </summary>
+        public static string GetTopLevelOfGitRepositoryPath(string repositoryFolder)
+        {
+            if (IsInGitRepository(repositoryFolder))
             {
-                throw new KeyNotFoundException("No base-repository found in '" + repositoryFolder + "'");
+                return ExtractTextFromOutput(ExecuteGitCommand(repositoryFolder, "rev-parse --show-toplevel", true).StdOutLines);
             }
             else
             {
-                return basePath;
+                throw new ArgumentException($"The given folder '{repositoryFolder}' is not a git-repository.");
             }
         }
-        private static string GetGitBaseRepositoryPathHelper(string repositoryFolder)
+        private static string ExtractTextFromOutput(string[] lines)
         {
-            return ExecuteGitCommand(repositoryFolder, "rev-parse --show-superproject-working-tree", true, writeOutputToConsole: false).GetFirstStdOutLine();
+            return string.Join(string.Empty, lines).Trim();
         }
+        /// <returns>
+        /// Returns true if and only if <paramref name="repositoryFolder"/> is in a repository which is used as submodule.
+        /// </returns>
+        public static bool IsInGitSubmodule(string repositoryFolder)
+        {
+            if (IsInGitRepository(repositoryFolder))
+            {
+                return !GetParentGitRepositoryPathHelper(repositoryFolder).Equals(string.Empty);
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        /// <returns>
+        /// If <paramref name="repositoryFolder"/> is used as submodule then this function returns the toplevel-folder of the parent-repository.
+        /// </returns>
+        public static string GetParentGitRepositoryPath(string repositoryFolder)
+        {
+            if (IsInGitRepository(repositoryFolder))
+            {
+                string content = GetParentGitRepositoryPathHelper(repositoryFolder);
+                if (string.IsNullOrEmpty(content))
+                {
+                    throw new ArgumentException($"The given folder '{repositoryFolder}' is not used as submodule so a parent-repository-path can not be calculated.");
+                }
+                else
+                {
+                    return content;
+                }
+            }
+            else
+            {
+                throw new ArgumentException($"The given folder '{repositoryFolder}' is not a git-repository.");
+            }
+        }
+        private static string GetParentGitRepositoryPathHelper(string repositoryFolder)
+        {
+            return ExtractTextFromOutput(ExecuteGitCommand(repositoryFolder, "rev-parse --show-superproject-working-tree", true).StdOutLines);
+        }
+        /// <returns>
+        /// Returns true if and only if <paramref name="folder"/> is the toplevel of a git-repository.
+        /// </returns>
         public static bool IsGitRepository(string folder)
         {
             string combinedPath = Path.Combine(folder, ".git");
             return Directory.Exists(combinedPath) || File.Exists(combinedPath);
         }
+        /// <returns>
+        /// Returns true if and only if <paramref name="folder"/> or a parent-folder of <paramref name="folder"/> is a toplevel of a git-repository.
+        /// </returns>
+        public static bool IsInGitRepository(string folder)
+        {
+            DirectoryInfo directoryInfo = new DirectoryInfo(folder);
+            if (IsGitRepository(directoryInfo.FullName))
+            {
+                return true;
+            }
+            else if (directoryInfo.Parent == null)
+            {
+                return false;
+            }
+            else
+            {
+                return IsInGitRepository(directoryInfo.Parent.FullName);
+            }
+        }
         /// <summary>
-        /// Commits all staged and unstaged changes in <paramref name="repository"/> (excluding uncommitted changes in submodules).
+        /// Commits all staged and unstaged changes in <paramref name="repositoryFolder"/> (excluding uncommitted changes in submodules).
         /// </summary>
-        /// <param name="repository">Repository where changes should be committed</param>
+        /// <param name="repositoryFolder">Repository where changes should be committed</param>
         /// <param name="commitMessage">Message for the commit</param>
         /// <param name="commitWasCreated">Will be set to true if and only if really a commit was created. Will be set to false if and only if there are no changes to get committed.</param>
         /// <returns>Returns the commit-id of the currently checked out commit. This returns the id of the new created commit if there were changes which were committed by this function.</returns>
-        public static string GitCommit(string repository, string commitMessage, out bool commitWasCreated, bool writeOutputToConsole = false)
+        public static string GitCommit(string repositoryFolder, string commitMessage, out bool commitWasCreated, bool logEnabled = false)
         {
             commitWasCreated = false;
-            if (GitRepositoryHasUncommittedChanges(repository))
+            if (GitRepositoryHasUncommittedChanges(repositoryFolder))
             {
-                ExecuteGitCommand(repository, $"add -A", true, writeOutputToConsole: writeOutputToConsole);
-                ExecuteGitCommand(repository, $"commit -m \"{commitMessage}\"", true, writeOutputToConsole: writeOutputToConsole);
+                ExecuteGitCommand(repositoryFolder, $"add -A", true, logEnabled: logEnabled);
+                ExecuteGitCommand(repositoryFolder, $"commit -m \"{commitMessage}\"", true, logEnabled: logEnabled);
                 commitWasCreated = true;
             }
-            return GetLastGitCommitId(repository, "HEAD");
+            return GetLastGitCommitId(repositoryFolder, "HEAD");
         }
         /// <returns>Returns the commit-id of the given <paramref name="revision"/>.</returns>
         public static string GetLastGitCommitId(string repositoryFolder, string revision = "HEAD")
         {
-            return ExecuteGitCommand(repositoryFolder, $"rev-parse " + revision, true, writeOutputToConsole: false).GetFirstStdOutLine();
+            return ExecuteGitCommand(repositoryFolder, $"rev-parse {revision}", true).GetFirstStdOutLine();
         }
-        public static void GitFetch(string repository, string remoteName = "--all", bool printErrorsAsInformation = true, bool writeOutputToConsole = false)
+        /// <param name="printErrorsAsInformation">
+        /// Represents a value which indicates if the git-output which goes to stderr should be treated as stdout.
+        /// The default-value is true since even if no error occurs git write usual information to stderr.
+        /// If really an error occures (=the exit-code of git is not 0) then this function throws an exception
+        /// </param>
+        public static void GitFetch(string repositoryFolder, string remoteName = "--all", bool printErrorsAsInformation = true, bool logEnabled = false)
         {
-            ExecuteGitCommand(repository, $"fetch {remoteName} --tags --prune", true, printErrorsAsInformation: printErrorsAsInformation, writeOutputToConsole: writeOutputToConsole);
+            ExecuteGitCommand(repositoryFolder, $"fetch {remoteName} --tags --prune", true, printErrorsAsInformation: printErrorsAsInformation, logEnabled: logEnabled);
         }
-        public static bool GitRepositoryHasUnstagedChanges(string repository)
+        public static bool GitRepositoryHasUnstagedChanges(string repositoryFolder)
         {
-            if (GitRepositoryHasUnstagedChangesOfTrackedFiles(repository))
+            if (GitRepositoryHasUnstagedChangesOfTrackedFiles(repositoryFolder))
             {
                 return true;
             }
-            if (GitRepositoryHaNewUntrackedFiles(repository))
+            if (GitRepositoryHasNewUntrackedFiles(repositoryFolder))
             {
                 return true;
             }
             return false;
         }
 
-        public static bool GitRepositoryHaNewUntrackedFiles(string repository)
+        public static IEnumerable<string> GitListFiles(string repositoryFolder,string revision)
         {
-            return GitChangesHelper(repository, "ls-files --exclude-standard --others");
+            return ExecuteGitCommand(repositoryFolder, $"ls-tree --full-tree -r --name-only {revision}", true).StdOutLines;
         }
 
-        public static bool GitRepositoryHasUnstagedChangesOfTrackedFiles(string repository)
+        public static bool GitRepositoryHasNewUntrackedFiles(string repositoryFolder)
         {
-            return GitChangesHelper(repository, "diff");
+            return GitChangesHelper(repositoryFolder, "ls-files --exclude-standard --others");
         }
 
-        public static bool GitRepositoryHasStagedChanges(string repository)
+        public static bool GitRepositoryHasUnstagedChangesOfTrackedFiles(string repositoryFolder)
         {
-            return GitChangesHelper(repository, "diff --cached");
+            return GitChangesHelper(repositoryFolder, "diff");
         }
 
-        private static bool GitChangesHelper(string repository, string argument)
+        public static bool GitRepositoryHasStagedChanges(string repositoryFolder)
         {
-            GitCommandResult result = ExecuteGitCommand(repository, argument, true, writeOutputToConsole: false);
+            return GitChangesHelper(repositoryFolder, "diff --cached");
+        }
+
+        private static bool GitChangesHelper(string repositoryFolder, string argument)
+        {
+            GitCommandResult result = ExecuteGitCommand(repositoryFolder, argument, true);
             foreach (string line in result.StdOutLines)
             {
                 if (!string.IsNullOrWhiteSpace(line))
@@ -1919,18 +2062,21 @@ namespace GRYLibrary.Core
             return false;
         }
 
-        public static bool GitRepositoryHasUncommittedChanges(string repository)
+        public static bool GitRepositoryHasUncommittedChanges(string repositoryFolder)
         {
-            if (GitRepositoryHasUnstagedChanges(repository))
+            if (GitRepositoryHasUnstagedChanges(repositoryFolder))
             {
                 return true;
             }
-            if (GitRepositoryHasStagedChanges(repository))
+            if (GitRepositoryHasStagedChanges(repositoryFolder))
             {
                 return true;
             }
             return false;
         }
+        /// <remarks>
+        /// <paramref name="revision"/> can be all kinds of revision-labels, for example "HEAD" or branch-names (e. g. "master") oder revision-ids (e. g. "a1b2c3b4").
+        /// </remarks>
         public static int GetAmountOfCommitsInGitRepository(string repositoryFolder, string revision = "HEAD")
         {
             return int.Parse(ExecuteGitCommand(repositoryFolder, $"rev-list --count {revision}", true).GetFirstStdOutLine());
@@ -1938,6 +2084,13 @@ namespace GRYLibrary.Core
         public static string GetCurrentGitRepositoryBranch(string repositoryFolder)
         {
             return ExecuteGitCommand(repositoryFolder, $"rev-parse --abbrev-ref HEAD", true).GetFirstStdOutLine();
+        }
+        /// <remarks>
+        /// <paramref name="ancestor"/> and <paramref name="descendant"/> can be all kinds of revision-labels, for example "HEAD" or branch-names (e. g. "master") oder revision-ids (e. g. "a1b2c3b4").
+        /// </remarks>
+        public static bool IsGitCommitAncestor(string repositoryFolder, string ancestor, string descendant = "HEAD")
+        {
+            return ExecuteGitCommand(repositoryFolder, $"merge-base --is-ancestor {ancestor} {descendant}", false).ExitCode == 0;
         }
         public static SerializableDictionary<TKey, TValue> ToSerializableDictionary<TKey, TValue>(this IDictionary<TKey, TValue> dictionary)
         {
@@ -1984,8 +2137,16 @@ namespace GRYLibrary.Core
                 }
                 else
                 {
-                    throw new NotImplementedException();
-                    //open program with default program;argument can be ignored
+                    if (OperatingSystem.OperatingSystem.GetCurrentOperatingSystem() is Windows)
+                    {
+                        resultProgram = GetDefaultProgramToOpenFile(Path.GetExtension(program));
+                        resultArgument = program;
+                    }
+                    else
+                    {
+                        resultProgram = program;
+                        resultArgument = argument;
+                    }
                 }
                 program = resultProgram;
                 argument = resultArgument;
@@ -2008,5 +2169,50 @@ namespace GRYLibrary.Core
                 action(item);
             }
         }
+        #region Get file extension on windows
+        private static string GetDefaultProgramToOpenFile(string extensionWithDot)
+        {
+            return FileExtentionInfo(AssocStr.Executable, extensionWithDot);
+        }
+        [DllImport("Shlwapi.dll", SetLastError = true, CharSet = CharSet.Auto)]
+        static extern uint AssocQueryString(AssocF flags, AssocStr str, string pszAssoc, string pszExtra, [Out] StringBuilder pszOut, [In][Out] ref uint pcchOut);
+        private static string FileExtentionInfo(AssocStr assocStr, string extensionWithDot)
+        {
+            uint pcchOut = 0;
+            AssocQueryString(AssocF.Verify, assocStr, extensionWithDot, null, null, ref pcchOut);
+            StringBuilder pszOut = new StringBuilder((int)pcchOut);
+            AssocQueryString(AssocF.Verify, assocStr, extensionWithDot, null, pszOut, ref pcchOut);
+            return pszOut.ToString();
+        }
+        [Flags]
+        private enum AssocF
+        {
+            Init_NoRemapCLSID = 0x1,
+            Init_ByExeName = 0x2,
+            Open_ByExeName = 0x2,
+            Init_DefaultToStar = 0x4,
+            Init_DefaultToFolder = 0x8,
+            NoUserSettings = 0x10,
+            NoTruncate = 0x20,
+            Verify = 0x40,
+            RemapRunDll = 0x80,
+            NoFixUps = 0x100,
+            IgnoreBaseClass = 0x200
+        }
+
+        private enum AssocStr
+        {
+            Command = 1,
+            Executable,
+            FriendlyDocName,
+            FriendlyAppName,
+            NoOpen,
+            ShellNewValue,
+            DDECommand,
+            DDEIfExec,
+            DDEApplication,
+            DDETopic
+        }
+        #endregion
     }
 }

@@ -1,6 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using GRYLibrary.Core;
+using System;
 
 namespace GRYLibrary.TestData.TestTypes.ComplexDataStructure
 {
@@ -12,69 +11,69 @@ namespace GRYLibrary.TestData.TestTypes.ComplexDataStructure
         }
         internal static DateTime GetRandomDateOfBirth()
         {
-            Random random = new Random();
-            DateTime start = new DateTime(1960, 1, 1);
-            DateTime end = new DateTime(2010, 1, 1);
-            return start.AddDays(random.Next((int)Math.Round((end - start).TotalDays)));
+            DateTime result = new DateTime(1960, 1, 1);
+            result = result.AddDays(_IdGenerator.GenerateNewId());
+            result = result.AddSeconds(_IdGenerator.GenerateNewId());
+            return result;
         }
 
         internal static string GetRandomWebsite()
         {
             return $"https://{GetRandomName()}.com";
         }
-
-        internal static string GetRandomNotes()
-        {
-            return Guid.NewGuid().ToString();
-        }
-
+        private static readonly IdGenerator<int> _IdGenerator = IdGenerator.GetDefaultIntIdGenerator();
         internal static string GetRandomName()
         {
-            return Guid.NewGuid().ToString();
+            return "label_" + _IdGenerator.GenerateNewId();
         }
+        internal static string GetRandomNotes()
+        {
+            return GetRandomName();
+        }
+
         internal static string GetRandomCountry()
         {
-            return Guid.NewGuid().ToString();
+            return GetRandomName();
         }
 
         internal static string GetRandomStateProvince()
         {
-            return Guid.NewGuid().ToString();
+            return GetRandomName();
         }
 
         internal static string GetRandomPostalCode()
         {
-            return Guid.NewGuid().ToString();
+            return GetRandomName();
         }
 
         internal static string GetRandomFloorLevel()
         {
-            return Guid.NewGuid().ToString();
+            return GetRandomName();
         }
 
         internal static string GetRandomCountryRegion()
         {
-            return Guid.NewGuid().ToString();
+            return GetRandomName();
         }
 
         internal static string GetRandomCity()
         {
-            return Guid.NewGuid().ToString();
+            return GetRandomName();
         }
 
         internal static string GetRandomBuilding()
         {
-            return Guid.NewGuid().ToString();
+            return GetRandomName();
         }
 
         internal static string GetRandomAddressLine2()
         {
-            return Guid.NewGuid().ToString();
+            return GetRandomName();
         }
 
         internal static string GetRandomAddressLine1()
         {
-            return Guid.NewGuid().ToString();
+            return GetRandomName();
         }
     }
 }

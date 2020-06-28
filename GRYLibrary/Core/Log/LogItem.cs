@@ -20,7 +20,6 @@ namespace GRYLibrary.Core.Log
         public LogLevel LogLevel { get; internal set; }
         public Exception Exception { get; }
         public DateTime MomentOfLogEntry { get; }
-
         public string PlainMessage
         {
             get
@@ -110,6 +109,10 @@ namespace GRYLibrary.Core.Log
             colorBegin = this._ColorBegin;
             colorEnd = this._ColorEnd;
             consoleColor = this._ConsoleColor;
+        }
+        public bool IsErrorEntry()
+        {
+            return this.LogLevel == LogLevel.Critical || this.LogLevel == LogLevel.Error;
         }
         private void FormatMessage(GRYLogConfiguration configuration, string message, DateTime momentOfLogEntry, LogLevel loglevel, out string formattedMessage, out int colorBegin, out int colorEnd, out ConsoleColor consoleColor)
         {

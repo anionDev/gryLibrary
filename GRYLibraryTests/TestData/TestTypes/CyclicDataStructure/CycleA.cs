@@ -1,14 +1,11 @@
 ﻿using GRYLibrary.Core.AdvancedObjectAnalysis;
 using System;
-using System.Collections.Generic;
-using System.Security.Cryptography;
-using System.Text;
 
 namespace GRYLibrary.TestData.TestTypes.CyclicDataStructure
 {
     public class CycleA
     {
-        public Guid Id { get; set; } = Guid.NewGuid();
+         public Guid Id { get; set; } = Guid.NewGuid();
         public CycleB B { get; set; }
 
         internal static CycleA GetRandom()
@@ -31,14 +28,19 @@ namespace GRYLibrary.TestData.TestTypes.CyclicDataStructure
             return a1;
         }
 
-        public override bool Equals(object obj)
+        #region Overhead
+        public override bool Equals(object @object)
         {
-            return PropertyEqualsCalculator.DefaultInstance.Equals(this, obj);
+            return Generic.GenericEquals(this,@object);
         }
-
         public override int GetHashCode()
         {
-            return PropertyEqualsCalculator.DefaultInstance.GetHashCode(this);
+            return Generic.GenericGetHashCode(this);
         }
+        public override string ToString()
+        {
+            return Generic.GenericToString(this);
+        }
+        #endregion
     }
 }

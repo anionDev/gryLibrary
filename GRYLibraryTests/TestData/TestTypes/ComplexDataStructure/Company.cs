@@ -1,7 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using GRYLibrary.Core;
+using GRYLibrary.Core.AdvancedObjectAnalysis;
+
 namespace GRYLibrary.TestData.TestTypes.ComplexDataStructure
 {
     public class Company
@@ -12,7 +13,7 @@ namespace GRYLibrary.TestData.TestTypes.ComplexDataStructure
         public ISet<OrganizationUnit> OrganizationUnits { get; set; } = new HashSet<OrganizationUnit>();
         public ISet<Order> OrderHistory { get; set; } = new HashSet<Order>();
         public string Name { get; set; }
-        public ISet<Product> Products { get;  set; } = new HashSet<Product>();
+        public ISet<Product> Products { get; set; } = new HashSet<Product>();
 
         internal static Company GetRandom()
         {
@@ -48,7 +49,7 @@ namespace GRYLibrary.TestData.TestTypes.ComplexDataStructure
             Employee employee17 = Employee.GetRandom(org3Accounting); company.Employees.Add(employee17);
             Employee employee18 = Employee.GetRandom(org3Accounting); company.Employees.Add(employee18);
 
-            Product product1 = Product.GetRandom();company.Products.Add(product1);
+            Product product1 = Product.GetRandom(); company.Products.Add(product1);
             Product product2 = Product.GetRandom(); company.Products.Add(product2);
             Product product3 = Product.GetRandom(); company.Products.Add(product3);
 
@@ -56,9 +57,22 @@ namespace GRYLibrary.TestData.TestTypes.ComplexDataStructure
             Enumerable.Range(10, 30).ForEach(index => company.OrderHistory.Add(Order.GetRandom(company.Products)));
             Enumerable.Range(10, 30).ForEach(index => company.OrderHistory.Add(Order.GetRandom(company.Products)));
 
-
-
             return company;
         }
+
+        #region Overhead
+        public override bool Equals(object @object)
+        {
+            return Generic.GenericEquals(this, @object);
+        }
+        public override int GetHashCode()
+        {
+            return Generic.GenericGetHashCode(this);
+        }
+        public override string ToString()
+        {
+            return GenericToString.Instance.ToString(this, 1000);
+        }
+        #endregion
     }
 }

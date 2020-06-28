@@ -1,34 +1,45 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper.CustomComparer
 {
     public class ListComparer : AbstractCustomComparer
     {
-        private ListComparer() { }
-        public static AbstractCustomComparer DefaultInstance { get; } = new ListComparer();
-
-    
-        public override bool Equals(object x, object y, ISet<PropertyEqualsCalculatorTuple> visitedObjects)
+        internal ListComparer(PropertyEqualsCalculatorConfiguration cacheAndConfiguration) : base(cacheAndConfiguration)
         {
-            throw new NotImplementedException();
+            this.Configuration = cacheAndConfiguration;
         }
 
-        public bool EqualsTyped(IList<object> x, IList<object> y, ISet<PropertyEqualsCalculatorTuple> visitedObjects)
+        internal override bool DefaultEquals(object item1, object item2)
         {
-            throw new NotImplementedException();
+            bool result = this.EqualsTyped(Utilities.ObjectToList<object>(item1), Utilities.ObjectToList<object>(item2));
+            return result;
         }
 
-
-        public override int GetHashCode(object obj)
+        internal bool EqualsTyped<T>(IList<T> list1, IList<T> list2)
         {
-            throw new NotImplementedException();
+            if (list1.Count != list2.Count)
+            {
+                return false;
+            }
+            for (int i = 0; i < list1.Count; i++)
+            {
+                if (!this._PropertyEqualsCalculator.Equals(list1[i], list2[i]))
+                {
+                    return false;
+                }
+            }
+            return true;
         }
 
-        public override bool IsApplicable(Type type)
+        internal override int DefaultGetHashCode(object obj)
         {
-            throw new NotImplementedException();
+            return this.Configuration.GetHashCode(obj);
+        }
+
+        public override bool IsApplicable(Type typeOfObject1, Type typeOfObject2)
+        {
+            return Utilities.TypeIsList(typeOfObject1) && Utilities.TypeIsList(typeOfObject2);
         }
     }
 }

@@ -7,19 +7,21 @@ namespace GRYLibrary.TestData.TestTypes.SimpleDataStructure
     {
         public Guid Guid { get; set; }
 
-        public override bool Equals(object obj)
-        {
-            return PropertyEqualsCalculator.DefaultInstance.Equals(this, obj);
-        }
 
+        #region Overhead
+        public override bool Equals(object @object)
+        {
+            return Generic.GenericEquals(this, @object);
+        }
         public override int GetHashCode()
         {
-            return HashCode.Combine(this.Guid);
+            return Generic.GenericGetHashCode(this);
         }
         public override string ToString()
         {
-            return $"{nameof(SimpleDataStructure2)}{{{nameof(this.Guid)}={this.Guid}}}";
+            return Generic.GenericToString(this);
         }
+        #endregion
     }
 
 }

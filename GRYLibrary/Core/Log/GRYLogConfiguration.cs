@@ -33,7 +33,9 @@ namespace GRYLibrary.Core.Log
             }
             throw new KeyNotFoundException();
         }
-
+        /// <summary>
+        /// Represents a value which indicates if the output which goes to stderr should be treated as stdout.       
+        /// </summary>
         public bool PrintErrorsAsInformation { get; set; } = false;
         public string Name { get; set; }
         public bool WriteExceptionMessageOfExceptionInLogEntry { get; set; } = true;

@@ -1,16 +1,36 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper
 {
     public abstract class GRYEqualityComparer<T> : IEqualityComparer<T>
     {
-        public abstract bool Equals(T x, T y, ISet<PropertyEqualsCalculatorTuple> visitedObjects);
-        public abstract int GetHashCode(T obj);
-        public bool Equals(T x, T y)
+        protected readonly GRYEqualityComparer<object> _PropertyEqualsCalculator;
+        internal PropertyEqualsCalculatorConfiguration Configuration { get; set; }
+
+
+        internal abstract bool DefaultEquals(T item1, T item2);
+        internal abstract int DefaultGetHashCode(T @object);
+        protected GRYEqualityComparer(PropertyEqualsCalculatorConfiguration configuration)
         {
-            return this.Equals(x, y, new HashSet<PropertyEqualsCalculatorTuple>());
+            this.Configuration = configuration;
+            if (this is PropertyEqualsCalculator)
+            {
+                this._PropertyEqualsCalculator = (PropertyEqualsCalculator)(object)this;
+            }
+            else
+            {
+                this._PropertyEqualsCalculator = new PropertyEqualsCalculator(this.Configuration);
+            }
+        }
+
+        public int GetHashCode(T @object)
+        {
+            return this.DefaultGetHashCode(@object);
+        }
+        public bool Equals(T item1, T item2)
+        {
+            return this.DefaultEquals(item1, item2);
         }
     }
 }

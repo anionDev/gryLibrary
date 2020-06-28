@@ -20,18 +20,19 @@ namespace GRYLibrary.TestData.TestTypes.SimpleDataStructure
             return result;
         }
 
-        public override bool Equals(object obj)
+        #region Overhead
+        public override bool Equals(object @object)
         {
-            return PropertyEqualsCalculator.DefaultInstance.Equals(this, obj);
+            return Generic.GenericEquals(this, @object);
         }
-
         public override int GetHashCode()
         {
-            return HashCode.Combine(this.Property4, this.Property5);
+            return Generic.GenericGetHashCode(this);
         }
         public override string ToString()
         {
-            return $"{nameof(SimpleDataStructure3)}{{{nameof(this.Property4)}={this.Property4},{nameof(this.Property5)}=(List with {this.Property5.Count} item(s))}}";
+            return Generic.GenericToString(this);
         }
+        #endregion
     }
 }

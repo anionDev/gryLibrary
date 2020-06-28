@@ -1,32 +1,34 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 
 namespace GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper.CustomComparer
 {
     public class KeyValuePairComparer : AbstractCustomComparer
     {
-        private KeyValuePairComparer() { }
-        public static AbstractCustomComparer DefaultInstance { get; } = new KeyValuePairComparer();
-
-        public override bool Equals(object x, object y, ISet<PropertyEqualsCalculatorTuple> visitedObjects)
+        internal KeyValuePairComparer(PropertyEqualsCalculatorConfiguration cacheAndConfiguration) : base(cacheAndConfiguration)
         {
-            throw new NotImplementedException();
+            this.Configuration = cacheAndConfiguration;
         }
 
-        public  bool EqualsTyped(KeyValuePair<object, object> x, KeyValuePair<object, object> y, ISet<PropertyEqualsCalculatorTuple> visitedObjects)
+        internal override bool DefaultEquals(object item1, object item2)
         {
-            return PropertyEqualsCalculator.DefaultInstance.Equals(x.Key, y.Key, visitedObjects) && PropertyEqualsCalculator.DefaultInstance.Equals(x.Value, y.Value, visitedObjects);
+            bool result = this.EqualsTyped(Utilities.ObjectToKeyValuePair<object, object>(item1), Utilities.ObjectToKeyValuePair<object, object>(item2));
+            return result;
         }
 
-        public override int GetHashCode(object obj)
+        internal bool EqualsTyped(KeyValuePair<object, object> keyValuePair1, KeyValuePair<object, object> keyValuePair2)
         {
-            throw new NotImplementedException();
+            return this._PropertyEqualsCalculator.Equals(keyValuePair1.Key, keyValuePair2.Key) && this._PropertyEqualsCalculator.Equals(keyValuePair1.Value, keyValuePair2.Value);
         }
 
-        public override bool IsApplicable(Type type)
+        internal override int DefaultGetHashCode(object obj)
         {
-            throw new NotImplementedException();
+            return this.Configuration.GetHashCode(obj);
+        }
+
+        public override bool IsApplicable(Type typeOfObject1, Type typeOfObject2)
+        {
+            return Utilities.TypeIsKeyValuePair(typeOfObject1) && Utilities.TypeIsKeyValuePair(typeOfObject2);
         }
     }
 }
