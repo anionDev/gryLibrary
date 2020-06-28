@@ -1997,7 +1997,7 @@ namespace GRYLibrary.Core
             if (GitRepositoryHasUncommittedChanges(repositoryFolder))
             {
                 ExecuteGitCommand(repositoryFolder, $"add -A", true, logEnabled: logEnabled);
-                ExecuteGitCommand(repositoryFolder, $"commit -m '{commitMessage}'", true, logEnabled: logEnabled);
+                ExecuteGitCommand(repositoryFolder, $"commit -m \"{commitMessage}\"", true, logEnabled: logEnabled);
                 commitWasCreated = true;
             }
             return GetLastGitCommitId(repositoryFolder, "HEAD");

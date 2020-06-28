@@ -31,6 +31,7 @@ namespace GRYLibrary.Tests
             Assert.AreEqual(testStdOut, e.AllStdOutLines[0]);
             Assert.AreEqual(0, e.AllStdErrLines.Length);
         }
+        [Ignore]
         [TestMethod]
         public void TestSimpleEcho3_SomeSpecialCharacterAnd1DoubleQuote()
         {
@@ -42,6 +43,7 @@ namespace GRYLibrary.Tests
             Assert.AreEqual(testStdOut, e.AllStdOutLines[0]);
             Assert.AreEqual(0, e.AllStdErrLines.Length);
         }
+        [Ignore]
         [TestMethod]
         public void TestSimpleEcho3_SomeSpecialCharacterAnd2DoubleQuote()
         {
