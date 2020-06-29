@@ -2029,7 +2029,7 @@ namespace GRYLibrary.Core
             return false;
         }
 
-        public static IEnumerable<string> GetFilesOfGitRepository(string repositoryFolder,string revision)
+        public static IEnumerable<string> GetFilesOfGitRepository(string repositoryFolder, string revision)
         {
             return ExecuteGitCommand(repositoryFolder, $"ls-tree --full-tree -r --name-only {revision}", true).StdOutLines;
         }
@@ -2169,6 +2169,112 @@ namespace GRYLibrary.Core
                 action(item);
             }
         }
+        #region Similarity
+        public static double CalculateLevenshteinDistance(string string1, string string12)
+        {
+            int n = string1.Length;
+            int m = string12.Length;
+            int[,] d = new int[n + 1, m + 1];
+            if (n == 0)
+            {
+                return m;
+            }
+
+            if (m == 0)
+            {
+                return n;
+            }
+            for (int i = 1; i <= n; i++)
+            {
+                for (int j = 1; j <= m; j++)
+                {
+                    int cost = (string12[j - 1] == string1[i - 1]) ? 0 : 1;
+                    d[i, j] = Math.Min(Math.Min(d[i - 1, j] + 1, d[i, j - 1] + 1), d[i - 1, j - 1] + cost);
+                }
+            }
+            int amountOfMoveOperations = d[n, m];
+            if (amountOfMoveOperations == 0)
+            {
+                return 1;
+            }
+            int max = Math.Max(string1.Length, string12.Length);
+            return 1 - (amountOfMoveOperations / (double)max);
+        }
+        public static double CalculateCosineSimilarity(string string1, string string2)
+        {
+            IDictionary<string, int> a =CalculateSimilarityHelperConvert(CalculateSimilarityHelperGetCharFrequencyMap(string1));
+            IDictionary<string, int> b = CalculateSimilarityHelperConvert(CalculateSimilarityHelperGetCharFrequencyMap(string2));
+            HashSet<string> intersection = CalculateSimilarityHelperGetIntersectionOfCharSet(a.Keys, b.Keys);
+            double dotProduct = 0, magnitudeA = 0, magnitudeB = 0;
+            foreach (string item in intersection)
+            {
+                dotProduct += a[item] * b[item];
+            }
+            foreach (string k in a.Keys)
+            {
+                magnitudeA += Math.Pow(a[k], 2);
+            }
+            foreach (string k in b.Keys)
+            {
+                magnitudeB += Math.Pow(b[k], 2);
+            }
+            return dotProduct / Math.Sqrt(magnitudeA * magnitudeB);
+        }
+        public static double CalculateJaccardIndexSimilarity(string string1, string string2)
+        {
+            return CalculateSimilarityHelperGetIntersection(string1, string2).Count() / (double)CalculateSimilarityHelperGetUnion(string1, string2).Count();
+        }
+        private static string CalculateSimilarityHelperGetIntersection(string string1, string string2)
+        {
+            IList<char> list = new List<char>();
+            foreach (char chr in string1)
+            {
+                if (string2.Contains(chr))
+                {
+                    list.Add(chr);
+                }
+            }
+            string result = new string(list.ToArray());
+            return result;
+        }
+        private static IDictionary<char, int> CalculateSimilarityHelperGetCharFrequencyMap(string str)
+        {
+            Dictionary<char, int> result = new Dictionary<char, int>();
+            foreach (char chr in str)
+            {
+                if (result.ContainsKey(chr))
+                {
+                    result[chr] = result[chr] + 1;
+                }
+                else
+                {
+                    result.Add(chr, 1);
+                }
+            }
+            return result;
+        }
+        private static string CalculateSimilarityHelperGetUnion(string string1, string string2)
+        {
+            return new string((string1 + string2).ToCharArray());
+        }
+        private static HashSet<string> CalculateSimilarityHelperGetIntersectionOfCharSet(ICollection<string> keys1, ICollection<string> keys2)
+        {
+            HashSet<string> result = new HashSet<string>();
+            result.UnionWith(keys1);
+            result.IntersectWith(keys2);
+            return result;
+        }
+
+        private static IDictionary<string, int> CalculateSimilarityHelperConvert(IDictionary<char, int> dictionary)
+        {
+            IDictionary<string, int> result = new Dictionary<string, int>();
+            foreach (System.Collections.Generic.KeyValuePair<char, int> obj in dictionary)
+            {
+                result.Add(obj.Key.ToString(), obj.Value);
+            }
+            return result;
+        }
+        #endregion
         #region Get file extension on windows
         private static string GetDefaultProgramToOpenFile(string extensionWithDot)
         {
