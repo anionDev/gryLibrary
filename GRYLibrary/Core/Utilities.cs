@@ -286,9 +286,9 @@ namespace GRYLibrary.Core
             List<T> result = new List<T>();
             foreach (object obj in objects)
             {
-                if (obj is T)
+                if (obj is T t)
                 {
-                    result.Add((T)obj);
+                    result.Add(t);
                 }
                 else
                 {
@@ -307,9 +307,9 @@ namespace GRYLibrary.Core
             HashSet<T> result = new HashSet<T>();
             foreach (object obj in objects)
             {
-                if (obj is T)
+                if (obj is T t)
                 {
-                    result.Add((T)obj);
+                    result.Add(t);
                 }
                 else
                 {
@@ -333,9 +333,9 @@ namespace GRYLibrary.Core
             List<T> result = new List<T>();
             foreach (object obj in objects)
             {
-                if (obj is T)
+                if (obj is T t)
                 {
-                    result.Add((T)obj);
+                    result.Add(t);
                 }
                 else
                 {
@@ -376,9 +376,9 @@ namespace GRYLibrary.Core
             }
             object key = ((dynamic)@object).Key;
             object value = ((dynamic)@object).Value;
-            if (key is TKey && value is TValue)
+            if (key is TKey tKey && value is TValue tValue)
             {
-                return new System.Collections.Generic.KeyValuePair<TKey, TValue>((TKey)key, (TValue)value);
+                return new System.Collections.Generic.KeyValuePair<TKey, TValue>(tKey, tValue);
             }
             else
             {
@@ -393,9 +393,9 @@ namespace GRYLibrary.Core
             }
             object item1 = ((dynamic)@object).Item1;
             object item2 = ((dynamic)@object).Item2;
-            if (item1 is T1 && item2 is T2)
+            if (item1 is T1 t1 && item2 is T2 t2)
             {
-                return new Tuple<T1, T2>((T1)item1, (T2)item2);
+                return new Tuple<T1, T2>(t1, t2);
             }
             else
             {
@@ -455,8 +455,10 @@ namespace GRYLibrary.Core
         }
         public static ISet<Type> GetTypeWithParentTypesAndInterfaces(Type type)
         {
-            HashSet<Type> result = new HashSet<Type>();
-            result.Add(type);
+            HashSet<Type> result = new HashSet<Type>
+            {
+                type
+            };
             result.UnionWith(type.GetInterfaces());
             if (type.BaseType != null)
             {
@@ -1818,10 +1820,12 @@ namespace GRYLibrary.Core
         }
         public static bool GitRepositoryContainsObligatoryFiles(string repositoryFolder, out ISet<string> missingFiles)
         {
-            List<Tuple<string, ISet<string>>> fileLists = new List<Tuple<string/*file*/, ISet<string>/*aliase*/>>();
-            fileLists.Add(Tuple.Create<string, ISet<string>>(".gitignore", new HashSet<string>()));
-            fileLists.Add(Tuple.Create<string, ISet<string>>("License.txt", new HashSet<string>() { "License", "License.md" }));
-            fileLists.Add(Tuple.Create<string, ISet<string>>("ReadMe.md", new HashSet<string>() { "ReadMe", "ReadMe.txt" }));
+            List<Tuple<string, ISet<string>>> fileLists = new List<Tuple<string/*file*/, ISet<string>/*aliase*/>>
+            {
+                Tuple.Create<string, ISet<string>>(".gitignore", new HashSet<string>()),
+                Tuple.Create<string, ISet<string>>("License.txt", new HashSet<string>() { "License", "License.md" }),
+                Tuple.Create<string, ISet<string>>("ReadMe.md", new HashSet<string>() { "ReadMe", "ReadMe.txt" })
+            };
             return GitRepositoryContainsFiles(repositoryFolder, out missingFiles, fileLists);
         }
         public static void AddGitRemote(string repositoryFolder, string remoteFolder, string remoteName)
@@ -2200,9 +2204,13 @@ namespace GRYLibrary.Core
             int max = Math.Max(string1.Length, string12.Length);
             return 1 - (amountOfMoveOperations / (double)max);
         }
+        public static double CalculateLevenshteinSimilarity(string string1, string string2)
+        {
+            return ((double)CalculateLevenshteinDistance(string1, string2)) / (Math.Max(string1.Length, string2.Length));
+        }
         public static double CalculateCosineSimilarity(string string1, string string2)
         {
-            IDictionary<string, int> a =CalculateSimilarityHelperConvert(CalculateSimilarityHelperGetCharFrequencyMap(string1));
+            IDictionary<string, int> a = CalculateSimilarityHelperConvert(CalculateSimilarityHelperGetCharFrequencyMap(string1));
             IDictionary<string, int> b = CalculateSimilarityHelperConvert(CalculateSimilarityHelperGetCharFrequencyMap(string2));
             HashSet<string> intersection = CalculateSimilarityHelperGetIntersectionOfCharSet(a.Keys, b.Keys);
             double dotProduct = 0, magnitudeA = 0, magnitudeB = 0;
