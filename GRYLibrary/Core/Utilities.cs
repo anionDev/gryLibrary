@@ -2174,42 +2174,62 @@ namespace GRYLibrary.Core
             }
         }
         #region Similarity
-        public static double CalculateLevenshteinDistance(string string1, string string12)
+        public static int CalculateLevenshteinDistance(string string1, string string2)
         {
-            int n = string1.Length;
-            int m = string12.Length;
-            int[,] d = new int[n + 1, m + 1];
-            if (n == 0)
+            if (string.IsNullOrEmpty(string1) && string.IsNullOrEmpty(string2))
             {
-                return m;
+                return 0;
             }
+            if (string.IsNullOrEmpty(string1))
+            {
+                return string2.Length;
+            }
+            if (string.IsNullOrEmpty(string2))
+            {
+                return string1.Length;
+            }
+            int lengthA = string1.Length;
+            int lengthB = string2.Length;
+            var distance = new int[lengthA + 1, lengthB + 1];
+            for (int i = 0; i <= lengthA; distance[i, 0] = i++) ;
+            for (int j = 0; j <= lengthB; distance[0, j] = j++) ;
 
-            if (m == 0)
+            for (int i = 1; i <= lengthA; i++)
             {
-                return n;
-            }
-            for (int i = 1; i <= n; i++)
-            {
-                for (int j = 1; j <= m; j++)
+                for (int j = 1; j <= lengthB; j++)
                 {
-                    int cost = (string12[j - 1] == string1[i - 1]) ? 0 : 1;
-                    d[i, j] = Math.Min(Math.Min(d[i - 1, j] + 1, d[i, j - 1] + 1), d[i - 1, j - 1] + cost);
+                    int cost = string2[j - 1] == string1[i - 1] ? 0 : 1;
+                    distance[i, j] = Math.Min(Math.Min(distance[i - 1, j] + 1, distance[i, j - 1] + 1), distance[i - 1, j - 1] + cost);
                 }
             }
-            int amountOfMoveOperations = d[n, m];
-            if (amountOfMoveOperations == 0)
-            {
-                return 1;
-            }
-            int max = Math.Max(string1.Length, string12.Length);
-            return 1 - (amountOfMoveOperations / (double)max);
+
+            return distance[lengthA, lengthB];
         }
         public static double CalculateLevenshteinSimilarity(string string1, string string2)
         {
-            return ((double)CalculateLevenshteinDistance(string1, string2)) / (Math.Max(string1.Length, string2.Length));
+            int levenshteinDistance = CalculateLevenshteinDistance(string1, string2);
+            if (levenshteinDistance == 0)
+            {
+                return 1;
+            }
+            int maxLength = Math.Max(string1.Length, string2.Length);
+            if (levenshteinDistance == maxLength)
+            {
+                return 0;
+            }
+            else
+            {
+                return 1 - ((double)levenshteinDistance) / maxLength;
+            }
         }
         public static double CalculateCosineSimilarity(string string1, string string2)
         {
+            int length1 = string1.Length;
+            int length2 = string2.Length;
+            if ((length1 == 0 && length2 > 0) || (length2 == 0 && length1 > 0))
+            {
+                return 0;
+            }
             IDictionary<string, int> a = CalculateSimilarityHelperConvert(CalculateSimilarityHelperGetCharFrequencyMap(string1));
             IDictionary<string, int> b = CalculateSimilarityHelperConvert(CalculateSimilarityHelperGetCharFrequencyMap(string2));
             HashSet<string> intersection = CalculateSimilarityHelperGetIntersectionOfCharSet(a.Keys, b.Keys);
@@ -2228,9 +2248,13 @@ namespace GRYLibrary.Core
             }
             return dotProduct / Math.Sqrt(magnitudeA * magnitudeB);
         }
-        public static double CalculateJaccardIndexSimilarity(string string1, string string2)
+        public static double CalculateJaccardIndex(string string1, string string2)
         {
             return CalculateSimilarityHelperGetIntersection(string1, string2).Count() / (double)CalculateSimilarityHelperGetUnion(string1, string2).Count();
+        }
+        public static double CalculateJaccardSimilarity(string string1, string string2)
+        {
+            return CalculateJaccardIndex(string1, string2) * 2;
         }
         private static string CalculateSimilarityHelperGetIntersection(string string1, string string2)
         {
