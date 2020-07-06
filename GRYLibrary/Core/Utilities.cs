@@ -1460,18 +1460,14 @@ namespace GRYLibrary.Core
                 throw new Exception("Assertion failed. Condition is false." + (string.IsNullOrWhiteSpace(message) ? string.Empty : " " + message));
             }
         }
-        public static string[,] ReadCSVFile(string file, string separator = ";", bool ignoreFirstLine = false)
+        public static List<string[]> ReadCSVFile(string file, string separator = ";", bool ignoreFirstLine = false)
         {
             return ReadCSVFile(file, new UTF8Encoding(false), separator, ignoreFirstLine);
         }
-        public static string[,] ReadCSVFile(string file, Encoding encoding, string separator = ";", bool ignoreFirstLine = false)
+        public static List<string[]> ReadCSVFile(string file, Encoding encoding, string separator = ";", bool ignoreFirstLine = false)
         {
+            var outterList = new List<string[]>();
             string[] lines = File.ReadAllLines(file, encoding);
-            if (lines.Length == 0)
-            {
-                return new string[,] { };
-            }
-            List<List<string>> outterList = new List<List<string>>();
             for (int i = 0; i < lines.Length; i++)
             {
                 if (!(i == 0 && ignoreFirstLine))
@@ -1488,11 +1484,11 @@ namespace GRYLibrary.Core
                         {
                             innerList.Add(line);
                         }
-                        outterList.Add(innerList);
+                        outterList.Add(innerList.ToArray());
                     }
                 }
             }
-            return JaggedArrayToTwoDimensionalArray(EnumerableOfEnumerableToJaggedArray(outterList));
+            return outterList;
         }
         public static bool RunWithTimeout(this ThreadStart threadStart, TimeSpan timeout)
         {
