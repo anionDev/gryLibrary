@@ -3,10 +3,13 @@
 namespace GRYLibrary.Core
 {
     /// <summary>
-    /// Represents a number between 0 and 1.
+    /// Represents a <see cref="decimal"/>-number between 0 and 1.
     /// </summary>
-    public class PercentValue
+    public struct PercentValue
     {
+        public static PercentValue ZeroPercent { get; } = new PercentValue((decimal)0);
+        public static PercentValue HundredPercent { get; } = new PercentValue((decimal)1);
+
         public int ValueInPercent
         {
             get
@@ -16,6 +19,9 @@ namespace GRYLibrary.Core
         }
         public decimal Value { get; }
 
+        public PercentValue(double value) : this((decimal)value)
+        {
+        }
         public PercentValue(decimal value)
         {
             if (value < 0)
@@ -31,28 +37,30 @@ namespace GRYLibrary.Core
                 this.Value = value;
             }
         }
-        public PercentValue(int percentValue)
+        public static PercentValue CreateByPercentValue(int percentValue)
         {
             if (percentValue < 0)
             {
-                this.Value = 0;
+                return PercentValue.ZeroPercent;
             }
             else if (percentValue > 100)
             {
-                this.Value = 1;
+                return PercentValue.HundredPercent;
             }
             else
             {
-                this.Value = (decimal)percentValue / 100;
+                return new PercentValue((decimal)percentValue / 100);
             }
         }
+
         public override bool Equals(object obj)
         {
-            return this.Value == ((PercentValue)obj).Value;
+            return obj is PercentValue value && Value == value.Value;
         }
+
         public override int GetHashCode()
         {
-            return HashCode.Combine(this.Value);
+            return HashCode.Combine(Value);
         }
     }
 }
