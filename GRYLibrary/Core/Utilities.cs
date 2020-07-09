@@ -1490,6 +1490,30 @@ namespace GRYLibrary.Core
             }
             return outterList;
         }
+        public static IEnumerable<string> GetSubmodulePaths(string repositoryFolder, bool recursive = true)
+        {
+            ExternalProgramExecutor externalProgramExecutor = ExternalProgramExecutor.Create("git", "submodule status" + (recursive ? " --recursive" : string.Empty), repositoryFolder);
+            externalProgramExecutor.ThrowErrorIfExitCodeIsNotZero = true;
+            externalProgramExecutor.LogObject.Configuration.Enabled = false;
+            externalProgramExecutor.StartConsoleApplicationInCurrentConsoleWindow();
+            List<string> result = new List<string>();
+            foreach (string rawLine in externalProgramExecutor.AllStdOutLines)
+            {
+                string line = rawLine.Trim();
+                if (line.Contains(" "))
+                {
+                    string[] splitted = line.Split(' ');
+                    int amountOfWhitespaces = splitted.Length - 1;
+                    if (0 < amountOfWhitespaces)
+                    {
+                        string submodulePath = Path.Combine(repositoryFolder, splitted[1].Replace("/", Environment.NewLine));
+                        result.Add(submodulePath);
+                        continue;
+                    }
+                }
+            }
+            return result;
+        }
         public static bool RunWithTimeout(this ThreadStart threadStart, TimeSpan timeout)
         {
             Thread workerThread = new Thread(threadStart);
