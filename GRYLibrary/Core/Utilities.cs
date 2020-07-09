@@ -1490,6 +1490,9 @@ namespace GRYLibrary.Core
             }
             return outterList;
         }
+        /// <returns>
+        /// Returns a enumeration of the submodule-paths of <paramref name="repositoryFolder"/>.
+        /// </returns>
         public static IEnumerable<string> GetSubmodulePaths(string repositoryFolder, bool recursive = true)
         {
             ExternalProgramExecutor externalProgramExecutor = ExternalProgramExecutor.Create("git", "submodule status" + (recursive ? " --recursive" : string.Empty), repositoryFolder);
@@ -1506,17 +1509,18 @@ namespace GRYLibrary.Core
                     int amountOfWhitespaces = splitted.Length - 1;
                     if (0 < amountOfWhitespaces)
                     {
-                        string submodulePath = Path.Combine(repositoryFolder, splitted[1].Replace("/", Environment.NewLine));
-                        result.Add(submodulePath);
-                        continue;
+                        result.Add(Path.Combine(repositoryFolder, splitted[1].Replace("/", Path.DirectorySeparatorChar.ToString())));
                     }
                 }
             }
             return result;
         }
-        public static bool RunWithTimeout(this ThreadStart threadStart, TimeSpan timeout)
+        /// <summary>
+        /// Executes <paramref name="action"/>. When <paramref name="action"/> longer takes than <paramref name="timeout"/> then <paramref name="action"/> will be aborted.
+        /// </summary>
+        public static bool RunWithTimeout(this ThreadStart action, TimeSpan timeout)
         {
-            Thread workerThread = new Thread(threadStart);
+            Thread workerThread = new Thread(action);
             workerThread.Start();
             bool terminatedInGivenTimeSpan = workerThread.Join(timeout);
             if (!terminatedInGivenTimeSpan)
@@ -1525,10 +1529,18 @@ namespace GRYLibrary.Core
             }
             return terminatedInGivenTimeSpan;
         }
+
         public static string ResolveToFullPath(this string path)
         {
             return ResolveToFullPath(path, Directory.GetCurrentDirectory());
         }
+        /// <summary>
+        /// This function transforms <paramref name="path"/> into an absolute path.
+        /// It does not matter if you pass a relative or absolute path: This function checks that.
+        /// </summary>
+        /// <returns>
+        /// Returns an absolute path.
+        /// </returns>
         public static string ResolveToFullPath(this string path, string baseDirectory)
         {
             path = path.Trim();
@@ -1541,28 +1553,37 @@ namespace GRYLibrary.Core
                 return Path.GetFullPath(new Uri(Path.Combine(baseDirectory, path)).LocalPath);
             }
         }
-
+        /// <summary>
+        /// This function takes a given <paramref name="xml"/>-string and validates it against a given <paramref name="xsd"/>-string.
+        /// </summary>
+        /// <returns>
+        /// This function returns true if and only if <paramref name="errorMessages"/> is empty.
+        /// If this function returns true it means, that <paramref name="xml"/> is structured according to <paramref name="xsd"/>.
+        /// </returns>
         public static bool ValidateXMLAgainstXSD(string xml, string xsd, out IList<object> errorMessages)
         {
+            errorMessages = new List<object>();
             try
             {
                 XmlSchemaSet schemaSet = new XmlSchemaSet();
                 schemaSet.Add(null, XmlReader.Create(new StringReader(xsd)));
                 XDocument xDocument = XDocument.Parse(xml);
-                List<object> errorMessagesList = new List<object>();
 
+                List<object> events = new List<object>();
                 xDocument.Validate(schemaSet, (o, eventArgument) =>
                 {
-                    errorMessagesList.Add(eventArgument);
+                    events.Add(eventArgument);
                 });
-                errorMessages = errorMessagesList;
-                return errorMessages.Count == 0;
+                foreach (var @event in events)
+                {
+                    errorMessages.Add(@event);
+                }
             }
-            catch (Exception e)
+            catch (Exception exception)
             {
-                errorMessages = new List<object>() { e };
-                return false;
+                errorMessages.Add(exception);
             }
+            return errorMessages.Count == 0;
         }
 
         public static readonly XmlWriterSettings ApplyXSLTToXMLXMLWriterDefaultSettings = new XmlWriterSettings() { Indent = true, Encoding = new UTF8Encoding(false), OmitXmlDeclaration = true, IndentChars = "    " };
