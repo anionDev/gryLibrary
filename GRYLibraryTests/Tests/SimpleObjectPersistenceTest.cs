@@ -78,11 +78,15 @@ namespace GRYLibrary.Tests
                 result.ListTest.Add(true);
                 result.ListTest.Add(false);
                 result.ListTest.Add(true);
-                result.TestAttribute = new SerializeTestAttributeClass();
-                result.TestAttribute.TestAttribute1 = new SerializeTestAttributeClass();
-                result.TestAttribute.TestAttribute1.TestAttribute1 = null;
-                result.TestAttribute.TestAttribute1.TestString1 = "x";
-                result.TestAttribute.TestString1 = "encodingtest: áä?<👍你好";
+                result.TestAttribute = new SerializeTestAttributeClass
+                {
+                    TestAttribute1 = new SerializeTestAttributeClass
+                    {
+                        TestAttribute1 = null,
+                        TestString1 = "x"
+                    },
+                    TestString1 = "encodingtest: áä?<👍你好"
+                };
                 result.TestDouble = 22 / (double)7;
                 result.TestDouble2 = 5;
                 result.TestStringFromInterface = "y";
