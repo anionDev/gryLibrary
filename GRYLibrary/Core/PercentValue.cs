@@ -9,7 +9,6 @@ namespace GRYLibrary.Core
     {
         public static PercentValue ZeroPercent { get; } = new PercentValue((decimal)0);
         public static PercentValue HundredPercent { get; } = new PercentValue((decimal)1);
-
         public int ValueInPercent
         {
             get

@@ -4,6 +4,10 @@ using System.Numerics;
 
 namespace GRYLibrary.Core
 {
+    /// <summary>
+    /// Simple generic generator for ids.
+    /// </summary>
+    /// <typeparam name="T">Represents the type of an id</typeparam>
     public class IdGenerator<T>
     {
         private readonly ISet<T> _GeneratedIds = new HashSet<T>();
@@ -23,20 +27,32 @@ namespace GRYLibrary.Core
             return new HashSet<T>(this._GeneratedIds);
         }
     }
-    public class IdGenerator
+    public static class IdGenerator
     {
+        /// <summary>
+        /// Represents an id-generator which generates increasing ids beginning with 0.
+        /// </summary>
         public static IdGenerator<int> GetDefaultIntIdGenerator()
         {
             return new IdGenerator<int>((int lastGeneratedId) => lastGeneratedId + 1);
         }
+        /// <summary>
+        /// Represents an id-generator which generates increasing ids beginning with 0.
+        /// </summary>
         public static IdGenerator<long> GetDefaultLongIdGenerator()
         {
             return new IdGenerator<long>((long lastGeneratedId) => lastGeneratedId + 1);
         }
+        /// <summary>
+        /// Represents an id-generator which generates increasing ids beginning with 0.
+        /// </summary>
         public static IdGenerator<BigInteger> GetDefaultBigIntegerIdGenerator()
         {
             return new IdGenerator<BigInteger>((BigInteger lastGeneratedId) => lastGeneratedId + 1);
         }
+        /// <summary>
+        /// Represents an id-generator which generates random guids.
+        /// </summary>
         public static IdGenerator<Guid> GetDefaultGuidIdGenerator()
         {
             return new IdGenerator<Guid>((Guid lastGeneratedId) => Guid.NewGuid());
