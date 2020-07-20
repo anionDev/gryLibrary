@@ -13,7 +13,7 @@ namespace GRYLibrary.Tests.AdvancedObjectAnalysisTests.ToString
         [TestMethod]
         public void SimpleDataStructureTestObjectToString()
         {
-            Assert.AreEqual(@"TODO", SimpleDataStructure1.GetTestObject().ToString());
+            Assert.AreEqual(@"TODO", SimpleDataStructure1.GetRandom().ToString());
         }
 
         [Ignore]

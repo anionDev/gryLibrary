@@ -6,17 +6,17 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.GenericXMLSerializerHelper.Conc
     /// <summary>
     /// Represents a SimplifiedObject for <see cref="GRYSObject"/>
     /// </summary>
-    [XmlRoot(ElementName = "SO")]
-    public class SObject : Simplified
+    [XmlRoot(ElementName = "FO")]
+    public class FlatComplexObject : FlatObject
     {
-        public List<SAttribute> Attributes { get; set; } = new List<SAttribute>();
+        public List<FlatAttribute> Attributes { get; set; } = new List<FlatAttribute>();
 
-        public override void Accept(ISimplifiedVisitor visitor)
+        public override void Accept(IFlatObjectVisitor visitor)
         {
             visitor.Handle(this);
         }
 
-        public override T Accept<T>(ISimplifiedVisitor<T> visitor)
+        public override T Accept<T>(IFlatObjectVisitor<T> visitor)
         {
             return visitor.Handle(this);
         }

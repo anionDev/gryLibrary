@@ -144,7 +144,7 @@ namespace GRYLibrary.Tests
         [TestMethod]
         public void GenericSerializerTest1()
         {
-            SimpleDataStructure3 testObject = SimpleDataStructure3.GetTestObject();
+            SimpleDataStructure3 testObject = SimpleDataStructure3.GetRandom();
             SimpleGenericXMLSerializer<SimpleDataStructure3> seriailzer = new SimpleGenericXMLSerializer<SimpleDataStructure3>();
             Assert.AreEqual(File.ReadAllText(@"TestData\TestXMLSerialization\GenericSerializerTest1.txt", new UTF8Encoding(false)), seriailzer.Serialize(testObject));
         }
