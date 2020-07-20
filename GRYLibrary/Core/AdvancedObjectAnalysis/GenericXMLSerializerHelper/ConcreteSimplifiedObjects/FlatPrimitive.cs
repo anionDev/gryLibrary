@@ -5,16 +5,16 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.GenericXMLSerializerHelper.Conc
     /// <summary>
     /// Represents a SimplifiedPrimitive for <see cref="GRYSObject"/>
     /// </summary>
-    [XmlRoot(ElementName = "SP")]
-    public class SPrimitive : Simplified
+    [XmlRoot(ElementName = "FP")]
+    public class FlatPrimitive : FlatObject
     {
         public object Value { get; set; }
-        public override void Accept(ISimplifiedVisitor visitor)
+        public override void Accept(IFlatObjectVisitor visitor)
         {
             visitor.Handle(this);
         }
 
-        public override T Accept<T>(ISimplifiedVisitor<T> visitor)
+        public override T Accept<T>(IFlatObjectVisitor<T> visitor)
         {
             return visitor.Handle(this);
         }

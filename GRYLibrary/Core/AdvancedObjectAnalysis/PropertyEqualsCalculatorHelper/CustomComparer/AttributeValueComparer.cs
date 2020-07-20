@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 
 namespace GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper.CustomComparer
@@ -19,26 +20,17 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper.
         {
             Type type = object1.GetType();
             List<WriteableTuple<object, object>> attributeValues = new List<WriteableTuple<object, object>>();
-            foreach (FieldInfo field in type.GetFields())
+            foreach (FieldInfo field in type.GetFields().Where((field) => this.Configuration.FieldSelector(field)))
             {
-                if (this.Configuration.FieldSelector(field))
-                {
-                    attributeValues.Add(new WriteableTuple<object, object>(field.GetValue(object1), field.GetValue(object2)));
-                }
+                attributeValues.Add(new WriteableTuple<object, object>(field.GetValue(object1), field.GetValue(object2)));
             }
-            foreach (PropertyInfo property in type.GetProperties())
+            foreach (PropertyInfo property in type.GetProperties().Where((property) => this.Configuration.PropertySelector(property)))
             {
-                if (this.Configuration.PropertySelector(property))
-                {
-                    attributeValues.Add(new WriteableTuple<object, object>(property.GetValue(object1), property.GetValue(object2)));
-                }
+                attributeValues.Add(new WriteableTuple<object, object>(property.GetValue(object1), property.GetValue(object2)));
             }
-            foreach (WriteableTuple<object, object> entry in attributeValues)
+            foreach (WriteableTuple<object, object> entry in attributeValues.Where((entry) => this._PropertyEqualsCalculator.Equals(entry.Item1, entry.Item2)))
             {
-                if (this._PropertyEqualsCalculator.Equals(entry.Item1, entry.Item2))
-                {
-                    this.Configuration.AddEqualObjectsToEquivalenceClasses(object1, object2);
-                }
+                this.Configuration.AddEqualObjectsToEquivalenceClasses(object1, object2);
             }
             return true;
         }

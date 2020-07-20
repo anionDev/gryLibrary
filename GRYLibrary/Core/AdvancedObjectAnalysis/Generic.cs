@@ -1,5 +1,6 @@
 ﻿using GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper;
 using GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper.CustomComparer;
+using GRYLibrary.Core.AdvancedXMLSerialysis;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -69,13 +70,13 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis
 
         public static void GenericWriteXml(object @object, XmlWriter writer)
         {
-            throw new NotImplementedException();
+            GenericXMLSerializer.DefaultInstance.Serialize(@object, writer);
         }
 
         public static void GenericReadXml(object @object, XmlReader reader)
         {
-            throw new NotImplementedException();
+            reader.ReadStartElement(@object.GetType().Name);
+            GenericXMLSerializer.DefaultInstance.CopyContent(@object, GenericXMLSerializer.DefaultInstance.Deserialize(reader));
         }
-
     }
 }

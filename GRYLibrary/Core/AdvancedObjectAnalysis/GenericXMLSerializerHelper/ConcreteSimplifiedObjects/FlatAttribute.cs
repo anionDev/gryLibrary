@@ -6,8 +6,8 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.GenericXMLSerializerHelper.Conc
     /// <summary>
     /// Represents a SimplifiedAttribute for <see cref="GRYSObject"/>
     /// </summary>
-    [XmlRoot(ElementName = "SA")]
-    public class SAttribute
+    [XmlRoot(ElementName = "FA")]
+    public class FlatAttribute
     {
         public string Name { get; set; }
         public string TypeName { get; set; }
