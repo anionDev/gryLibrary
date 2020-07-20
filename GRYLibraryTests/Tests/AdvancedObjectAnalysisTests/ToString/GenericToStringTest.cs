@@ -9,25 +9,46 @@ namespace GRYLibrary.Tests.AdvancedObjectAnalysisTests.ToString
     [TestClass]
     public class GenericToStringTest
     {
-        [Ignore]
         [TestMethod]
         public void SimpleDataStructureTestObjectToString()
         {
-            Assert.AreEqual(@"TODO", SimpleDataStructure1.GetRandom().ToString());
+            // arrange
+            SimpleDataStructure1 testObject = null;//todo
+            string expectedString = @"TODO";
+
+            // act
+            string actualString = testObject.ToString();
+
+            // assert
+            Assert.AreEqual(expectedString, actualString);
         }
 
-        [Ignore]
         [TestMethod]
         public void ComplexTestObjectToString()
         {
-            Assert.AreEqual(@"TODO", Company.GetRandom().ToString());
+            // arrange
+            Company testObject = null;//todo
+            string expectedString = @"TODO";
+
+            // act
+            string actualString = testObject.ToString();
+
+            // assert
+            Assert.AreEqual(expectedString, actualString);
         }
 
-        [Ignore]
         [TestMethod]
         public void CyclicTestObjectToString()
         {
-            Assert.AreEqual(@"TODO", CycleA.GetRandom().ToString());
+            // arrange
+            CycleA testObject = null;//todo
+            string expectedString = @"TODO";
+
+            // act
+            string actualString = testObject.ToString();
+
+            // assert
+            Assert.AreEqual(expectedString, actualString);
         }
     }
 }

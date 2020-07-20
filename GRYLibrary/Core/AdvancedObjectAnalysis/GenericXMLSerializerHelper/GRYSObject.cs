@@ -36,6 +36,10 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.GenericXMLSerializerHelper
                 return default;
             }
             Type typeOfObject = @object.GetType();
+            if (typeOfObject.Name.StartsWith("KeyValuePair"))
+            {
+
+            }
             if (!typeOfObject.IsPublic)
             {
                 throw new SerializationException($"Object of type '{typeOfObject}' can not be serialized because the type is not pubilc");
@@ -117,7 +121,6 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.GenericXMLSerializerHelper
             public void Handle(FlatEnumerable simplifiedEnumerable)
             {
                 object enumerable = this._DeserializedObjects[simplifiedEnumerable.ObjectId];
-                MethodInfo addOperation = enumerable.GetType().GetMethod("Add");
                 bool isDictionary = Utilities.ObjectIsDictionary(enumerable);
                 foreach (Guid itemId in simplifiedEnumerable.Items)
                 {
@@ -132,6 +135,7 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.GenericXMLSerializerHelper
                     {
                         arguments = new object[] { itemForEnumerable };
                     }
+                    MethodInfo addOperation = enumerable.GetType().GetMethod("Add");
                     addOperation.Invoke(enumerable, arguments);
                 }
             }
@@ -152,30 +156,34 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.GenericXMLSerializerHelper
             public object Handle(FlatEnumerable simplifiedEnumerable)
             {
                 Type typeOfSimplifiedEnumerable = Type.GetType(simplifiedEnumerable.TypeName);
-                Type ConcreteTypeOfEnumerable;
+                Type concreteTypeOfEnumerable;
                 if (Utilities.TypeIsListGeneric(typeOfSimplifiedEnumerable))
                 {
-                    ConcreteTypeOfEnumerable = typeof(List<>);
+                    concreteTypeOfEnumerable = typeof(List<>);
                 }
                 else if (Utilities.TypeIsListNotGeneric(typeOfSimplifiedEnumerable))
                 {
-                    ConcreteTypeOfEnumerable = typeof(ArrayList);
+                    concreteTypeOfEnumerable = typeof(ArrayList);
                 }
                 else if (Utilities.TypeIsSet(typeOfSimplifiedEnumerable))
                 {
-                    ConcreteTypeOfEnumerable = typeof(HashSet<>);
+                    concreteTypeOfEnumerable = typeof(HashSet<>);
                 }
                 else if (Utilities.TypeIsDictionaryGeneric(typeOfSimplifiedEnumerable))
                 {
-                    ConcreteTypeOfEnumerable = typeof(Dictionary<,>);
+                    concreteTypeOfEnumerable = typeof(Dictionary<,>);
                 }
                 else if (Utilities.TypeIsDictionaryNotGeneric(typeOfSimplifiedEnumerable))
                 {
-                    ConcreteTypeOfEnumerable = typeof(Hashtable);
+                    concreteTypeOfEnumerable = typeof(Hashtable);
                 }
                 else if (Utilities.TypeIsEnumerable(typeOfSimplifiedEnumerable))
                 {
-                    ConcreteTypeOfEnumerable = typeof(List<>);
+                    concreteTypeOfEnumerable = typeof(List<>);
+                }
+                else if (Utilities.TypeIsKeyValuePair(typeOfSimplifiedEnumerable))
+                {
+                    concreteTypeOfEnumerable = typeof(List<>);
                 }
                 else
                 {
@@ -183,9 +191,9 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.GenericXMLSerializerHelper
                 }
                 if (typeOfSimplifiedEnumerable.GenericTypeArguments.Length > 0)
                 {
-                    ConcreteTypeOfEnumerable = ConcreteTypeOfEnumerable.MakeGenericType(typeOfSimplifiedEnumerable.GenericTypeArguments);
+                    concreteTypeOfEnumerable = concreteTypeOfEnumerable.MakeGenericType(typeOfSimplifiedEnumerable.GenericTypeArguments);
                 }
-                return Activator.CreateInstance(ConcreteTypeOfEnumerable);
+                return Activator.CreateInstance(concreteTypeOfEnumerable);
             }
 
             public object Handle(FlatPrimitive simplifiedPrimitive)

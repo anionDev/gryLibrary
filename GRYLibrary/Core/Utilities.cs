@@ -290,6 +290,10 @@ namespace GRYLibrary.Core
                 {
                     result.Add(t);
                 }
+                else if (Utilities.IsDefault( obj))
+                {
+                    result.Add(default);
+                }
                 else
                 {
                     throw new InvalidCastException();
@@ -376,14 +380,35 @@ namespace GRYLibrary.Core
             }
             object key = ((dynamic)@object).Key;
             object value = ((dynamic)@object).Value;
-            if (key is TKey tKey && value is TValue tValue)
+            TKey tKey;
+            TValue tValue;
+
+            if (key is TKey)
             {
-                return new System.Collections.Generic.KeyValuePair<TKey, TValue>(tKey, tValue);
+                tKey = (TKey)key;
+            }
+            else if (IsDefault(key))
+            {
+                tKey = default;
             }
             else
             {
                 throw new InvalidCastException();
             }
+            if (value is TValue)
+            {
+                tValue = (TValue)value;
+            }
+            else if (IsDefault(value))
+            {
+                tValue = default;
+            }
+            else
+            {
+                throw new InvalidCastException();
+            }
+            return new System.Collections.Generic.KeyValuePair<TKey, TValue>(tKey, tValue);
+            
         }
         public static Tuple<T1, T2> ObjectToTuple<T1, T2>(this object @object)
         {
