@@ -57,7 +57,7 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper.
         }
         public override bool IsApplicable(Type typeOfObject1, Type typeOfObject2)
         {
-            return Utilities.TypeIsDictionary(typeOfObject1) && Utilities.TypeIsDictionary(typeOfObject2);
+            return Utilities.TypeIsDictionaryGeneric(typeOfObject1) && Utilities.TypeIsDictionaryGeneric(typeOfObject2);
         }
     }
 }

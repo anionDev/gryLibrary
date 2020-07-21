@@ -15,12 +15,16 @@ namespace GRYLibrary.TestData.TestTypes.AdvancedObjectAnalysisUsageFull
         public static TestType GetRandom()
         {
             TestType result = new TestType();
-            result.AttributeA = new TestAttributeType();
-            result.AttributeB = new TestAttributeType();
-            result.AttributeA.ComplexAttribute = result.AttributeB;
-            result.AttributeA.IntAttribute = 2;
-            result.AttributeB.ComplexAttribute = result.AttributeA;
-            result.AttributeB.IntAttribute = 3;
+            result.AttributeA = new TestAttributeType
+            {
+                ComplexAttribute = result.AttributeB,
+                IntAttribute = 2
+            };
+            result.AttributeB = new TestAttributeType
+            {
+                ComplexAttribute = result.AttributeA,
+                IntAttribute = 3
+            };
             return result;
         }
         #region Overhead

@@ -36,13 +36,13 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.GenericXMLSerializerHelper
                 return default;
             }
             Type typeOfObject = @object.GetType();
-            if (typeOfObject.Name.StartsWith("KeyValuePair"))
-            {
-
-            }
+            //if (typeOfObject.Name.StartsWith("KeyValuePair"))
+            //{
+            //    throw new NotImplementedException();// TODO
+            //}
             if (!typeOfObject.IsPublic)
             {
-                throw new SerializationException($"Object of type '{typeOfObject}' can not be serialized because the type is not pubilc");
+                // throw new SerializationException($"Object of type '{typeOfObject}' can not be serialized because the type is not pubilc");
             }
             if (dictionary.ContainsKey(@object))
             {
@@ -81,11 +81,10 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.GenericXMLSerializerHelper
             }
             public void Handle(FlatComplexObject simplifiedObject)
             {
-                object @object = this._DeserializedObjects[simplifiedObject.ObjectId];
+                object @object = GetDeserialisedObjectOrDefault(simplifiedObject.ObjectId);
                 Type typeOfObject = @object.GetType();
                 foreach (FlatAttribute attribute in simplifiedObject.Attributes)
                 {
-
                     PropertyInfo property = typeOfObject.GetProperty(attribute.Name);
                     if (property != null)
                     {
@@ -120,29 +119,57 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.GenericXMLSerializerHelper
 
             public void Handle(FlatEnumerable simplifiedEnumerable)
             {
-                object enumerable = this._DeserializedObjects[simplifiedEnumerable.ObjectId];
-                bool isDictionary = Utilities.ObjectIsDictionary(enumerable);
+                object enumerable = GetDeserialisedObjectOrDefault(simplifiedEnumerable.ObjectId);
+                if (Utilities.IsDefault(enumerable))
+                {
+                    return;
+                }
+                Type enumerableType = Type.GetType(simplifiedEnumerable.TypeName);
+                bool isDictionaryNotGeneric = Utilities.TypeIsDictionaryNotGeneric(enumerableType);
+                bool isDictionaryGeneric = Utilities.TypeIsDictionaryGeneric(enumerableType);
                 foreach (Guid itemId in simplifiedEnumerable.Items)
                 {
-                    object itemForEnumerable = this._DeserializedObjects[itemId];
+                    object itemForEnumerable;
+                    //  try
+                    // {
+                    itemForEnumerable = GetDeserialisedObjectOrDefault(itemId);
+                    //}
+                    //catch
+                    //{
+                    //    throw;
+                    //}
                     object[] arguments;
-                    if (isDictionary)
+                    if (isDictionaryGeneric)
                     {
                         KeyValuePair<object, object> keyValuePair = Utilities.ObjectToKeyValuePair<object, object>(itemForEnumerable);
+                        arguments = new object[] { keyValuePair.Key, keyValuePair.Value };
+                    }
+                    else if (isDictionaryNotGeneric)
+                    {
+                       DictionaryEntry keyValuePair = Utilities.ObjectToDictionaryEntry(itemForEnumerable);
                         arguments = new object[] { keyValuePair.Key, keyValuePair.Value };
                     }
                     else
                     {
                         arguments = new object[] { itemForEnumerable };
                     }
-                    MethodInfo addOperation = enumerable.GetType().GetMethod("Add");
-                    addOperation.Invoke(enumerable, arguments);
+                    Utilities.AddItemToEnumerable(enumerable, arguments);
                 }
             }
-
             public void Handle(FlatPrimitive simplifiedPrimitive)
             {
                 Utilities.NoOperation();
+            }
+            private object GetDeserialisedObjectOrDefault(Guid id)
+            {
+                if (default(Guid).Equals(id))
+                {
+                    return default;
+                }
+                else
+                {
+                    return this._DeserializedObjects[id];
+                }
             }
         }
         private class CreateObjectVisitor : IFlatObjectVisitor<object>

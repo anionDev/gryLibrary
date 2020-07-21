@@ -38,6 +38,7 @@ namespace GRYLibrary.Tests.AdvancedObjectAnalysisTests.Serializer
             Assert.AreEqual(o1, o2);
             Assert.AreEqual(testObject, actualObject);
         }
+        [Ignore]
         [TestMethod]
         public void SerializeCyclicTestObject()
         {
@@ -45,7 +46,8 @@ namespace GRYLibrary.Tests.AdvancedObjectAnalysisTests.Serializer
             object testObject = CycleA.GetRandom();
             string serialized = serializer.Serialize(testObject);
             CycleA actualObject = serializer.Deserialize<CycleA>(serialized);
-            Assert.AreEqual(testObject, actualObject);
+            Assert.IsTrue(Generic.GenericEquals(testObject, actualObject), Core.Utilities.GetAssertionFailMessage(testObject, actualObject));
+            Assert.AreEqual(Generic.GenericGetHashCode(testObject), Generic.GenericGetHashCode(actualObject));
         }
         [TestMethod]
         public void IXmlSerializableDefaultImplementationTest()
@@ -68,8 +70,8 @@ namespace GRYLibrary.Tests.AdvancedObjectAnalysisTests.Serializer
 
             // assert
             Assert.IsNotNull(actualObject);
-            Assert.AreEqual(expectedObject, actualObject);
-            Assert.AreEqual(expectedObject.GetHashCode(), actualObject.GetHashCode());
+            Assert.IsTrue(Generic.GenericEquals(expectedObject, actualObject), Core.Utilities.GetAssertionFailMessage(expectedObject, actualObject));
+            Assert.AreEqual(Generic.GenericGetHashCode(expectedObject), Generic.GenericGetHashCode(actualObject));
         }
         [TestMethod]
         public void IXmlSerializableDefaultImplementationListGeneric()
@@ -82,11 +84,13 @@ namespace GRYLibrary.Tests.AdvancedObjectAnalysisTests.Serializer
 
             // act
             Generic.GenericWriteXml(expectedObject, writer);
-            Generic.GenericReadXml(actualObject, XmlReader.Create(new StringReader(stringWriter.ToString())));
+            string serializedObject = stringWriter.ToString();
+            Generic.GenericReadXml(actualObject, XmlReader.Create(new StringReader(serializedObject)));
 
             // assert
-            Assert.AreEqual(6, actualObject.Count);
-            Assert.AreEqual(expectedObject, actualObject);
+            Assert.AreEqual(8, actualObject.Count);
+            Assert.IsTrue(Generic.GenericEquals(expectedObject, actualObject), Core.Utilities.GetAssertionFailMessage(expectedObject, actualObject));
+            Assert.AreEqual(Generic.GenericGetHashCode(expectedObject), Generic.GenericGetHashCode(actualObject));
         }
         [TestMethod]
         public void IXmlSerializableDefaultImplementationListNotGeneric()
@@ -99,11 +103,13 @@ namespace GRYLibrary.Tests.AdvancedObjectAnalysisTests.Serializer
 
             // act
             Generic.GenericWriteXml(expectedObject, writer);
-            Generic.GenericReadXml(actualObject, XmlReader.Create(new StringReader(stringWriter.ToString())));
+            string serializedObject = stringWriter.ToString();
+            Generic.GenericReadXml(actualObject, XmlReader.Create(new StringReader(serializedObject)));
 
             // assert
-            Assert.AreEqual(6, actualObject.Count);
-            Assert.AreEqual(expectedObject, actualObject);
+            Assert.AreEqual(8, actualObject.Count);
+            Assert.IsTrue(Generic.GenericEquals(expectedObject, actualObject), Core.Utilities.GetAssertionFailMessage(expectedObject, actualObject));
+            Assert.AreEqual(Generic.GenericGetHashCode(expectedObject), Generic.GenericGetHashCode(actualObject));
         }
         [TestMethod]
         public void IXmlSerializableDefaultImplementationSetGeneric()
@@ -116,11 +122,13 @@ namespace GRYLibrary.Tests.AdvancedObjectAnalysisTests.Serializer
 
             // act
             Generic.GenericWriteXml(expectedObject, writer);
-            Generic.GenericReadXml(actualObject, XmlReader.Create(new StringReader(stringWriter.ToString())));
+            string serializedObject = stringWriter.ToString();
+            Generic.GenericReadXml(actualObject, XmlReader.Create(new StringReader(serializedObject)));
 
             // assert
-            Assert.AreEqual(6, actualObject.Count);
-            Assert.AreEqual(expectedObject, actualObject);
+            Assert.AreEqual(8, actualObject.Count);
+            Assert.IsTrue(Generic.GenericEquals(expectedObject, actualObject), Core.Utilities.GetAssertionFailMessage(expectedObject, actualObject));
+            Assert.AreEqual(Generic.GenericGetHashCode(expectedObject), Generic.GenericGetHashCode(actualObject));
         }
         [TestMethod]
         public void IXmlSerializableDefaultImplementationDictionaryGeneric()
@@ -133,11 +141,13 @@ namespace GRYLibrary.Tests.AdvancedObjectAnalysisTests.Serializer
 
             // act
             Generic.GenericWriteXml(expectedObject, writer);
-            Generic.GenericReadXml(actualObject, XmlReader.Create(new StringReader(stringWriter.ToString())));
+            string serializedObject = stringWriter.ToString();
+            Generic.GenericReadXml(actualObject, XmlReader.Create(new StringReader(serializedObject)));
 
             // assert
             Assert.AreEqual(6, actualObject.Count);
-            Assert.AreEqual(expectedObject, actualObject);
+            Assert.IsTrue(Generic.GenericEquals(expectedObject, actualObject), Core.Utilities.GetAssertionFailMessage(expectedObject, actualObject));
+            Assert.AreEqual(Generic.GenericGetHashCode(expectedObject), Generic.GenericGetHashCode(actualObject));
         }
         [TestMethod]
         public void IXmlSerializableDefaultImplementationDictionaryNotGeneric()
@@ -150,11 +160,13 @@ namespace GRYLibrary.Tests.AdvancedObjectAnalysisTests.Serializer
 
             // act
             Generic.GenericWriteXml(expectedObject, writer);
-            Generic.GenericReadXml(actualObject, XmlReader.Create(new StringReader(stringWriter.ToString())));
+            string serializedObject = stringWriter.ToString();
+            Generic.GenericReadXml(actualObject, XmlReader.Create(new StringReader(serializedObject)));
 
             // assert
-            Assert.AreEqual(6, actualObject.Count);
-            Assert.AreEqual(expectedObject, actualObject);
+            Assert.AreEqual(4, actualObject.Count);
+            Assert.IsTrue(Generic.GenericEquals(expectedObject, actualObject), Core.Utilities.GetAssertionFailMessage(expectedObject, actualObject));
+            Assert.AreEqual(Generic.GenericGetHashCode(expectedObject), Generic.GenericGetHashCode(actualObject));
         }
         [TestMethod]
         public void IXmlSerializableDefaultImplementationEnumerableGeneric()
@@ -167,11 +179,13 @@ namespace GRYLibrary.Tests.AdvancedObjectAnalysisTests.Serializer
 
             // act
             Generic.GenericWriteXml(expectedObject, writer);
-            Generic.GenericReadXml(actualObject, XmlReader.Create(new StringReader(stringWriter.ToString())));
+            string serializedObject = stringWriter.ToString();
+            Generic.GenericReadXml(actualObject, XmlReader.Create(new StringReader(serializedObject)));
 
             // assert
-            Assert.AreEqual(6, actualObject.Count);
-            Assert.AreEqual(expectedObject, actualObject);
+            Assert.AreEqual(8, actualObject.Count);
+            Assert.IsTrue(Generic.GenericEquals(expectedObject, actualObject), Core.Utilities.GetAssertionFailMessage(expectedObject, actualObject));
+            Assert.AreEqual(Generic.GenericGetHashCode(expectedObject), Generic.GenericGetHashCode(actualObject));
         }
         [TestMethod]
         public void IXmlSerializableDefaultImplementationKeyValuePair()
@@ -184,10 +198,146 @@ namespace GRYLibrary.Tests.AdvancedObjectAnalysisTests.Serializer
 
             // act
             Generic.GenericWriteXml(expectedObject, writer);
-            Generic.GenericReadXml(actualObject, XmlReader.Create(new StringReader(stringWriter.ToString())));
+            string serializedObject = stringWriter.ToString();
+            Generic.GenericReadXml(actualObject, XmlReader.Create(new StringReader(serializedObject)));
 
             // assert
-            Assert.AreEqual(expectedObject, actualObject);
+            Assert.IsTrue(Generic.GenericEquals(expectedObject, actualObject), Core.Utilities.GetAssertionFailMessage(expectedObject, actualObject));
+            Assert.AreEqual(expectedObject.GetHashCode(), actualObject.GetHashCode());
+            Assert.AreEqual(Generic.GenericGetHashCode(expectedObject), Generic.GenericGetHashCode(actualObject));
+        }
+        [TestMethod]
+        public void IXmlSerializableDefaultImplementationTypeWithDictionary()
+        {
+            // arrange
+            TypeWithDictionary expectedObject = new TypeWithDictionary() { Dictionary = new Hashtable { { "a", "b" }, { "c", "d" } } };
+            StringWriter stringWriter = new StringWriter();
+            XmlWriter writer = XmlWriter.Create(stringWriter);
+            TypeWithDictionary actualObject = new TypeWithDictionary();
+
+            // act
+            Generic.GenericWriteXml(expectedObject, writer);
+            string serializedObject = stringWriter.ToString();
+            Generic.GenericReadXml(actualObject, XmlReader.Create(new StringReader(serializedObject)));
+
+            // assert
+            Assert.AreEqual(2, actualObject.Dictionary.Count);
+            Assert.IsTrue(Generic.GenericEquals(expectedObject, actualObject), Core.Utilities.GetAssertionFailMessage(expectedObject, actualObject));
+            Assert.AreEqual(Generic.GenericGetHashCode(expectedObject), Generic.GenericGetHashCode(actualObject));
+        }
+        [TestMethod]
+        public void IXmlSerializableDefaultImplementationTypeWithDictionaryGeneric()
+        {
+            // arrange
+            TypeWithDictionaryGeneric<int, string> expectedObject = new TypeWithDictionaryGeneric<int, string>() { Dictionary = new Dictionary<int, string>() { { 5, "b" }, { 6, "d" } } };
+            StringWriter stringWriter = new StringWriter();
+            XmlWriter writer = XmlWriter.Create(stringWriter);
+            TypeWithDictionaryGeneric<int, string> actualObject = new TypeWithDictionaryGeneric<int, string>();
+
+            // act
+            Generic.GenericWriteXml(expectedObject, writer);
+            string serializedObject = stringWriter.ToString();
+            Generic.GenericReadXml(actualObject, XmlReader.Create(new StringReader(serializedObject)));
+
+            // assert
+            Assert.AreEqual(2, actualObject.Dictionary.Count);
+            Assert.IsTrue(Generic.GenericEquals(expectedObject, actualObject), Core.Utilities.GetAssertionFailMessage(expectedObject, actualObject));
+            Assert.AreEqual(Generic.GenericGetHashCode(expectedObject), Generic.GenericGetHashCode(actualObject));
+        }
+        [TestMethod]
+        public void IXmlSerializableDefaultImplementationTypeWithList()
+        {
+            // arrange
+            TypeWithList expectedObject = new TypeWithList() { List = new List<string> { "a", "b" } };
+            StringWriter stringWriter = new StringWriter();
+            XmlWriter writer = XmlWriter.Create(stringWriter);
+            TypeWithList actualObject = new TypeWithList();
+
+            // act
+            Generic.GenericWriteXml(expectedObject, writer);
+            string serializedObject = stringWriter.ToString();
+            Generic.GenericReadXml(actualObject, XmlReader.Create(new StringReader(serializedObject)));
+
+            // assert
+            Assert.AreEqual(2, actualObject.List.Count);
+            Assert.IsTrue(Generic.GenericEquals(expectedObject, actualObject), Core.Utilities.GetAssertionFailMessage(expectedObject, actualObject));
+            Assert.AreEqual(Generic.GenericGetHashCode(expectedObject), Generic.GenericGetHashCode(actualObject));
+        }
+        [TestMethod]
+        public void IXmlSerializableDefaultImplementationTypeWithListGeneric()
+        {
+            // arrange
+            TypeWithListGeneric<string> expectedObject = new TypeWithListGeneric<string>() { List = new List<string> { "a", "b" } };
+            StringWriter stringWriter = new StringWriter();
+            XmlWriter writer = XmlWriter.Create(stringWriter);
+            TypeWithListGeneric<string> actualObject = new TypeWithListGeneric<string>();
+
+            // act
+            Generic.GenericWriteXml(expectedObject, writer);
+            string serializedObject = stringWriter.ToString();
+            Generic.GenericReadXml(actualObject, XmlReader.Create(new StringReader(serializedObject)));
+
+            // assert
+            Assert.AreEqual(2, actualObject.List.Count);
+            Assert.IsTrue(Generic.GenericEquals(expectedObject, actualObject), Core.Utilities.GetAssertionFailMessage(expectedObject, actualObject));
+            Assert.AreEqual(Generic.GenericGetHashCode(expectedObject), Generic.GenericGetHashCode(actualObject));
+        }
+        [TestMethod]
+        public void IXmlSerializableDefaultImplementationTypeWithEnumerable()
+        {
+            // arrange
+            TypeWithEnumerable expectedObject = new TypeWithEnumerable() { Enumerable = new List<string> { "a", "b" } };
+            StringWriter stringWriter = new StringWriter();
+            XmlWriter writer = XmlWriter.Create(stringWriter);
+            TypeWithEnumerable actualObject = new TypeWithEnumerable();
+
+            // act
+            Generic.GenericWriteXml(expectedObject, writer);
+            string serializedObject = stringWriter.ToString();
+            Generic.GenericReadXml(actualObject, XmlReader.Create(new StringReader(serializedObject)));
+
+            // assert
+            Assert.AreEqual(2,Core.Utilities.Count(actualObject.Enumerable));
+            Assert.IsTrue(Generic.GenericEquals(expectedObject, actualObject), Core.Utilities.GetAssertionFailMessage(expectedObject, actualObject));
+            Assert.AreEqual(Generic.GenericGetHashCode(expectedObject), Generic.GenericGetHashCode(actualObject));
+        }
+        [TestMethod]
+        public void IXmlSerializableDefaultImplementationTypeWithEnumerableGeneric()
+        {
+            // arrange
+            TypeWithEnumerableGeneric<string> expectedObject = new TypeWithEnumerableGeneric<string>() { Enumerable = new HashSet<string> { "a", "b" } };
+            StringWriter stringWriter = new StringWriter();
+            XmlWriter writer = XmlWriter.Create(stringWriter);
+            TypeWithEnumerableGeneric<string> actualObject = new TypeWithEnumerableGeneric<string>();
+
+            // act
+            Generic.GenericWriteXml(expectedObject, writer);
+            string serializedObject = stringWriter.ToString();
+            Generic.GenericReadXml(actualObject, XmlReader.Create(new StringReader(serializedObject)));
+
+            // assert
+            Assert.AreEqual(2, actualObject.Enumerable.Count());
+            Assert.IsTrue(Generic.GenericEquals(expectedObject, actualObject), Core.Utilities.GetAssertionFailMessage(expectedObject, actualObject));
+            Assert.AreEqual(Generic.GenericGetHashCode(expectedObject), Generic.GenericGetHashCode(actualObject));
+        }
+        [TestMethod]
+        public void IXmlSerializableDefaultImplementationTypeWithSetGeneric()
+        {
+            // arrange
+            TypeWithSetGeneric<string> expectedObject = new TypeWithSetGeneric<string>() { Set = new HashSet<string> { "a", "b" } };
+            StringWriter stringWriter = new StringWriter();
+            XmlWriter writer = XmlWriter.Create(stringWriter);
+            TypeWithSetGeneric<string> actualObject = new TypeWithSetGeneric<string>();
+
+            // act
+            Generic.GenericWriteXml(expectedObject, writer);
+            string serializedObject = stringWriter.ToString();
+            Generic.GenericReadXml(actualObject, XmlReader.Create(new StringReader(serializedObject)));
+
+            // assert
+            Assert.AreEqual(2, actualObject.Set.Count);
+            Assert.IsTrue(Generic.GenericEquals(expectedObject, actualObject), Core.Utilities.GetAssertionFailMessage(expectedObject, actualObject));
+            Assert.AreEqual(Generic.GenericGetHashCode(expectedObject), Generic.GenericGetHashCode(actualObject));
         }
     }
 }

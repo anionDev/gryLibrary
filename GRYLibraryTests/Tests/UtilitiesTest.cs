@@ -151,9 +151,11 @@ namespace GRYLibrary.Tests
         [TestMethod]
         public void SerializeableDictionaryTest()
         {
-            SerializableDictionary<int, string> dictionary = new SerializableDictionary<int, string>();
-            dictionary.Add(1, "test1");
-            dictionary.Add(2, "test2");
+            SerializableDictionary<int, string> dictionary = new SerializableDictionary<int, string>
+            {
+                { 1, "test1" },
+                { 2, "test2" }
+            };
             SimpleGenericXMLSerializer<SerializableDictionary<int, string>> serializer = new SimpleGenericXMLSerializer<SerializableDictionary<int, string>>();
             string serializedDictionary = serializer.Serialize(dictionary);
             SerializableDictionary<int, string> reloadedDictionary = serializer.Deserialize(serializedDictionary);
@@ -170,6 +172,16 @@ namespace GRYLibrary.Tests
             Assert.IsFalse(Utilities.ObjectIsList(new LinkedList<int>()));
             Assert.IsFalse(Utilities.ObjectIsList(new object()));
             Assert.IsFalse(Utilities.ObjectIsList("somestring"));
+        }
+        [TestMethod]
+        public void IsDictionaryEntryTest()
+        {
+            Assert.IsFalse(Utilities.ObjectIsDictionaryEntry(new List<int>()));
+            Assert.IsFalse(Utilities.ObjectIsDictionaryEntry(5));
+            Assert.IsFalse(Utilities.ObjectIsDictionaryEntry(new System.Collections.Generic.KeyValuePair<object, object>()));
+            Assert.IsFalse(Utilities.ObjectIsDictionaryEntry(new System.Collections.Generic.KeyValuePair<object, object>(new object(), new object())));
+            Assert.IsTrue(Utilities.ObjectIsDictionaryEntry(new DictionaryEntry()));
+            Assert.IsTrue(Utilities.ObjectIsDictionaryEntry(new DictionaryEntry(new object(), new object())));
         }
         [TestMethod]
         public void IsDictionaryTest()

@@ -75,8 +75,11 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis
 
         public static void GenericReadXml(object @object, XmlReader reader)
         {
-            reader.ReadStartElement(@object.GetType().Name);
-            GenericXMLSerializer.DefaultInstance.CopyContent(@object, GenericXMLSerializer.DefaultInstance.Deserialize(reader));
+            GenericXMLSerializer.DefaultInstance.CopyContentOfObject(@object, GenericXMLSerializer.DefaultInstance.Deserialize(reader));
+        }
+        public static IEnumerable<(object,Type)> IterateOverObjectTransitively(object @object)
+        {
+            return new PropertyIterator().IterateOverObjectTransitively(@object);
         }
     }
 }

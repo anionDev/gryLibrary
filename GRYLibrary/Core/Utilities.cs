@@ -27,6 +27,8 @@ using GRYLibrary.Core.OperatingSystem.ConcreteOperatingSystems;
 using GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper.CustomComparer;
 using System.Runtime.InteropServices;
 using GRYLibrary.Core.Log;
+using GRYLibrary.Core.AdvancedObjectAnalysis;
+using System.Collections;
 
 namespace GRYLibrary.Core
 {
@@ -161,6 +163,8 @@ namespace GRYLibrary.Core
                 throw new Exception($"File '{file}' can not be executed");
             }
         }
+
+
         public static void OpenFileWithDefaultProgram(string file)
         {
             ExternalProgramExecutor.Create(file, string.Empty).StartConsoleApplicationInCurrentConsoleWindow();
@@ -194,6 +198,8 @@ namespace GRYLibrary.Core
         }
 
 
+
+
         #endregion
         #region Enumerable
 
@@ -205,7 +211,7 @@ namespace GRYLibrary.Core
         }
         public static bool TypeIsEnumerable(this Type type)
         {
-            return IsAssignableFrom(type, typeof(System.Collections.IEnumerable));
+            return TypeIsAssignableFrom(type, typeof(IEnumerable));
         }
         /// <returns>Returns true if and only if the most concrete type of <paramref name="object"/> implements <see cref="ISet{T}"/>.</returns>
         public static bool ObjectIsSet(this object @object)
@@ -214,7 +220,7 @@ namespace GRYLibrary.Core
         }
         public static bool TypeIsSet(this Type type)
         {
-            return IsAssignableFrom(type, typeof(ISet<>));
+            return TypeIsAssignableFrom(type, typeof(ISet<>));
         }
         public static bool ObjectIsList(this object @object)
         {
@@ -226,16 +232,20 @@ namespace GRYLibrary.Core
         }
         public static bool TypeIsListNotGeneric(this Type type)
         {
-            return IsAssignableFrom(type, typeof(System.Collections.IList));
+            return TypeIsAssignableFrom(type, typeof(System.Collections.IList));
         }
         public static bool TypeIsListGeneric(this Type type)
         {
-            return IsAssignableFrom(type, typeof(IList<>));
+            return TypeIsAssignableFrom(type, typeof(IList<>));
         }
         /// <returns>Returns true if and only if the most concrete type of <paramref name="object"/> implements <see cref="IDictionary{TKey, TValue}"/> or <see cref="System.Collections.IDictionary"/>.</returns>
         public static bool ObjectIsDictionary(this object @object)
         {
             return TypeIsDictionary(@object.GetType());
+        }
+        public static void AddItemToEnumerable(object enumerable, object[] addMethodArgument)
+        {
+            enumerable.GetType().GetMethod("Add").Invoke(enumerable, addMethodArgument);
         }
         public static bool TypeIsDictionary(this Type type)
         {
@@ -243,11 +253,11 @@ namespace GRYLibrary.Core
         }
         public static bool TypeIsDictionaryNotGeneric(this Type type)
         {
-            return IsAssignableFrom(type, typeof(System.Collections.IDictionary));
+            return TypeIsAssignableFrom(type, typeof(System.Collections.IDictionary));
         }
         public static bool TypeIsDictionaryGeneric(this Type type)
         {
-            return IsAssignableFrom(type, typeof(IDictionary<,>));
+            return TypeIsAssignableFrom(type, typeof(IDictionary<,>));
         }
         public static bool ObjectIsKeyValuePair(this object @object)
         {
@@ -255,7 +265,15 @@ namespace GRYLibrary.Core
         }
         public static bool TypeIsKeyValuePair(this Type type)
         {
-            return IsAssignableFrom(type, typeof(System.Collections.Generic.KeyValuePair<,>));
+            return TypeIsAssignableFrom(type, typeof(System.Collections.Generic.KeyValuePair<,>));
+        }
+        public static bool ObjectIsDictionaryEntry(this object @object)
+        {
+            return TypeIsDictionaryEntry(@object.GetType());
+        }
+        public static bool TypeIsDictionaryEntry(this Type type)
+        {
+            return TypeIsAssignableFrom(type, typeof(DictionaryEntry));
         }
         public static bool ObjectIsTuple(this object @object)
         {
@@ -263,7 +281,7 @@ namespace GRYLibrary.Core
         }
         public static bool TypeIsTuple(this Type type)
         {
-            return IsAssignableFrom(type, typeof(Tuple<,>));
+            return TypeIsAssignableFrom(type, typeof(Tuple<,>));
         }
 
         #endregion
@@ -290,7 +308,7 @@ namespace GRYLibrary.Core
                 {
                     result.Add(t);
                 }
-                else if (Utilities.IsDefault( obj))
+                else if (Utilities.IsDefault(obj))
                 {
                     result.Add(default);
                 }
@@ -314,6 +332,10 @@ namespace GRYLibrary.Core
                 if (obj is T t)
                 {
                     result.Add(t);
+                }
+                else if (Utilities.IsDefault(obj))
+                {
+                    result.Add(default);
                 }
                 else
                 {
@@ -340,6 +362,10 @@ namespace GRYLibrary.Core
                 if (obj is T t)
                 {
                     result.Add(t);
+                }
+                else if (Utilities.IsDefault(obj))
+                {
+                    result.Add(default);
                 }
                 else
                 {
@@ -383,9 +409,9 @@ namespace GRYLibrary.Core
             TKey tKey;
             TValue tValue;
 
-            if (key is TKey)
+            if (key is TKey key1)
             {
-                tKey = (TKey)key;
+                tKey = key1;
             }
             else if (IsDefault(key))
             {
@@ -395,9 +421,9 @@ namespace GRYLibrary.Core
             {
                 throw new InvalidCastException();
             }
-            if (value is TValue)
+            if (value is TValue value1)
             {
-                tValue = (TValue)value;
+                tValue = value1;
             }
             else if (IsDefault(value))
             {
@@ -408,7 +434,17 @@ namespace GRYLibrary.Core
                 throw new InvalidCastException();
             }
             return new System.Collections.Generic.KeyValuePair<TKey, TValue>(tKey, tValue);
-            
+
+        }
+        public static DictionaryEntry ObjectToDictionaryEntry(object @object)
+        {
+            if (!ObjectIsDictionaryEntry(@object))
+            {
+                throw new InvalidCastException();
+            }
+            object key = ((dynamic)@object).Key;
+            object value = ((dynamic)@object).Value;
+            return new DictionaryEntry(key, value);
         }
         public static Tuple<T1, T2> ObjectToTuple<T1, T2>(this object @object)
         {
@@ -471,9 +507,9 @@ namespace GRYLibrary.Core
 
         public static bool IsAssignableFrom(object @object, Type genericTypeToCompare)
         {
-            return IsAssignableFrom(@object.GetType(), genericTypeToCompare);
+            return TypeIsAssignableFrom(@object.GetType(), genericTypeToCompare);
         }
-        public static bool IsAssignableFrom(Type typeForCheck, Type parentType)
+        public static bool TypeIsAssignableFrom(Type typeForCheck, Type parentType)
         {
             ISet<Type> typesToCheck = GetTypeWithParentTypesAndInterfaces(typeForCheck);
             return typesToCheck.Contains(parentType, TypeComparerIgnoringGenerics);
@@ -2232,9 +2268,21 @@ namespace GRYLibrary.Core
             }
             throw new FileNotFoundException($"Program '{program}' can not be found");
         }
+
+        public static string GetAssertionFailMessage(object expectedObject, object actualObject)
+        {
+            return $"Equal failed. Expected: <{Generic.GenericToString(expectedObject)}> Actual: <{Generic.GenericToString(actualObject)}>";
+        }
         public static void ForEach<T>(this IEnumerable<T> source, Action<T> action)
         {
             foreach (T item in source)
+            {
+                action(item);
+            }
+        }
+        public static void ForEach(this System.Collections.IEnumerable source, Action<object> action)
+        {
+            foreach (object item in source)
             {
                 action(item);
             }

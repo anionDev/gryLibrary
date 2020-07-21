@@ -26,14 +26,7 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper.
         }
         public static bool TypeIsTreatedAsPrimitive(Type type)
         {
-            if (type.IsGenericType)
-            {
-                return false;
-            }
-            else
-            {
-                return type.IsPrimitive || typeof(string).Equals(type) || type.IsValueType;
-            }
+            return type.IsPrimitive || typeof(string).Equals(type);
         }
     }
 }

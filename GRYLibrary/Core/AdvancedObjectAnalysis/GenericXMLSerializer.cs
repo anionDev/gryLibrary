@@ -1,5 +1,9 @@
-﻿using GRYLibrary.Core.AdvancedObjectAnalysis.GenericXMLSerializerHelper;
+﻿using GRYLibrary.Core.AdvancedObjectAnalysis;
+using GRYLibrary.Core.AdvancedObjectAnalysis.GenericXMLSerializerHelper;
+using GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper.CustomComparer;
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -16,7 +20,6 @@ namespace GRYLibrary.Core.AdvancedXMLSerialysis
         {
             this.SerializationConfiguration = new SerializationConfiguration
             {
-                XmlSerializer = new XmlSerializer(typeof(GRYSObject)),
                 PropertySelector = (PropertyInfo propertyInfo) => { return propertyInfo.CanWrite && propertyInfo.CanRead && propertyInfo.GetMethod.IsPublic; },
                 FieldSelector = (FieldInfo fieldInfo) => { return false; },
                 Encoding = new UTF8Encoding(false)
@@ -45,8 +48,9 @@ namespace GRYLibrary.Core.AdvancedXMLSerialysis
         public void Serialize(T @object, XmlWriter writer)
         {
             GRYSObject genericallySerializedObject = GRYSObject.Create(@object, this.SerializationConfiguration);
-            this.SerializationConfiguration.XmlSerializer.Serialize(writer, genericallySerializedObject);
+            new XmlSerializer(typeof(GRYSObject)).Serialize(writer, genericallySerializedObject);
         }
+
         public U Deserialize<U>(string serializedObject)
         {
             return (U)(object)this.Deserialize(serializedObject);
@@ -59,25 +63,60 @@ namespace GRYLibrary.Core.AdvancedXMLSerialysis
         }
         public T Deserialize(XmlReader reader)
         {
-            GRYSObject grySerializedObject = (GRYSObject)this.SerializationConfiguration.XmlSerializer.Deserialize(reader);
+            GRYSObject grySerializedObject = (GRYSObject)new XmlSerializer(typeof(GRYSObject)).Deserialize(reader);
             return (T)grySerializedObject.Get();
         }
         /// <summary>
         /// Sets the values of all properties of <paramref name="thisObject"/> to the value of the equal property of <paramref name="deserializedObject"/>.
         /// </summary>
-        /// <remarks>This function does not create a deep copy of the property-values. It reassignes only the property-target-objects of <paramref name="thisObject"/>.</remarks>
-        internal void CopyContent(object thisObject, object deserializedObject)
+        /// <remarks>
+        /// This function does not create a deep copy of the property-values. It reassignes only the property-target-objects of <paramref name="thisObject"/>.
+        /// If <paramref name="thisObject"/> is an <see cref="System.Collections.IEnumerable"/> then only the references of the items of the enumeration will be copied, no property-values.
+        /// </remarks>
+        internal void CopyContentOfObject(object thisObject, object deserializedObject)
         {
-            Type type = thisObject.GetType();
-            foreach (FieldInfo field in type.GetFields().Where((field) => this.SerializationConfiguration.FieldSelector(field)))
+            bool thisIsNull = thisObject == null;
+            bool deserializedObjectIsNull = deserializedObject == null;
+            if (thisIsNull && deserializedObjectIsNull)
             {
-                field.SetValue(thisObject, field.GetValue(deserializedObject));
+                return;
             }
-            foreach (PropertyInfo property in type.GetProperties().Where((property) => this.SerializationConfiguration.PropertySelector(property)))
+            if (thisIsNull && !deserializedObjectIsNull)
             {
-                property.SetValue(thisObject, property.GetValue(deserializedObject));
+                throw new NullReferenceException();
+            }
+            if (!thisIsNull && deserializedObjectIsNull)
+            {
+                throw new NullReferenceException();
+            }
+            if (!thisIsNull && !deserializedObjectIsNull)
+            {
+                Type type = thisObject.GetType();
+                if (Utilities.TypeIsEnumerable(type))
+                {
+                    foreach (var item in deserializedObject as IEnumerable)
+                    {
+                        Utilities.AddItemToEnumerable(thisObject, new object[] { item });
+                    }
+                }
+                else if (PrimitiveComparer.TypeIsTreatedAsPrimitive(type))
+                {
+                    //TODO if required
+                }
+                else
+                {
+                    foreach (FieldInfo field in type.GetFields().Where((field) => this.SerializationConfiguration.FieldSelector(field)))
+                    {
+                        field.SetValue(thisObject, field.GetValue(deserializedObject));
+                    }
+                    foreach (PropertyInfo property in type.GetProperties().Where((property) => this.SerializationConfiguration.PropertySelector(property)))
+                    {
+                        property.SetValue(thisObject, property.GetValue(deserializedObject));
+                    }
+                }
             }
         }
+
     }
     public static class GenericXMLSerializer
     {

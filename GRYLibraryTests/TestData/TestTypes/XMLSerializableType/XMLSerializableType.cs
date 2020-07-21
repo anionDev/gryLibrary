@@ -2,7 +2,6 @@
 using GRYLibrary.TestData.TestTypes.CyclicDataStructure;
 using GRYLibrary.TestData.TestTypes.GenericType;
 using GRYLibrary.TestData.TestTypes.SimpleDataStructure;
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Xml;
@@ -48,6 +47,7 @@ namespace GRYLibrary.TestData.TestTypes.XMLSerializableType
             return result;
         }
 
+        #region Overhead
         public override bool Equals(object @object)
         {
             return Generic.GenericEquals(this, @object);
@@ -72,6 +72,6 @@ namespace GRYLibrary.TestData.TestTypes.XMLSerializableType
         {
             Generic.GenericWriteXml(this, writer);
         }
-
+        #endregion
     }
 }

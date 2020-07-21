@@ -39,10 +39,12 @@ namespace GRYLibrary.Tests.GraphTests
             DirectedEdge e09 = new DirectedEdge(b, g, nameof(e09)); graph.AddEdge(e09);
             DirectedEdge e10 = new DirectedEdge(f, c, nameof(e10)); graph.AddEdge(e10);
 
-            ISet<Cycle> expectedCycles = new HashSet<Cycle>();
-            expectedCycles.Add(new Cycle(new Edge[] { e01, e02, e03, e04, e05, e06, e07, e08 }.ToList()));
-            expectedCycles.Add(new Cycle(new Edge[] { e01, e09, e07, e08 }.ToList()));
-            expectedCycles.Add(new Cycle(new Edge[] { e03, e04, e05, e10 }.ToList()));
+            ISet<Cycle> expectedCycles = new HashSet<Cycle>
+            {
+                new Cycle(new Edge[] { e01, e02, e03, e04, e05, e06, e07, e08 }.ToList()),
+                new Cycle(new Edge[] { e01, e09, e07, e08 }.ToList()),
+                new Cycle(new Edge[] { e03, e04, e05, e10 }.ToList())
+            };
 
             ISet<Cycle> foundCycles = graph.GetAllCycles();
 
@@ -69,12 +71,14 @@ namespace GRYLibrary.Tests.GraphTests
 
             Assert.AreNotEqual(new Cycle(new Edge[] { e01, e02, e03, e04, e05 }.ToList()), new Cycle(new Edge[] { e06, e03, e08, e07, e05 }.ToList()));
 
-            ISet<Cycle> expectedCycles = new HashSet<Cycle>();
-            expectedCycles.Add(new Cycle(new Edge[] { e01, e02, e03, e04, e05 }.ToList()));
-            expectedCycles.Add(new Cycle(new Edge[] { e06, e03, e08, e07, e05 }.ToList()));
-            expectedCycles.Add(new Cycle(new Edge[] { e02, e03, e08 }.ToList()));
-            expectedCycles.Add(new Cycle(new Edge[] { e01, e07, e05 }.ToList()));
-            expectedCycles.Add(new Cycle(new Edge[] { e06, e03, e04, e05 }.ToList()));
+            ISet<Cycle> expectedCycles = new HashSet<Cycle>
+            {
+                new Cycle(new Edge[] { e01, e02, e03, e04, e05 }.ToList()),
+                new Cycle(new Edge[] { e06, e03, e08, e07, e05 }.ToList()),
+                new Cycle(new Edge[] { e02, e03, e08 }.ToList()),
+                new Cycle(new Edge[] { e01, e07, e05 }.ToList()),
+                new Cycle(new Edge[] { e06, e03, e04, e05 }.ToList())
+            };
 
             ISet<Cycle> foundCycles = graph.GetAllCycles();
 
@@ -113,12 +117,14 @@ namespace GRYLibrary.Tests.GraphTests
             DirectedEdge e_eg = new DirectedEdge(e, g, nameof(e_eg)); graph.AddEdge(e_eg);
             DirectedEdge e_fg = new DirectedEdge(f, g, nameof(e_fg)); graph.AddEdge(e_fg);
 
-            ISet<Cycle> expectedCycles = new HashSet<Cycle>();
-            expectedCycles.Add(new Cycle(new Edge[] { e_ab, e_bc, e_cd, e_de, e_eg, e_ga }.ToList()));
-            expectedCycles.Add(new Cycle(new Edge[] { e_ab, e_bc, e_cd, e_df, e_fg, e_ga }.ToList()));
-            expectedCycles.Add(new Cycle(new Edge[] { e_hi, e_ij, e_jk, e_kd, e_dh }.ToList()));
-            expectedCycles.Add(new Cycle(new Edge[] { e_hi, e_ij, e_jc, e_cd, e_dh }.ToList()));
-            expectedCycles.Add(new Cycle(new Edge[] { e_hi, e_ij, e_jb, e_bc, e_cd, e_dh }.ToList()));
+            ISet<Cycle> expectedCycles = new HashSet<Cycle>
+            {
+                new Cycle(new Edge[] { e_ab, e_bc, e_cd, e_de, e_eg, e_ga }.ToList()),
+                new Cycle(new Edge[] { e_ab, e_bc, e_cd, e_df, e_fg, e_ga }.ToList()),
+                new Cycle(new Edge[] { e_hi, e_ij, e_jk, e_kd, e_dh }.ToList()),
+                new Cycle(new Edge[] { e_hi, e_ij, e_jc, e_cd, e_dh }.ToList()),
+                new Cycle(new Edge[] { e_hi, e_ij, e_jb, e_bc, e_cd, e_dh }.ToList())
+            };
             Assert.AreEqual(5, expectedCycles.Count);
 
             ISet<Cycle> foundCycles = graph.GetAllCycles();
@@ -140,12 +146,14 @@ namespace GRYLibrary.Tests.GraphTests
             DirectedEdge e_cb = new DirectedEdge(c, b, nameof(e_cb)); graph.AddEdge(e_cb);
             DirectedEdge e_ac = new DirectedEdge(a, c, nameof(e_ac)); graph.AddEdge(e_ac);
 
-            ISet<Cycle> expectedCycles = new HashSet<Cycle>();
-            expectedCycles.Add(new Cycle(new Edge[] { e_ab, e_bc, e_ca }.ToList()));
-            expectedCycles.Add(new Cycle(new Edge[] { e_ba, e_ac, e_cb }.ToList()));
-            expectedCycles.Add(new Cycle(new Edge[] { e_ab, e_ba }.ToList()));
-            expectedCycles.Add(new Cycle(new Edge[] { e_bc, e_cb }.ToList()));
-            expectedCycles.Add(new Cycle(new Edge[] { e_ca, e_ac }.ToList()));
+            ISet<Cycle> expectedCycles = new HashSet<Cycle>
+            {
+                new Cycle(new Edge[] { e_ab, e_bc, e_ca }.ToList()),
+                new Cycle(new Edge[] { e_ba, e_ac, e_cb }.ToList()),
+                new Cycle(new Edge[] { e_ab, e_ba }.ToList()),
+                new Cycle(new Edge[] { e_bc, e_cb }.ToList()),
+                new Cycle(new Edge[] { e_ca, e_ac }.ToList())
+            };
             Assert.AreEqual(5, expectedCycles.Count);
             ISet<Cycle> foundCycles = graph.GetAllCycles();
 
