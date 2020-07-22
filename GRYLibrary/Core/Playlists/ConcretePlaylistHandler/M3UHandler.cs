@@ -95,7 +95,6 @@ namespace GRYLibrary.Core.Playlists.ConcretePlaylistHandler
 
         private bool TryToApplyConfigurationFile(string playlistFile, ref List<string> result)
         {
-            //TODO refactor this
             try
             {
                 string m3uConfigurationFile = new FileInfo(playlistFile).Directory.FullName + ConfigurationFileInCurrentFolder;

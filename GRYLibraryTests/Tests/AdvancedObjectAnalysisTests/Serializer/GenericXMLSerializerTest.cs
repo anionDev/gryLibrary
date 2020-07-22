@@ -1,5 +1,4 @@
 ﻿using GRYLibrary.Core.AdvancedObjectAnalysis;
-using GRYLibrary.Core.AdvancedObjectAnalysis.GenericXMLSerializerHelper;
 using GRYLibrary.Core.AdvancedXMLSerialysis;
 using GRYLibrary.TestData.TestTypes.ComplexDataStructure;
 using GRYLibrary.TestData.TestTypes.CyclicDataStructure;
@@ -11,7 +10,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Xml;
-using System.Xml.Serialization;
 
 namespace GRYLibrary.Tests.AdvancedObjectAnalysisTests.Serializer
 {
@@ -202,25 +200,6 @@ namespace GRYLibrary.Tests.AdvancedObjectAnalysisTests.Serializer
 
             // assert
             Assert.AreEqual(2, actualObject.Set.Count);
-            Assert.IsTrue(Generic.GenericEquals(expectedObject, actualObject), Core.Utilities.GetAssertionFailMessage(expectedObject, actualObject));
-            Assert.AreEqual(Generic.GenericGetHashCode(expectedObject), Generic.GenericGetHashCode(actualObject));
-        }
-        [TestMethod]
-        public void IXmlSerializableDefaultImplementationTypeWithDictionary()
-        {
-            // arrange
-            TypeWithDictionary expectedObject = new TypeWithDictionary() { Dictionary = new Hashtable { { "a", "b" }, { "c", "d" } } };
-            StringWriter stringWriter = new StringWriter();
-            XmlWriter writer = XmlWriter.Create(stringWriter);
-            TypeWithDictionary actualObject = new TypeWithDictionary();
-
-            // act
-            Generic.GenericWriteXml(expectedObject, writer);
-            string serializedObject = stringWriter.ToString();
-            Generic.GenericReadXml(actualObject, XmlReader.Create(new StringReader(serializedObject)));
-
-            // assert
-            Assert.AreEqual(2, actualObject.Dictionary.Count);
             Assert.IsTrue(Generic.GenericEquals(expectedObject, actualObject), Core.Utilities.GetAssertionFailMessage(expectedObject, actualObject));
             Assert.AreEqual(Generic.GenericGetHashCode(expectedObject), Generic.GenericGetHashCode(actualObject));
         }

@@ -74,8 +74,7 @@ namespace GRYLibrary.Core.Log
 
         public override bool Equals(object obj)
         {
-            GRYLog typedObject = obj as GRYLog;
-            if (typedObject == null)
+            if (!(obj is GRYLog typedObject))
             {
                 return false;
             }

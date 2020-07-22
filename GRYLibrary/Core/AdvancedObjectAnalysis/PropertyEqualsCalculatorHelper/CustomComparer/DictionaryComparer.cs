@@ -10,7 +10,7 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper.
             this.Configuration = cacheAndConfiguration;
         }
 
-        internal override bool DefaultEquals(object item1, object item2)
+        public override bool DefaultEquals(object item1, object item2)
         {
             bool result = this.EqualsTyped(Utilities.ObjectToDictionary<object, object>(item1), Utilities.ObjectToDictionary<object, object>(item2));
             return result;
@@ -51,7 +51,7 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper.
             }
             return false;
         }
-        internal override int DefaultGetHashCode(object obj)
+        public override int DefaultGetHashCode(object obj)
         {
             return this.Configuration.GetHashCode(obj);
         }

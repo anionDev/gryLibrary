@@ -4,8 +4,8 @@ using GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper.Cust
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
-using System.Runtime.Serialization;
 using static GRYLibrary.Core.AdvancedObjectAnalysis.GenericXMLSerializerHelper.FlatObject;
 
 namespace GRYLibrary.Core.AdvancedObjectAnalysis.GenericXMLSerializerHelper
@@ -36,13 +36,10 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.GenericXMLSerializerHelper
                 return default;
             }
             Type typeOfObject = @object.GetType();
-            //if (typeOfObject.Name.StartsWith("KeyValuePair"))
-            //{
-            //    throw new NotImplementedException();// TODO
-            //}
-            if (!typeOfObject.IsPublic)
+            if (Utilities.ObjectIsKeyValuePair(@object))
             {
-                // throw new SerializationException($"Object of type '{typeOfObject}' can not be serialized because the type is not pubilc");
+                System.Collections.Generic.KeyValuePair<object, object> kvp = Utilities.ObjectToKeyValuePair<object,object>(@object);
+                @object = new XMLSerializer.KeyValuePair<object, object>(kvp.Key, kvp.Value);
             }
             if (dictionary.ContainsKey(@object))
             {
@@ -74,8 +71,8 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.GenericXMLSerializerHelper
 
         private class DeserializeVisitor : IFlatObjectVisitor
         {
-            private readonly Dictionary<Guid, object> _DeserializedObjects;
-            public DeserializeVisitor(Dictionary<Guid, object> deserializedObjects)
+            private readonly IDictionary<Guid, object> _DeserializedObjects;
+            public DeserializeVisitor(IDictionary<Guid, object> deserializedObjects)
             {
                 this._DeserializedObjects = deserializedObjects;
             }
@@ -130,23 +127,16 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.GenericXMLSerializerHelper
                 foreach (Guid itemId in simplifiedEnumerable.Items)
                 {
                     object itemForEnumerable;
-                    //  try
-                    // {
                     itemForEnumerable = GetDeserialisedObjectOrDefault(itemId);
-                    //}
-                    //catch
-                    //{
-                    //    throw;
-                    //}
                     object[] arguments;
                     if (isDictionaryGeneric)
                     {
-                        KeyValuePair<object, object> keyValuePair = Utilities.ObjectToKeyValuePair<object, object>(itemForEnumerable);
-                        arguments = new object[] { keyValuePair.Key, keyValuePair.Value };
+                        XMLSerializer.KeyValuePair<object, object> gkvp =(XMLSerializer.KeyValuePair<object, object>) itemForEnumerable;
+                        arguments = new object[] { gkvp.Key, gkvp.Value };
                     }
                     else if (isDictionaryNotGeneric)
                     {
-                       DictionaryEntry keyValuePair = Utilities.ObjectToDictionaryEntry(itemForEnumerable);
+                        DictionaryEntry keyValuePair = Utilities.ObjectToDictionaryEntry(itemForEnumerable);
                         arguments = new object[] { keyValuePair.Key, keyValuePair.Value };
                     }
                     else
@@ -287,11 +277,22 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.GenericXMLSerializerHelper
         internal object Get()
         {
             Dictionary<Guid, object> deserializedObjects = new Dictionary<Guid, object>();
-            foreach (FlatObject simplified in this.Objects)
+            IList<FlatObject> sorted = this.Objects.ToList();
+            sorted = sorted.OrderBy((item)=> {
+                if (item.TypeName.StartsWith("GRYLibrary.Core.XMLSerializer.KeyValuePair"))
+                {
+                    return 0;
+                }
+                else
+                {
+                    return 1;
+                }
+            }).ToList();
+            foreach (FlatObject simplified in sorted)
             {
                 deserializedObjects.Add(simplified.ObjectId, simplified.Accept(new CreateObjectVisitor()));
             }
-            foreach (FlatObject simplified in this.Objects)
+            foreach (FlatObject simplified in sorted)
             {
                 simplified.Accept(new DeserializeVisitor(deserializedObjects));
             }

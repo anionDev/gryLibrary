@@ -16,7 +16,7 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper.
             return typeOfObject1.Equals(typeOfObject2);
         }
 
-        internal override bool DefaultEquals(object object1, object object2)
+        public override bool DefaultEquals(object object1, object object2)
         {
             Type type = object1.GetType();
             List<WriteableTuple<object, object>> attributeValues = new List<WriteableTuple<object, object>>();
@@ -35,7 +35,7 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper.
             return true;
         }
 
-        internal override int DefaultGetHashCode(object @object)
+        public override int DefaultGetHashCode(object @object)
         {
             return this.Configuration.GetHashCode(@object);
         }

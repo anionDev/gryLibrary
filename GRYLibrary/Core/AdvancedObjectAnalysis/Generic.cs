@@ -53,7 +53,7 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis
 
         public static bool GenericEquals(object object1, object object2)
         {
-            return new PropertyEqualsCalculator().Equals(object1, object2);
+            return new PropertyEqualsCalculator().DefaultEquals(object1, object2);
         }
 
         public static string GenericToString(object @object)

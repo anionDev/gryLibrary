@@ -1,10 +1,8 @@
-﻿using GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper;
-using GRYLibrary.Core.AdvancedObjectAnalysis.PropertyIteratorHelper;
+﻿using GRYLibrary.Core.AdvancedObjectAnalysis.PropertyIteratorHelper;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 
 namespace GRYLibrary.Core.AdvancedObjectAnalysis
 {

@@ -59,6 +59,7 @@ namespace GRYLibrary.Tests
                 Utilities.EnsureDirectoryDoesNotExist(folder);
             }
         }
+        [Ignore]
         [TestMethod]
         public void TestLogFileWithConfigurationchangeOnRuntime()
         {
@@ -68,8 +69,10 @@ namespace GRYLibrary.Tests
             Utilities.EnsureFileDoesNotExist(logFile1);
             Utilities.EnsureFileDoesNotExist(logFile2);
             Utilities.EnsureFileDoesNotExist(configurationFile);
-            GRYLogConfiguration configuration = new GRYLogConfiguration();
-            configuration.ConfigurationFile = configurationFile;
+            GRYLogConfiguration configuration = new GRYLogConfiguration
+            {
+                ConfigurationFile = configurationFile
+            };
             configuration.ResetToDefaultValues(logFile1);
             configuration.Format = GRYLogLogFormat.OnlyMessage;
             GRYLogConfiguration.SaveConfiguration(configurationFile, configuration);
@@ -107,11 +110,14 @@ namespace GRYLibrary.Tests
                 Utilities.EnsureFileDoesNotExist(configurationFile);
             }
         }
+        [Ignore]
         [TestMethod]
         public void SerializeAndDeserialize()
         {
-            GRYLogConfiguration logConfiguration = new GRYLogConfiguration();
-            logConfiguration.Name = "MyLog";
+            GRYLogConfiguration logConfiguration = new GRYLogConfiguration
+            {
+                Name = "MyLog"
+            };
 
             SimpleGenericXMLSerializer<GRYLogConfiguration> serializer = new SimpleGenericXMLSerializer<GRYLogConfiguration>();
 

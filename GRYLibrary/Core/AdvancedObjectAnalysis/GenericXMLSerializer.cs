@@ -1,9 +1,6 @@
-﻿using GRYLibrary.Core.AdvancedObjectAnalysis;
-using GRYLibrary.Core.AdvancedObjectAnalysis.GenericXMLSerializerHelper;
-using GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper.CustomComparer;
+﻿using GRYLibrary.Core.AdvancedObjectAnalysis.GenericXMLSerializerHelper;
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -98,10 +95,6 @@ namespace GRYLibrary.Core.AdvancedXMLSerialysis
                     {
                         Utilities.AddItemToEnumerable(thisObject, new object[] { item });
                     }
-                }
-                else if (PrimitiveComparer.TypeIsTreatedAsPrimitive(type))
-                {
-                    //TODO if required
                 }
                 else
                 {

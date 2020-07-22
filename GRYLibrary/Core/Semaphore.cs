@@ -27,8 +27,7 @@ namespace GRYLibrary.Core
         }
         public override bool Equals(object @object)
         {
-            Semaphore typedObject = @object as Semaphore;
-            if (typedObject == null)
+            if (!(@object is Semaphore typedObject))
             {
                 return false;
             }
