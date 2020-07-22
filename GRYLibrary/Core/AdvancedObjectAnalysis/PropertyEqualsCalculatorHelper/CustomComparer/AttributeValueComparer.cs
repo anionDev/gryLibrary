@@ -28,9 +28,12 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper.
             {
                 attributeValues.Add(new WriteableTuple<object, object>(property.GetValue(object1), property.GetValue(object2)));
             }
-            foreach (WriteableTuple<object, object> entry in attributeValues.Where((entry) => this._PropertyEqualsCalculator.Equals(entry.Item1, entry.Item2)))
+            foreach (WriteableTuple<object, object> entry in attributeValues)
             {
-                this.Configuration.AddEqualObjectsToEquivalenceClasses(object1, object2);
+                if (!this._PropertyEqualsCalculator.Equals(entry.Item1, entry.Item2))
+                {
+                    return false;
+                }
             }
             return true;
         }

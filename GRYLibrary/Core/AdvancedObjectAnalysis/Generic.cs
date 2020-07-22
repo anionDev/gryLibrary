@@ -1,9 +1,11 @@
 ﻿using GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper;
 using GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper.CustomComparer;
 using GRYLibrary.Core.AdvancedXMLSerialysis;
+using GRYLibrary.Core.Log;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Xml;
 using System.Xml.Schema;
 
@@ -77,9 +79,26 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis
         {
             GenericXMLSerializer.DefaultInstance.CopyContentOfObject(@object, GenericXMLSerializer.DefaultInstance.Deserialize(reader));
         }
-        public static IEnumerable<(object,Type)> IterateOverObjectTransitively(object @object)
+        public static IEnumerable<(object, Type)> IterateOverObjectTransitively(object @object)
         {
             return new PropertyIterator().IterateOverObjectTransitively(@object);
+        }
+
+        public static string GenericSerialize(object @object)
+        {
+            using StringWriter stringWriter = new StringWriter();
+            using (XmlWriter xmlWriter = XmlWriter.Create(stringWriter))
+            {
+                GenericWriteXml(@object, xmlWriter);
+            }
+            return stringWriter.ToString();
+        }
+            public static T GenericDeserialize<T>(string serializedObject)
+            {
+                using XmlReader xmlReader = XmlReader.Create(new StringReader(serializedObject));
+            T result = (T)Activator.CreateInstance(typeof(T));
+            GenericReadXml(serializedObject, xmlReader);
+            return result;
         }
     }
 }

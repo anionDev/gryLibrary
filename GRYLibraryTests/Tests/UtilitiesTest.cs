@@ -347,5 +347,27 @@ namespace GRYLibrary.Tests
             IEnumerable listAsEnumerable = list;
             Assert.AreEqual(list.Count, Utilities.Count(listAsEnumerable));
         }
+        [TestMethod]
+        public void ReferenceEqualsTest()
+        {
+            Guid guid1 = Guid.NewGuid();
+            Assert.IsTrue(Utilities.ImprovedReferenceEquals(guid1, guid1));
+
+            Guid guid2 = Guid.NewGuid();
+            Assert.IsFalse(Utilities.ImprovedReferenceEquals(guid1, guid2));
+
+            object @object = new object();
+            Assert.IsTrue(Utilities.ImprovedReferenceEquals(@object, @object));
+            Assert.IsFalse(Utilities.ImprovedReferenceEquals(@object, new object()));
+            Assert.IsFalse(Utilities.ImprovedReferenceEquals(@object, "string"));
+
+            Assert.IsTrue(Utilities.ImprovedReferenceEquals(5, 5));
+            Assert.IsTrue(Utilities.ImprovedReferenceEquals("string", "string"));
+            Assert.IsFalse(Utilities.ImprovedReferenceEquals(5, 6));
+            Assert.IsFalse(Utilities.ImprovedReferenceEquals(5, null));
+            Assert.IsFalse(Utilities.ImprovedReferenceEquals(null, "string"));
+            Assert.IsFalse(Utilities.ImprovedReferenceEquals(0, new object()));
+            Assert.IsFalse(Utilities.ImprovedReferenceEquals(0, null));
+        }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using GRYLibrary.Core;
+using GRYLibrary.Core.AdvancedObjectAnalysis;
 using GRYLibrary.Core.Log;
 using GRYLibrary.Core.Log.ConcreteLogTargets;
 using GRYLibrary.Core.XMLSerializer;
@@ -25,8 +26,8 @@ namespace GRYLibrary.Tests
                 string file = logFile;
                 Assert.IsFalse(File.Exists(file));
                 string fileWithRelativePath = logFile;
-                logObject.Configuration.LogFile = fileWithRelativePath;
-                Assert.AreEqual(fileWithRelativePath, logObject.Configuration.LogFile);
+                logObject.Configuration.SetLogFile(fileWithRelativePath);
+                Assert.AreEqual(fileWithRelativePath, logObject.Configuration.GetLogFile());
                 Assert.IsFalse(File.Exists(fileWithRelativePath));
                 string testContent = "test";
                 logObject.Log(testContent);
@@ -94,7 +95,7 @@ namespace GRYLibrary.Tests
                 Assert.AreEqual("test1" + Environment.NewLine + "test3", File.ReadAllText(logFile1, encoding));
 
                 reloadedConfiguration = GRYLogConfiguration.LoadConfiguration(configurationFile);
-                reloadedConfiguration.LogFile = logFile2;
+                reloadedConfiguration.SetLogFile ( logFile2);
                 GRYLogConfiguration.SaveConfiguration(configurationFile, reloadedConfiguration);
 
                 System.Threading.Thread.Sleep(1000);//wait until config is reloaded
@@ -110,25 +111,46 @@ namespace GRYLibrary.Tests
                 Utilities.EnsureFileDoesNotExist(configurationFile);
             }
         }
-        [Ignore]
         [TestMethod]
-        public void SerializeAndDeserialize()
+        public void SerializeAndDeserialize1()
         {
+            // arange
             GRYLogConfiguration logConfiguration = new GRYLogConfiguration
             {
                 Name = "MyLog"
             };
 
+            // act
             SimpleGenericXMLSerializer<GRYLogConfiguration> serializer = new SimpleGenericXMLSerializer<GRYLogConfiguration>();
-
             string serializedLogConfiguration = serializer.Serialize(logConfiguration);
-            Assert.AreEqual(File.ReadAllText(@"TestData\TestXMLSerialization\GRYLogConfiguration1.txt", new UTF8Encoding(false)), serializedLogConfiguration);
 
-            logConfiguration.ResetToDefaultValues("logfile.txt");
-            serializedLogConfiguration = serializer.Serialize(logConfiguration);
-         
-            GRYLogConfiguration logConfigurationReloaded = serializer.Deserialize(serializedLogConfiguration);
+            SimpleGenericXMLSerializer<GRYLogConfiguration> deserializer = new SimpleGenericXMLSerializer<GRYLogConfiguration>();
+            GRYLogConfiguration logConfigurationReloaded = deserializer.Deserialize(serializedLogConfiguration);
+
+            // assert
             Assert.AreEqual(logConfiguration, logConfigurationReloaded);
+            Assert.AreEqual(logConfiguration.GetHashCode(), logConfigurationReloaded.GetHashCode());
+            Assert.IsTrue(Generic.GenericEquals(logConfiguration, logConfigurationReloaded));
+            Assert.AreEqual(Generic.GenericGetHashCode(logConfiguration), Generic.GenericGetHashCode(logConfigurationReloaded));
+        }
+        [TestMethod]
+        public void SerializeAndDeserialize2()
+        {
+            // arange
+            GRYLogConfiguration logConfiguration = new GRYLogConfiguration
+            {
+                Name = "MyLog"
+            };
+
+            // act
+            string serializedLogConfiguration = Generic.GenericSerialize(logConfiguration);
+            GRYLogConfiguration logConfigurationReloaded = Generic.GenericDeserialize<GRYLogConfiguration>(serializedLogConfiguration);
+
+            // assert
+            Assert.AreEqual(logConfiguration, logConfigurationReloaded);
+            Assert.AreEqual(logConfiguration.GetHashCode(), logConfigurationReloaded.GetHashCode());
+            Assert.IsTrue(Generic.GenericEquals(logConfiguration, logConfigurationReloaded));
+            Assert.AreEqual(Generic.GenericGetHashCode(logConfiguration), Generic.GenericGetHashCode(logConfigurationReloaded));
         }
     }
 }

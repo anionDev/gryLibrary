@@ -45,7 +45,7 @@ namespace GRYLibrary.Core.Log
             {
                 this._ConsoleDefaultColor = System.Console.ForegroundColor;
                 this.Configuration = configuration;
-                this.Configuration.GetLogTarget<LogFile>().Enabled = !string.IsNullOrWhiteSpace(this.Configuration.LogFile);
+                this.Configuration.GetLogTarget<LogFile>().Enabled = !string.IsNullOrWhiteSpace(this.Configuration.GetLogFile());
                 if (this.Configuration.ReloadConfigurationWhenConfigurationFileWillBeChanged && File.Exists(this.Configuration.ConfigurationFile))
                 {
                     this.StartFileWatcherForConfigurationFile(this.Configuration.ConfigurationFile);

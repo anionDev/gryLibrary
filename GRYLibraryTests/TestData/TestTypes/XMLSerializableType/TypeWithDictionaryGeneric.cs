@@ -6,9 +6,9 @@ using System.Xml.Serialization;
 
 namespace GRYLibrary.TestData.TestTypes.XMLSerializableType
 {
-    public class TypeWithDictionaryGeneric<T,U> : IXmlSerializable
+    public class TypeWithDictionaryGeneric<T, U> : IXmlSerializable
     {
-        public Dictionary<T,U> Dictionary { get; set; }
+        public Dictionary<T, U> Dictionary { get; set; }
 
         #region Overhead
         public override bool Equals(object @object)

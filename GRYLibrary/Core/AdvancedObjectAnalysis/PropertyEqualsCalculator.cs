@@ -16,10 +16,15 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis
         /// <remarks>This function assumes that 2 objects which are not implementing <see cref="System.Collections.IEnumerable"/> are not equal if their types are not equal (except they are enumerables).</remarks>
         public override bool DefaultEquals(object object1, object object2)
         {
+            if (Configuration.WereMarkedAsNotEqual(object1, object2))
+            {
+                return false;
+            }
             bool object1IsDefault = Utilities.IsDefault(object1);
             bool object2IsDefault = Utilities.IsDefault(object2);
             if (object1IsDefault && object2IsDefault)
             {
+                MarkedAsEqual(object1, object2);
                 return true;
             }
             else if (!object1IsDefault && !object2IsDefault)
@@ -27,22 +32,44 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis
                 if (this.Configuration.AreInSameEquivalenceClass(object1, object2))
                 {
                     //objects where already compared and it was determined that they are equal
+                    MarkedAsEqual(object1, object2);
                     return true;
                 }
                 else if (this.CustomComparerShouldBeApplied(this.Configuration, object1.GetType(), object2.GetType(), out AbstractCustomComparer customComparer))
                 {
                     //use custom comparer
-                    return customComparer.Equals(object1, object2);
+                    var result = customComparer.Equals(object1, object2);
+                    if (result)
+                    {
+                        MarkedAsEqual(object1, object2);
+                    }
+                    else
+                    {
+                        MarkedAsNotEqual(object1, object2);
+                    }
+                    return result;
                 }
                 else
                 {
+                    MarkedAsNotEqual(object1, object2);
                     return false;
                 }
             }
             else
             {
+                MarkedAsNotEqual(object1, object2);
                 return false;
             }
+        }
+
+        private void MarkedAsNotEqual(object object1, object object2)
+        {
+            this.Configuration.MarkedAsNotEqual(object1, object2);
+        }
+
+        private void MarkedAsEqual(object object1, object object2)
+        {
+            this.Configuration.AddEqualObjectsToEquivalenceClasses(object1, object2);
         }
 
         private bool CustomComparerShouldBeApplied(PropertyEqualsCalculatorConfiguration configurationAndCache, Type object1Type, Type object2Type, out AbstractCustomComparer customComparer)

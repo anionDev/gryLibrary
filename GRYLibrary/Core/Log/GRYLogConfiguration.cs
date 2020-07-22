@@ -47,21 +47,16 @@ namespace GRYLibrary.Core.Log
         public GRYLogLogFormat Format { get; set; } = GRYLogLogFormat.GRYLogFormat;
         public bool ConvertTimeForLogentriesToUTCFormat { get; set; } = false;
         public bool LogEveryLineOfLogEntryInNewLine { get; set; } = false;
-        [XmlIgnore]
-        public string LogFile
-        {
-            get
-            {
-                return this.GetLogTarget<LogFile>().File;
-            }
-            set
-            {
-                this.GetLogTarget<LogFile>().File = value;
-
-            }
-        }
         public GRYLogConfiguration()
         {
+        }
+        public void SetLogFile(string file)
+        {
+            this.GetLogTarget<LogFile>().File = file;
+        }
+        public string GetLogFile()
+        {
+            return this.GetLogTarget<LogFile>().File;
         }
         public void ResetToDefaultValues()
         {

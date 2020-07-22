@@ -9,6 +9,7 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper
     {
         private static readonly IdGenerator<int> _IdGenerator = IdGenerator.GetDefaultIntIdGenerator();
         internal ISet<EquivalenceClass> EquivalenceClasses { get; } = new HashSet<EquivalenceClass>();
+        private ISet<ReferenceTuple> NotEqualPairs { get; } = new HashSet<ReferenceTuple>();
         public Func<PropertyInfo, bool> PropertySelector { get; set; } = (PropertyInfo propertyInfo) =>
         {
             try
@@ -54,6 +55,15 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper
                 }
             }
             throw new KeyNotFoundException($"Object '{@object}' was not assigned to an {nameof(EquivalenceClass)} yet.");
+        }
+
+        internal void MarkedAsNotEqual(object object1, object object2)
+        {
+            NotEqualPairs.Add(new ReferenceTuple(object1, object2));
+        }
+        internal bool WereMarkedAsNotEqual(object object1, object object2)
+        {
+            return NotEqualPairs.Contains(new ReferenceTuple(object1, object2));
         }
 
         private bool BelongsToEquivalenceClass(EquivalenceClass equivalenceClass, object @object)

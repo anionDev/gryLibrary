@@ -6,8 +6,8 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper
     public class ReferenceEqualsComparer : IEqualityComparer<object>
     {
         public new bool Equals(object item1, object item2)
-        {
-            return object.ReferenceEquals(item1, item2);
+        {            
+            return Utilities.ImprovedReferenceEquals(item1,item2);
         }
 
         public int GetHashCode(object obj)

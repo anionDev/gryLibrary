@@ -211,7 +211,7 @@ namespace GRYLibrary.Core
         }
         public static bool TypeIsEnumerable(this Type type)
         {
-            return TypeIsAssignableFrom(type, typeof(IEnumerable));
+            return TypeIsAssignableFrom(type, typeof(IEnumerable)) && !typeof(string).Equals(type);
         }
         /// <returns>Returns true if and only if the most concrete type of <paramref name="object"/> implements <see cref="ISet{T}"/>.</returns>
         public static bool ObjectIsSet(this object @object)
@@ -434,7 +434,6 @@ namespace GRYLibrary.Core
                 throw new InvalidCastException();
             }
             return new System.Collections.Generic.KeyValuePair<TKey, TValue>(tKey, tValue);
-
         }
         public static DictionaryEntry ObjectToDictionaryEntry(object @object)
         {
@@ -516,10 +515,7 @@ namespace GRYLibrary.Core
         }
         public static ISet<Type> GetTypeWithParentTypesAndInterfaces(Type type)
         {
-            HashSet<Type> result = new HashSet<Type>
-            {
-                type
-            };
+            HashSet<Type> result = new HashSet<Type> { type };
             result.UnionWith(type.GetInterfaces());
             if (type.BaseType != null)
             {
@@ -2436,6 +2432,7 @@ namespace GRYLibrary.Core
             AssocQueryString(AssocF.Verify, assocStr, extensionWithDot, null, pszOut, ref pcchOut);
             return pszOut.ToString();
         }
+
         [Flags]
         private enum AssocF
         {
@@ -2466,5 +2463,67 @@ namespace GRYLibrary.Core
             DDETopic
         }
         #endregion
+
+        public static bool ImprovedReferenceEquals(object item1, object item2)
+        {
+            bool itemHasValueType = HasValueType(item1);
+            if (itemHasValueType != HasValueType(item2))
+            {
+                return false;
+            }
+            bool item1IsDefault = IsDefault(item1);
+            bool item2IsDefault = IsDefault(item2);
+            if (item1IsDefault && item2IsDefault)
+            {
+                return true;
+            }
+            if (item1IsDefault && !item2IsDefault)
+            {
+                return false;
+            }
+            if (!item1IsDefault && item2IsDefault)
+            {
+                return false;
+            }
+            if (!item1IsDefault && !item2IsDefault)
+            {
+                if (itemHasValueType)
+                {
+                    Type type = item1.GetType();
+                    if (type.Equals(item2.GetType()))
+                    {
+                        if (TypeIsKeyValuePair(type))
+                        {
+                            return ImprovedReferenceEquals(ObjectToKeyValuePair<object, object>(item1), ObjectToKeyValuePair<object, object>(item2));
+                        }
+                        else
+                        {
+                            return item1.Equals(item2);
+                        }
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    return ReferenceEquals(item1, item2);
+                }
+            }
+            throw new ArgumentException("Can not calculate reference-equals for the given arguments.");
+        }
+
+        public static bool HasValueType(object @object)
+        {
+            if (@object == null)
+            {
+                return false;
+            }
+            else
+            {
+                return @object.GetType().IsValueType;
+            }
+        }
     }
 }
