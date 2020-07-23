@@ -17,10 +17,10 @@ namespace GRYLibrary.TestData.TestTypes.ComplexDataStructure
             OrderItem result = new OrderItem();
             result.Product = product;
             result.Price = MoneyAmount.GetRandom();
-            result.NotesFromCustomer = Utilities.GetRandomNotes();
+            result.NotesFromCustomer = ComplexDataStructureUtilities.GetRandomNotes();
             if (new Random().NextDouble() < 0)
             {
-                result.UsedVoucherCode = Utilities.GetRandomName();
+                result.UsedVoucherCode = ComplexDataStructureUtilities.GetRandomName();
             }
             else
             {

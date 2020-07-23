@@ -1,4 +1,5 @@
 ﻿using GRYLibrary.Core.AdvancedObjectAnalysis;
+using GRYLibrary.Core.AdvancedObjectAnalysis.GenericXMLSerializerHelper;
 using System;
 using System.Collections.Generic;
 using System.Xml;
@@ -6,7 +7,7 @@ using System.Xml.Schema;
 
 namespace GRYLibrary.TestData.TestTypes.SimpleDataStructure
 {
-    public class SimpleDataStructure1
+    public class SimpleDataStructure1: IGRYSerializable
     {
         public ISet<SimpleDataStructure3> Property1 { get; set; }
         public SimpleDataStructure2 Property2 { get; set; }
@@ -40,6 +41,11 @@ namespace GRYLibrary.TestData.TestTypes.SimpleDataStructure
             return Generic.GenericGetHashCode(this);
         }
 
+        public override string ToString()
+        {
+            return Generic.GenericToString(this);
+        }
+
         public XmlSchema GetSchema()
         {
             return Generic.GenericGetSchema(this);
@@ -54,6 +60,11 @@ namespace GRYLibrary.TestData.TestTypes.SimpleDataStructure
         {
             Generic.GenericWriteXml(this, writer);
         }
-        #endregion  
+
+        public ISet<Type> GetExtraTypesWhichAreRequiredForSerialization()
+        {
+            return new HashSet<Type>();
+        }
+        #endregion
     }
-    }
+}

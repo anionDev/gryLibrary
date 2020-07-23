@@ -22,7 +22,7 @@ namespace GRYLibrary.Tests
             try
             {
                 using GRYLog logObject = GRYLog.Create(logFile);
-                logObject.Configuration.Format = GRYLogLogFormat.OnlyMessage;
+                logObject.Configuration.SetFormat(GRYLogLogFormat.OnlyMessage);
                 string file = logFile;
                 Assert.IsFalse(File.Exists(file));
                 string fileWithRelativePath = logFile;
@@ -48,7 +48,7 @@ namespace GRYLibrary.Tests
             try
             {
                 using GRYLog logObject = GRYLog.Create(logFile);
-                logObject.Configuration.Format = GRYLogLogFormat.OnlyMessage;
+                logObject.Configuration.SetFormat(GRYLogLogFormat.OnlyMessage);
                 Assert.IsFalse(File.Exists(logFile));
                 string testContent = "x";
                 logObject.Log(testContent);
@@ -60,7 +60,6 @@ namespace GRYLibrary.Tests
                 Utilities.EnsureDirectoryDoesNotExist(folder);
             }
         }
-        [Ignore]
         [TestMethod]
         public void TestLogFileWithConfigurationchangeOnRuntime()
         {
@@ -75,7 +74,7 @@ namespace GRYLibrary.Tests
                 ConfigurationFile = configurationFile
             };
             configuration.ResetToDefaultValues(logFile1);
-            configuration.Format = GRYLogLogFormat.OnlyMessage;
+            configuration.SetFormat(GRYLogLogFormat.OnlyMessage);
             GRYLogConfiguration.SaveConfiguration(configurationFile, configuration);
             UTF8Encoding encoding = new UTF8Encoding(false);
             try
@@ -95,7 +94,7 @@ namespace GRYLibrary.Tests
                 Assert.AreEqual("test1" + Environment.NewLine + "test3", File.ReadAllText(logFile1, encoding));
 
                 reloadedConfiguration = GRYLogConfiguration.LoadConfiguration(configurationFile);
-                reloadedConfiguration.SetLogFile ( logFile2);
+                reloadedConfiguration.SetLogFile(logFile2);
                 GRYLogConfiguration.SaveConfiguration(configurationFile, reloadedConfiguration);
 
                 System.Threading.Thread.Sleep(1000);//wait until config is reloaded
@@ -137,10 +136,7 @@ namespace GRYLibrary.Tests
         public void SerializeAndDeserialize2()
         {
             // arange
-            GRYLogConfiguration logConfiguration = new GRYLogConfiguration
-            {
-                Name = "MyLog"
-            };
+            GRYLogConfiguration logConfiguration = new GRYLogConfiguration { Name = "MyLog" };
 
             // act
             string serializedLogConfiguration = Generic.GenericSerialize(logConfiguration);

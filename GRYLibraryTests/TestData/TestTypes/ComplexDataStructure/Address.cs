@@ -18,15 +18,15 @@ namespace GRYLibrary.TestData.TestTypes.ComplexDataStructure
         {
             Address result = new Address
             {
-                AddressLine1 = Utilities.GetRandomAddressLine1(),
-                AddressLine2 = Utilities.GetRandomAddressLine2(),
-                Building = Utilities.GetRandomBuilding(),
-                City = Utilities.GetRandomCity(),
-                CountryRegion = Utilities.GetRandomCountryRegion(),
-                FloorLevel = Utilities.GetRandomFloorLevel(),
-                PostalCode = Utilities.GetRandomPostalCode(),
-                StateProvince = Utilities.GetRandomStateProvince(),
-                Country = Utilities.GetRandomCountry()
+                AddressLine1 = ComplexDataStructureUtilities.GetRandomAddressLine1(),
+                AddressLine2 = ComplexDataStructureUtilities.GetRandomAddressLine2(),
+                Building = ComplexDataStructureUtilities.GetRandomBuilding(),
+                City = ComplexDataStructureUtilities.GetRandomCity(),
+                CountryRegion = ComplexDataStructureUtilities.GetRandomCountryRegion(),
+                FloorLevel = ComplexDataStructureUtilities.GetRandomFloorLevel(),
+                PostalCode = ComplexDataStructureUtilities.GetRandomPostalCode(),
+                StateProvince = ComplexDataStructureUtilities.GetRandomStateProvince(),
+                Country = ComplexDataStructureUtilities.GetRandomCountry()
             };
 
             return result;

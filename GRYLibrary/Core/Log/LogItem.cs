@@ -94,11 +94,11 @@ namespace GRYLibrary.Core.Log
             this.Category = 1;
         }
         #endregion 
-        internal void Format(GRYLogConfiguration configuration, out string formattedMessage, out int colorBegin, out int colorEnd, out ConsoleColor consoleColor)
+        internal void Format(GRYLogConfiguration configuration, out string formattedMessage, out int colorBegin, out int colorEnd, out ConsoleColor consoleColor, GRYLogLogFormat format)
         {
             if (!this._FormatingLoaded)
             {
-                this.FormatMessage(configuration, this.PlainMessage, this.MomentOfLogEntry, this.LogLevel, out string fm, out int cb, out int ce, out ConsoleColor cc);
+                this.FormatMessage(configuration, this.PlainMessage, this.MomentOfLogEntry, this.LogLevel, format,out string fm, out int cb, out int ce, out ConsoleColor cc);
                 this._FormattedMessage = fm;
                 this._ColorBegin = cb;
                 this._ColorEnd = ce;
@@ -114,9 +114,9 @@ namespace GRYLibrary.Core.Log
         {
             return this.LogLevel == LogLevel.Critical || this.LogLevel == LogLevel.Error;
         }
-        private void FormatMessage(GRYLogConfiguration configuration, string message, DateTime momentOfLogEntry, LogLevel loglevel, out string formattedMessage, out int colorBegin, out int colorEnd, out ConsoleColor consoleColor)
+        private void FormatMessage(GRYLogConfiguration configuration, string message, DateTime momentOfLogEntry, LogLevel loglevel, GRYLogLogFormat format, out string formattedMessage, out int colorBegin, out int colorEnd, out ConsoleColor consoleColor)
         {
-            consoleColor = configuration.GetLoggedMessageTypesConfigurationByLogLevel(loglevel).ConsoleColor;
+            consoleColor = (ConsoleColor)configuration.GetLoggedMessageTypesConfigurationByLogLevel(loglevel).ConsoleColor;
             if (!string.IsNullOrEmpty(configuration.Name))
             {
                 message = $"[{configuration.Name.Trim()}] {message}";
@@ -125,7 +125,7 @@ namespace GRYLibrary.Core.Log
             {
                 momentOfLogEntry = momentOfLogEntry.ToUniversalTime();
             }
-            switch (configuration.Format)
+            switch (format)
             {
                 case GRYLogLogFormat.OnlyMessage:
                     formattedMessage = message;

@@ -1,6 +1,8 @@
-﻿using GRYLibrary.Core.AdvancedObjectAnalysis.GenericXMLSerializerHelper;
+﻿using GRYLibrary.Core.AdvancedObjectAnalysis;
+using GRYLibrary.Core.AdvancedObjectAnalysis.GenericXMLSerializerHelper;
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -45,7 +47,17 @@ namespace GRYLibrary.Core.AdvancedXMLSerialysis
         public void Serialize(T @object, XmlWriter writer)
         {
             GRYSObject genericallySerializedObject = GRYSObject.Create(@object, this.SerializationConfiguration);
-            new XmlSerializer(typeof(GRYSObject)).Serialize(writer, genericallySerializedObject);
+            IEnumerable<(object, Type)> allReferencedObjects = new PropertyIterator().IterateOverObjectTransitively(@object);
+            HashSet<Type> extraTypes = new HashSet<Type>();
+            foreach ((object, Type) referencedObject in allReferencedObjects)
+            {
+                if (referencedObject.Item1 != null && referencedObject.Item1 is IGRYSerializable extraTypesProvider)
+                {
+                    extraTypes.UnionWith(extraTypesProvider.GetExtraTypesWhichAreRequiredForSerialization());
+                }
+            }
+            XmlSerializer serializer = new XmlSerializer(typeof(GRYSObject), extraTypes.ToArray());
+            serializer.Serialize(writer, genericallySerializedObject);
         }
 
         public U Deserialize<U>(string serializedObject)
@@ -91,7 +103,7 @@ namespace GRYLibrary.Core.AdvancedXMLSerialysis
                 Type type = thisObject.GetType();
                 if (Utilities.TypeIsEnumerable(type))
                 {
-                    foreach (var item in deserializedObject as IEnumerable)
+                    foreach (object item in deserializedObject as IEnumerable)
                     {
                         Utilities.AddItemToEnumerable(thisObject, new object[] { item });
                     }

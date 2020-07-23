@@ -1,7 +1,6 @@
 ﻿using GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper;
 using GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper.CustomComparer;
 using GRYLibrary.Core.AdvancedXMLSerialysis;
-using GRYLibrary.Core.Log;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -58,9 +57,9 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis
             return new PropertyEqualsCalculator().DefaultEquals(object1, object2);
         }
 
-        public static string GenericToString(object @object)
+        public static string GenericToString(object @object,int maxOutputLength = int.MaxValue)
         {
-            return AdvancedObjectAnalysis.GenericToString.Instance.ToString(@object);
+            return AdvancedObjectAnalysis.GenericToString.Instance.ToString(@object, maxOutputLength);
         }
 
 #pragma warning disable IDE0060 // Suppress "Remove unused parameter 'object'"

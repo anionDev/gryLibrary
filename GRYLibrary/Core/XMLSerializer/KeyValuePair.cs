@@ -1,15 +1,15 @@
 ﻿using GRYLibrary.Core.AdvancedObjectAnalysis;
-using System;
 using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
 
 namespace GRYLibrary.Core.XMLSerializer
 {
-    [Serializable]
-    [XmlType(TypeName = "KeyValuePair")]
-    public struct KeyValuePair<TKey, TValue>
+    public class KeyValuePair<TKey, TValue> : IXmlSerializable
     {
+        public KeyValuePair()
+        {
+        }
         public KeyValuePair(TKey key, TValue value)
         {
             this.Key = key;
@@ -23,6 +23,7 @@ namespace GRYLibrary.Core.XMLSerializer
         {
             return new System.Collections.Generic.KeyValuePair<object, object>(this.Key, this.Value);
         }
+
         #region Overhead
         public override bool Equals(object @object)
         {
@@ -32,6 +33,11 @@ namespace GRYLibrary.Core.XMLSerializer
         public override int GetHashCode()
         {
             return Generic.GenericGetHashCode(this);
+        }
+
+        public override string ToString()
+        {
+            return Generic.GenericToString(this);
         }
 
         public XmlSchema GetSchema()

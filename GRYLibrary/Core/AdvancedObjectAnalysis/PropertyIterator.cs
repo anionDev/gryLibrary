@@ -1,4 +1,5 @@
-﻿using GRYLibrary.Core.AdvancedObjectAnalysis.PropertyIteratorHelper;
+﻿using GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper.CustomComparer;
+using GRYLibrary.Core.AdvancedObjectAnalysis.PropertyIteratorHelper;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,7 +19,7 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis
         }
         public IEnumerable<(object, Type)> IterateOverObjectTransitively(object @object)
         {
-            var result = new List<(object, Type)>();
+            List<(object, Type)> result = new List<(object, Type)>();
             IterateOverObjectTransitively(@object, result);
             return result;
         }
@@ -34,17 +35,22 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis
                 visitedObjects.Add((@object, typeof(object)));
                 return;
             }
-            var type = @object.GetType();
+            Type type = @object.GetType();
             visitedObjects.Add((@object, type));
             if (Utilities.TypeIsEnumerable(type))
             {
-                foreach (var item in Utilities.ObjectToEnumerable(@object))
+                foreach (object item in Utilities.ObjectToEnumerable(@object))
                 {
                     IterateOverObjectTransitively(item, visitedObjects);
                 }
             }
+            else if (PrimitiveComparer.TypeIsTreatedAsPrimitive(type))
+            {
+                // TODO
+            }
             else
             {
+
                 foreach (FieldInfo field in type.GetFields().Where((field) => this.Configuration.FieldSelector(field)))
                 {
                     IterateOverObjectTransitively(field.GetValue(@object), visitedObjects);
@@ -58,7 +64,7 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis
 
         private bool Contains(IList<(object, Type)> visitedObjects, object @object)
         {
-            foreach (var currentItem in visitedObjects)
+            foreach ((object, Type) currentItem in visitedObjects)
             {
                 if (object.ReferenceEquals(currentItem.Item1, @object))
                 {

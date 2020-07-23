@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace GRYLibrary.Core
 {
@@ -27,8 +25,8 @@ namespace GRYLibrary.Core
         public bool Equals(ReferenceTuple other)
         {
             return other != null
-                && object.ReferenceEquals(this.Item1, other.Item1)
-                && object.ReferenceEquals(this.Item2, other.Item2);
+                && Utilities.ReferenceEquals(this.Item1, other.Item1)
+                && Utilities.ReferenceEquals(this.Item2, other.Item2);
         }
     }
 }

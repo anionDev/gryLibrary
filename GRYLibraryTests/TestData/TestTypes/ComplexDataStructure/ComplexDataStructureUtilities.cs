@@ -3,7 +3,7 @@ using System;
 
 namespace GRYLibrary.TestData.TestTypes.ComplexDataStructure
 {
-    public static class Utilities
+    public static class ComplexDataStructureUtilities
     {
         internal static string GetRandomPhoneNumber()
         {

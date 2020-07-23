@@ -79,6 +79,23 @@ namespace GRYLibrary.Core
             return result;
         }
 
+        public static bool IsValidXML(string xmlString)
+        {
+            if (string.IsNullOrWhiteSpace(xmlString))
+            {
+                return false;
+            }
+            try
+            {
+                XDocument.Parse(xmlString);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
         public static int Count(this System.Collections.IEnumerable enumerable)
         {
             int result = 0;
@@ -1523,7 +1540,7 @@ namespace GRYLibrary.Core
         }
         public static List<string[]> ReadCSVFile(string file, Encoding encoding, string separator = ";", bool ignoreFirstLine = false)
         {
-            var outterList = new List<string[]>();
+            List<string[]> outterList = new List<string[]>();
             string[] lines = File.ReadAllLines(file, encoding);
             for (int i = 0; i < lines.Length; i++)
             {
@@ -1631,7 +1648,7 @@ namespace GRYLibrary.Core
                 {
                     events.Add(eventArgument);
                 });
-                foreach (var @event in events)
+                foreach (object @event in events)
                 {
                     errorMessages.Add(@event);
                 }
@@ -2265,9 +2282,9 @@ namespace GRYLibrary.Core
             throw new FileNotFoundException($"Program '{program}' can not be found");
         }
 
-        public static string GetAssertionFailMessage(object expectedObject, object actualObject)
+        public static string GetAssertionFailMessage(object expectedObject, object actualObject, int maxLengthPerObject = 1000)
         {
-            return $"Equal failed. Expected: <{Generic.GenericToString(expectedObject)}> Actual: <{Generic.GenericToString(actualObject)}>";
+            return $"Equal failed. Expected: <{Environment.NewLine}{Generic.GenericToString(expectedObject, maxLengthPerObject)}{Environment.NewLine}> Actual: <{Environment.NewLine}{Generic.GenericToString(actualObject, maxLengthPerObject)}{Environment.NewLine}>";
         }
         public static void ForEach<T>(this IEnumerable<T> source, Action<T> action)
         {
@@ -2276,7 +2293,7 @@ namespace GRYLibrary.Core
                 action(item);
             }
         }
-        public static void ForEach(this System.Collections.IEnumerable source, Action<object> action)
+        public static void ForEach(this IEnumerable source, Action<object> action)
         {
             foreach (object item in source)
             {
@@ -2300,7 +2317,7 @@ namespace GRYLibrary.Core
             }
             int lengthA = string1.Length;
             int lengthB = string2.Length;
-            var distance = new int[lengthA + 1, lengthB + 1];
+            int[,] distance = new int[lengthA + 1, lengthB + 1];
             for (int i = 0; i <= lengthA; distance[i, 0] = i++) ;
             for (int j = 0; j <= lengthB; distance[0, j] = j++) ;
 
@@ -2524,6 +2541,11 @@ namespace GRYLibrary.Core
             {
                 return @object.GetType().IsValueType;
             }
+        }
+
+        public static string GetNameOfCurrentExecutable()
+        {
+            throw new NotImplementedException();
         }
     }
 }

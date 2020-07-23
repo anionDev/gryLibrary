@@ -26,29 +26,64 @@ namespace GRYLibrary.Tests.AdvancedObjectAnalysisTests.Serializer
             Assert.AreEqual(testObject, actualObject);
         }
         [TestMethod]
-        public void SerializeComplexTestObject()
+        public void SerializeComplexTestObject1()
         {
+            // arrange
             GenericXMLSerializer<object> serializer = GenericXMLSerializer.DefaultInstance;
-            object testObject = Company.GetRandom();
-            string serialized = serializer.Serialize(testObject);
-            Company actualObject = serializer.Deserialize<Company>(serialized);
-            string o1 = testObject.ToString();
-            string o2 = actualObject.ToString();
-            Assert.AreEqual(o1, o2);
-            Assert.AreEqual(testObject, actualObject);
-        }
-        [Ignore]
-        [TestMethod]
-        public void SerializeCyclicTestObject()
-        {
-            GenericXMLSerializer<object> serializer = GenericXMLSerializer.DefaultInstance;
-            object testObject = CycleA.GetRandom();
-            string serialized = serializer.Serialize(testObject);
+            object expectedObject = CycleA.GetRandom();
+
+            // act
+            string serialized = serializer.Serialize(expectedObject);
             CycleA actualObject = serializer.Deserialize<CycleA>(serialized);
-            Assert.IsTrue(Generic.GenericEquals(testObject, actualObject), Core.Utilities.GetAssertionFailMessage(testObject, actualObject));
-            Assert.AreEqual(Generic.GenericGetHashCode(testObject), Generic.GenericGetHashCode(actualObject));
+
+            // assert
+            Assert.IsTrue(Core.Utilities.IsValidXML(serialized));
+            TestUtilities.AssertEqual(expectedObject, actualObject);
         }
-       
+        [TestMethod]
+        public void SerializeCyclicTestObject3()
+        {
+            // arrange
+            GenericXMLSerializer<object> serializer = GenericXMLSerializer.DefaultInstance;
+            object expectedObject = CycleA.GetRandom();
+
+            // act
+            string serialized = serializer.Serialize(expectedObject);
+            CycleA actualObject = serializer.Deserialize<CycleA>(serialized);
+
+            // assert
+            Assert.IsTrue(Core.Utilities.IsValidXML(serialized));
+            TestUtilities.AssertEqual(expectedObject, actualObject);
+        }
+        [TestMethod]
+        public void SerializeComplexTestObject2()
+        {
+            // arrange
+            object expectedObject = Company.GetRandom();
+
+            // act
+            string serialized = Generic.GenericSerialize(expectedObject);
+            Company actualObject = Generic.GenericDeserialize<Company>(serialized);
+
+            // assert
+            Assert.IsTrue(Core.Utilities.IsValidXML(serialized));
+            TestUtilities.AssertEqual(expectedObject, actualObject);
+        }
+        [TestMethod]
+        public void SerializeCyclicTestObject4()
+        {
+            // arrange
+            object expectedObject = CycleA.GetRandom();
+
+            // act
+            string serialized = Generic.GenericSerialize(expectedObject);
+            CycleA actualObject = Generic.GenericDeserialize<CycleA>(serialized);
+
+            // assert
+            Assert.IsTrue(Core.Utilities.IsValidXML(serialized));
+            TestUtilities.AssertEqual(expectedObject, actualObject);
+        }
+
         [TestMethod]
         public void IXmlSerializableDefaultImplementationListGeneric()
         {
@@ -64,9 +99,9 @@ namespace GRYLibrary.Tests.AdvancedObjectAnalysisTests.Serializer
             Generic.GenericReadXml(actualObject, XmlReader.Create(new StringReader(serializedObject)));
 
             // assert
+            Assert.IsTrue(Core.Utilities.IsValidXML(serializedObject));
             Assert.AreEqual(8, actualObject.Count);
-            Assert.IsTrue(Generic.GenericEquals(expectedObject, actualObject), Core.Utilities.GetAssertionFailMessage(expectedObject, actualObject));
-            Assert.AreEqual(Generic.GenericGetHashCode(expectedObject), Generic.GenericGetHashCode(actualObject));
+            TestUtilities.AssertEqual(expectedObject, actualObject);
         }
         [TestMethod]
         public void IXmlSerializableDefaultImplementationListNotGeneric()
@@ -106,8 +141,8 @@ namespace GRYLibrary.Tests.AdvancedObjectAnalysisTests.Serializer
             Assert.IsTrue(Generic.GenericEquals(expectedObject, actualObject), Core.Utilities.GetAssertionFailMessage(expectedObject, actualObject));
             Assert.AreEqual(Generic.GenericGetHashCode(expectedObject), Generic.GenericGetHashCode(actualObject));
         }
-     
-      
+
+
         [TestMethod]
         public void IXmlSerializableDefaultImplementationTypeWithList()
         {
@@ -161,7 +196,7 @@ namespace GRYLibrary.Tests.AdvancedObjectAnalysisTests.Serializer
             Generic.GenericReadXml(actualObject, XmlReader.Create(new StringReader(serializedObject)));
 
             // assert
-            Assert.AreEqual(2,Core.Utilities.Count(actualObject.Enumerable));
+            Assert.AreEqual(2, Core.Utilities.Count(actualObject.Enumerable));
             Assert.IsTrue(Generic.GenericEquals(expectedObject, actualObject), Core.Utilities.GetAssertionFailMessage(expectedObject, actualObject));
             Assert.AreEqual(Generic.GenericGetHashCode(expectedObject), Generic.GenericGetHashCode(actualObject));
         }

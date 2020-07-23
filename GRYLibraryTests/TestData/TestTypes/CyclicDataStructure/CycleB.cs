@@ -1,12 +1,15 @@
 ﻿using GRYLibrary.Core.AdvancedObjectAnalysis;
+using GRYLibrary.Core.AdvancedObjectAnalysis.GenericXMLSerializerHelper;
 using System;
+using System.Collections.Generic;
 using System.Xml;
 using System.Xml.Schema;
+using System.Xml.Serialization;
 
 namespace GRYLibrary.TestData.TestTypes.CyclicDataStructure
 {
     [Serializable]
-    public class CycleB
+    public class CycleB: IGRYSerializable
     {
         public Guid Id { get; set; } = Guid.NewGuid();
         public CycleC C { get; set; }
@@ -22,6 +25,11 @@ namespace GRYLibrary.TestData.TestTypes.CyclicDataStructure
             return Generic.GenericGetHashCode(this);
         }
 
+        public override string ToString()
+        {
+            return Generic.GenericToString(this);
+        }
+
         public XmlSchema GetSchema()
         {
             return Generic.GenericGetSchema(this);
@@ -35,6 +43,11 @@ namespace GRYLibrary.TestData.TestTypes.CyclicDataStructure
         public void WriteXml(XmlWriter writer)
         {
             Generic.GenericWriteXml(this, writer);
+        }
+
+        public ISet<Type> GetExtraTypesWhichAreRequiredForSerialization()
+        {
+            return new HashSet<Type>();
         }
         #endregion
     }

@@ -12,9 +12,9 @@ namespace GRYLibrary.TestData.TestTypes.ComplexDataStructure
         internal static ICustomer GetRandom()
         {
             BusinessCustomer result = new BusinessCustomer();
-            result.CompanyName = Utilities.GetRandomName();
-            result.Website = Utilities.GetRandomWebsite();
-            result.ContactPhoneNumber = Utilities.GetRandomPhoneNumber();
+            result.CompanyName = ComplexDataStructureUtilities.GetRandomName();
+            result.Website = ComplexDataStructureUtilities.GetRandomWebsite();
+            result.ContactPhoneNumber = ComplexDataStructureUtilities.GetRandomPhoneNumber();
             result.MainResidence = Address.GetRandom();
             return result;
         }

@@ -16,10 +16,15 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis
         /// <remarks>This function assumes that 2 objects which are not implementing <see cref="System.Collections.IEnumerable"/> are not equal if their types are not equal (except they are enumerables).</remarks>
         public override bool DefaultEquals(object object1, object object2)
         {
+            if (Configuration.ArePending(object1, object2))
+            {
+                return true;
+            }
             if (Configuration.WereMarkedAsNotEqual(object1, object2))
             {
                 return false;
             }
+            this.Configuration.AddPending(object1, object2);
             bool object1IsDefault = Utilities.IsDefault(object1);
             bool object2IsDefault = Utilities.IsDefault(object2);
             if (object1IsDefault && object2IsDefault)
@@ -38,7 +43,7 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis
                 else if (this.CustomComparerShouldBeApplied(this.Configuration, object1.GetType(), object2.GetType(), out AbstractCustomComparer customComparer))
                 {
                     //use custom comparer
-                    var result = customComparer.Equals(object1, object2);
+                    bool result = customComparer.Equals(object1, object2);
                     if (result)
                     {
                         MarkedAsEqual(object1, object2);
