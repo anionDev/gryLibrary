@@ -118,14 +118,14 @@ namespace GRYLibrary.Tests
             GRYLogConfiguration logConfiguration = new GRYLogConfiguration
             {
                 Name = "MyLog",
-                ConvertTimeForLogentriesToUTCFormat=true
+                ConvertTimeForLogentriesToUTCFormat = true
             };
 
             // act
             SimpleGenericXMLSerializer<GRYLogConfiguration> serializer = new SimpleGenericXMLSerializer<GRYLogConfiguration>();
             string serializedLogConfiguration = serializer.Serialize(logConfiguration);
 
-           SimpleGenericXMLSerializer<GRYLogConfiguration> deserializer = new SimpleGenericXMLSerializer<GRYLogConfiguration>();
+            SimpleGenericXMLSerializer<GRYLogConfiguration> deserializer = new SimpleGenericXMLSerializer<GRYLogConfiguration>();
             GRYLogConfiguration logConfigurationReloaded = deserializer.Deserialize(serializedLogConfiguration);
 
             // assert

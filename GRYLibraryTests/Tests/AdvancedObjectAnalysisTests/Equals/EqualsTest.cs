@@ -1,4 +1,5 @@
 ﻿using GRYLibrary.Core;
+using GRYLibrary.Core.AdvancedObjectAnalysis;
 using GRYLibrary.TestData.TestTypes.CyclicDataStructure;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
@@ -29,6 +30,21 @@ namespace GRYLibrary.Tests.AdvancedObjectAnalysisTests.Equals
             CycleA testObject1 = CycleA.GetRandom();
             CycleA testObject2 = Utilities.DeepClone(testObject1);
             TestUtilities.AssertEqual(testObject1, testObject2);
+        }
+
+        [TestMethod]
+        public void PrimitiveEqualsTestObjectWithSameObject()
+        {
+            object testObject = new object();
+            PropertyEqualsCalculator comparer = new PropertyEqualsCalculator();
+            Assert.IsTrue(comparer.Equals(testObject, testObject));
+        }
+
+        [TestMethod]
+        public void PrimitiveEqualsTestObjectWithEqualObject()
+        {
+            PropertyEqualsCalculator comparer = new PropertyEqualsCalculator();
+            Assert.IsTrue(comparer.Equals(new object(), new object()));
         }
     }
 }

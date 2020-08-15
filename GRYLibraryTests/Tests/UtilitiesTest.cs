@@ -150,7 +150,7 @@ namespace GRYLibrary.Tests
             SimpleGenericXMLSerializer<SimpleDataStructure3> serializer = new SimpleGenericXMLSerializer<SimpleDataStructure3>();
             string serialized = serializer.Serialize(testObject);
             SimpleDataStructure3 deserialized = serializer.Deserialize(serialized);
-            Assert.AreEqual(testObject,deserialized);
+            Assert.AreEqual(testObject, deserialized);
         }
         [TestMethod]
         public void SerializeableDictionaryTest()
@@ -335,13 +335,18 @@ namespace GRYLibrary.Tests
 
             Assert.IsTrue(Utilities.ListEquals(testList, (IList)new List<int> { 3, 4, 5 }.ToImmutableList()));
         }
-        [Ignore]
+
         [TestMethod]
-        public void ObjectToDictionarytTest()
+        public void ObjectToDictionarytFailTest()
         {
             Assert.ThrowsException<InvalidCastException>(() => Utilities.ObjectToDictionary<object, object>(new object()));
             Assert.ThrowsException<InvalidCastException>(() => Utilities.ObjectToDictionary<object, object>("somestring"));
+        }
 
+        [Ignore]
+        [TestMethod]
+        public void ObjectToDictionarytSuccessTest()
+        {
             Dictionary<int, string> testDictionary = new Dictionary<int, string> { { 3, "3s" }, { 4, "4s" }, { 5, "5s" } };
             object testDictionaryAsObject = testDictionary;
             Assert.IsTrue(Utilities.DictionaryEquals(testDictionary, Utilities.ObjectToDictionary<int, string>(testDictionaryAsObject)));
@@ -363,6 +368,9 @@ namespace GRYLibrary.Tests
             Assert.IsTrue(Utilities.ObjectIsEnumerable(new HashSet<object> { 3, 4, 5 }));
             Assert.IsTrue(Utilities.ObjectIsEnumerable(new HashSet<int> { 3, 4, 5 }));
             Assert.IsTrue(Utilities.ObjectIsEnumerable(new List<SimpleDataStructure3>()));
+            Assert.IsTrue(Utilities.ObjectIsEnumerable(""));
+            Assert.IsFalse(Utilities.ObjectIsEnumerable(4));
+
         }
         [TestMethod]
         public void EnumerableCount()
@@ -393,11 +401,14 @@ namespace GRYLibrary.Tests
 
             Assert.IsTrue(Utilities.ImprovedReferenceEquals(5, 5));
             Assert.IsTrue(Utilities.ImprovedReferenceEquals("string", "string"));
+            Assert.IsFalse(Utilities.ImprovedReferenceEquals("string", "string2"));
             Assert.IsFalse(Utilities.ImprovedReferenceEquals(5, 6));
             Assert.IsFalse(Utilities.ImprovedReferenceEquals(5, null));
             Assert.IsFalse(Utilities.ImprovedReferenceEquals(null, "string"));
             Assert.IsFalse(Utilities.ImprovedReferenceEquals(0, new object()));
             Assert.IsFalse(Utilities.ImprovedReferenceEquals(0, null));
+            Assert.IsTrue(Utilities.ImprovedReferenceEquals(Guid.Parse("33257693-bcee-4afd-a648-dd45ee06695d"), Guid.Parse("33257693-bcee-4afd-a648-dd45ee06695d")));
+            Assert.IsFalse(Utilities.ImprovedReferenceEquals(Guid.Parse("33257693-bcee-4afd-a648-dd45ee06695d"), Guid.Parse("22257693-bcee-4afd-a648-dd45ee066922")));
         }
     }
 }

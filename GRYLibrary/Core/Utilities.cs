@@ -29,6 +29,7 @@ using System.Runtime.InteropServices;
 using GRYLibrary.Core.Log;
 using GRYLibrary.Core.AdvancedObjectAnalysis;
 using System.Collections;
+using System.Diagnostics;
 
 namespace GRYLibrary.Core
 {
@@ -2560,7 +2561,7 @@ namespace GRYLibrary.Core
 
         public static string GetNameOfCurrentExecutable()
         {
-            throw new NotImplementedException();
+            return Process.GetCurrentProcess().ProcessName;
         }
 
     }

@@ -14,7 +14,6 @@ namespace GRYLibrary.Core.AdvancedXMLSerialysis
 {
     public class GenericXMLSerializer
     {
-        private readonly bool _TIsXMLSerializableNatively;
         public SerializationConfiguration SerializationConfiguration { get; set; }
         private readonly Type _T;
         public GenericXMLSerializer() : this(typeof(object))
@@ -29,7 +28,6 @@ namespace GRYLibrary.Core.AdvancedXMLSerialysis
                 FieldSelector = (FieldInfo fieldInfo) => { return false; },
                 Encoding = new UTF8Encoding(false)
             };
-            _TIsXMLSerializableNatively = Utilities.TypeIsAssignableFrom(this._T, typeof(IXmlSerializable));
         }
 
         public static GenericXMLSerializer<object> DefaultInstance()
@@ -69,15 +67,7 @@ namespace GRYLibrary.Core.AdvancedXMLSerialysis
             {
                 throw new ArgumentException($"Can only serilize objects of type {@object.GetType().FullName} but the given object has the type {_T.FullName}");
             }
-            object objectForRealSerialization;
-            if (_TIsXMLSerializableNatively)
-            {
-                objectForRealSerialization = @object;
-            }
-            else
-            {
-                objectForRealSerialization = GRYSObject.Create(@object, this.SerializationConfiguration);
-            }
+            object objectForRealSerialization = GRYSObject.Create(@object, this.SerializationConfiguration);
             IEnumerable<(object, Type)> allReferencedObjects = new PropertyIterator().IterateOverObjectTransitively(objectForRealSerialization);
             HashSet<Type> extraTypes = new HashSet<Type>();
             foreach ((object, Type) referencedObject in allReferencedObjects)
@@ -90,7 +80,7 @@ namespace GRYLibrary.Core.AdvancedXMLSerialysis
             GetSerializer().Serialize(writer, objectForRealSerialization);
         }
 
-       
+
         public U Deserialize<U>(string serializedObject)
         {
             return (U)this.Deserialize(serializedObject);
@@ -104,27 +94,13 @@ namespace GRYLibrary.Core.AdvancedXMLSerialysis
         public object/*T*/ Deserialize(XmlReader reader)
         {
             object result = GetSerializer().Deserialize(reader);
-            if (_TIsXMLSerializableNatively)
-            {
-                return result;
-            }
-            else
-            {
-                GRYSObject gRYSObject = (GRYSObject)result;
-                return gRYSObject.Get();
-            }
+            GRYSObject gRYSObject = (GRYSObject)result;
+            return gRYSObject.Get();
         }
 
         private XmlSerializer GetSerializer()
         {
-            if (_TIsXMLSerializableNatively)
-            {
-                return new XmlSerializer(this._T, this._T.Name);//TODO use extra types
-            }
-            else
-            {
-                return new XmlSerializer(typeof(GRYSObject), typeof(GRYSObject).Name);//TODO use extra types
-            }
+            return new XmlSerializer(typeof(GRYSObject), typeof(GRYSObject).Name);//TODO use extra types
         }
 
         /// <summary>
@@ -177,7 +153,7 @@ namespace GRYLibrary.Core.AdvancedXMLSerialysis
     }
     public class GenericXMLSerializer<T> : GenericXMLSerializer
     {
-       
+
         public T DeserializeTyped(string serializedObject)
         {
             return (T)this.Deserialize(serializedObject);

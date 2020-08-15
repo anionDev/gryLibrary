@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Xml;
 using System.Xml.Serialization;
@@ -14,16 +15,21 @@ namespace GRYLibrary.Core.XMLSerializer
     /// <typeparam name="T">The type of the object which should be serialized.</typeparam>
     public class SimpleGenericXMLSerializer<T> where T : new()
     {
+        private readonly Type _T;
         public Encoding Encoding { get; set; }
         public XmlWriterSettings XMLWriterSettings { get; set; }
         public ISet<Type> KnownTypes { get; set; }
-        private readonly Type _T;
+        public XmlAttributeOverrides XmlAttributeOverrides { get; set; }
+        public string DefaultNamespace { get; set; }
+
         public SimpleGenericXMLSerializer()
         {
             this._T = typeof(T);
             this.Encoding = new UTF8Encoding(false);
             this.XMLWriterSettings = new XmlWriterSettings() { Indent = true, Encoding = Encoding, IndentChars = "     ", NewLineOnAttributes = false, OmitXmlDeclaration = true };
             this.KnownTypes = new HashSet<Type>();
+            this.XmlAttributeOverrides = new XmlAttributeOverrides();
+            this.DefaultNamespace = string.Empty;
         }
         public void SerializeToWriter(T @object, XmlWriter xmlWriter)
         {
@@ -65,7 +71,7 @@ namespace GRYLibrary.Core.XMLSerializer
         }
         private XmlSerializer GetSerializer()
         {
-            return new XmlSerializer(this._T, new XmlRootAttribute(this._T.Name));//TODO use GetExtraTypes()
+            return new XmlSerializer(this._T, XmlAttributeOverrides, GetExtraTypes(), new XmlRootAttribute(this._T.Name), DefaultNamespace);
         }
     }
 }
