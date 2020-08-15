@@ -12,19 +12,34 @@ using System.Xml.Serialization;
 
 namespace GRYLibrary.Core.AdvancedXMLSerialysis
 {
-    public class GenericXMLSerializer<T>
+    public class GenericXMLSerializer
     {
+        private readonly bool _TIsXMLSerializableNatively;
         public SerializationConfiguration SerializationConfiguration { get; set; }
-        public GenericXMLSerializer()
+        private readonly Type _T;
+        public GenericXMLSerializer() : this(typeof(object))
         {
+        }
+        public GenericXMLSerializer(Type type)
+        {
+            this._T = type;
             this.SerializationConfiguration = new SerializationConfiguration
             {
                 PropertySelector = (PropertyInfo propertyInfo) => { return propertyInfo.CanWrite && propertyInfo.CanRead && propertyInfo.GetMethod.IsPublic; },
                 FieldSelector = (FieldInfo fieldInfo) => { return false; },
                 Encoding = new UTF8Encoding(false)
             };
+            _TIsXMLSerializableNatively = Utilities.TypeIsAssignableFrom(this._T, typeof(IXmlSerializable));
         }
 
+        public static GenericXMLSerializer<object> DefaultInstance()
+        {
+            return new GenericXMLSerializer<object>();
+        }
+        internal static GenericXMLSerializer CreateForObject(object @object)
+        {
+            return new GenericXMLSerializer(@object.GetType());
+        }
         private XmlWriterSettings GetXmlWriterSettings()
         {
             XmlWriterSettings result = new XmlWriterSettings
@@ -35,7 +50,7 @@ namespace GRYLibrary.Core.AdvancedXMLSerialysis
             };
             return result;
         }
-        public string Serialize(T @object)
+        public string Serialize(object/*T*/ @object)
         {
             using MemoryStream memoryStream = new MemoryStream();
             using (XmlWriter xmlWriter = XmlWriter.Create(memoryStream, this.GetXmlWriterSettings()))
@@ -44,10 +59,26 @@ namespace GRYLibrary.Core.AdvancedXMLSerialysis
             }
             return this.SerializationConfiguration.Encoding.GetString(memoryStream.ToArray());
         }
-        public void Serialize(T @object, XmlWriter writer)
+        public void Serialize(object/*T*/ @object, XmlWriter writer)
         {
-            GRYSObject genericallySerializedObject = GRYSObject.Create(@object, this.SerializationConfiguration);
-            IEnumerable<(object, Type)> allReferencedObjects = new PropertyIterator().IterateOverObjectTransitively(@object);
+            if (@object == null)
+            {
+                //TODO
+            }
+            if (!Utilities.IsAssignableFrom(@object, _T))
+            {
+                throw new ArgumentException($"Can only serilize objects of type {@object.GetType().FullName} but the given object has the type {_T.FullName}");
+            }
+            object objectForRealSerialization;
+            if (_TIsXMLSerializableNatively)
+            {
+                objectForRealSerialization = @object;
+            }
+            else
+            {
+                objectForRealSerialization = GRYSObject.Create(@object, this.SerializationConfiguration);
+            }
+            IEnumerable<(object, Type)> allReferencedObjects = new PropertyIterator().IterateOverObjectTransitively(objectForRealSerialization);
             HashSet<Type> extraTypes = new HashSet<Type>();
             foreach ((object, Type) referencedObject in allReferencedObjects)
             {
@@ -56,25 +87,46 @@ namespace GRYLibrary.Core.AdvancedXMLSerialysis
                     extraTypes.UnionWith(extraTypesProvider.GetExtraTypesWhichAreRequiredForSerialization());
                 }
             }
-            XmlSerializer serializer = new XmlSerializer(typeof(GRYSObject), extraTypes.ToArray());
-            serializer.Serialize(writer, genericallySerializedObject);
+            GetSerializer().Serialize(writer, objectForRealSerialization);
         }
 
+       
         public U Deserialize<U>(string serializedObject)
         {
-            return (U)(object)this.Deserialize(serializedObject);
+            return (U)this.Deserialize(serializedObject);
         }
-        public T Deserialize(string serializedObject)
+        public object/*T*/ Deserialize(string serializedObject)
         {
             using StringReader stringReader = new StringReader(serializedObject);
             using XmlReader xmlReader = XmlReader.Create(stringReader);
             return this.Deserialize(xmlReader);
         }
-        public T Deserialize(XmlReader reader)
+        public object/*T*/ Deserialize(XmlReader reader)
         {
-            GRYSObject grySerializedObject = (GRYSObject)new XmlSerializer(typeof(GRYSObject)).Deserialize(reader);
-            return (T)grySerializedObject.Get();
+            object result = GetSerializer().Deserialize(reader);
+            if (_TIsXMLSerializableNatively)
+            {
+                return result;
+            }
+            else
+            {
+                GRYSObject gRYSObject = (GRYSObject)result;
+                return gRYSObject.Get();
+            }
         }
+
+        private XmlSerializer GetSerializer()
+        {
+            if (_TIsXMLSerializableNatively)
+            {
+                return new XmlSerializer(this._T, this._T.Name);//TODO use extra types
+            }
+            else
+            {
+                return new XmlSerializer(typeof(GRYSObject), typeof(GRYSObject).Name);//TODO use extra types
+            }
+        }
+
         /// <summary>
         /// Sets the values of all properties of <paramref name="thisObject"/> to the value of the equal property of <paramref name="deserializedObject"/>.
         /// </summary>
@@ -123,8 +175,16 @@ namespace GRYLibrary.Core.AdvancedXMLSerialysis
         }
 
     }
-    public static class GenericXMLSerializer
+    public class GenericXMLSerializer<T> : GenericXMLSerializer
     {
-        public static GenericXMLSerializer<object> DefaultInstance { get; } = new GenericXMLSerializer<object>();
+       
+        public T DeserializeTyped(string serializedObject)
+        {
+            return (T)this.Deserialize(serializedObject);
+        }
+        public T DeserializeTyped(XmlReader reader)
+        {
+            return (T)this.Deserialize(reader);
+        }
     }
 }

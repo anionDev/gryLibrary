@@ -31,14 +31,14 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.GenericXMLSerializerHelper
 
         private static Guid FillDictionary(Dictionary<object, FlatObject> dictionary, object @object, SerializationConfiguration serializationConfiguration)
         {
-            if (Utilities.IsDefault(@object))
+            if (@object==null)
             {
                 return default;
             }
             Type typeOfObject = @object.GetType();
             if (Utilities.ObjectIsKeyValuePair(@object))
             {
-                System.Collections.Generic.KeyValuePair<object, object> kvp = Utilities.ObjectToKeyValuePair<object,object>(@object);
+                KeyValuePair<object, object> kvp = Utilities.ObjectToKeyValuePair<object,object>(@object);
                 @object = new XMLSerializer.KeyValuePair<object, object>(kvp.Key, kvp.Value);
             }
             if (dictionary.ContainsKey(@object))

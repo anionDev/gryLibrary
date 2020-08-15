@@ -249,7 +249,7 @@ namespace GRYLibrary.Core
         }
         public static bool TypeIsListNotGeneric(this Type type)
         {
-            return TypeIsAssignableFrom(type, typeof(System.Collections.IList));
+            return TypeIsAssignableFrom(type, typeof(IList));
         }
         public static bool TypeIsListGeneric(this Type type)
         {
@@ -282,7 +282,7 @@ namespace GRYLibrary.Core
         }
         public static bool TypeIsKeyValuePair(this Type type)
         {
-            return TypeIsAssignableFrom(type, typeof(System.Collections.Generic.KeyValuePair<,>));
+            return TypeIsAssignableFrom(type, typeof(System.Collections.Generic.KeyValuePair<,>)) || TypeIsAssignableFrom(type, typeof(XMLSerializer.KeyValuePair<object, object>));
         }
         public static bool ObjectIsDictionaryEntry(this object @object)
         {
@@ -521,6 +521,21 @@ namespace GRYLibrary.Core
         #endregion
 
 
+        public static bool ObjectIsPrimitive(object @object)
+        {
+            return TypeIsPrimitive(@object.GetType());
+        }
+        public static bool TypeIsPrimitive(Type type)
+        {
+            if (type.IsGenericType)
+            {
+                return false;
+            }
+            else
+            {
+                return type.IsPrimitive || typeof(string).Equals(type) || type.IsValueType;
+            }
+        }
         public static bool IsAssignableFrom(object @object, Type genericTypeToCompare)
         {
             return TypeIsAssignableFrom(@object.GetType(), genericTypeToCompare);
@@ -2547,5 +2562,6 @@ namespace GRYLibrary.Core
         {
             throw new NotImplementedException();
         }
+
     }
 }

@@ -25,8 +25,8 @@ namespace GRYLibrary.Core
         public bool Equals(ReferenceTuple other)
         {
             return other != null
-                && Utilities.ReferenceEquals(this.Item1, other.Item1)
-                && Utilities.ReferenceEquals(this.Item2, other.Item2);
+                && Utilities.ImprovedReferenceEquals(this.Item1, other.Item1)
+                && Utilities.ImprovedReferenceEquals(this.Item2, other.Item2);
         }
     }
 }

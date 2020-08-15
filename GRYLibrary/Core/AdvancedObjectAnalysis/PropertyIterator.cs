@@ -66,7 +66,7 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis
         {
             foreach ((object, Type) currentItem in visitedObjects)
             {
-                if (object.ReferenceEquals(currentItem.Item1, @object))
+                if (Utilities.ImprovedReferenceEquals(currentItem.Item1, @object))
                 {
                     return true;
                 }

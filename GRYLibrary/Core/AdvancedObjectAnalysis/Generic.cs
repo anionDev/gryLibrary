@@ -57,7 +57,7 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis
             return new PropertyEqualsCalculator().DefaultEquals(object1, object2);
         }
 
-        public static string GenericToString(object @object,int maxOutputLength = int.MaxValue)
+        public static string GenericToString(object @object, int maxOutputLength = int.MaxValue)
         {
             return AdvancedObjectAnalysis.GenericToString.Instance.ToString(@object, maxOutputLength);
         }
@@ -71,12 +71,13 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis
 
         public static void GenericWriteXml(object @object, XmlWriter writer)
         {
-            GenericXMLSerializer.DefaultInstance.Serialize(@object, writer);
+            GenericXMLSerializer.CreateForObject(@object).Serialize(@object, writer);
         }
 
         public static void GenericReadXml(object @object, XmlReader reader)
         {
-            GenericXMLSerializer.DefaultInstance.CopyContentOfObject(@object, GenericXMLSerializer.DefaultInstance.Deserialize(reader));
+            GenericXMLSerializer genericXMLSerializer = GenericXMLSerializer.CreateForObject(@object);
+            genericXMLSerializer.CopyContentOfObject(@object, genericXMLSerializer.Deserialize(reader));
         }
         public static IEnumerable<(object, Type)> IterateOverObjectTransitively(object @object)
         {
@@ -92,11 +93,11 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis
             }
             return stringWriter.ToString();
         }
-            public static T GenericDeserialize<T>(string serializedObject)
-            {
-                using XmlReader xmlReader = XmlReader.Create(new StringReader(serializedObject));
+        public static T GenericDeserialize<T>(string serializedObject)
+        {
+            using XmlReader xmlReader = XmlReader.Create(new StringReader(serializedObject));
             T result = (T)Activator.CreateInstance(typeof(T));
-            GenericReadXml(serializedObject, xmlReader);
+            GenericReadXml(result, xmlReader);
             return result;
         }
     }

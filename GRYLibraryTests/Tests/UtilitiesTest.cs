@@ -12,6 +12,8 @@ using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Text;
+using System.Xml.Schema;
+using System.Xml.Serialization;
 
 namespace GRYLibrary.Tests
 {
@@ -145,8 +147,10 @@ namespace GRYLibrary.Tests
         public void GenericSerializerTest1()
         {
             SimpleDataStructure3 testObject = SimpleDataStructure3.GetRandom();
-            SimpleGenericXMLSerializer<SimpleDataStructure3> seriailzer = new SimpleGenericXMLSerializer<SimpleDataStructure3>();
-            Assert.AreEqual(File.ReadAllText(@"TestData\TestXMLSerialization\GenericSerializerTest1.txt", new UTF8Encoding(false)), seriailzer.Serialize(testObject));
+            SimpleGenericXMLSerializer<SimpleDataStructure3> serializer = new SimpleGenericXMLSerializer<SimpleDataStructure3>();
+            string serialized = serializer.Serialize(testObject);
+            SimpleDataStructure3 deserialized = serializer.Deserialize(serialized);
+            Assert.AreEqual(testObject,deserialized);
         }
         [TestMethod]
         public void SerializeableDictionaryTest()
@@ -172,6 +176,25 @@ namespace GRYLibrary.Tests
             Assert.IsFalse(Utilities.ObjectIsList(new LinkedList<int>()));
             Assert.IsFalse(Utilities.ObjectIsList(new object()));
             Assert.IsFalse(Utilities.ObjectIsList("somestring"));
+            Assert.IsTrue(Utilities.ObjectIsList("somestring".ToCharArray()));
+        }
+        [TestMethod]
+        public void IsPrimitiveTest()
+        {
+            Assert.IsTrue(Utilities.ObjectIsPrimitive(true));
+            Assert.IsTrue(Utilities.ObjectIsPrimitive(false));
+            Assert.IsTrue(Utilities.ObjectIsPrimitive(3));
+            Assert.IsTrue(Utilities.ObjectIsPrimitive(0));
+            Assert.IsTrue(Utilities.ObjectIsPrimitive("somestring"));
+            Assert.IsTrue(Utilities.ObjectIsPrimitive(1.5));
+            Assert.IsTrue(Utilities.ObjectIsPrimitive(Guid.NewGuid()));
+            Assert.IsTrue(Utilities.ObjectIsPrimitive(default(Guid)));
+            Assert.IsTrue(Utilities.ObjectIsPrimitive(default(int)));
+            Assert.IsTrue(Utilities.ObjectIsPrimitive(default(bool)));
+            Assert.IsFalse(Utilities.ObjectIsPrimitive(new ArraySegment<int>()));
+            Assert.IsFalse(Utilities.ObjectIsPrimitive(new ArrayList()));
+            Assert.IsFalse(Utilities.ObjectIsPrimitive(new LinkedList<int>()));
+            Assert.IsFalse(Utilities.ObjectIsPrimitive(new object()));
         }
         [TestMethod]
         public void IsDictionaryEntryTest()
@@ -312,6 +335,7 @@ namespace GRYLibrary.Tests
 
             Assert.IsTrue(Utilities.ListEquals(testList, (IList)new List<int> { 3, 4, 5 }.ToImmutableList()));
         }
+        [Ignore]
         [TestMethod]
         public void ObjectToDictionarytTest()
         {
@@ -346,6 +370,12 @@ namespace GRYLibrary.Tests
             List<object> list = new List<object> { 3, 4, 5 };
             IEnumerable listAsEnumerable = list;
             Assert.AreEqual(list.Count, Utilities.Count(listAsEnumerable));
+        }
+        [TestMethod]
+        public void IsAssignableFromTest()
+        {
+            Assert.IsTrue(Utilities.IsAssignableFrom(new SimpleDataStructure1(), typeof(SimpleDataStructure1)));
+            Assert.IsTrue(Utilities.IsAssignableFrom(new SimpleDataStructure1(), typeof(IXmlSerializable)));
         }
         [TestMethod]
         public void ReferenceEqualsTest()

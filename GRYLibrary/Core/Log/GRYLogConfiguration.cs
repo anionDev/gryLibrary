@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Xml;
 using System.Xml.Schema;
+using System.Xml.Serialization;
 using Console = GRYLibrary.Core.Log.ConcreteLogTargets.Console;
 
 namespace GRYLibrary.Core.Log

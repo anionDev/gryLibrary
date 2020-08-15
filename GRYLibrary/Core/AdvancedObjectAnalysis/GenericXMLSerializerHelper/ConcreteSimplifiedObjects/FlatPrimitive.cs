@@ -8,6 +8,9 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.GenericXMLSerializerHelper.Conc
     [XmlRoot(ElementName = "FP")]
     public class FlatPrimitive : FlatObject
     {
+        public FlatPrimitive()
+        {
+        }
         public object Value { get; set; }
         public override void Accept(IFlatObjectVisitor visitor)
         {
