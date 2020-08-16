@@ -1,5 +1,6 @@
 ﻿using GRYLibrary.Core;
 using GRYLibrary.Core.XMLSerializer;
+using GRYLibrary.TestData.TestTypes.CyclicDataStructure;
 using GRYLibrary.TestData.TestTypes.SimpleDataStructure;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
@@ -103,7 +104,7 @@ namespace GRYLibrary.Tests
                 Utilities.EnsureFileExists(file3, true);
                 Utilities.EnsureFileExists(file4, true);
 
-                System.Collections.Generic.IEnumerable<string> result = Utilities.GetFilesOfFolderRecursively(baseDir);
+                IEnumerable<string> result = Utilities.GetFilesOfFolderRecursively(baseDir);
                 Assert.AreEqual(4, result.Count());
             }
             finally
@@ -361,16 +362,13 @@ namespace GRYLibrary.Tests
             Assert.IsFalse(Utilities.DictionaryEquals<int, string>(testDictionary1, testDictionary2));
         }
 
-        [Ignore]
         [TestMethod]
         public void DictionaryEqualsSuccessTest1()
         {
             Dictionary<int, string> testDictionary = new Dictionary<int, string> { { 3, "3s" }, { 4, "4s" }, { 5, "5s" } };
             object testDictionaryAsObject = testDictionary;
-            var d = Utilities.ObjectToDictionary<int, string>(testDictionaryAsObject);
-            Assert.IsTrue(Utilities.DictionaryEquals(testDictionary, d));
+            Assert.IsTrue(Utilities.DictionaryEquals(testDictionary, Utilities.ObjectToDictionary<int, string>(testDictionaryAsObject)));
         }
-        [Ignore]
         [TestMethod]
         public void DictionaryEqualsSuccessTest2()
         {
@@ -413,19 +411,18 @@ namespace GRYLibrary.Tests
             Assert.IsTrue(Utilities.IsAssignableFrom(new SimpleDataStructure1(), typeof(IXmlSerializable)));
         }
         [TestMethod]
-        public void ReferenceEqualsTest()
+        public void ReferenceEqualsWithCommonValuesTest()
         {
             Guid guid1 = Guid.NewGuid();
             Assert.IsTrue(Utilities.ImprovedReferenceEquals(guid1, guid1));
-
             Guid guid2 = Guid.NewGuid();
             Assert.IsFalse(Utilities.ImprovedReferenceEquals(guid1, guid2));
-
+            Assert.IsTrue(Utilities.ImprovedReferenceEquals(Guid.Parse("33257693-bcee-4afd-a648-dd45ee06695d"), Guid.Parse("33257693-bcee-4afd-a648-dd45ee06695d")));
+            Assert.IsFalse(Utilities.ImprovedReferenceEquals(Guid.Parse("33257693-bcee-4afd-a648-dd45ee06695d"), Guid.Parse("22257693-bcee-4afd-a648-dd45ee066922")));
             object @object = new object();
             Assert.IsTrue(Utilities.ImprovedReferenceEquals(@object, @object));
             Assert.IsFalse(Utilities.ImprovedReferenceEquals(@object, new object()));
             Assert.IsFalse(Utilities.ImprovedReferenceEquals(@object, "string"));
-
             Assert.IsTrue(Utilities.ImprovedReferenceEquals(5, 5));
             Assert.IsTrue(Utilities.ImprovedReferenceEquals("string", "string"));
             Assert.IsFalse(Utilities.ImprovedReferenceEquals("string", "string2"));
@@ -434,8 +431,63 @@ namespace GRYLibrary.Tests
             Assert.IsFalse(Utilities.ImprovedReferenceEquals(null, "string"));
             Assert.IsFalse(Utilities.ImprovedReferenceEquals(0, new object()));
             Assert.IsFalse(Utilities.ImprovedReferenceEquals(0, null));
-            Assert.IsTrue(Utilities.ImprovedReferenceEquals(Guid.Parse("33257693-bcee-4afd-a648-dd45ee06695d"), Guid.Parse("33257693-bcee-4afd-a648-dd45ee06695d")));
-            Assert.IsFalse(Utilities.ImprovedReferenceEquals(Guid.Parse("33257693-bcee-4afd-a648-dd45ee06695d"), Guid.Parse("22257693-bcee-4afd-a648-dd45ee066922")));
+            Assert.IsTrue(Utilities.ImprovedReferenceEquals(new System.Collections.Generic.KeyValuePair<int, string>(5, "s"), new System.Collections.Generic.KeyValuePair<int, string>(5, "s")));
+            Assert.IsFalse(Utilities.ImprovedReferenceEquals(new System.Collections.Generic.KeyValuePair<int, string>(5, "s1"), new System.Collections.Generic.KeyValuePair<int, string>(5, "s2")));
+            Assert.IsFalse(Utilities.ImprovedReferenceEquals(new System.Collections.Generic.KeyValuePair<int, string>(5, "s"), new System.Collections.Generic.KeyValuePair<int, string>(6, "s")));
+            Assert.IsTrue(Utilities.ImprovedReferenceEquals(new System.Collections.Generic.KeyValuePair<int, string>(5, null), new System.Collections.Generic.KeyValuePair<int, object>(5, null)));
+        }
+        [TestMethod]
+        public void ReferenceEqualsCycleTest1()
+        {
+            CycleA cycle = CycleA.GetRandom();
+            Assert.IsTrue(Utilities.ImprovedReferenceEquals(cycle, cycle));
+        }
+        [TestMethod]
+        public void ReferenceEqualsCycleTest2()
+        {
+            Assert.IsFalse(Utilities.ImprovedReferenceEquals(CycleA.GetRandom(), CycleA.GetRandom()));
+        }
+        [TestMethod]
+        public void ReferenceEqualsCycleTest3()
+        {
+            object obj1 = new object();
+            object obj2 = new object();
+
+            WriteableTuple<object, object> wt1 = new WriteableTuple<object, object>();
+            WriteableTuple<object, object> wt2 = new WriteableTuple<object, object>();
+            WriteableTuple<object, object> wt3 = new WriteableTuple<object, object>();
+            WriteableTuple<object, object> wt4 = new WriteableTuple<object, object>();
+            WriteableTuple<object, object> wt5 = new WriteableTuple<object, object>();
+            WriteableTuple<object, object> wt6 = new WriteableTuple<object, object>();
+            WriteableTuple<object, object> wt7 = new WriteableTuple<object, object>();
+            WriteableTuple<object, object> wt8 = new WriteableTuple<object, object>();
+
+            System.Collections.Generic.KeyValuePair<object, object> kvp1 = new System.Collections.Generic.KeyValuePair<object, object>(wt1,wt2);
+            System.Collections.Generic.KeyValuePair<object, object> kvp2 = new System.Collections.Generic.KeyValuePair<object, object>(wt3,wt4);
+            System.Collections.Generic.KeyValuePair<object, object> kvp3 = new System.Collections.Generic.KeyValuePair<object, object>(wt5,wt6);
+            System.Collections.Generic.KeyValuePair<object, object> kvp4 = new System.Collections.Generic.KeyValuePair<object, object>(wt7,obj1);
+            System.Collections.Generic.KeyValuePair<object, object> kvp5 = new System.Collections.Generic.KeyValuePair<object, object>(obj1,obj2);
+            System.Collections.Generic.KeyValuePair<object, object> kvp6 = new System.Collections.Generic.KeyValuePair<object, object>(obj2,wt8);
+
+            wt1.Item1 = kvp2;
+            wt2.Item1 = kvp3;
+            wt3.Item1 = kvp4;
+            wt4.Item1 = kvp5;
+            wt5.Item1 = kvp5;
+            wt6.Item1 = kvp6;
+            wt7.Item1 = kvp1;
+            wt8.Item1 = kvp1;
+
+            Assert.IsTrue(Utilities.ImprovedReferenceEquals(kvp1, kvp1));
+            Assert.IsTrue(Utilities.ImprovedReferenceEquals(kvp2, kvp2));
+            Assert.IsTrue(Utilities.ImprovedReferenceEquals(kvp3, kvp3));
+            Assert.IsTrue(Utilities.ImprovedReferenceEquals(kvp4, kvp4));
+            Assert.IsTrue(Utilities.ImprovedReferenceEquals(kvp5, kvp5));
+            Assert.IsTrue(Utilities.ImprovedReferenceEquals(kvp6, kvp6));
+
+            Assert.IsFalse(Utilities.ImprovedReferenceEquals(kvp2, kvp3));
+            Assert.IsFalse(Utilities.ImprovedReferenceEquals(kvp1, kvp3));
+            Assert.IsFalse(Utilities.ImprovedReferenceEquals(kvp1, kvp4));
         }
     }
 }

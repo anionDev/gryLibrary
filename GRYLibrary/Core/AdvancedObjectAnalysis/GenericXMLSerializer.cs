@@ -108,7 +108,7 @@ namespace GRYLibrary.Core.AdvancedXMLSerialysis
         /// </summary>
         /// <remarks>
         /// This function does not create a deep copy of the property-values. It reassignes only the property-target-objects of <paramref name="thisObject"/>.
-        /// If <paramref name="thisObject"/> is an <see cref="System.Collections.IEnumerable"/> then only the references of the items of the enumeration will be copied, no property-values.
+        /// If <paramref name="thisObject"/> is an <see cref="IEnumerable"/> then only the references of the items of the enumeration will be copied, no property-values.
         /// </remarks>
         internal void CopyContentOfObject(object thisObject, object deserializedObject)
         {
