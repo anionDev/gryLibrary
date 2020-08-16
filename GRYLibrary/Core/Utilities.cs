@@ -507,7 +507,7 @@ namespace GRYLibrary.Core
         }
         public static bool DictionaryEquals<TKey, TValue>(this IDictionary<TKey, TValue> dictionary1, IDictionary<TKey, TValue> dictionary2)
         {
-            return new DictionaryComparer(new PropertyEqualsCalculatorConfiguration()).EqualsTyped(dictionary1, dictionary2);
+            return new PropertyEqualsCalculator(new PropertyEqualsCalculatorConfiguration()).DefaultEquals(dictionary1, dictionary2);
         }
         public static bool KeyValuePairEquals<TKey, TValue>(this System.Collections.Generic.KeyValuePair<TKey, TValue> keyValuePair1, System.Collections.Generic.KeyValuePair<TKey, TValue> keyValuePair2)
         {

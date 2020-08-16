@@ -25,6 +25,11 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis
                 return false;
             }
             this.Configuration.AddPending(object1, object2);
+            if (object.ReferenceEquals(object1, object2))
+            {
+                MarkedAsEqual(object1, object2);
+                return true;
+            }
             bool object1IsDefault = Utilities.IsDefault(object1);
             bool object2IsDefault = Utilities.IsDefault(object2);
             if (object1IsDefault && object2IsDefault)

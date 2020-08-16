@@ -337,15 +337,42 @@ namespace GRYLibrary.Tests
         }
 
         [TestMethod]
-        public void ObjectToDictionarytFailTest()
+        public void ObjectToDictionaryFailTest()
         {
             Assert.ThrowsException<InvalidCastException>(() => Utilities.ObjectToDictionary<object, object>(new object()));
             Assert.ThrowsException<InvalidCastException>(() => Utilities.ObjectToDictionary<object, object>("somestring"));
         }
+        [TestMethod]
+        public void ObjectToDictionarySuccessTest()
+        {
+            Dictionary<int, string> testDictionary = new Dictionary<int, string> { { 3, "3s" }, { 4, "4s" }, { 5, "5s" } };
+            object testDictionaryAsObject = testDictionary;
+            Utilities.ObjectToDictionary<int, string>(testDictionaryAsObject);
+        }
+
+        [TestMethod]
+        public void DictionaryEqualsFailTest()
+        {
+            //arrange
+            Dictionary<int, string> testDictionary1 = new Dictionary<int, string> { { 3, "3s" }, { 4, "4s" }, { 5, "5s" } };
+            Dictionary<int, string> testDictionary2 = new Dictionary<int, string> { { 3, "3s" }, { 4, "4s" } };
+
+            // act && assert
+            Assert.IsFalse(Utilities.DictionaryEquals<int, string>(testDictionary1, testDictionary2));
+        }
 
         [Ignore]
         [TestMethod]
-        public void ObjectToDictionarytSuccessTest()
+        public void DictionaryEqualsSuccessTest1()
+        {
+            Dictionary<int, string> testDictionary = new Dictionary<int, string> { { 3, "3s" }, { 4, "4s" }, { 5, "5s" } };
+            object testDictionaryAsObject = testDictionary;
+            var d = Utilities.ObjectToDictionary<int, string>(testDictionaryAsObject);
+            Assert.IsTrue(Utilities.DictionaryEquals(testDictionary, d));
+        }
+        [Ignore]
+        [TestMethod]
+        public void DictionaryEqualsSuccessTest2()
         {
             Dictionary<int, string> testDictionary = new Dictionary<int, string> { { 3, "3s" }, { 4, "4s" }, { 5, "5s" } };
             object testDictionaryAsObject = testDictionary;
@@ -368,7 +395,7 @@ namespace GRYLibrary.Tests
             Assert.IsTrue(Utilities.ObjectIsEnumerable(new HashSet<object> { 3, 4, 5 }));
             Assert.IsTrue(Utilities.ObjectIsEnumerable(new HashSet<int> { 3, 4, 5 }));
             Assert.IsTrue(Utilities.ObjectIsEnumerable(new List<SimpleDataStructure3>()));
-            Assert.IsTrue(Utilities.ObjectIsEnumerable(""));
+            Assert.IsTrue(Utilities.ObjectIsEnumerable(string.Empty));
             Assert.IsFalse(Utilities.ObjectIsEnumerable(4));
 
         }
