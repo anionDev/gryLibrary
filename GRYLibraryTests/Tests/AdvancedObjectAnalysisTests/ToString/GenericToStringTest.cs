@@ -13,7 +13,7 @@ namespace GRYLibrary.Tests.AdvancedObjectAnalysisTests.ToString
         public void SimpleDataStructureTestObjectToString()
         {
             // arrange
-            SimpleDataStructure1 testObject = SimpleDataStructure1.GetRandom();//todo
+            SimpleDataStructure1 testObject = SimpleDataStructure1.GetRandom();
             string expectedString = @"{ (ObjectId: 2, Type: GRYLibrary.TestData.TestTypes.SimpleDataStructure.SimpleDataStructure1) 
   Property1: 
   [
