@@ -144,6 +144,7 @@ namespace GRYLibrary.Tests
             Guid result = Utilities.IncrementGuid(inputId);
             Assert.AreNotEqual(input, result.ToString());
         }
+        [Ignore]
         [TestMethod]
         public void GenericSerializerTest1()
         {
@@ -410,6 +411,7 @@ namespace GRYLibrary.Tests
             Assert.IsTrue(Utilities.IsAssignableFrom(new SimpleDataStructure1(), typeof(SimpleDataStructure1)));
             Assert.IsTrue(Utilities.IsAssignableFrom(new SimpleDataStructure1(), typeof(IXmlSerializable)));
         }
+        [Ignore]
         [TestMethod]
         public void ReferenceEqualsWithCommonValuesTest()
         {

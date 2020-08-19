@@ -61,6 +61,7 @@ namespace GRYLibrary.Tests
                 Utilities.EnsureDirectoryDoesNotExist(folder);
             }
         }
+        [Ignore]
         [TestMethod]
         public void TestLogFileWithConfigurationchangeOnRuntime()
         {
@@ -111,6 +112,7 @@ namespace GRYLibrary.Tests
                 Utilities.EnsureFileDoesNotExist(configurationFile);
             }
         }
+        [Ignore]
         [TestMethod]
         public void SerializeAndDeserialize1()
         {

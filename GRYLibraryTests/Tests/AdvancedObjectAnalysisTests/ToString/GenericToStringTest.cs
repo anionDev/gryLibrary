@@ -9,6 +9,7 @@ namespace GRYLibrary.Tests.AdvancedObjectAnalysisTests.ToString
     [TestClass]
     public class GenericToStringTest
     {
+        [Ignore]
         [TestMethod]
         public void SimpleDataStructureTestObjectToString()
         {
