@@ -16,17 +16,18 @@ namespace GRYLibrary.TestData.TestTypes.ComplexDataStructure
 
         public static Address GetRandom()
         {
-            Address result = new Address();
-
-            result.AddressLine1 = Utilities.GetRandomAddressLine1();
-            result.AddressLine2 = Utilities.GetRandomAddressLine2();
-            result.Building = Utilities.GetRandomBuilding();
-            result.City = Utilities.GetRandomCity();
-            result.CountryRegion = Utilities.GetRandomCountryRegion();
-            result.FloorLevel = Utilities.GetRandomFloorLevel();
-            result.PostalCode = Utilities.GetRandomPostalCode();
-            result.StateProvince = Utilities.GetRandomStateProvince();
-            result.Country = Utilities.GetRandomCountry();
+            Address result = new Address
+            {
+                AddressLine1 = ComplexDataStructureUtilities.GetRandomAddressLine1(),
+                AddressLine2 = ComplexDataStructureUtilities.GetRandomAddressLine2(),
+                Building = ComplexDataStructureUtilities.GetRandomBuilding(),
+                City = ComplexDataStructureUtilities.GetRandomCity(),
+                CountryRegion = ComplexDataStructureUtilities.GetRandomCountryRegion(),
+                FloorLevel = ComplexDataStructureUtilities.GetRandomFloorLevel(),
+                PostalCode = ComplexDataStructureUtilities.GetRandomPostalCode(),
+                StateProvince = ComplexDataStructureUtilities.GetRandomStateProvince(),
+                Country = ComplexDataStructureUtilities.GetRandomCountry()
+            };
 
             return result;
         }

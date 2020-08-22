@@ -9,9 +9,18 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper
     {
         private static readonly IdGenerator<int> _IdGenerator = IdGenerator.GetDefaultIntIdGenerator();
         internal ISet<EquivalenceClass> EquivalenceClasses { get; } = new HashSet<EquivalenceClass>();
+        private ISet<ReferenceTuple> NotEqualPairs { get; } = new HashSet<ReferenceTuple>();
+        private ISet<ReferenceTuple> PendingComparisons { get; } = new HashSet<ReferenceTuple>();
         public Func<PropertyInfo, bool> PropertySelector { get; set; } = (PropertyInfo propertyInfo) =>
         {
-            return propertyInfo.GetMethod.IsPublic && propertyInfo.SetMethod.IsPublic && !propertyInfo.GetMethod.IsStatic;
+            try
+            {
+                return propertyInfo.GetMethod.IsPublic && propertyInfo.SetMethod.IsPublic && !propertyInfo.GetMethod.IsStatic;
+            }
+            catch
+            {
+                return false;
+            }
         };
         public Func<FieldInfo, bool> FieldSelector { get; set; } = (FieldInfo fieldInfo) =>
         {
@@ -31,6 +40,18 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper
               new AttributeValueComparer(this),
             };
         }
+        internal void AddPending(object object1, object object2)
+        {
+            PendingComparisons.Add(new ReferenceTuple(object1, object2));
+        }
+        internal bool ArePending(object object1, object object2)
+        {
+          return  PendingComparisons.Contains(new ReferenceTuple(object1, object2));
+        }
+        internal void RemovePending(object object1, object object2)
+        {
+            PendingComparisons.Remove(new ReferenceTuple(object1, object2));
+        }
         public int GetHashCode(object @object)
         {
             return Generic.GenericGetHashCode(@object);
@@ -47,6 +68,16 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper
                 }
             }
             throw new KeyNotFoundException($"Object '{@object}' was not assigned to an {nameof(EquivalenceClass)} yet.");
+        }
+
+        internal void MarkedAsNotEqual(object object1, object object2)
+        {
+            RemovePending(object1, object2);
+            NotEqualPairs.Add(new ReferenceTuple(object1, object2));
+        }
+        internal bool WereMarkedAsNotEqual(object object1, object object2)
+        {
+            return NotEqualPairs.Contains(new ReferenceTuple(object1, object2));
         }
 
         private bool BelongsToEquivalenceClass(EquivalenceClass equivalenceClass, object @object)
@@ -81,6 +112,7 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper
 
         internal void AddEqualObjectsToEquivalenceClasses(object object1, object object2)
         {
+            RemovePending(object1, object2);
             foreach (EquivalenceClass loopEquivalenceClass in this.EquivalenceClasses)
             {
                 if (this.BelongsToEquivalenceClass(loopEquivalenceClass, object1))
@@ -98,7 +130,6 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper
                     return;
                 }
             }
-
             EquivalenceClass equivalenceClass = new EquivalenceClass(object1, _IdGenerator.GenerateNewId());
             equivalenceClass.Add(object2);
             this.EquivalenceClasses.Add(equivalenceClass);

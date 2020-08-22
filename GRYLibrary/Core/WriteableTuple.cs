@@ -22,8 +22,7 @@ namespace GRYLibrary.Core
 
         public override bool Equals(object obj)
         {
-            WriteableTuple<T1, T2> typedObject = obj as WriteableTuple<T1, T2>;
-            if (typedObject == null)
+            if (!(obj is WriteableTuple<T1, T2> typedObject))
             {
                 return false;
             }

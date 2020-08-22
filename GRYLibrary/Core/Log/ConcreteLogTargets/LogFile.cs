@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Text;
 
 namespace GRYLibrary.Core.Log.ConcreteLogTargets
@@ -17,7 +18,7 @@ namespace GRYLibrary.Core.Log.ConcreteLogTargets
             }
             string file = Utilities.ResolveToFullPath(this.File);
             Utilities.EnsureFileExists(file, true);
-            logItem.Format(logObject.Configuration, out string formattedMessage, out int _, out int _, out ConsoleColor _);
+            logItem.Format(logObject.Configuration, out string formattedMessage, out int _, out int _, out ConsoleColor _, GRYLogLogFormat.OnlyMessage);
             if (!Utilities.FileIsEmpty(file))
             {
                 formattedMessage = Environment.NewLine + formattedMessage;
@@ -32,6 +33,10 @@ namespace GRYLibrary.Core.Log.ConcreteLogTargets
                 encoding = System.Text.Encoding.GetEncoding(this.Encoding);
             }
             System.IO.File.AppendAllText(file, formattedMessage, encoding);
+        }
+        public override ISet<Type> FurtherGetExtraTypesWhichAreRequiredForSerialization()
+        {
+            return new HashSet<Type>();
         }
     }
 }

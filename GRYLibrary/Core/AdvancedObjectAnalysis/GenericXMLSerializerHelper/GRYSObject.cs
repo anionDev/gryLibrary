@@ -4,8 +4,8 @@ using GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper.Cust
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
-using System.Runtime.Serialization;
 using static GRYLibrary.Core.AdvancedObjectAnalysis.GenericXMLSerializerHelper.FlatObject;
 
 namespace GRYLibrary.Core.AdvancedObjectAnalysis.GenericXMLSerializerHelper
@@ -31,14 +31,15 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.GenericXMLSerializerHelper
 
         private static Guid FillDictionary(Dictionary<object, FlatObject> dictionary, object @object, SerializationConfiguration serializationConfiguration)
         {
-            if (Utilities.IsDefault(@object))
+            if (@object==null)
             {
                 return default;
             }
             Type typeOfObject = @object.GetType();
-            if (!typeOfObject.IsPublic)
+            if (Utilities.ObjectIsKeyValuePair(@object))
             {
-                throw new SerializationException($"Object of type '{typeOfObject}' can not be serialized because the type is not pubilc");
+                KeyValuePair<object, object> kvp = Utilities.ObjectToKeyValuePair<object,object>(@object);
+                @object = new XMLSerializer.KeyValuePair<object, object>(kvp.Key, kvp.Value);
             }
             if (dictionary.ContainsKey(@object))
             {
@@ -70,18 +71,17 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.GenericXMLSerializerHelper
 
         private class DeserializeVisitor : IFlatObjectVisitor
         {
-            private readonly Dictionary<Guid, object> _DeserializedObjects;
-            public DeserializeVisitor(Dictionary<Guid, object> deserializedObjects)
+            private readonly IDictionary<Guid, object> _DeserializedObjects;
+            public DeserializeVisitor(IDictionary<Guid, object> deserializedObjects)
             {
                 this._DeserializedObjects = deserializedObjects;
             }
             public void Handle(FlatComplexObject simplifiedObject)
             {
-                object @object = this._DeserializedObjects[simplifiedObject.ObjectId];
+                object @object = GetDeserialisedObjectOrDefault(simplifiedObject.ObjectId);
                 Type typeOfObject = @object.GetType();
                 foreach (FlatAttribute attribute in simplifiedObject.Attributes)
                 {
-
                     PropertyInfo property = typeOfObject.GetProperty(attribute.Name);
                     if (property != null)
                     {
@@ -116,29 +116,50 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.GenericXMLSerializerHelper
 
             public void Handle(FlatEnumerable simplifiedEnumerable)
             {
-                object enumerable = this._DeserializedObjects[simplifiedEnumerable.ObjectId];
-                MethodInfo addOperation = enumerable.GetType().GetMethod("Add");
-                bool isDictionary = Utilities.ObjectIsDictionary(enumerable);
+                object enumerable = GetDeserialisedObjectOrDefault(simplifiedEnumerable.ObjectId);
+                if (Utilities.IsDefault(enumerable))
+                {
+                    return;
+                }
+                Type enumerableType = Type.GetType(simplifiedEnumerable.TypeName);
+                bool isDictionaryNotGeneric = Utilities.TypeIsDictionaryNotGeneric(enumerableType);
+                bool isDictionaryGeneric = Utilities.TypeIsDictionaryGeneric(enumerableType);
                 foreach (Guid itemId in simplifiedEnumerable.Items)
                 {
-                    object itemForEnumerable = this._DeserializedObjects[itemId];
+                    object itemForEnumerable;
+                    itemForEnumerable = GetDeserialisedObjectOrDefault(itemId);
                     object[] arguments;
-                    if (isDictionary)
+                    if (isDictionaryGeneric)
                     {
-                        KeyValuePair<object, object> keyValuePair = Utilities.ObjectToKeyValuePair<object, object>(itemForEnumerable);
+                        XMLSerializer.KeyValuePair<object, object> gkvp =(XMLSerializer.KeyValuePair<object, object>) itemForEnumerable;
+                        arguments = new object[] { gkvp.Key, gkvp.Value };
+                    }
+                    else if (isDictionaryNotGeneric)
+                    {
+                        DictionaryEntry keyValuePair = Utilities.ObjectToDictionaryEntry(itemForEnumerable);
                         arguments = new object[] { keyValuePair.Key, keyValuePair.Value };
                     }
                     else
                     {
                         arguments = new object[] { itemForEnumerable };
                     }
-                    addOperation.Invoke(enumerable, arguments);
+                    Utilities.AddItemToEnumerable(enumerable, arguments);
                 }
             }
-
             public void Handle(FlatPrimitive simplifiedPrimitive)
             {
                 Utilities.NoOperation();
+            }
+            private object GetDeserialisedObjectOrDefault(Guid id)
+            {
+                if (default(Guid).Equals(id))
+                {
+                    return default;
+                }
+                else
+                {
+                    return this._DeserializedObjects[id];
+                }
             }
         }
         private class CreateObjectVisitor : IFlatObjectVisitor<object>
@@ -152,30 +173,34 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.GenericXMLSerializerHelper
             public object Handle(FlatEnumerable simplifiedEnumerable)
             {
                 Type typeOfSimplifiedEnumerable = Type.GetType(simplifiedEnumerable.TypeName);
-                Type ConcreteTypeOfEnumerable;
+                Type concreteTypeOfEnumerable;
                 if (Utilities.TypeIsListGeneric(typeOfSimplifiedEnumerable))
                 {
-                    ConcreteTypeOfEnumerable = typeof(List<>);
+                    concreteTypeOfEnumerable = typeof(List<>);
                 }
                 else if (Utilities.TypeIsListNotGeneric(typeOfSimplifiedEnumerable))
                 {
-                    ConcreteTypeOfEnumerable = typeof(ArrayList);
+                    concreteTypeOfEnumerable = typeof(ArrayList);
                 }
                 else if (Utilities.TypeIsSet(typeOfSimplifiedEnumerable))
                 {
-                    ConcreteTypeOfEnumerable = typeof(HashSet<>);
+                    concreteTypeOfEnumerable = typeof(HashSet<>);
                 }
                 else if (Utilities.TypeIsDictionaryGeneric(typeOfSimplifiedEnumerable))
                 {
-                    ConcreteTypeOfEnumerable = typeof(Dictionary<,>);
+                    concreteTypeOfEnumerable = typeof(Dictionary<,>);
                 }
                 else if (Utilities.TypeIsDictionaryNotGeneric(typeOfSimplifiedEnumerable))
                 {
-                    ConcreteTypeOfEnumerable = typeof(Hashtable);
+                    concreteTypeOfEnumerable = typeof(Hashtable);
                 }
                 else if (Utilities.TypeIsEnumerable(typeOfSimplifiedEnumerable))
                 {
-                    ConcreteTypeOfEnumerable = typeof(List<>);
+                    concreteTypeOfEnumerable = typeof(List<>);
+                }
+                else if (Utilities.TypeIsKeyValuePair(typeOfSimplifiedEnumerable))
+                {
+                    concreteTypeOfEnumerable = typeof(List<>);
                 }
                 else
                 {
@@ -183,9 +208,9 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.GenericXMLSerializerHelper
                 }
                 if (typeOfSimplifiedEnumerable.GenericTypeArguments.Length > 0)
                 {
-                    ConcreteTypeOfEnumerable = ConcreteTypeOfEnumerable.MakeGenericType(typeOfSimplifiedEnumerable.GenericTypeArguments);
+                    concreteTypeOfEnumerable = concreteTypeOfEnumerable.MakeGenericType(typeOfSimplifiedEnumerable.GenericTypeArguments);
                 }
-                return Activator.CreateInstance(ConcreteTypeOfEnumerable);
+                return Activator.CreateInstance(concreteTypeOfEnumerable);
             }
 
             public object Handle(FlatPrimitive simplifiedPrimitive)
@@ -252,11 +277,22 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.GenericXMLSerializerHelper
         internal object Get()
         {
             Dictionary<Guid, object> deserializedObjects = new Dictionary<Guid, object>();
-            foreach (FlatObject simplified in this.Objects)
+            IList<FlatObject> sorted = this.Objects.ToList();
+            sorted = sorted.OrderBy((item)=> {
+                if (item.TypeName.StartsWith("GRYLibrary.Core.XMLSerializer.KeyValuePair"))
+                {
+                    return 0;
+                }
+                else
+                {
+                    return 1;
+                }
+            }).ToList();
+            foreach (FlatObject simplified in sorted)
             {
                 deserializedObjects.Add(simplified.ObjectId, simplified.Accept(new CreateObjectVisitor()));
             }
-            foreach (FlatObject simplified in this.Objects)
+            foreach (FlatObject simplified in sorted)
             {
                 simplified.Accept(new DeserializeVisitor(deserializedObjects));
             }

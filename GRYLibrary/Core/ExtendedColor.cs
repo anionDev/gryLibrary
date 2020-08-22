@@ -60,9 +60,9 @@ namespace GRYLibrary.Core
         }
         public override bool Equals(object @object)
         {
-            if (@object is ExtendedColor)
+            if (@object is ExtendedColor color)
             {
-                return this.ColorCode == ((ExtendedColor)@object).ColorCode;
+                return this.ColorCode == color.ColorCode;
             }
             else
             {

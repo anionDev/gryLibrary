@@ -23,7 +23,7 @@ namespace GRYLibrary.Tests
             items[2, 1] = "lastline1";
             items[2, 2] = "lastline2";
             items[2, 3] = "lastline3_012345";
-            string[] table = TableGenerator.Generate(items, new TableGenerator.ASCIITable() { TableHasTitles = true });
+            string[] table = TableGenerator.Generate(items, new ASCIITable() { TableHasTitles = true });
             Assert.AreEqual(6, table.Length);
             Assert.AreEqual("┌───────────┬──────────────┬──────────────┬────────────────┐", table[0]);
             Assert.AreEqual("│firstline0 │firstline1_012│firstline2    │firstline3      │", table[1]);
@@ -48,7 +48,7 @@ namespace GRYLibrary.Tests
             items[2, 1] = "lastline1";
             items[2, 2] = "lastline2";
             items[2, 3] = "lastline3_012345";
-            string[] table = TableGenerator.Generate(items, new TableGenerator.ASCIITable() { Characters = new DoubleLineTableCharacter(), MaximalWidth = 11 });
+            string[] table = TableGenerator.Generate(items, new ASCIITable() { Characters = new DoubleLineTableCharacter(), MaximalWidth = 11 });
             Assert.AreEqual(5, table.Length);
             Assert.AreEqual("╔══════════╦═══════════╦═══════════╦═══════════╗", table[0]);
             Assert.AreEqual("║firstline0║firstlin...║firstline2 ║firstline3 ║", table[1]);
@@ -72,7 +72,7 @@ namespace GRYLibrary.Tests
             items[2, 1] = "lastline1";
             items[2, 2] = "lastline2";
             items[2, 3] = "lastline3_012345";
-            string[] table = TableGenerator.Generate(items, new TableGenerator.CSV());
+            string[] table = TableGenerator.Generate(items, new CSV());
             Assert.AreEqual(3, table.Length);
             Assert.AreEqual("firstline0;firstline1_012;firstline2;firstline3", table[0]);
             Assert.AreEqual("secondline;secondline1;secondline2_01;secondline3", table[1]);

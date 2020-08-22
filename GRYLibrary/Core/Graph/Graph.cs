@@ -369,8 +369,7 @@ namespace GRYLibrary.Core.Graph
         /// <remarks>This operations does not work yet due to missing implementation of <see cref="IsSubgraph"/>.</remarks>
         public bool IsSubgraphOf(Graph graph, out IDictionary<Vertex, Vertex> mappingFromgraphToThisGraph)
         {
-            IDictionary<Vertex, Vertex> mappingFromSubgraphToThisGraph;
-            bool result = graph.IsSubgraph(this, out mappingFromSubgraphToThisGraph);
+            bool result = graph.IsSubgraph(this, out IDictionary<Vertex, Vertex> mappingFromSubgraphToThisGraph);
             if (result)
             {
                 mappingFromgraphToThisGraph = mappingFromSubgraphToThisGraph.ToDictionary(keyValuePair => keyValuePair.Value, keyValuePair => keyValuePair.Key);

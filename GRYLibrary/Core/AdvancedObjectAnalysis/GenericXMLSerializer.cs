@@ -1,5 +1,8 @@
-﻿using GRYLibrary.Core.AdvancedObjectAnalysis.GenericXMLSerializerHelper;
+﻿using GRYLibrary.Core.AdvancedObjectAnalysis;
+using GRYLibrary.Core.AdvancedObjectAnalysis.GenericXMLSerializerHelper;
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -9,20 +12,32 @@ using System.Xml.Serialization;
 
 namespace GRYLibrary.Core.AdvancedXMLSerialysis
 {
-    public class GenericXMLSerializer<T>
+    public class GenericXMLSerializer
     {
         public SerializationConfiguration SerializationConfiguration { get; set; }
-        public GenericXMLSerializer()
+        private readonly Type _T;
+        public GenericXMLSerializer() : this(typeof(object))
         {
+        }
+        public GenericXMLSerializer(Type type)
+        {
+            this._T = type;
             this.SerializationConfiguration = new SerializationConfiguration
             {
-                XmlSerializer = new XmlSerializer(typeof(GRYSObject)),
                 PropertySelector = (PropertyInfo propertyInfo) => { return propertyInfo.CanWrite && propertyInfo.CanRead && propertyInfo.GetMethod.IsPublic; },
                 FieldSelector = (FieldInfo fieldInfo) => { return false; },
                 Encoding = new UTF8Encoding(false)
             };
         }
 
+        public static GenericXMLSerializer<object> DefaultInstance()
+        {
+            return new GenericXMLSerializer<object>();
+        }
+        internal static GenericXMLSerializer CreateForObject(object @object)
+        {
+            return new GenericXMLSerializer(@object.GetType());
+        }
         private XmlWriterSettings GetXmlWriterSettings()
         {
             XmlWriterSettings result = new XmlWriterSettings
@@ -33,7 +48,7 @@ namespace GRYLibrary.Core.AdvancedXMLSerialysis
             };
             return result;
         }
-        public string Serialize(T @object)
+        public string Serialize(object/*T*/ @object)
         {
             using MemoryStream memoryStream = new MemoryStream();
             using (XmlWriter xmlWriter = XmlWriter.Create(memoryStream, this.GetXmlWriterSettings()))
@@ -42,45 +57,110 @@ namespace GRYLibrary.Core.AdvancedXMLSerialysis
             }
             return this.SerializationConfiguration.Encoding.GetString(memoryStream.ToArray());
         }
-        public void Serialize(T @object, XmlWriter writer)
+        public void Serialize(object/*T*/ @object, XmlWriter writer)
         {
-            GRYSObject genericallySerializedObject = GRYSObject.Create(@object, this.SerializationConfiguration);
-            this.SerializationConfiguration.XmlSerializer.Serialize(writer, genericallySerializedObject);
+            if (@object == null)
+            {
+                //TODO
+            }
+            if (!Utilities.IsAssignableFrom(@object, _T))
+            {
+                throw new ArgumentException($"Can only serilize objects of type {@object.GetType().FullName} but the given object has the type {_T.FullName}");
+            }
+            object objectForRealSerialization = GRYSObject.Create(@object, this.SerializationConfiguration);
+            IEnumerable<(object, Type)> allReferencedObjects = new PropertyIterator().IterateOverObjectTransitively(objectForRealSerialization);
+            HashSet<Type> extraTypes = new HashSet<Type>();
+            foreach ((object, Type) referencedObject in allReferencedObjects)
+            {
+                if (referencedObject.Item1 != null && referencedObject.Item1 is IGRYSerializable extraTypesProvider)
+                {
+                    extraTypes.UnionWith(extraTypesProvider.GetExtraTypesWhichAreRequiredForSerialization());
+                }
+            }
+            GetSerializer().Serialize(writer, objectForRealSerialization);
         }
+
+
         public U Deserialize<U>(string serializedObject)
         {
-            return (U)(object)this.Deserialize(serializedObject);
+            return (U)this.Deserialize(serializedObject);
         }
-        public T Deserialize(string serializedObject)
+        public object/*T*/ Deserialize(string serializedObject)
         {
             using StringReader stringReader = new StringReader(serializedObject);
             using XmlReader xmlReader = XmlReader.Create(stringReader);
             return this.Deserialize(xmlReader);
         }
-        public T Deserialize(XmlReader reader)
+        public object/*T*/ Deserialize(XmlReader reader)
         {
-            GRYSObject grySerializedObject = (GRYSObject)this.SerializationConfiguration.XmlSerializer.Deserialize(reader);
-            return (T)grySerializedObject.Get();
+            object result = GetSerializer().Deserialize(reader);
+            GRYSObject gRYSObject = (GRYSObject)result;
+            return gRYSObject.Get();
         }
+
+        private XmlSerializer GetSerializer()
+        {
+            return new XmlSerializer(typeof(GRYSObject), typeof(GRYSObject).Name);//TODO use extra types
+        }
+
         /// <summary>
         /// Sets the values of all properties of <paramref name="thisObject"/> to the value of the equal property of <paramref name="deserializedObject"/>.
         /// </summary>
-        /// <remarks>This function does not create a deep copy of the property-values. It reassignes only the property-target-objects of <paramref name="thisObject"/>.</remarks>
-        internal void CopyContent(object thisObject, object deserializedObject)
+        /// <remarks>
+        /// This function does not create a deep copy of the property-values. It reassignes only the property-target-objects of <paramref name="thisObject"/>.
+        /// If <paramref name="thisObject"/> is an <see cref="IEnumerable"/> then only the references of the items of the enumeration will be copied, no property-values.
+        /// </remarks>
+        internal void CopyContentOfObject(object thisObject, object deserializedObject)
         {
-            Type type = thisObject.GetType();
-            foreach (FieldInfo field in type.GetFields().Where((field) => this.SerializationConfiguration.FieldSelector(field)))
+            bool thisIsNull = thisObject == null;
+            bool deserializedObjectIsNull = deserializedObject == null;
+            if (thisIsNull && deserializedObjectIsNull)
             {
-                field.SetValue(thisObject, field.GetValue(deserializedObject));
+                return;
             }
-            foreach (PropertyInfo property in type.GetProperties().Where((property) => this.SerializationConfiguration.PropertySelector(property)))
+            if (thisIsNull && !deserializedObjectIsNull)
             {
-                property.SetValue(thisObject, property.GetValue(deserializedObject));
+                throw new NullReferenceException();
+            }
+            if (!thisIsNull && deserializedObjectIsNull)
+            {
+                throw new NullReferenceException();
+            }
+            if (!thisIsNull && !deserializedObjectIsNull)
+            {
+                Type type = thisObject.GetType();
+                if (Utilities.TypeIsEnumerable(type))
+                {
+                    foreach (object item in deserializedObject as IEnumerable)
+                    {
+                        Utilities.AddItemToEnumerable(thisObject, new object[] { item });
+                    }
+                }
+                else
+                {
+                    foreach (FieldInfo field in type.GetFields().Where((field) => this.SerializationConfiguration.FieldSelector(field)))
+                    {
+                        field.SetValue(thisObject, field.GetValue(deserializedObject));
+                    }
+                    foreach (PropertyInfo property in type.GetProperties().Where((property) => this.SerializationConfiguration.PropertySelector(property)))
+                    {
+                        property.SetValue(thisObject, property.GetValue(deserializedObject));
+                    }
+                }
             }
         }
+
     }
-    public static class GenericXMLSerializer
+    public class GenericXMLSerializer<T> : GenericXMLSerializer
     {
-        public static GenericXMLSerializer<object> DefaultInstance { get; } = new GenericXMLSerializer<object>();
+
+        public T DeserializeTyped(string serializedObject)
+        {
+            return (T)this.Deserialize(serializedObject);
+        }
+        public T DeserializeTyped(XmlReader reader)
+        {
+            return (T)this.Deserialize(reader);
+        }
     }
 }

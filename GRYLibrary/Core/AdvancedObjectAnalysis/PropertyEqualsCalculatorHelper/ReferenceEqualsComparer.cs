@@ -7,7 +7,8 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper
     {
         public new bool Equals(object item1, object item2)
         {
-            return object.ReferenceEquals(item1, item2);
+            bool result = Utilities.ImprovedReferenceEquals(item1, item2);
+            return result;
         }
 
         public int GetHashCode(object obj)

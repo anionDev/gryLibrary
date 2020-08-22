@@ -1,11 +1,16 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Xml;
+using System.Xml.Schema;
+using System.Xml.Serialization;
 using GRYLibrary.Core;
 using GRYLibrary.Core.AdvancedObjectAnalysis;
+using GRYLibrary.Core.AdvancedObjectAnalysis.GenericXMLSerializerHelper;
 
 namespace GRYLibrary.TestData.TestTypes.ComplexDataStructure
 {
-    public class Company
+    public class Company : IGRYSerializable
     {
         public Employee Manager { get; set; }
 
@@ -17,8 +22,7 @@ namespace GRYLibrary.TestData.TestTypes.ComplexDataStructure
 
         internal static Company GetRandom()
         {
-            Company company = new Company();
-            company.Name = "Test-Company";
+            Company company = new Company { Name = "Test-Company" };
 
             Employee manager = Employee.GetRandom(); company.Employees.Add(manager); company.Manager = manager;
             Employee bossOrg1Personal = Employee.GetRandom(); company.Employees.Add(bossOrg1Personal);
@@ -65,14 +69,37 @@ namespace GRYLibrary.TestData.TestTypes.ComplexDataStructure
         {
             return Generic.GenericEquals(this, @object);
         }
+
         public override int GetHashCode()
         {
             return Generic.GenericGetHashCode(this);
         }
+
         public override string ToString()
         {
-            return GenericToString.Instance.ToString(this, 1000);
+            return Generic.GenericToString(this);
+        }
+
+        public XmlSchema GetSchema()
+        {
+            return Generic.GenericGetSchema(this);
+        }
+
+        public void ReadXml(XmlReader reader)
+        {
+            Generic.GenericReadXml(this, reader);
+        }
+
+        public void WriteXml(XmlWriter writer)
+        {
+            Generic.GenericWriteXml(this, writer);
+        }
+
+        public ISet<Type> GetExtraTypesWhichAreRequiredForSerialization()
+        {
+            return new HashSet<Type>();
         }
         #endregion
+
     }
 }

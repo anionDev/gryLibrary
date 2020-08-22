@@ -9,13 +9,13 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper.
             this.Configuration = cacheAndConfiguration;
         }
 
-        internal override bool DefaultEquals(object item1, object item2)
+        public override bool DefaultEquals(object item1, object item2)
         {
             bool result = item1.Equals(item2);
             return result;
         }
 
-        internal override int DefaultGetHashCode(object obj)
+        public override int DefaultGetHashCode(object obj)
         {
             return this.Configuration.GetHashCode(obj);
         }
@@ -26,7 +26,7 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper.
         }
         public static bool TypeIsTreatedAsPrimitive(Type type)
         {
-            return type.IsPrimitive || typeof(string).Equals(type) || type.IsValueType;
+            return Utilities.TypeIsPrimitive(type);
         }
     }
 }

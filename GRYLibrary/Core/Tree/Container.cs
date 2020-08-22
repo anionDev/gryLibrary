@@ -19,9 +19,9 @@ namespace GRYLibrary.Core.Tree
             result.AddRange(this.Children);
             foreach (TreeItem<ContainedItemType> child in this.Children)
             {
-                if (child is Container<ContainedItemType>)
+                if (child is Container<ContainedItemType> container)
                 {
-                    result.AddRange(((Container<ContainedItemType>)child).GetDirectAndTransitiveChildren());
+                    result.AddRange(container.GetDirectAndTransitiveChildren());
                 }
             }
             return result;

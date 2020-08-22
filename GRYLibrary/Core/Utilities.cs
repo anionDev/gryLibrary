@@ -27,6 +27,9 @@ using GRYLibrary.Core.OperatingSystem.ConcreteOperatingSystems;
 using GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper.CustomComparer;
 using System.Runtime.InteropServices;
 using GRYLibrary.Core.Log;
+using GRYLibrary.Core.AdvancedObjectAnalysis;
+using System.Collections;
+using System.Diagnostics;
 
 namespace GRYLibrary.Core
 {
@@ -77,10 +80,27 @@ namespace GRYLibrary.Core
             return result;
         }
 
-        public static int Count(this System.Collections.IEnumerable enumerable)
+        public static bool IsValidXML(string xmlString)
+        {
+            if (string.IsNullOrWhiteSpace(xmlString))
+            {
+                return false;
+            }
+            try
+            {
+                XDocument.Parse(xmlString);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public static int Count(this IEnumerable enumerable)
         {
             int result = 0;
-            System.Collections.IEnumerator enumerator = enumerable.GetEnumerator();
+            IEnumerator enumerator = enumerable.GetEnumerator();
             while (enumerator.MoveNext())
             {
                 result += 1;
@@ -161,6 +181,8 @@ namespace GRYLibrary.Core
                 throw new Exception($"File '{file}' can not be executed");
             }
         }
+
+
         public static void OpenFileWithDefaultProgram(string file)
         {
             ExternalProgramExecutor.Create(file, string.Empty).StartConsoleApplicationInCurrentConsoleWindow();
@@ -194,18 +216,20 @@ namespace GRYLibrary.Core
         }
 
 
+
+
         #endregion
         #region Enumerable
 
         #region IsEnumerable
-        /// <returns>Returns true if and only if the most concrete type of <paramref name="object"/> implements <see cref="System.Collections.IEnumerable"/>.</returns>
+        /// <returns>Returns true if and only if the most concrete type of <paramref name="object"/> implements <see cref="IEnumerable"/>.</returns>
         public static bool ObjectIsEnumerable(this object @object)
         {
-            return @object is System.Collections.IEnumerable;
+            return @object is IEnumerable;
         }
         public static bool TypeIsEnumerable(this Type type)
         {
-            return IsAssignableFrom(type, typeof(System.Collections.IEnumerable));
+            return TypeIsAssignableFrom(type, typeof(IEnumerable)) && !typeof(string).Equals(type);
         }
         /// <returns>Returns true if and only if the most concrete type of <paramref name="object"/> implements <see cref="ISet{T}"/>.</returns>
         public static bool ObjectIsSet(this object @object)
@@ -214,7 +238,7 @@ namespace GRYLibrary.Core
         }
         public static bool TypeIsSet(this Type type)
         {
-            return IsAssignableFrom(type, typeof(ISet<>));
+            return TypeIsAssignableFrom(type, typeof(ISet<>));
         }
         public static bool ObjectIsList(this object @object)
         {
@@ -226,16 +250,20 @@ namespace GRYLibrary.Core
         }
         public static bool TypeIsListNotGeneric(this Type type)
         {
-            return IsAssignableFrom(type, typeof(System.Collections.IList));
+            return TypeIsAssignableFrom(type, typeof(IList));
         }
         public static bool TypeIsListGeneric(this Type type)
         {
-            return IsAssignableFrom(type, typeof(IList<>));
+            return TypeIsAssignableFrom(type, typeof(IList<>));
         }
-        /// <returns>Returns true if and only if the most concrete type of <paramref name="object"/> implements <see cref="IDictionary{TKey, TValue}"/> or <see cref="System.Collections.IDictionary"/>.</returns>
+        /// <returns>Returns true if and only if the most concrete type of <paramref name="object"/> implements <see cref="IDictionary{TKey, TValue}"/> or <see cref="IDictionary"/>.</returns>
         public static bool ObjectIsDictionary(this object @object)
         {
             return TypeIsDictionary(@object.GetType());
+        }
+        public static void AddItemToEnumerable(object enumerable, object[] addMethodArgument)
+        {
+            enumerable.GetType().GetMethod("Add").Invoke(enumerable, addMethodArgument);
         }
         public static bool TypeIsDictionary(this Type type)
         {
@@ -243,11 +271,11 @@ namespace GRYLibrary.Core
         }
         public static bool TypeIsDictionaryNotGeneric(this Type type)
         {
-            return IsAssignableFrom(type, typeof(System.Collections.IDictionary));
+            return TypeIsAssignableFrom(type, typeof(IDictionary));
         }
         public static bool TypeIsDictionaryGeneric(this Type type)
         {
-            return IsAssignableFrom(type, typeof(IDictionary<,>));
+            return TypeIsAssignableFrom(type, typeof(IDictionary<,>));
         }
         public static bool ObjectIsKeyValuePair(this object @object)
         {
@@ -255,7 +283,15 @@ namespace GRYLibrary.Core
         }
         public static bool TypeIsKeyValuePair(this Type type)
         {
-            return IsAssignableFrom(type, typeof(System.Collections.Generic.KeyValuePair<,>));
+            return TypeIsAssignableFrom(type, typeof(System.Collections.Generic.KeyValuePair<,>)) || TypeIsAssignableFrom(type, typeof(XMLSerializer.KeyValuePair<object, object>));
+        }
+        public static bool ObjectIsDictionaryEntry(this object @object)
+        {
+            return TypeIsDictionaryEntry(@object.GetType());
+        }
+        public static bool TypeIsDictionaryEntry(this Type type)
+        {
+            return TypeIsAssignableFrom(type, typeof(DictionaryEntry));
         }
         public static bool ObjectIsTuple(this object @object)
         {
@@ -263,18 +299,18 @@ namespace GRYLibrary.Core
         }
         public static bool TypeIsTuple(this Type type)
         {
-            return IsAssignableFrom(type, typeof(Tuple<,>));
+            return TypeIsAssignableFrom(type, typeof(Tuple<,>));
         }
 
         #endregion
         #region ToEnumerable
-        public static System.Collections.IEnumerable ObjectToEnumerable(this object @object)
+        public static IEnumerable ObjectToEnumerable(this object @object)
         {
             if (!ObjectIsEnumerable(@object))
             {
                 throw new InvalidCastException();
             }
-            return @object as System.Collections.IEnumerable;
+            return @object as IEnumerable;
         }
         public static IEnumerable<T> ObjectToEnumerable<T>(this object @object)
         {
@@ -282,13 +318,17 @@ namespace GRYLibrary.Core
             {
                 throw new InvalidCastException();
             }
-            System.Collections.IEnumerable objects = ObjectToEnumerable(@object);
+            IEnumerable objects = ObjectToEnumerable(@object);
             List<T> result = new List<T>();
             foreach (object obj in objects)
             {
                 if (obj is T t)
                 {
                     result.Add(t);
+                }
+                else if (Utilities.IsDefault(obj))
+                {
+                    result.Add(default);
                 }
                 else
                 {
@@ -303,13 +343,17 @@ namespace GRYLibrary.Core
             {
                 throw new InvalidCastException();
             }
-            System.Collections.IEnumerable objects = ObjectToEnumerable(@object);
+            IEnumerable objects = ObjectToEnumerable(@object);
             HashSet<T> result = new HashSet<T>();
             foreach (object obj in objects)
             {
                 if (obj is T t)
                 {
                     result.Add(t);
+                }
+                else if (Utilities.IsDefault(obj))
+                {
+                    result.Add(default);
                 }
                 else
                 {
@@ -318,8 +362,8 @@ namespace GRYLibrary.Core
             }
             return result;
         }
-        /// <returns>Returns true if and only if the most concrete type of <paramref name="object"/> implements <see cref="IList{T}"/> or <see cref="System.Collections.IList"/>.</returns>
-        public static System.Collections.IList ObjectToList(this object @object)
+        /// <returns>Returns true if and only if the most concrete type of <paramref name="object"/> implements <see cref="IList{T}"/> or <see cref="IList"/>.</returns>
+        public static IList ObjectToList(this object @object)
         {
             return ObjectToList<object>(@object).ToList();
         }
@@ -329,13 +373,17 @@ namespace GRYLibrary.Core
             {
                 throw new InvalidCastException();
             }
-            System.Collections.IEnumerable objects = ObjectToEnumerable(@object);
+            IEnumerable objects = ObjectToEnumerable(@object);
             List<T> result = new List<T>();
             foreach (object obj in objects)
             {
                 if (obj is T t)
                 {
                     result.Add(t);
+                }
+                else if (Utilities.IsDefault(obj))
+                {
+                    result.Add(default);
                 }
                 else
                 {
@@ -344,9 +392,9 @@ namespace GRYLibrary.Core
             }
             return result;
         }
-        public static System.Collections.IDictionary ObjectToDictionary(this object @object)
+        public static IDictionary ObjectToDictionary(this object @object)
         {
-            System.Collections.IDictionary result = new System.Collections.Hashtable();
+            IDictionary result = new Hashtable();
             foreach (System.Collections.Generic.KeyValuePair<object, object> item in ObjectToDictionary<object, object>(@object))
             {
                 result.Add(item.Key, item.Value);
@@ -374,16 +422,52 @@ namespace GRYLibrary.Core
             {
                 throw new InvalidCastException();
             }
+            return ObjectToKeyValuePairUnsafe<TKey, TValue>(@object);
+        }
+
+        internal static System.Collections.Generic.KeyValuePair<TKey, TValue> ObjectToKeyValuePairUnsafe<TKey, TValue>(object @object)
+        {
             object key = ((dynamic)@object).Key;
             object value = ((dynamic)@object).Value;
-            if (key is TKey tKey && value is TValue tValue)
+            TKey tKey;
+            TValue tValue;
+
+            if (key is TKey key1)
             {
-                return new System.Collections.Generic.KeyValuePair<TKey, TValue>(tKey, tValue);
+                tKey = key1;
+            }
+            else if (IsDefault(key))
+            {
+                tKey = default;
             }
             else
             {
                 throw new InvalidCastException();
             }
+            if (value is TValue value1)
+            {
+                tValue = value1;
+            }
+            else if (IsDefault(value))
+            {
+                tValue = default;
+            }
+            else
+            {
+                throw new InvalidCastException();
+            }
+            return new System.Collections.Generic.KeyValuePair<TKey, TValue>(tKey, tValue);
+        }
+
+        public static DictionaryEntry ObjectToDictionaryEntry(object @object)
+        {
+            if (!ObjectIsDictionaryEntry(@object))
+            {
+                throw new InvalidCastException();
+            }
+            object key = ((dynamic)@object).Key;
+            object value = ((dynamic)@object).Value;
+            return new DictionaryEntry(key, value);
         }
         public static Tuple<T1, T2> ObjectToTuple<T1, T2>(this object @object)
         {
@@ -405,7 +489,7 @@ namespace GRYLibrary.Core
 
         #endregion
         #region EqualsEnumerable
-        public static bool EnumerableEquals(this System.Collections.IEnumerable enumerable1, System.Collections.IEnumerable enumerable2)
+        public static bool EnumerableEquals(this IEnumerable enumerable1, IEnumerable enumerable2)
         {
             return new EnumerableComparer(new PropertyEqualsCalculatorConfiguration()).EqualsTyped(enumerable1, enumerable2);
         }
@@ -414,7 +498,7 @@ namespace GRYLibrary.Core
         {
             return new SetComparer(new PropertyEqualsCalculatorConfiguration()).EqualsTyped(set1, set2);
         }
-        public static bool ListEquals(this System.Collections.IList list1, System.Collections.IList list2)
+        public static bool ListEquals(this IList list1, IList list2)
         {
             return new ListComparer(new PropertyEqualsCalculatorConfiguration()).Equals(list1, list2);
         }
@@ -423,13 +507,13 @@ namespace GRYLibrary.Core
         {
             return new ListComparer(new PropertyEqualsCalculatorConfiguration()).EqualsTyped(list1, list2);
         }
-        public static bool DictionaryEquals(this System.Collections.IDictionary dictionary1, System.Collections.IDictionary dictionary2)
+        public static bool DictionaryEquals(this IDictionary dictionary1, IDictionary dictionary2)
         {
             return new DictionaryComparer(new PropertyEqualsCalculatorConfiguration()).Equals(dictionary1, dictionary2);
         }
         public static bool DictionaryEquals<TKey, TValue>(this IDictionary<TKey, TValue> dictionary1, IDictionary<TKey, TValue> dictionary2)
         {
-            return new DictionaryComparer(new PropertyEqualsCalculatorConfiguration()).EqualsTyped(dictionary1, dictionary2);
+            return new DictionaryComparer(new PropertyEqualsCalculatorConfiguration()).DefaultEquals(dictionary1, dictionary2);
         }
         public static bool KeyValuePairEquals<TKey, TValue>(this System.Collections.Generic.KeyValuePair<TKey, TValue> keyValuePair1, System.Collections.Generic.KeyValuePair<TKey, TValue> keyValuePair2)
         {
@@ -444,21 +528,33 @@ namespace GRYLibrary.Core
         #endregion
 
 
+        public static bool ObjectIsPrimitive(object @object)
+        {
+            return TypeIsPrimitive(@object.GetType());
+        }
+        public static bool TypeIsPrimitive(Type type)
+        {
+            if (type.IsGenericType)
+            {
+                return false;
+            }
+            else
+            {
+                return type.IsPrimitive || typeof(string).Equals(type) || type.IsValueType;
+            }
+        }
         public static bool IsAssignableFrom(object @object, Type genericTypeToCompare)
         {
-            return IsAssignableFrom(@object.GetType(), genericTypeToCompare);
+            return TypeIsAssignableFrom(@object.GetType(), genericTypeToCompare);
         }
-        public static bool IsAssignableFrom(Type typeForCheck, Type parentType)
+        public static bool TypeIsAssignableFrom(Type typeForCheck, Type parentType)
         {
             ISet<Type> typesToCheck = GetTypeWithParentTypesAndInterfaces(typeForCheck);
             return typesToCheck.Contains(parentType, TypeComparerIgnoringGenerics);
         }
         public static ISet<Type> GetTypeWithParentTypesAndInterfaces(Type type)
         {
-            HashSet<Type> result = new HashSet<Type>
-            {
-                type
-            };
+            HashSet<Type> result = new HashSet<Type> { type };
             result.UnionWith(type.GetInterfaces());
             if (type.BaseType != null)
             {
@@ -1466,7 +1562,7 @@ namespace GRYLibrary.Core
         }
         public static List<string[]> ReadCSVFile(string file, Encoding encoding, string separator = ";", bool ignoreFirstLine = false)
         {
-            var outterList = new List<string[]>();
+            List<string[]> outterList = new List<string[]>();
             string[] lines = File.ReadAllLines(file, encoding);
             for (int i = 0; i < lines.Length; i++)
             {
@@ -1574,7 +1670,7 @@ namespace GRYLibrary.Core
                 {
                     events.Add(eventArgument);
                 });
-                foreach (var @event in events)
+                foreach (object @event in events)
                 {
                     errorMessages.Add(@event);
                 }
@@ -2207,9 +2303,21 @@ namespace GRYLibrary.Core
             }
             throw new FileNotFoundException($"Program '{program}' can not be found");
         }
+
+        public static string GetAssertionFailMessage(object expectedObject, object actualObject, int maxLengthPerObject = 1000)
+        {
+            return $"Equal failed. Expected: <{Environment.NewLine}{Generic.GenericToString(expectedObject, maxLengthPerObject)}{Environment.NewLine}> Actual: <{Environment.NewLine}{Generic.GenericToString(actualObject, maxLengthPerObject)}{Environment.NewLine}>";
+        }
         public static void ForEach<T>(this IEnumerable<T> source, Action<T> action)
         {
             foreach (T item in source)
+            {
+                action(item);
+            }
+        }
+        public static void ForEach(this IEnumerable source, Action<object> action)
+        {
+            foreach (object item in source)
             {
                 action(item);
             }
@@ -2231,7 +2339,7 @@ namespace GRYLibrary.Core
             }
             int lengthA = string1.Length;
             int lengthB = string2.Length;
-            var distance = new int[lengthA + 1, lengthB + 1];
+            int[,] distance = new int[lengthA + 1, lengthB + 1];
             for (int i = 0; i <= lengthA; distance[i, 0] = i++) ;
             for (int j = 0; j <= lengthB; distance[0, j] = j++) ;
 
@@ -2363,6 +2471,7 @@ namespace GRYLibrary.Core
             AssocQueryString(AssocF.Verify, assocStr, extensionWithDot, null, pszOut, ref pcchOut);
             return pszOut.ToString();
         }
+
         [Flags]
         private enum AssocF
         {
@@ -2393,5 +2502,76 @@ namespace GRYLibrary.Core
             DDETopic
         }
         #endregion
+
+     
+        public static bool ImprovedReferenceEquals(object item1, object item2)
+        {
+            bool itemHasValueType = HasValueType(item1);
+            if (itemHasValueType != HasValueType(item2))
+            {
+                return false;
+            }
+            bool item1IsDefault = IsDefault(item1);
+            bool item2IsDefault = IsDefault(item2);
+            if (item1IsDefault && item2IsDefault)
+            {
+                return true;
+            }
+            if (item1IsDefault && !item2IsDefault)
+            {
+                return false;
+            }
+            if (!item1IsDefault && item2IsDefault)
+            {
+                return false;
+            }
+            if (!item1IsDefault && !item2IsDefault)
+            {
+                if (itemHasValueType)
+                {
+                    Type type = item1.GetType();
+                    if ( type.Equals(item2.GetType()))//TODO ignore generics here when type is keyvaluepair
+                    {
+                        if (TypeIsKeyValuePair(type))
+                        {
+                            System.Collections.Generic.KeyValuePair<object, object> kvp1 = ObjectToKeyValuePairUnsafe<object, object>(item1);
+                            System.Collections.Generic.KeyValuePair<object, object> kvp2 = ObjectToKeyValuePairUnsafe<object, object>(item2);
+                            return ImprovedReferenceEquals(kvp1.Key, kvp2.Key)&& ImprovedReferenceEquals(kvp1.Value, kvp2.Value);
+                        }
+                        else
+                        {
+                            return item1.Equals(item2);
+                        }
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    return ReferenceEquals(item1, item2);
+                }
+            }
+            throw new ArgumentException("Can not calculate reference-equals for the given arguments.");
+        }
+
+        public static bool HasValueType(object @object)
+        {
+            if (@object == null)
+            {
+                return false;
+            }
+            else
+            {
+                return @object.GetType().IsValueType;
+            }
+        }
+
+        public static string GetNameOfCurrentExecutable()
+        {
+            return Process.GetCurrentProcess().ProcessName;
+        }
+
     }
 }

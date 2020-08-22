@@ -15,8 +15,10 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper
             this.Id = Guid.NewGuid();
             this.HashChode = hashCode;
             this.ReferenceItem = @object;
-            this._ContainedObjects = new HashSet<object>(new ReferenceEqualsComparer());
-            this._ContainedObjects.Add(this.ReferenceItem);
+            this._ContainedObjects = new HashSet<object>(new ReferenceEqualsComparer())
+            {
+                this.ReferenceItem
+            };
         }
         public override bool Equals(object @object)
         {

@@ -6,10 +6,8 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper
     {
         protected readonly GRYEqualityComparer<object> _PropertyEqualsCalculator;
         internal PropertyEqualsCalculatorConfiguration Configuration { get; set; }
-
-
-        internal abstract bool DefaultEquals(T item1, T item2);
-        internal abstract int DefaultGetHashCode(T @object);
+        public abstract bool DefaultEquals(T item1, T item2);
+        public abstract int DefaultGetHashCode(T @object);
         protected GRYEqualityComparer(PropertyEqualsCalculatorConfiguration configuration)
         {
             this.Configuration = configuration;

@@ -16,9 +16,9 @@ namespace GRYLibrary.TestData.TestTypes.ComplexDataStructure
         {
             Employee result = new Employee();
             result.OrganizationUnit = organizationUnit;
-            result.Forename =Utilities. GetRandomName();
-            result.Surname = Utilities.GetRandomName();
-            result.DateOfBirth = Utilities.GetRandomDateOfBirth();
+            result.Forename =ComplexDataStructureUtilities. GetRandomName();
+            result.Surname = ComplexDataStructureUtilities.GetRandomName();
+            result.DateOfBirth = ComplexDataStructureUtilities.GetRandomDateOfBirth();
             result.MainResidence = Address.GetRandom();
             return result;
         }

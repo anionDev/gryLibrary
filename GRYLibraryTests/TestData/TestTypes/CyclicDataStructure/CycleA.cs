@@ -1,11 +1,17 @@
 ﻿using GRYLibrary.Core.AdvancedObjectAnalysis;
+using GRYLibrary.Core.AdvancedObjectAnalysis.GenericXMLSerializerHelper;
 using System;
+using System.Collections.Generic;
+using System.Xml;
+using System.Xml.Schema;
+using System.Xml.Serialization;
 
 namespace GRYLibrary.TestData.TestTypes.CyclicDataStructure
 {
-    public class CycleA
+    [Serializable]
+    public class CycleA : IGRYSerializable
     {
-         public Guid Id { get; set; } = Guid.NewGuid();
+        public Guid Id { get; set; } = Guid.NewGuid();
         public CycleB B { get; set; }
 
         internal static CycleA GetRandom()
@@ -27,19 +33,40 @@ namespace GRYLibrary.TestData.TestTypes.CyclicDataStructure
 
             return a1;
         }
-
         #region Overhead
         public override bool Equals(object @object)
         {
-            return Generic.GenericEquals(this,@object);
+            return Generic.GenericEquals(this, @object);
         }
+
         public override int GetHashCode()
         {
             return Generic.GenericGetHashCode(this);
         }
+
         public override string ToString()
         {
             return Generic.GenericToString(this);
+        }
+
+        public XmlSchema GetSchema()
+        {
+            return Generic.GenericGetSchema(this);
+        }
+
+        public void ReadXml(XmlReader reader)
+        {
+            Generic.GenericReadXml(this, reader);
+        }
+
+        public void WriteXml(XmlWriter writer)
+        {
+            Generic.GenericWriteXml(this, writer);
+        }
+
+        public ISet<Type> GetExtraTypesWhichAreRequiredForSerialization()
+        {
+            return new HashSet<Type>();
         }
         #endregion
     }

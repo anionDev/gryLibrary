@@ -4,6 +4,7 @@ using GRYLibrary.Core.AdvancedXMLSerialysis;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Xml;
 using System.Xml.Schema;
 
@@ -53,12 +54,12 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis
 
         public static bool GenericEquals(object object1, object object2)
         {
-            return new PropertyEqualsCalculator().Equals(object1, object2);
+            return new PropertyEqualsCalculator().DefaultEquals(object1, object2);
         }
 
-        public static string GenericToString(object @object)
+        public static string GenericToString(object @object, int maxOutputLength = int.MaxValue)
         {
-            return AdvancedObjectAnalysis.GenericToString.Instance.ToString(@object);
+            return AdvancedObjectAnalysis.GenericToString.Instance.ToString(@object, maxOutputLength);
         }
 
 #pragma warning disable IDE0060 // Suppress "Remove unused parameter 'object'"
@@ -70,13 +71,34 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis
 
         public static void GenericWriteXml(object @object, XmlWriter writer)
         {
-            GenericXMLSerializer.DefaultInstance.Serialize(@object, writer);
+            GenericXMLSerializer.CreateForObject(@object).Serialize(@object, writer);
         }
 
         public static void GenericReadXml(object @object, XmlReader reader)
         {
-            reader.ReadStartElement(@object.GetType().Name);
-            GenericXMLSerializer.DefaultInstance.CopyContent(@object, GenericXMLSerializer.DefaultInstance.Deserialize(reader));
+            GenericXMLSerializer genericXMLSerializer = GenericXMLSerializer.CreateForObject(@object);
+            genericXMLSerializer.CopyContentOfObject(@object, genericXMLSerializer.Deserialize(reader));
+        }
+        public static IEnumerable<(object, Type)> IterateOverObjectTransitively(object @object)
+        {
+            return new PropertyIterator().IterateOverObjectTransitively(@object);
+        }
+
+        public static string GenericSerialize(object @object)
+        {
+            using StringWriter stringWriter = new StringWriter();
+            using (XmlWriter xmlWriter = XmlWriter.Create(stringWriter))
+            {
+                GenericWriteXml(@object, xmlWriter);
+            }
+            return stringWriter.ToString();
+        }
+        public static T GenericDeserialize<T>(string serializedObject)
+        {
+            using XmlReader xmlReader = XmlReader.Create(new StringReader(serializedObject));
+            T result = (T)Activator.CreateInstance(typeof(T));
+            GenericReadXml(result, xmlReader);
+            return result;
         }
     }
 }
