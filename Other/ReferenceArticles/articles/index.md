@@ -1,5 +1,3 @@
-# additionalcontent-index
+# Articles
 
-test
-
-articles index
+This section contains some articles to get more descriptions for the usage of the GRYLibrary.

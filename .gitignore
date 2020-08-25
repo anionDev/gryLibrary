@@ -1,7 +1,6 @@
 GRYLibraryTests/GRYLibrary.TestCoverage.opencover.xml
-Other/ReferenceArticles/api/*
-!Other/ReferenceArticles/api/.gitkeep
-
+Other/ReferenceArticles/api/.manifest
+Other/ReferenceArticles/api/*.yml
 
 
 ## Ignore Visual Studio temporary files, build results, and

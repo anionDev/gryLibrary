@@ -10,7 +10,7 @@ You should say what you want to do, and not how to do it. This paradigm results 
 
 ## Installation
 
-[![NuGet](https://img.shields.io/nuget/v/GRYLibrary.svg?color=green)](https://www.nuget.org/packages/GRYLibrary/)
+[![NuGet](https://img.shields.io/nuget/v/GRYLibrary.svg?color=green)](https://www.nuget.org/packages/GRYLibrary)
 
 Install the GRYLibrary as nuget-package using the Package Manager Console:
 
