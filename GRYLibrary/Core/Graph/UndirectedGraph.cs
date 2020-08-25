@@ -77,6 +77,7 @@ namespace GRYLibrary.Core.Graph
             return result;
         }
 
+        /// <inheritdoc/>
         public override void AddEdge(Edge edge)
         {
             if (!(edge is UndirectedEdge))
@@ -90,6 +91,7 @@ namespace GRYLibrary.Core.Graph
             this.OnEdgeAdded(edge);
         }
 
+        /// <inheritdoc/>
         public override void RemoveEdge(Edge edge)
         {
             if (edge is UndirectedEdge)

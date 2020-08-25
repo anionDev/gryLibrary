@@ -155,6 +155,7 @@ namespace GRYLibrary.Core.Graph
             return new Tuple<IList<DirectedEdge>, IList<Vertex>>(edges, vertices);
         }
 
+        /// <inheritdoc/>
         public override void AddEdge(Edge edge)
         {
             if (!(edge is DirectedEdge))
@@ -166,6 +167,7 @@ namespace GRYLibrary.Core.Graph
             this._DirectedEdges.Add((DirectedEdge)edge);
             this.OnEdgeAdded(edge);
         }
+        /// <inheritdoc/>
         public override void RemoveEdge(Edge edge)
         {
             if (edge is DirectedEdge)
