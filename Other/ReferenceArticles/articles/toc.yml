@@ -1,3 +1,5 @@
+- name: AdvancedObjectAnalysis
+  href: AdvancedObjectAnalysis.md
 - name: ExternalProgramExecutorWrapper
   href: ExternalProgramExecutorWrapper.md
 - name: Introduction
