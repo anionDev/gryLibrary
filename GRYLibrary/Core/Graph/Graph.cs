@@ -339,7 +339,7 @@ namespace GRYLibrary.Core.Graph
         }
 
         /// <returns>
-        /// Returns true if and only if the adjacency-matrices of this and <paramref name="obj"/> are equal.
+        /// Returns true if and only if the graphs have the same structure.
         /// </returns>
         /// <remarks>
         /// This function ignores properties like <see cref="SelfLoopIsAllowed"/> or the name of the edges and vertices.

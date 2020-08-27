@@ -493,7 +493,7 @@ namespace GRYLibrary.Core
         {
             return new EnumerableComparer(new PropertyEqualsCalculatorConfiguration()).EqualsTyped(enumerable1, enumerable2);
         }
-        /// <returns>Returns true if and only if the items in <paramref name="list1"/> and <paramref name="list2"/> are equal (ignoring the order) using <see cref="PropertyEqualsCalculator{T}"/> as comparer.</returns>
+        /// <returns>Returns true if and only if the items in <paramref name="list1"/> and <paramref name="list2"/> are equal (ignoring the order) using the GRYLibrary-AdvancedObjectAnalysis for object-comparison.</returns>
         public static bool SetEquals<T>(this ISet<T> set1, ISet<T> set2)
         {
             return new SetComparer(new PropertyEqualsCalculatorConfiguration()).EqualsTyped(set1, set2);
@@ -502,7 +502,7 @@ namespace GRYLibrary.Core
         {
             return new ListComparer(new PropertyEqualsCalculatorConfiguration()).Equals(list1, list2);
         }
-        /// <returns>Returns true if and only if the items in <paramref name="list1"/> and <paramref name="list2"/> are equal using <see cref="PropertyEqualsCalculator{T}"/> as comparer.</returns>
+        /// <returns>Returns true if and only if the items in <paramref name="list1"/> and <paramref name="list2"/> are equal using the GRYLibrary-AdvancedObjectAnalysis for object-comparison.</returns>
         public static bool ListEquals<T>(this IList<T> list1, IList<T> list2)
         {
             return new ListComparer(new PropertyEqualsCalculatorConfiguration()).EqualsTyped(list1, list2);

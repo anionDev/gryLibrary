@@ -10,7 +10,7 @@ You should say what you want to do, and not how to do it. This paradigm results 
 
 ## Installation
 
-[![NuGet](https://img.shields.io/nuget/v/GRYLibrary.svg?color=green)](https://www.nuget.org/packages/GRYLibrary/)
+[![NuGet](https://img.shields.io/nuget/v/GRYLibrary.svg?color=green)](https://www.nuget.org/packages/GRYLibrary)
 
 Install the GRYLibrary as nuget-package using the Package Manager Console:
 
@@ -22,9 +22,7 @@ Install-Package GRYLibrary
 
 ## Reference
 
-The GRYLibrary-reference can be found [here](https://aniondev.github.io/gryLibraryReference/Reference/api/GRYLibrary.html).
-
-The entire documentation-website can be found [here](https://aniondev.github.io/gryLibraryReference/Reference/index.html).
+The GRYLibrary-reference can be found [here](https://aniondev.github.io/GRYLibraryReference).
 
 # Hints
 
@@ -40,13 +38,13 @@ The public key token of all official GRYLibrary-releases is `fa37b6e9de549c68`. 
 
 ## Contribute
 
-Feel free to contribute to this product by creating [issues](https://github.com/anionDev/gryLibrary/issues) for feature-requests, bug-reports, etc.
+Feel free to contribute to this product by creating [issues](https://github.com/anionDev/GRYLibrary/issues) for feature-requests, bug-reports, etc.
 Since the GRYLibrary is not an open-source-project in the [conventional sense of free software](https://www.gnu.org/philosophy/free-sw.en.html) contributing by creating a pullrequest is a little bit tricky (concerning license-issues). If you want to contribute to this project then please contact the owner of the GRYLibrary.
 
 # License
 
 There are the following licenses for the GRYLibrary available
- - The GRYLibrary is generally and commonly licensed under the terms of GRYL. The concrete license-text can be found [here](https://raw.githubusercontent.com/anionDev/gryLibrary/master/License.txt). This license-text does obviously not apply to the other following licenses.
+ - The GRYLibrary is generally and commonly licensed under the terms of GRYL. The concrete license-text can be found [here](https://raw.githubusercontent.com/anionDev/GRYLibrary/master/License.txt). This license-text does obviously not apply to the other following licenses.
  - If you want to use the GRYLibrary in your company then please contact the owner of the GRYLibrary for a commercial license.
  - There are some special licenses for certain scopes:
-   - [epew](https://github.com/anionDev/externalProgramExecutionWrapper) is allowed to use the [Nuget-Release](https://www.nuget.org/packages/GRYLibrary) of the GRYLibrary under the Terms of the MIT-license for executing programs as main-purpose of epew and for nothing else.
+   - [epew](https://github.com/anionDev/ExternalProgramExecutionWrapper) is allowed to use the [Nuget-Release](https://www.nuget.org/packages/GRYLibrary) of the GRYLibrary under the Terms of the MIT-license for executing programs as main-purpose of epew and for nothing else.
