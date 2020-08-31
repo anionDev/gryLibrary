@@ -96,8 +96,8 @@ namespace GRYLibrary.Core.Log
 
             this.LogTargets = new HashSet<GRYLogTarget>
             {
-                new Console() { Enabled = true, Format=GRYLogLogFormat.OnlyMessage },
-                new LogFile() { File = logFile, Enabled = !string.IsNullOrWhiteSpace(logFile), Format=GRYLogLogFormat.GRYLogFormat}
+                new Console() { Enabled = true, Format = GRYLogLogFormat.GRYLogFormat },
+                new LogFile() { File = logFile, Enabled = !string.IsNullOrWhiteSpace(logFile), Format = GRYLogLogFormat.GRYLogFormat}
             };
             foreach (GRYLogTarget target in this.LogTargets)
             {
