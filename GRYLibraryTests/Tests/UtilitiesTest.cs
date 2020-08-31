@@ -12,8 +12,6 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Numerics;
-using System.Text;
-using System.Xml.Schema;
 using System.Xml.Serialization;
 
 namespace GRYLibrary.Tests
@@ -27,15 +25,15 @@ namespace GRYLibrary.Tests
             string testFile = "file";
             try
             {
-                Assert.IsFalse(System.IO.File.Exists(testFile));
+                Assert.IsFalse(File.Exists(testFile));
                 Utilities.EnsureFileExists(testFile);
-                Assert.IsTrue(System.IO.File.Exists(testFile));
+                Assert.IsTrue(File.Exists(testFile));
                 Utilities.EnsureFileExists(testFile);
-                Assert.IsTrue(System.IO.File.Exists(testFile));
+                Assert.IsTrue(File.Exists(testFile));
             }
             finally
             {
-                System.IO.File.Delete(testFile);
+                File.Delete(testFile);
             }
         }
         [TestMethod]
@@ -43,11 +41,11 @@ namespace GRYLibrary.Tests
         {
             string testFile = "file";
             Utilities.EnsureFileExists(testFile);
-            Assert.IsTrue(System.IO.File.Exists(testFile));
+            Assert.IsTrue(File.Exists(testFile));
             Utilities.EnsureFileDoesNotExist(testFile);
-            Assert.IsFalse(System.IO.File.Exists(testFile));
+            Assert.IsFalse(File.Exists(testFile));
             Utilities.EnsureFileDoesNotExist(testFile);
-            Assert.IsFalse(System.IO.File.Exists(testFile));
+            Assert.IsFalse(File.Exists(testFile));
         }
         [TestMethod]
         public void UtilitiesTestEnsureDirectoryExists()
@@ -55,15 +53,15 @@ namespace GRYLibrary.Tests
             string testDir = "dir";
             try
             {
-                Assert.IsFalse(System.IO.Directory.Exists(testDir));
+                Assert.IsFalse(Directory.Exists(testDir));
                 Utilities.EnsureDirectoryExists(testDir);
-                Assert.IsTrue(System.IO.Directory.Exists(testDir));
+                Assert.IsTrue(Directory.Exists(testDir));
                 Utilities.EnsureDirectoryExists(testDir);
-                Assert.IsTrue(System.IO.Directory.Exists(testDir));
+                Assert.IsTrue(Directory.Exists(testDir));
             }
             finally
             {
-                System.IO.Directory.Delete(testDir);
+                Directory.Delete(testDir);
             }
         }
         [TestMethod]
@@ -71,11 +69,11 @@ namespace GRYLibrary.Tests
         {
             string testDir = "dir";
             Utilities.EnsureDirectoryExists(testDir);
-            Assert.IsTrue(System.IO.Directory.Exists(testDir));
+            Assert.IsTrue(Directory.Exists(testDir));
             Utilities.EnsureDirectoryDoesNotExist(testDir);
-            Assert.IsFalse(System.IO.Directory.Exists(testDir));
+            Assert.IsFalse(Directory.Exists(testDir));
             Utilities.EnsureDirectoryDoesNotExist(testDir);
-            Assert.IsFalse(System.IO.Directory.Exists(testDir));
+            Assert.IsFalse(Directory.Exists(testDir));
         }
         [TestMethod]
         public void UtilitiesTestEnsureDirectoryDoesNotExist2()
@@ -83,9 +81,9 @@ namespace GRYLibrary.Tests
             string dir = "dir";
             string testFile = dir + "/file";
             Utilities.EnsureFileExists(testFile, true);
-            Assert.IsTrue(System.IO.File.Exists(testFile));
+            Assert.IsTrue(File.Exists(testFile));
             Utilities.EnsureDirectoryDoesNotExist(dir);
-            Assert.IsFalse(System.IO.Directory.Exists(testFile));
+            Assert.IsFalse(Directory.Exists(testFile));
         }
         [TestMethod]
         public void FileSelectorTest1()
@@ -464,12 +462,12 @@ namespace GRYLibrary.Tests
             WriteableTuple<object, object> wt7 = new WriteableTuple<object, object>();
             WriteableTuple<object, object> wt8 = new WriteableTuple<object, object>();
 
-            System.Collections.Generic.KeyValuePair<object, object> kvp1 = new System.Collections.Generic.KeyValuePair<object, object>(wt1,wt2);
-            System.Collections.Generic.KeyValuePair<object, object> kvp2 = new System.Collections.Generic.KeyValuePair<object, object>(wt3,wt4);
-            System.Collections.Generic.KeyValuePair<object, object> kvp3 = new System.Collections.Generic.KeyValuePair<object, object>(wt5,wt6);
-            System.Collections.Generic.KeyValuePair<object, object> kvp4 = new System.Collections.Generic.KeyValuePair<object, object>(wt7,obj1);
-            System.Collections.Generic.KeyValuePair<object, object> kvp5 = new System.Collections.Generic.KeyValuePair<object, object>(obj1,obj2);
-            System.Collections.Generic.KeyValuePair<object, object> kvp6 = new System.Collections.Generic.KeyValuePair<object, object>(obj2,wt8);
+            System.Collections.Generic.KeyValuePair<object, object> kvp1 = new System.Collections.Generic.KeyValuePair<object, object>(wt1, wt2);
+            System.Collections.Generic.KeyValuePair<object, object> kvp2 = new System.Collections.Generic.KeyValuePair<object, object>(wt3, wt4);
+            System.Collections.Generic.KeyValuePair<object, object> kvp3 = new System.Collections.Generic.KeyValuePair<object, object>(wt5, wt6);
+            System.Collections.Generic.KeyValuePair<object, object> kvp4 = new System.Collections.Generic.KeyValuePair<object, object>(wt7, obj1);
+            System.Collections.Generic.KeyValuePair<object, object> kvp5 = new System.Collections.Generic.KeyValuePair<object, object>(obj1, obj2);
+            System.Collections.Generic.KeyValuePair<object, object> kvp6 = new System.Collections.Generic.KeyValuePair<object, object>(obj2, wt8);
 
             wt1.Item1 = kvp2;
             wt2.Item1 = kvp3;

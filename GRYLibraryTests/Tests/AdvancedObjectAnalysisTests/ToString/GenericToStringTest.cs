@@ -1,6 +1,4 @@
-﻿using GRYLibrary.TestData.TestTypes.ComplexDataStructure;
-using GRYLibrary.TestData.TestTypes.CyclicDataStructure;
-using GRYLibrary.TestData.TestTypes.SimpleDataStructure;
+﻿using GRYLibrary.TestData.TestTypes.SimpleDataStructure;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 
