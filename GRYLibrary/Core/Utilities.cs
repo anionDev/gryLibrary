@@ -1,5 +1,6 @@
 ﻿using GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper;
 using System;
+using System.ComponentModel;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
@@ -19,7 +20,6 @@ using System.Xml.Xsl;
 using static GRYLibrary.Core.TableGenerator;
 using System.Reflection;
 using System.Dynamic;
-using System.ComponentModel;
 using GRYLibrary.Core.XMLSerializer;
 using System.Net.Sockets;
 using GRYLibrary.Core.OperatingSystem;
@@ -326,7 +326,7 @@ namespace GRYLibrary.Core
                 {
                     result.Add(t);
                 }
-                else if (Utilities.IsDefault(obj))
+                else if (IsDefault(obj))
                 {
                     result.Add(default);
                 }
@@ -351,7 +351,7 @@ namespace GRYLibrary.Core
                 {
                     result.Add(t);
                 }
-                else if (Utilities.IsDefault(obj))
+                else if (IsDefault(obj))
                 {
                     result.Add(default);
                 }
@@ -381,7 +381,7 @@ namespace GRYLibrary.Core
                 {
                     result.Add(t);
                 }
-                else if (Utilities.IsDefault(obj))
+                else if (IsDefault(obj))
                 {
                     result.Add(default);
                 }
@@ -603,7 +603,7 @@ namespace GRYLibrary.Core
         }
         public static void WriteToConsoleAsASCIITable(IList<IList<string>> columns)
         {
-            string[] table = TableGenerator.Generate(JaggedArrayToTwoDimensionalArray(EnumerableOfEnumerableToJaggedArray(columns)), new ASCIITable());
+            string[] table = Generate(JaggedArrayToTwoDimensionalArray(EnumerableOfEnumerableToJaggedArray(columns)), new ASCIITable());
             foreach (string line in table)
             {
                 Console.WriteLine(line);
@@ -1605,7 +1605,15 @@ namespace GRYLibrary.Core
                     int amountOfWhitespaces = splitted.Length - 1;
                     if (0 < amountOfWhitespaces)
                     {
-                        result.Add(Path.Combine(repositoryFolder, splitted[1].Replace("/", Path.DirectorySeparatorChar.ToString())));
+                        string rawPath = splitted[1];
+                        if (rawPath.Contains("..") || rawPath == "./")
+                        {
+                            continue;
+                        }
+                        else
+                        {
+                            result.Add(Path.Combine(repositoryFolder, rawPath.Replace("/", Path.DirectorySeparatorChar.ToString())));
+                        }
                     }
                 }
             }
@@ -2503,7 +2511,7 @@ namespace GRYLibrary.Core
         }
         #endregion
 
-     
+
         public static bool ImprovedReferenceEquals(object item1, object item2)
         {
             bool itemHasValueType = HasValueType(item1);
@@ -2530,13 +2538,13 @@ namespace GRYLibrary.Core
                 if (itemHasValueType)
                 {
                     Type type = item1.GetType();
-                    if ( type.Equals(item2.GetType()))//TODO ignore generics here when type is keyvaluepair
+                    if (type.Equals(item2.GetType()))//TODO ignore generics here when type is keyvaluepair
                     {
                         if (TypeIsKeyValuePair(type))
                         {
                             System.Collections.Generic.KeyValuePair<object, object> kvp1 = ObjectToKeyValuePairUnsafe<object, object>(item1);
                             System.Collections.Generic.KeyValuePair<object, object> kvp2 = ObjectToKeyValuePairUnsafe<object, object>(item2);
-                            return ImprovedReferenceEquals(kvp1.Key, kvp2.Key)&& ImprovedReferenceEquals(kvp1.Value, kvp2.Value);
+                            return ImprovedReferenceEquals(kvp1.Key, kvp2.Key) && ImprovedReferenceEquals(kvp1.Value, kvp2.Value);
                         }
                         else
                         {

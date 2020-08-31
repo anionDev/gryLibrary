@@ -59,7 +59,7 @@ namespace GRYLibrary.Core
             }
             else
             {
-                foreach (string file in System.IO.Directory.GetFiles(folder))
+                foreach (string file in Directory.GetFiles(folder))
                 {
                     if (filter(file))
                     {

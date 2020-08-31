@@ -40,11 +40,11 @@ namespace GRYLibrary.Core
         {
             if (percentValue < 0)
             {
-                return PercentValue.ZeroPercent;
+                return ZeroPercent;
             }
             else if (percentValue > 100)
             {
-                return PercentValue.HundredPercent;
+                return HundredPercent;
             }
             else
             {
