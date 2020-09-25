@@ -1750,6 +1750,20 @@ namespace GRYLibrary.Core
             using StreamReader streamReader = new StreamReader(memoryStream);
             return streamReader.ReadToEnd();
         }
+        public static string XmlToString(XmlDocument xmlDocument)
+        {
+            StringBuilder stringBuilder = new StringBuilder();
+            using (XmlWriter writer = XmlWriter.Create(stringBuilder, new XmlWriterSettings
+            {
+                Encoding = FormatXMLFile_DefaultEncoding,
+                Indent = true,
+                IndentChars = "  ",
+                OmitXmlDeclaration = false,
+                NewLineChars = Environment.NewLine
+            }))
+                xmlDocument.Save(writer);
+            return stringBuilder.ToString();
+        }
         public static void AddMountPointForVolume(Guid volumeId, string mountPoint)
         {
             if (mountPoint.Length > 3)
