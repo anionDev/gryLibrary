@@ -1750,6 +1750,20 @@ namespace GRYLibrary.Core
             using StreamReader streamReader = new StreamReader(memoryStream);
             return streamReader.ReadToEnd();
         }
+        public static string XmlToString(XmlDocument xmlDocument)
+        {
+            StringBuilder stringBuilder = new StringBuilder();
+            using (XmlWriter writer = XmlWriter.Create(stringBuilder, new XmlWriterSettings
+            {
+                Encoding = FormatXMLFile_DefaultEncoding,
+                Indent = true,
+                IndentChars = "  ",
+                OmitXmlDeclaration = false,
+                NewLineChars = Environment.NewLine
+            }))
+                xmlDocument.Save(writer);
+            return stringBuilder.ToString();
+        }
         public static void AddMountPointForVolume(Guid volumeId, string mountPoint)
         {
             if (mountPoint.Length > 3)
@@ -1975,7 +1989,7 @@ namespace GRYLibrary.Core
         }
         public static void AddGitRemote(string repositoryFolder, string remoteFolder, string remoteName)
         {
-            ExecuteGitCommand(repositoryFolder, $"remote add {remoteName} {remoteFolder}", true);
+            ExecuteGitCommand(repositoryFolder, $"remote add {remoteName} \"{remoteFolder}\"", true);
         }
         /// <returns>Returns the address of the remote with the given <paramref name="remoteName"/>.</returns>
         public static string GetGitRemoteAddress(string repository, string remoteName)
