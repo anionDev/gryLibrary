@@ -1989,7 +1989,7 @@ namespace GRYLibrary.Core
         }
         public static void AddGitRemote(string repositoryFolder, string remoteFolder, string remoteName)
         {
-            ExecuteGitCommand(repositoryFolder, $"remote add {remoteName} {remoteFolder}", true);
+            ExecuteGitCommand(repositoryFolder, $"remote add {remoteName} \"{remoteFolder}\"", true);
         }
         /// <returns>Returns the address of the remote with the given <paramref name="remoteName"/>.</returns>
         public static string GetGitRemoteAddress(string repository, string remoteName)
