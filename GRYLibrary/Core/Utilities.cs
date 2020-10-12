@@ -2596,5 +2596,9 @@ namespace GRYLibrary.Core
             return Process.GetCurrentProcess().ProcessName;
         }
 
+        public static string ToSyslogFormat(this DateTime momentOfLogEntry)
+        {
+            return momentOfLogEntry.ToString("MMM dd YYYY HH:mm:ss");
+        }
     }
 }

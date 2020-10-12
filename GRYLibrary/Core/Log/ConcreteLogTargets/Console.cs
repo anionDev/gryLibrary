@@ -19,7 +19,7 @@ namespace GRYLibrary.Core.Log.ConcreteLogTargets
             {
                 output = System.Console.Out;
             }
-            logItem.Format(logObject.Configuration, out string formattedMessage, out int cb, out int ce, out ConsoleColor _, this.Format);
+            logItem.Format(logObject.Configuration, out string formattedMessage, out int cb, out int ce, out ConsoleColor _, this.Format,logItem.MessageId);
             output.Write(formattedMessage.Substring(0, cb));
             this.WriteWithColorToConsole(formattedMessage[cb..ce], output, logItem.LogLevel, logObject);
             output.Write(formattedMessage.Substring(ce) + Environment.NewLine);
