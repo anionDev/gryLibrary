@@ -56,7 +56,7 @@ namespace GRYLibrary.Tests
                 Assert.AreEqual(fileWithRelativePath, logObject.Configuration.GetLogFile());
                 Assert.IsFalse(File.Exists(fileWithRelativePath));
                 string testContent = "test";
-                logObject.Log(testContent,LogLevel.Warning,"MyMessageId");
+                logObject.Log(testContent, LogLevel.Warning, "MyMessageId");
                 Assert.IsTrue(File.Exists(fileWithRelativePath));
                 Assert.IsTrue(Regex.IsMatch(File.ReadAllText(logFile), "^\\[\\d\\d\\d\\d-\\d\\d-\\d\\d \\d\\d:\\d\\d:\\d\\d\\] \\[MyMessageId\\] \\[Warning\\] test$"));
             }

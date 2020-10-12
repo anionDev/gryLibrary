@@ -103,7 +103,7 @@ namespace GRYLibrary.Core.Log
                 }
                 catch (Exception exception)
                 {
-                    this.Log($"Could not reload Configuration of {nameof(GRYLog)} stored in {configurationFile}", LogLevel.Error, exception,0x78200001.ToString());
+                    this.Log($"Could not reload Configuration of {nameof(GRYLog)} stored in {configurationFile}", LogLevel.Error, exception, 0x78200001.ToString());
                 }
                 finally
                 {
@@ -171,11 +171,11 @@ namespace GRYLibrary.Core.Log
             }
         }
 
-        public void Log(string message, string messagId=null)
+        public void Log(string message, string messagId = null)
         {
             this.Log(message, LogLevel.Information, messagId);
         }
-        public void Log(string message, Exception exception, string messageId=null)
+        public void Log(string message, Exception exception, string messageId = null)
         {
             this.Log(message, LogLevel.Error, exception, messageId);
         }
@@ -183,7 +183,7 @@ namespace GRYLibrary.Core.Log
         {
             this.Log(this.GetExceptionMessage(message, exception), logLevel, messageId);
         }
-        public void Log(string message, LogLevel logLevel, string messageId=null)
+        public void Log(string message, LogLevel logLevel, string messageId = null)
         {
             this.Log(() => message, logLevel, messageId);
         }
@@ -208,7 +208,7 @@ namespace GRYLibrary.Core.Log
         {
             this.Log(() => this.GetExceptionMessage(getMessage(), exception), logLevel, messageId);
         }
-        public void Log(Func<string> getMessage, LogLevel logLevel,string messageId)
+        public void Log(Func<string> getMessage, LogLevel logLevel, string messageId)
         {
             this.Log(new LogItem(getMessage, logLevel, messageId));
         }
