@@ -1,10 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace GRYLibrary.Core.GRYCryptoSystem.EncryptionAlgorithms
+﻿namespace GRYLibrary.Core.GRYCryptoSystem.EncryptionAlgorithms
 {
     public interface ISymmetricEncryptionAlgorithm : IEncryptionAlgorithm
     {
+        /// <summary>
+        /// Creates a new random key for encryption with this symmetric encryption algorithm.
+        /// </summary>
+        public byte[] GenerateRandomKey();
     }
 }

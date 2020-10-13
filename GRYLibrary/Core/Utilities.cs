@@ -2596,7 +2596,7 @@ namespace GRYLibrary.Core
             return Process.GetCurrentProcess().ProcessName;
         }
 
-        public static byte[] GetRandomByteArray(long length = 65536)
+        public static byte[] GetRandomByteArray(long length = 4096)
         {
             byte[] result = new byte[length];
             new Random().NextBytes(result);
