@@ -1,6 +1,7 @@
-﻿using System;
+﻿using GRYLibrary.Core.GRYCryptoSystem;
+using System;
 
-namespace GRYLibrary.Core
+namespace GRYLibrary.Core.GRYCryptoSystem.EncryptionAlgorithms.Symmetric
 {
     /// <summary>
     /// The <see cref="GRYBCryptoSystem"/> is a cryptosystem to encrypt data with an optional masterkey to be able to decrypt the data without the password.
@@ -12,19 +13,19 @@ namespace GRYLibrary.Core
     /// Company c want to encrypt userdata with a user-specific password p. p can be defined by the user or a user-client-side generated password. c does neither have to know p nor mp.
     /// It is a statutory requirement that the Secret service s can also decrypt the data.
     /// So s creates a master password mp (for example with <see cref="Utilities.GetRandomByteArray(long)"/>.
-    /// Then s calls <see cref="GenerateMasterPasswordHash"/>(mp) to generate the master password hash mph.
-    /// Then s gives mph to c and c calls <see cref="GRYBCryptoSystem"/>(mph) to create an <see cref="GRYBCryptoSystem"/>-object gcs.
+    /// Then s calls <see cref="GenerateMasterPasswordDerivation"/>(mp) to generate the master password derivation mpd.
+    /// Then s gives mpd to c and c calls <see cref="GRYBCryptoSystem"/>(mpd) to create an <see cref="GRYBCryptoSystem"/>-object gcs.
     /// Now c can encrypt and decrypt data with gcs.<see cref="Encrypt(byte[], byte[])"/> and gcs.<see cref="Decrypt(byte[], byte[])"/>.
     /// The encrypted data can be decrypted either with the password used when calling <see cref="Encrypt(byte[], byte[])"/> or (by s) using mp as password.
     /// </example>
-    public class GRYBCryptoSystem
+    public class GRYBCryptoSystem : ISymmetricEncryptionAlgorithm
     {
-        private readonly byte[] _MasterPasswordHash;
-
+        public byte[] MasterPasswordHash { get; set; }
+        public IEncryptionAlgorithm InternalEncryptionAlgorithm { get; set; } = new AES256();
         /// <summary>
         /// Use this constructor when you do not want to be able to decrypt the data with a master password
         /// </summary>
-        public GRYBCryptoSystem() : this(GenerateMasterPasswordHash(Utilities.GetRandomByteArray()))
+        public GRYBCryptoSystem() : this(GenerateMasterPasswordDerivation(Utilities.GetRandomByteArray()))
         {
         }
 
@@ -33,9 +34,9 @@ namespace GRYLibrary.Core
         /// </summary>
         public GRYBCryptoSystem(byte[] masterPasswordHash)
         {
-            this._MasterPasswordHash = masterPasswordHash;
+            this.MasterPasswordHash = masterPasswordHash;
         }
-        public static byte[] GenerateMasterPasswordHash(byte[] masterPassword)
+        public static byte[] GenerateMasterPasswordDerivation(byte[] masterPassword)
         {
             throw new NotImplementedException();
         }
@@ -52,7 +53,7 @@ namespace GRYLibrary.Core
         /// Use this function to decrypt data.
         /// </summary>
         /// <param name="password">
-        /// As password you can either use the password which was used when calling <see cref="GRYBCryptoSystem.Encrypt"/> or you can use the result of <see cref="GenerateMasterPasswordHash"/>(masterPassword).
+        /// As password you can either use the password which was used when calling <see cref="Encrypt"/> or you can use the result of <see cref="GenerateMasterPasswordDerivation"/>(masterPassword).
         /// </param>
         public byte[] Decrypt(byte[] encryptedData, byte[] password)
         {
