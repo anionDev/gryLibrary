@@ -783,124 +783,7 @@ namespace GRYLibrary.Core
             return rawCmd.Trim();
         }
 
-        public static string ToPascalCase(this string input)
-        {
-            if (input == null)
-            {
-                return string.Empty;
-            }
-            IEnumerable<string> words = input.Split(new[] { '-', '_' }, StringSplitOptions.RemoveEmptyEntries)
-                         .Select(word => word.Substring(0, 1).ToUpper() +
-                                         word.Substring(1).ToLower());
-
-            return string.Concat(words);
-        }
-        public static string ToCamelCase(this string input)
-        {
-            string pascalCase = input.ToPascalCase();
-            return char.ToLowerInvariant(pascalCase[0]) + pascalCase.Substring(1);
-        }
-
-        private static readonly Regex OneOrMoreHexSigns = new Regex(@"^[0-9a-f]+$");
-        public static bool IsHexString(string result)
-        {
-            return OneOrMoreHexSigns.Match(result.ToLower()).Success;
-        }
-        public static bool IsHexDigit(this char @char)
-        {
-            return (@char >= '0' && @char <= '9') || (@char >= 'a' && @char <= 'f') || (@char >= 'A' && @char <= 'F');
-        }
-
-        public static bool IsAllUpper(this string input)
-        {
-            for (int i = 0; i < input.Length; i++)
-            {
-                if (char.IsLetter(input[i]) && !char.IsUpper(input[i]))
-                {
-                    return false;
-                }
-            }
-            return true;
-        }
-
-
-        public static bool IsAllLower(this string input)
-        {
-            for (int i = 0; i < input.Length; i++)
-            {
-                if (char.IsLetter(input[i]) && !char.IsLower(input[i]))
-                {
-                    return false;
-                }
-            }
-            return true;
-        }
-
-        public static bool IsNegative(this TimeSpan timeSpan)
-        {
-            return timeSpan.Ticks < 0;
-        }
-        public static bool IsPositive(this TimeSpan timeSpan)
-        {
-            return timeSpan.Ticks > 0;
-        }
-        public static string ToOnlyFirstCharToUpper(this string input)
-        {
-            if (string.IsNullOrEmpty(input))
-            {
-                return input;
-            }
-            if (input.Length == 1)
-            {
-                return input.ToUpper();
-            }
-            return input.First().ToString().ToUpper() + input.Substring(1).ToLower();
-        }
-        private static readonly char[] Whitespace = new char[] { ' ' };
-        private static readonly char[] WhitespaceAndPartialWordIndicators = new char[] { ' ', '_', '-' };
-        public static string ToOnlyFirstCharOfEveryWordToUpper(this string input)
-        {
-            return ToOnlyFirstCharOfEveryWordToUpper(input, (lastCharacter) => Whitespace.Contains(lastCharacter));
-        }
-        public static string ToOnlyFirstCharOfEveryWordOrPartialWordToUpper(this string input)
-        {
-            return ToOnlyFirstCharOfEveryWordToUpper(input, (lastCharacter) => WhitespaceAndPartialWordIndicators.Contains(lastCharacter));
-        }
-        public static string ToOnlyFirstCharOfEveryNewLetterSequenceToUpper(this string input)
-        {
-            return ToOnlyFirstCharOfEveryWordToUpper(input, (lastCharacter) => !char.IsLetter(lastCharacter));
-        }
-        public static string ToOnlyFirstCharOfEveryWordToUpper(this string input, Func<char, bool> printCharUppercaseDependentOnPreviousChar)
-        {
-            if (string.IsNullOrWhiteSpace(input))
-            {
-                return input;
-            }
-            char[] splitted = input.ToCharArray();
-            char lastChar = default;
-            for (int i = 0; i < splitted.Length; i++)
-            {
-                if (0 == i)
-                {
-                    splitted[i] = splitted[i].ToString().ToUpper().First();
-                }
-                if (0 < i)
-                {
-                    if (printCharUppercaseDependentOnPreviousChar(lastChar))
-                    {
-                        splitted[i] = splitted[i].ToString().ToUpper().First();
-                    }
-                    else
-                    {
-                        splitted[i] = splitted[i].ToString().ToLower().First();
-                    }
-                }
-                lastChar = splitted[i];
-            }
-            return new string(splitted);
-        }
-
-        public static bool FileEndsWithEmptyLine(string file)
+           public static bool FileEndsWithEmptyLine(string file)
         {
             return File.ReadAllBytes(file).Last().Equals(10);
         }
@@ -1730,13 +1613,133 @@ namespace GRYLibrary.Core
             return Process.GetCurrentProcess().ProcessName;
         }
 
-        public static string ToSyslogFormat(this DateTime momentOfLogEntry)
+        public static bool IsNegative(this TimeSpan timeSpan)
         {
-            return momentOfLogEntry.ToString("MMM dd YYYY HH:mm:ss");
+            return timeSpan.Ticks < 0;
+        }
+        public static bool IsPositive(this TimeSpan timeSpan)
+        {
+            return timeSpan.Ticks > 0;
+        }
+        public static string ToOnlyFirstCharToUpper(this string input)
+        {
+            if (string.IsNullOrEmpty(input))
+            {
+                return input;
+            }
+            if (input.Length == 1)
+            {
+                return input.ToUpper();
+            }
+            return input.First().ToString().ToUpper() + input.Substring(1).ToLower();
+        }
+        private static readonly char[] Whitespace = new char[] { ' ' };
+        private static readonly char[] WhitespaceAndPartialWordIndicators = new char[] { ' ', '_', '-' };
+        public static string ToOnlyFirstCharOfEveryWordToUpper(this string input)
+        {
+            return ToOnlyFirstCharOfEveryWordToUpper(input, (lastCharacter) => Whitespace.Contains(lastCharacter));
+        }
+        public static string ToOnlyFirstCharOfEveryWordOrPartialWordToUpper(this string input)
+        {
+            return ToOnlyFirstCharOfEveryWordToUpper(input, (lastCharacter) => WhitespaceAndPartialWordIndicators.Contains(lastCharacter));
+        }
+        public static string ToOnlyFirstCharOfEveryNewLetterSequenceToUpper(this string input)
+        {
+            return ToOnlyFirstCharOfEveryWordToUpper(input, (lastCharacter) => !char.IsLetter(lastCharacter));
+        }
+        public static string ToOnlyFirstCharOfEveryWordToUpper(this string input, Func<char, bool> printCharUppercaseDependentOnPreviousChar)
+        {
+            if (string.IsNullOrWhiteSpace(input))
+            {
+                return input;
+            }
+            char[] splitted = input.ToCharArray();
+            char lastChar = default;
+            for (int i = 0; i < splitted.Length; i++)
+            {
+                if (0 == i)
+                {
+                    splitted[i] = splitted[i].ToString().ToUpper().First();
+                }
+                if (0 < i)
+                {
+                    if (printCharUppercaseDependentOnPreviousChar(lastChar))
+                    {
+                        splitted[i] = splitted[i].ToString().ToUpper().First();
+                    }
+                    else
+                    {
+                        splitted[i] = splitted[i].ToString().ToLower().First();
+                    }
+                }
+                lastChar = splitted[i];
+            }
+            return new string(splitted);
+        }
+        public static bool IsAllUpper(this string input)
+        {
+            for (int i = 0; i < input.Length; i++)
+            {
+                if (char.IsLetter(input[i]) && !char.IsUpper(input[i]))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        public static bool IsAllLower(this string input)
+        {
+            for (int i = 0; i < input.Length; i++)
+            {
+                if (char.IsLetter(input[i]) && !char.IsLower(input[i]))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+        public static string ToPascalCase(this string input)
+        {
+            if (input == null)
+            {
+                return string.Empty;
+            }
+            IEnumerable<string> words = input.Split(new[] { '-', '_' }, StringSplitOptions.RemoveEmptyEntries)
+                         .Select(word => word.Substring(0, 1).ToUpper() +
+                                         word.Substring(1).ToLower());
+
+            return string.Concat(words);
+        }
+        public static string ToCamelCase(this string input)
+        {
+            string pascalCase = input.ToPascalCase();
+            return char.ToLowerInvariant(pascalCase[0]) + pascalCase.Substring(1);
+        }
+
+        private static readonly Regex _OneOrMoreHexSigns = new Regex(@"^[0-9a-f]+$");
+        public static bool IsHexString(string result)
+        {
+            return _OneOrMoreHexSigns.Match(result.ToLower()).Success;
+        }
+        public static bool IsHexDigit(this char @char)
+        {
+            return (@char >= '0' && @char <= '9') || (@char >= 'a' && @char <= 'f') || (@char >= 'A' && @char <= 'F');
         }
         #endregion
 
         #region Git
+        public static GitCommandResult ExecuteGitCommand(string repositoryFolder, string argument, bool throwErrorIfExitCodeIsNotZero = false, int? timeoutInMilliseconds = null, bool printErrorsAsInformation = false, bool logEnabled = false)
+        {
+            using GRYLog log = GRYLog.Create();
+            log.Configuration.Enabled = false;
+            log.Configuration.GetLogTarget<Log.ConcreteLogTargets.Console>().Enabled = logEnabled;
+            ExternalProgramExecutor externalProgramExecutor = ExternalProgramExecutor.CreateByGRYLog("git", argument, log, repositoryFolder, string.Empty, false, timeoutInMilliseconds);
+            externalProgramExecutor.PrintErrorsAsInformation = printErrorsAsInformation;
+            externalProgramExecutor.ThrowErrorIfExitCodeIsNotZero = throwErrorIfExitCodeIsNotZero;
+            externalProgramExecutor.StartConsoleApplicationInCurrentConsoleWindow();
+            return new GitCommandResult(argument, repositoryFolder, externalProgramExecutor.AllStdOutLines, externalProgramExecutor.AllStdErrLines, externalProgramExecutor.ExitCode);
+        }
         /// <returns>
         /// Returns a enumeration of the submodule-paths of <paramref name="repositoryFolder"/>.
         /// </returns>
@@ -1769,17 +1772,6 @@ namespace GRYLibrary.Core
                 }
             }
             return result;
-        }
-        public static GitCommandResult ExecuteGitCommand(string repositoryFolder, string argument, bool throwErrorIfExitCodeIsNotZero = false, int? timeoutInMilliseconds = null, bool printErrorsAsInformation = false, bool logEnabled = false)
-        {
-            using GRYLog log = GRYLog.Create();
-            log.Configuration.Enabled = false;
-            log.Configuration.GetLogTarget<Log.ConcreteLogTargets.Console>().Enabled = logEnabled;
-            ExternalProgramExecutor externalProgramExecutor = ExternalProgramExecutor.CreateByGRYLog("git", argument, log, repositoryFolder, string.Empty, false, timeoutInMilliseconds);
-            externalProgramExecutor.PrintErrorsAsInformation = printErrorsAsInformation;
-            externalProgramExecutor.ThrowErrorIfExitCodeIsNotZero = throwErrorIfExitCodeIsNotZero;
-            externalProgramExecutor.StartConsoleApplicationInCurrentConsoleWindow();
-            return new GitCommandResult(argument, repositoryFolder, externalProgramExecutor.AllStdOutLines, externalProgramExecutor.AllStdErrLines, externalProgramExecutor.ExitCode);
         }
         public static bool GitRepositoryContainsObligatoryFiles(string repositoryFolder, out ISet<string> missingFiles)
         {
