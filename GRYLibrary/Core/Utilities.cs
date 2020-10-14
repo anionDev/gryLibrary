@@ -783,7 +783,7 @@ namespace GRYLibrary.Core
             return rawCmd.Trim();
         }
 
-           public static bool FileEndsWithEmptyLine(string file)
+        public static bool FileEndsWithEmptyLine(string file)
         {
             return File.ReadAllBytes(file).Last().Equals(10);
         }
@@ -1787,6 +1787,10 @@ namespace GRYLibrary.Core
         {
             ExecuteGitCommand(repositoryFolder, $"remote add {remoteName} \"{remoteFolder}\"", true);
         }
+        public static bool GitRemoteIsAvailable(string repositoryFolder, string remoteName)
+        {
+            return ExecuteGitCommand(repositoryFolder, $"remote ls-remote {remoteName} ", false).ExitCode == 0;
+        }
         /// <returns>Returns the address of the remote with the given <paramref name="remoteName"/>.</returns>
         public static string GetGitRemoteAddress(string repository, string remoteName)
         {
@@ -1815,7 +1819,12 @@ namespace GRYLibrary.Core
             }
             return missingFiles.Count == 0;
         }
-        /// <returns>Returns the names of all remotes of the given <paramref name="repository"/>. This function does not return the addresses of these remotes.</returns>
+        /// <returns>
+        /// Returns the names of all remotes of the given <paramref name="repositoryFolder"/>.
+        /// </returns>
+        /// <remarks>
+        /// This function does not return the addresses of these remotes.
+        /// </remarks>
         public static IEnumerable<string> GetAllGitRemotes(string repositoryFolder)
         {
             return ExecuteGitCommand(repositoryFolder, "remote", true).StdOutLines.Where(line => !string.IsNullOrWhiteSpace(line));
@@ -1833,6 +1842,11 @@ namespace GRYLibrary.Core
             foundFile = null;
             return false;
         }
+        /// <returns>
+        /// Returns a tuple.
+        /// tuple.Item1 represents the remote-name.
+        /// tuple.Item1 represents the remote-branchname.
+        /// </returns>
         public static IEnumerable<Tuple<string/*remote-name*/, string/*branch-name*/>> GetAllGitRemoteBranches(string repository)
         {
             return ExecuteGitCommand(repository, "branch -r", true).StdOutLines.Where(line => !string.IsNullOrWhiteSpace(line)).Select(line =>
@@ -1844,7 +1858,7 @@ namespace GRYLibrary.Core
                 }
                 else
                 {
-                    throw new Exception($"'{repository}> git branch' contained the unexpected output-line '{line}'");
+                    throw new Exception($"'{repository}> git branch -r' contained the unexpected output-line '{line}'.");
                 }
             });
         }
@@ -2601,5 +2615,5 @@ namespace GRYLibrary.Core
         }
         #endregion
 
-        }
+    }
 }
