@@ -35,6 +35,8 @@ namespace GRYLibrary.Core
 {
     public static class Utilities
     {
+
+        #region Miscellaneous
         public static void Shuffle<T>(this IList<T> list)
         {
             Random random = new Random();
@@ -162,372 +164,6 @@ namespace GRYLibrary.Core
             }
             return @string;
         }
-
-        #region Execute or open file
-        public static bool FileIsExecutable(string file)
-        {
-            return OperatingSystem.OperatingSystem.GetCurrentOperatingSystem().Accept(new FileIsExecutableVisitor(file));
-        }
-        public static ExternalProgramExecutor ExecuteFile(string file)
-        {
-            if (FileIsExecutable(file))
-            {
-                ExternalProgramExecutor result = ExternalProgramExecutor.Create(file, string.Empty);
-                result.StartConsoleApplicationInCurrentConsoleWindow();
-                return result;
-            }
-            else
-            {
-                throw new Exception($"File '{file}' can not be executed");
-            }
-        }
-
-
-        public static void OpenFileWithDefaultProgram(string file)
-        {
-            ExternalProgramExecutor.Create(file, string.Empty).StartConsoleApplicationInCurrentConsoleWindow();
-        }
-        private class FileIsExecutableVisitor : IOperatingSystemVisitor<bool>
-        {
-            private readonly string _File;
-
-            public FileIsExecutableVisitor(string file)
-            {
-                this._File = file;
-            }
-
-            public bool Handle(OSX operatingSystem)
-            {
-                return true;
-            }
-
-            public bool Handle(Windows operatingSystem)
-            {
-                string fileToLower = this._File.ToLower();
-                return fileToLower.EndsWith(".exe")
-                    || fileToLower.EndsWith(".cmd")
-                    || fileToLower.EndsWith(".bat");
-            }
-
-            public bool Handle(Linux operatingSystem)
-            {
-                return true;
-            }
-        }
-
-
-
-
-        #endregion
-        #region Enumerable
-
-        #region IsEnumerable
-        /// <returns>Returns true if and only if the most concrete type of <paramref name="object"/> implements <see cref="IEnumerable"/>.</returns>
-        public static bool ObjectIsEnumerable(this object @object)
-        {
-            return @object is IEnumerable;
-        }
-        public static bool TypeIsEnumerable(this Type type)
-        {
-            return TypeIsAssignableFrom(type, typeof(IEnumerable)) && !typeof(string).Equals(type);
-        }
-        /// <returns>Returns true if and only if the most concrete type of <paramref name="object"/> implements <see cref="ISet{T}"/>.</returns>
-        public static bool ObjectIsSet(this object @object)
-        {
-            return TypeIsSet(@object.GetType());
-        }
-        public static bool TypeIsSet(this Type type)
-        {
-            return TypeIsAssignableFrom(type, typeof(ISet<>));
-        }
-        public static bool ObjectIsList(this object @object)
-        {
-            return TypeIsList(@object.GetType());
-        }
-        public static bool TypeIsList(this Type type)
-        {
-            return TypeIsListNotGeneric(type) || TypeIsListGeneric(type);
-        }
-        public static bool TypeIsListNotGeneric(this Type type)
-        {
-            return TypeIsAssignableFrom(type, typeof(IList));
-        }
-        public static bool TypeIsListGeneric(this Type type)
-        {
-            return TypeIsAssignableFrom(type, typeof(IList<>));
-        }
-        /// <returns>Returns true if and only if the most concrete type of <paramref name="object"/> implements <see cref="IDictionary{TKey, TValue}"/> or <see cref="IDictionary"/>.</returns>
-        public static bool ObjectIsDictionary(this object @object)
-        {
-            return TypeIsDictionary(@object.GetType());
-        }
-        public static void AddItemToEnumerable(object enumerable, object[] addMethodArgument)
-        {
-            enumerable.GetType().GetMethod("Add").Invoke(enumerable, addMethodArgument);
-        }
-        public static bool TypeIsDictionary(this Type type)
-        {
-            return TypeIsDictionaryNotGeneric(type) || TypeIsDictionaryGeneric(type);
-        }
-        public static bool TypeIsDictionaryNotGeneric(this Type type)
-        {
-            return TypeIsAssignableFrom(type, typeof(IDictionary));
-        }
-        public static bool TypeIsDictionaryGeneric(this Type type)
-        {
-            return TypeIsAssignableFrom(type, typeof(IDictionary<,>));
-        }
-        public static bool ObjectIsKeyValuePair(this object @object)
-        {
-            return TypeIsKeyValuePair(@object.GetType());
-        }
-        public static bool TypeIsKeyValuePair(this Type type)
-        {
-            return TypeIsAssignableFrom(type, typeof(System.Collections.Generic.KeyValuePair<,>)) || TypeIsAssignableFrom(type, typeof(XMLSerializer.KeyValuePair<object, object>));
-        }
-        public static bool ObjectIsDictionaryEntry(this object @object)
-        {
-            return TypeIsDictionaryEntry(@object.GetType());
-        }
-        public static bool TypeIsDictionaryEntry(this Type type)
-        {
-            return TypeIsAssignableFrom(type, typeof(DictionaryEntry));
-        }
-        public static bool ObjectIsTuple(this object @object)
-        {
-            return TypeIsTuple(@object.GetType());
-        }
-        public static bool TypeIsTuple(this Type type)
-        {
-            return TypeIsAssignableFrom(type, typeof(Tuple<,>));
-        }
-
-        #endregion
-        #region ToEnumerable
-        public static IEnumerable ObjectToEnumerable(this object @object)
-        {
-            if (!ObjectIsEnumerable(@object))
-            {
-                throw new InvalidCastException();
-            }
-            return @object as IEnumerable;
-        }
-        public static IEnumerable<T> ObjectToEnumerable<T>(this object @object)
-        {
-            if (!ObjectIsEnumerable(@object))
-            {
-                throw new InvalidCastException();
-            }
-            IEnumerable objects = ObjectToEnumerable(@object);
-            List<T> result = new List<T>();
-            foreach (object obj in objects)
-            {
-                if (obj is T t)
-                {
-                    result.Add(t);
-                }
-                else if (IsDefault(obj))
-                {
-                    result.Add(default);
-                }
-                else
-                {
-                    throw new InvalidCastException();
-                }
-            }
-            return result;
-        }
-        public static ISet<T> ObjectToSet<T>(this object @object)
-        {
-            if (!ObjectIsSet(@object))
-            {
-                throw new InvalidCastException();
-            }
-            IEnumerable objects = ObjectToEnumerable(@object);
-            HashSet<T> result = new HashSet<T>();
-            foreach (object obj in objects)
-            {
-                if (obj is T t)
-                {
-                    result.Add(t);
-                }
-                else if (IsDefault(obj))
-                {
-                    result.Add(default);
-                }
-                else
-                {
-                    throw new InvalidCastException();
-                }
-            }
-            return result;
-        }
-        /// <returns>Returns true if and only if the most concrete type of <paramref name="object"/> implements <see cref="IList{T}"/> or <see cref="IList"/>.</returns>
-        public static IList ObjectToList(this object @object)
-        {
-            return ObjectToList<object>(@object).ToList();
-        }
-        public static IList<T> ObjectToList<T>(this object @object)
-        {
-            if (!ObjectIsList(@object))
-            {
-                throw new InvalidCastException();
-            }
-            IEnumerable objects = ObjectToEnumerable(@object);
-            List<T> result = new List<T>();
-            foreach (object obj in objects)
-            {
-                if (obj is T t)
-                {
-                    result.Add(t);
-                }
-                else if (IsDefault(obj))
-                {
-                    result.Add(default);
-                }
-                else
-                {
-                    throw new InvalidCastException();
-                }
-            }
-            return result;
-        }
-        public static IDictionary ObjectToDictionary(this object @object)
-        {
-            IDictionary result = new Hashtable();
-            foreach (System.Collections.Generic.KeyValuePair<object, object> item in ObjectToDictionary<object, object>(@object))
-            {
-                result.Add(item.Key, item.Value);
-            }
-            return result;
-        }
-        public static IDictionary<TKey, TValue> ObjectToDictionary<TKey, TValue>(this object @object)
-        {
-            if (!ObjectIsDictionary(@object))
-            {
-                throw new InvalidCastException();
-            }
-            IEnumerable<object> objects = ObjectToEnumerable<object>(@object);
-            Dictionary<TKey, TValue> result = new Dictionary<TKey, TValue>();
-            foreach (object obj in objects)
-            {
-                System.Collections.Generic.KeyValuePair<TKey, TValue> kvp = ObjectToKeyValuePair<TKey, TValue>(obj);
-                result.Add(kvp.Key, kvp.Value);
-            }
-            return result;
-        }
-        public static System.Collections.Generic.KeyValuePair<TKey, TValue> ObjectToKeyValuePair<TKey, TValue>(this object @object)
-        {
-            if (!ObjectIsKeyValuePair(@object))
-            {
-                throw new InvalidCastException();
-            }
-            return ObjectToKeyValuePairUnsafe<TKey, TValue>(@object);
-        }
-
-        internal static System.Collections.Generic.KeyValuePair<TKey, TValue> ObjectToKeyValuePairUnsafe<TKey, TValue>(object @object)
-        {
-            object key = ((dynamic)@object).Key;
-            object value = ((dynamic)@object).Value;
-            TKey tKey;
-            TValue tValue;
-
-            if (key is TKey key1)
-            {
-                tKey = key1;
-            }
-            else if (IsDefault(key))
-            {
-                tKey = default;
-            }
-            else
-            {
-                throw new InvalidCastException();
-            }
-            if (value is TValue value1)
-            {
-                tValue = value1;
-            }
-            else if (IsDefault(value))
-            {
-                tValue = default;
-            }
-            else
-            {
-                throw new InvalidCastException();
-            }
-            return new System.Collections.Generic.KeyValuePair<TKey, TValue>(tKey, tValue);
-        }
-
-        public static DictionaryEntry ObjectToDictionaryEntry(object @object)
-        {
-            if (!ObjectIsDictionaryEntry(@object))
-            {
-                throw new InvalidCastException();
-            }
-            object key = ((dynamic)@object).Key;
-            object value = ((dynamic)@object).Value;
-            return new DictionaryEntry(key, value);
-        }
-        public static Tuple<T1, T2> ObjectToTuple<T1, T2>(this object @object)
-        {
-            if (!ObjectIsTuple(@object))
-            {
-                throw new InvalidCastException();
-            }
-            object item1 = ((dynamic)@object).Item1;
-            object item2 = ((dynamic)@object).Item2;
-            if (item1 is T1 t1 && item2 is T2 t2)
-            {
-                return new Tuple<T1, T2>(t1, t2);
-            }
-            else
-            {
-                throw new InvalidCastException();
-            }
-        }
-
-        #endregion
-        #region EqualsEnumerable
-        public static bool EnumerableEquals(this IEnumerable enumerable1, IEnumerable enumerable2)
-        {
-            return new EnumerableComparer(new PropertyEqualsCalculatorConfiguration()).EqualsTyped(enumerable1, enumerable2);
-        }
-        /// <returns>Returns true if and only if the items in <paramref name="list1"/> and <paramref name="list2"/> are equal (ignoring the order) using the GRYLibrary-AdvancedObjectAnalysis for object-comparison.</returns>
-        public static bool SetEquals<T>(this ISet<T> set1, ISet<T> set2)
-        {
-            return new SetComparer(new PropertyEqualsCalculatorConfiguration()).EqualsTyped(set1, set2);
-        }
-        public static bool ListEquals(this IList list1, IList list2)
-        {
-            return new ListComparer(new PropertyEqualsCalculatorConfiguration()).Equals(list1, list2);
-        }
-        /// <returns>Returns true if and only if the items in <paramref name="list1"/> and <paramref name="list2"/> are equal using the GRYLibrary-AdvancedObjectAnalysis for object-comparison.</returns>
-        public static bool ListEquals<T>(this IList<T> list1, IList<T> list2)
-        {
-            return new ListComparer(new PropertyEqualsCalculatorConfiguration()).EqualsTyped(list1, list2);
-        }
-        public static bool DictionaryEquals(this IDictionary dictionary1, IDictionary dictionary2)
-        {
-            return new DictionaryComparer(new PropertyEqualsCalculatorConfiguration()).Equals(dictionary1, dictionary2);
-        }
-        public static bool DictionaryEquals<TKey, TValue>(this IDictionary<TKey, TValue> dictionary1, IDictionary<TKey, TValue> dictionary2)
-        {
-            return new DictionaryComparer(new PropertyEqualsCalculatorConfiguration()).DefaultEquals(dictionary1, dictionary2);
-        }
-        public static bool KeyValuePairEquals<TKey, TValue>(this System.Collections.Generic.KeyValuePair<TKey, TValue> keyValuePair1, System.Collections.Generic.KeyValuePair<TKey, TValue> keyValuePair2)
-        {
-            return new KeyValuePairComparer(new PropertyEqualsCalculatorConfiguration()).Equals(keyValuePair1, keyValuePair2);
-        }
-        public static bool TupleEquals<TKey, TValue>(this Tuple<TKey, TValue> tuple1, Tuple<TKey, TValue> tuple2)
-        {
-            return new TupleComparer(new PropertyEqualsCalculatorConfiguration()).Equals(tuple1, tuple2);
-        }
-
-        #endregion
-        #endregion
-
-
         public static bool ObjectIsPrimitive(object @object)
         {
             return TypeIsPrimitive(@object.GetType());
@@ -1586,39 +1222,6 @@ namespace GRYLibrary.Core
             }
             return outterList;
         }
-        /// <returns>
-        /// Returns a enumeration of the submodule-paths of <paramref name="repositoryFolder"/>.
-        /// </returns>
-        public static IEnumerable<string> GetSubmodulePaths(string repositoryFolder, bool recursive = true)
-        {
-            ExternalProgramExecutor externalProgramExecutor = ExternalProgramExecutor.Create("git", "submodule status" + (recursive ? " --recursive" : string.Empty), repositoryFolder);
-            externalProgramExecutor.ThrowErrorIfExitCodeIsNotZero = true;
-            externalProgramExecutor.LogObject.Configuration.Enabled = false;
-            externalProgramExecutor.StartConsoleApplicationInCurrentConsoleWindow();
-            List<string> result = new List<string>();
-            foreach (string rawLine in externalProgramExecutor.AllStdOutLines)
-            {
-                string line = rawLine.Trim();
-                if (line.Contains(" "))
-                {
-                    string[] splitted = line.Split(' ');
-                    int amountOfWhitespaces = splitted.Length - 1;
-                    if (0 < amountOfWhitespaces)
-                    {
-                        string rawPath = splitted[1];
-                        if (rawPath.Contains("..") || rawPath == "./")
-                        {
-                            continue;
-                        }
-                        else
-                        {
-                            result.Add(Path.Combine(repositoryFolder, rawPath.Replace("/", Path.DirectorySeparatorChar.ToString())));
-                        }
-                    }
-                }
-            }
-            return result;
-        }
         /// <summary>
         /// Executes <paramref name="action"/>. When <paramref name="action"/> longer takes than <paramref name="timeout"/> then <paramref name="action"/> will be aborted.
         /// </summary>
@@ -1966,6 +1569,207 @@ namespace GRYLibrary.Core
             DateTime originalDateTime = DateTime.ParseExact(streamReader.ReadToEnd().Substring(begin, length), format, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal);
             return TimeZoneInfo.ConvertTime(originalDateTime, timezone);
         }
+
+        public static SerializableDictionary<TKey, TValue> ToSerializableDictionary<TKey, TValue>(this IDictionary<TKey, TValue> dictionary)
+        {
+            SerializableDictionary<TKey, TValue> result = new SerializableDictionary<TKey, TValue>();
+            foreach (System.Collections.Generic.KeyValuePair<TKey, TValue> kvp in dictionary)
+            {
+                result.Add(kvp.Key, kvp.Value);
+            }
+            return result;
+        }
+
+        public static bool IsDefault(object @object)
+        {
+            if (@object == null)
+            {
+                return true;
+            }
+            else
+            {
+                return EqualityComparer<object>.Default.Equals(@object, GetDefault(@object.GetType()));
+            }
+        }
+        public static object GetDefault(Type type)
+        {
+            if (type.IsValueType)
+            {
+                return Activator.CreateInstance(type);
+            }
+            else
+            {
+                return null;
+            }
+        }
+        public static void ResolvePathOfProgram(ref string program, ref string argument)
+        {
+            if (File.Exists(program))
+            {
+                string resultProgram;
+                string resultArgument;
+                if (FileIsExecutable(program))
+                {
+                    resultProgram = program;
+                    resultArgument = argument;
+                }
+                else
+                {
+                    if (OperatingSystem.OperatingSystem.GetCurrentOperatingSystem() is Windows)
+                    {
+                        resultProgram = GetDefaultProgramToOpenFile(Path.GetExtension(program));
+                        resultArgument = program;
+                    }
+                    else
+                    {
+                        resultProgram = program;
+                        resultArgument = argument;
+                    }
+                }
+                program = resultProgram;
+                argument = resultArgument;
+                return;
+            }
+            if (!(program.Contains("/") || program.Contains("\\") || program.Contains(":")))
+            {
+                if (TryResolvePathByPathVariable(program, out string programWithFullPath))
+                {
+                    program = programWithFullPath;
+                    return;
+                }
+            }
+            throw new FileNotFoundException($"Program '{program}' can not be found");
+        }
+
+        public static string GetAssertionFailMessage(object expectedObject, object actualObject, int maxLengthPerObject = 1000)
+        {
+            return $"Equal failed. Expected: <{Environment.NewLine}{Generic.GenericToString(expectedObject, maxLengthPerObject)}{Environment.NewLine}> Actual: <{Environment.NewLine}{Generic.GenericToString(actualObject, maxLengthPerObject)}{Environment.NewLine}>";
+        }
+        public static void ForEach<T>(this IEnumerable<T> source, Action<T> action)
+        {
+            foreach (T item in source)
+            {
+                action(item);
+            }
+        }
+        public static void ForEach(this IEnumerable source, Action<object> action)
+        {
+            foreach (object item in source)
+            {
+                action(item);
+            }
+        }
+
+
+        public static bool ImprovedReferenceEquals(object item1, object item2)
+        {
+            bool itemHasValueType = HasValueType(item1);
+            if (itemHasValueType != HasValueType(item2))
+            {
+                return false;
+            }
+            bool item1IsDefault = IsDefault(item1);
+            bool item2IsDefault = IsDefault(item2);
+            if (item1IsDefault && item2IsDefault)
+            {
+                return true;
+            }
+            if (item1IsDefault && !item2IsDefault)
+            {
+                return false;
+            }
+            if (!item1IsDefault && item2IsDefault)
+            {
+                return false;
+            }
+            if (!item1IsDefault && !item2IsDefault)
+            {
+                if (itemHasValueType)
+                {
+                    Type type = item1.GetType();
+                    if (type.Equals(item2.GetType()))//TODO ignore generics here when type is keyvaluepair
+                    {
+                        if (TypeIsKeyValuePair(type))
+                        {
+                            System.Collections.Generic.KeyValuePair<object, object> kvp1 = ObjectToKeyValuePairUnsafe<object, object>(item1);
+                            System.Collections.Generic.KeyValuePair<object, object> kvp2 = ObjectToKeyValuePairUnsafe<object, object>(item2);
+                            return ImprovedReferenceEquals(kvp1.Key, kvp2.Key) && ImprovedReferenceEquals(kvp1.Value, kvp2.Value);
+                        }
+                        else
+                        {
+                            return item1.Equals(item2);
+                        }
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    return ReferenceEquals(item1, item2);
+                }
+            }
+            throw new ArgumentException("Can not calculate reference-equals for the given arguments.");
+        }
+
+        public static bool HasValueType(object @object)
+        {
+            if (@object == null)
+            {
+                return false;
+            }
+            else
+            {
+                return @object.GetType().IsValueType;
+            }
+        }
+
+        public static string GetNameOfCurrentExecutable()
+        {
+            return Process.GetCurrentProcess().ProcessName;
+        }
+
+        public static string ToSyslogFormat(this DateTime momentOfLogEntry)
+        {
+            return momentOfLogEntry.ToString("MMM dd YYYY HH:mm:ss");
+        }
+        #endregion
+
+        #region Git
+        /// <returns>
+        /// Returns a enumeration of the submodule-paths of <paramref name="repositoryFolder"/>.
+        /// </returns>
+        public static IEnumerable<string> GetGitSubmodulePaths(string repositoryFolder, bool recursive = true)
+        {
+            ExternalProgramExecutor externalProgramExecutor = ExternalProgramExecutor.Create("git", "submodule status" + (recursive ? " --recursive" : string.Empty), repositoryFolder);
+            externalProgramExecutor.ThrowErrorIfExitCodeIsNotZero = true;
+            externalProgramExecutor.LogObject.Configuration.Enabled = false;
+            externalProgramExecutor.StartConsoleApplicationInCurrentConsoleWindow();
+            List<string> result = new List<string>();
+            foreach (string rawLine in externalProgramExecutor.AllStdOutLines)
+            {
+                string line = rawLine.Trim();
+                if (line.Contains(" "))
+                {
+                    string[] splitted = line.Split(' ');
+                    int amountOfWhitespaces = splitted.Length - 1;
+                    if (0 < amountOfWhitespaces)
+                    {
+                        string rawPath = splitted[1];
+                        if (rawPath.Contains("..") || rawPath == "./")
+                        {
+                            continue;
+                        }
+                        else
+                        {
+                            result.Add(Path.Combine(repositoryFolder, rawPath.Replace("/", Path.DirectorySeparatorChar.ToString())));
+                        }
+                    }
+                }
+            }
+            return result;
+        }
         public static GitCommandResult ExecuteGitCommand(string repositoryFolder, string argument, bool throwErrorIfExitCodeIsNotZero = false, int? timeoutInMilliseconds = null, bool printErrorsAsInformation = false, bool logEnabled = false)
         {
             using GRYLog log = GRYLog.Create();
@@ -2040,17 +1844,17 @@ namespace GRYLibrary.Core
         public static IEnumerable<Tuple<string/*remote-name*/, string/*branch-name*/>> GetAllGitRemoteBranches(string repository)
         {
             return ExecuteGitCommand(repository, "branch -r", true).StdOutLines.Where(line => !string.IsNullOrWhiteSpace(line)).Select(line =>
+            {
+                if (line.Contains("/"))
                 {
-                    if (line.Contains("/"))
-                    {
-                        string[] splitted = line.Split(new[] { '/' }, 2);
-                        return new Tuple<string, string>(splitted[0].Trim(), splitted[1].Trim());
-                    }
-                    else
-                    {
-                        throw new Exception($"'{repository}> git branch' contained the unexpected output-line '{line}'");
-                    }
-                });
+                    string[] splitted = line.Split(new[] { '/' }, 2);
+                    return new Tuple<string, string>(splitted[0].Trim(), splitted[1].Trim());
+                }
+                else
+                {
+                    throw new Exception($"'{repository}> git branch' contained the unexpected output-line '{line}'");
+                }
+            });
         }
         /// <returns>Returns the names of the remotes of the given <paramref name="repositoryFolder"/>.</returns>
         public static IEnumerable<string> GetGitRemotes(string repositoryFolder)
@@ -2256,95 +2060,373 @@ namespace GRYLibrary.Core
         {
             return ExecuteGitCommand(repositoryFolder, $"merge-base --is-ancestor {ancestor} {descendant}", false).ExitCode == 0;
         }
-        public static SerializableDictionary<TKey, TValue> ToSerializableDictionary<TKey, TValue>(this IDictionary<TKey, TValue> dictionary)
+        #endregion
+
+        #region Execute or open file
+        public static bool FileIsExecutable(string file)
         {
-            SerializableDictionary<TKey, TValue> result = new SerializableDictionary<TKey, TValue>();
-            foreach (System.Collections.Generic.KeyValuePair<TKey, TValue> kvp in dictionary)
+            return OperatingSystem.OperatingSystem.GetCurrentOperatingSystem().Accept(new FileIsExecutableVisitor(file));
+        }
+        public static ExternalProgramExecutor ExecuteFile(string file)
+        {
+            if (FileIsExecutable(file))
             {
+                ExternalProgramExecutor result = ExternalProgramExecutor.Create(file, string.Empty);
+                result.StartConsoleApplicationInCurrentConsoleWindow();
+                return result;
+            }
+            else
+            {
+                throw new Exception($"File '{file}' can not be executed");
+            }
+        }
+
+
+        public static void OpenFileWithDefaultProgram(string file)
+        {
+            ExternalProgramExecutor.Create(file, string.Empty).StartConsoleApplicationInCurrentConsoleWindow();
+        }
+        private class FileIsExecutableVisitor : IOperatingSystemVisitor<bool>
+        {
+            private readonly string _File;
+
+            public FileIsExecutableVisitor(string file)
+            {
+                this._File = file;
+            }
+
+            public bool Handle(OSX operatingSystem)
+            {
+                return true;
+            }
+
+            public bool Handle(Windows operatingSystem)
+            {
+                string fileToLower = this._File.ToLower();
+                return fileToLower.EndsWith(".exe")
+                    || fileToLower.EndsWith(".cmd")
+                    || fileToLower.EndsWith(".bat");
+            }
+
+            public bool Handle(Linux operatingSystem)
+            {
+                return true;
+            }
+        }
+
+
+
+
+        #endregion
+
+        #region Enumerable
+
+        #region IsEnumerable
+        /// <returns>Returns true if and only if the most concrete type of <paramref name="object"/> implements <see cref="IEnumerable"/>.</returns>
+        public static bool ObjectIsEnumerable(this object @object)
+        {
+            return @object is IEnumerable;
+        }
+        public static bool TypeIsEnumerable(this Type type)
+        {
+            return TypeIsAssignableFrom(type, typeof(IEnumerable)) && !typeof(string).Equals(type);
+        }
+        /// <returns>Returns true if and only if the most concrete type of <paramref name="object"/> implements <see cref="ISet{T}"/>.</returns>
+        public static bool ObjectIsSet(this object @object)
+        {
+            return TypeIsSet(@object.GetType());
+        }
+        public static bool TypeIsSet(this Type type)
+        {
+            return TypeIsAssignableFrom(type, typeof(ISet<>));
+        }
+        public static bool ObjectIsList(this object @object)
+        {
+            return TypeIsList(@object.GetType());
+        }
+        public static bool TypeIsList(this Type type)
+        {
+            return TypeIsListNotGeneric(type) || TypeIsListGeneric(type);
+        }
+        public static bool TypeIsListNotGeneric(this Type type)
+        {
+            return TypeIsAssignableFrom(type, typeof(IList));
+        }
+        public static bool TypeIsListGeneric(this Type type)
+        {
+            return TypeIsAssignableFrom(type, typeof(IList<>));
+        }
+        /// <returns>Returns true if and only if the most concrete type of <paramref name="object"/> implements <see cref="IDictionary{TKey, TValue}"/> or <see cref="IDictionary"/>.</returns>
+        public static bool ObjectIsDictionary(this object @object)
+        {
+            return TypeIsDictionary(@object.GetType());
+        }
+        public static void AddItemToEnumerable(object enumerable, object[] addMethodArgument)
+        {
+            enumerable.GetType().GetMethod("Add").Invoke(enumerable, addMethodArgument);
+        }
+        public static bool TypeIsDictionary(this Type type)
+        {
+            return TypeIsDictionaryNotGeneric(type) || TypeIsDictionaryGeneric(type);
+        }
+        public static bool TypeIsDictionaryNotGeneric(this Type type)
+        {
+            return TypeIsAssignableFrom(type, typeof(IDictionary));
+        }
+        public static bool TypeIsDictionaryGeneric(this Type type)
+        {
+            return TypeIsAssignableFrom(type, typeof(IDictionary<,>));
+        }
+        public static bool ObjectIsKeyValuePair(this object @object)
+        {
+            return TypeIsKeyValuePair(@object.GetType());
+        }
+        public static bool TypeIsKeyValuePair(this Type type)
+        {
+            return TypeIsAssignableFrom(type, typeof(System.Collections.Generic.KeyValuePair<,>)) || TypeIsAssignableFrom(type, typeof(XMLSerializer.KeyValuePair<object, object>));
+        }
+        public static bool ObjectIsDictionaryEntry(this object @object)
+        {
+            return TypeIsDictionaryEntry(@object.GetType());
+        }
+        public static bool TypeIsDictionaryEntry(this Type type)
+        {
+            return TypeIsAssignableFrom(type, typeof(DictionaryEntry));
+        }
+        public static bool ObjectIsTuple(this object @object)
+        {
+            return TypeIsTuple(@object.GetType());
+        }
+        public static bool TypeIsTuple(this Type type)
+        {
+            return TypeIsAssignableFrom(type, typeof(Tuple<,>));
+        }
+
+        #endregion
+        #region ToEnumerable
+        public static IEnumerable ObjectToEnumerable(this object @object)
+        {
+            if (!ObjectIsEnumerable(@object))
+            {
+                throw new InvalidCastException();
+            }
+            return @object as IEnumerable;
+        }
+        public static IEnumerable<T> ObjectToEnumerable<T>(this object @object)
+        {
+            if (!ObjectIsEnumerable(@object))
+            {
+                throw new InvalidCastException();
+            }
+            IEnumerable objects = ObjectToEnumerable(@object);
+            List<T> result = new List<T>();
+            foreach (object obj in objects)
+            {
+                if (obj is T t)
+                {
+                    result.Add(t);
+                }
+                else if (IsDefault(obj))
+                {
+                    result.Add(default);
+                }
+                else
+                {
+                    throw new InvalidCastException();
+                }
+            }
+            return result;
+        }
+        public static ISet<T> ObjectToSet<T>(this object @object)
+        {
+            if (!ObjectIsSet(@object))
+            {
+                throw new InvalidCastException();
+            }
+            IEnumerable objects = ObjectToEnumerable(@object);
+            HashSet<T> result = new HashSet<T>();
+            foreach (object obj in objects)
+            {
+                if (obj is T t)
+                {
+                    result.Add(t);
+                }
+                else if (IsDefault(obj))
+                {
+                    result.Add(default);
+                }
+                else
+                {
+                    throw new InvalidCastException();
+                }
+            }
+            return result;
+        }
+        /// <returns>Returns true if and only if the most concrete type of <paramref name="object"/> implements <see cref="IList{T}"/> or <see cref="IList"/>.</returns>
+        public static IList ObjectToList(this object @object)
+        {
+            return ObjectToList<object>(@object).ToList();
+        }
+        public static IList<T> ObjectToList<T>(this object @object)
+        {
+            if (!ObjectIsList(@object))
+            {
+                throw new InvalidCastException();
+            }
+            IEnumerable objects = ObjectToEnumerable(@object);
+            List<T> result = new List<T>();
+            foreach (object obj in objects)
+            {
+                if (obj is T t)
+                {
+                    result.Add(t);
+                }
+                else if (IsDefault(obj))
+                {
+                    result.Add(default);
+                }
+                else
+                {
+                    throw new InvalidCastException();
+                }
+            }
+            return result;
+        }
+        public static IDictionary ObjectToDictionary(this object @object)
+        {
+            IDictionary result = new Hashtable();
+            foreach (System.Collections.Generic.KeyValuePair<object, object> item in ObjectToDictionary<object, object>(@object))
+            {
+                result.Add(item.Key, item.Value);
+            }
+            return result;
+        }
+        public static IDictionary<TKey, TValue> ObjectToDictionary<TKey, TValue>(this object @object)
+        {
+            if (!ObjectIsDictionary(@object))
+            {
+                throw new InvalidCastException();
+            }
+            IEnumerable<object> objects = ObjectToEnumerable<object>(@object);
+            Dictionary<TKey, TValue> result = new Dictionary<TKey, TValue>();
+            foreach (object obj in objects)
+            {
+                System.Collections.Generic.KeyValuePair<TKey, TValue> kvp = ObjectToKeyValuePair<TKey, TValue>(obj);
                 result.Add(kvp.Key, kvp.Value);
             }
             return result;
         }
-
-        public static bool IsDefault(object @object)
+        public static System.Collections.Generic.KeyValuePair<TKey, TValue> ObjectToKeyValuePair<TKey, TValue>(this object @object)
         {
-            if (@object == null)
+            if (!ObjectIsKeyValuePair(@object))
             {
-                return true;
+                throw new InvalidCastException();
+            }
+            return ObjectToKeyValuePairUnsafe<TKey, TValue>(@object);
+        }
+
+        internal static System.Collections.Generic.KeyValuePair<TKey, TValue> ObjectToKeyValuePairUnsafe<TKey, TValue>(object @object)
+        {
+            object key = ((dynamic)@object).Key;
+            object value = ((dynamic)@object).Value;
+            TKey tKey;
+            TValue tValue;
+
+            if (key is TKey key1)
+            {
+                tKey = key1;
+            }
+            else if (IsDefault(key))
+            {
+                tKey = default;
             }
             else
             {
-                return EqualityComparer<object>.Default.Equals(@object, GetDefault(@object.GetType()));
+                throw new InvalidCastException();
             }
-        }
-        public static object GetDefault(Type type)
-        {
-            if (type.IsValueType)
+            if (value is TValue value1)
             {
-                return Activator.CreateInstance(type);
+                tValue = value1;
+            }
+            else if (IsDefault(value))
+            {
+                tValue = default;
             }
             else
             {
-                return null;
+                throw new InvalidCastException();
             }
-        }
-        public static void ResolvePathOfProgram(ref string program, ref string argument)
-        {
-            if (File.Exists(program))
-            {
-                string resultProgram;
-                string resultArgument;
-                if (FileIsExecutable(program))
-                {
-                    resultProgram = program;
-                    resultArgument = argument;
-                }
-                else
-                {
-                    if (OperatingSystem.OperatingSystem.GetCurrentOperatingSystem() is Windows)
-                    {
-                        resultProgram = GetDefaultProgramToOpenFile(Path.GetExtension(program));
-                        resultArgument = program;
-                    }
-                    else
-                    {
-                        resultProgram = program;
-                        resultArgument = argument;
-                    }
-                }
-                program = resultProgram;
-                argument = resultArgument;
-                return;
-            }
-            if (!(program.Contains("/") || program.Contains("\\") || program.Contains(":")))
-            {
-                if (TryResolvePathByPathVariable(program, out string programWithFullPath))
-                {
-                    program = programWithFullPath;
-                    return;
-                }
-            }
-            throw new FileNotFoundException($"Program '{program}' can not be found");
+            return new System.Collections.Generic.KeyValuePair<TKey, TValue>(tKey, tValue);
         }
 
-        public static string GetAssertionFailMessage(object expectedObject, object actualObject, int maxLengthPerObject = 1000)
+        public static DictionaryEntry ObjectToDictionaryEntry(object @object)
         {
-            return $"Equal failed. Expected: <{Environment.NewLine}{Generic.GenericToString(expectedObject, maxLengthPerObject)}{Environment.NewLine}> Actual: <{Environment.NewLine}{Generic.GenericToString(actualObject, maxLengthPerObject)}{Environment.NewLine}>";
-        }
-        public static void ForEach<T>(this IEnumerable<T> source, Action<T> action)
-        {
-            foreach (T item in source)
+            if (!ObjectIsDictionaryEntry(@object))
             {
-                action(item);
+                throw new InvalidCastException();
+            }
+            object key = ((dynamic)@object).Key;
+            object value = ((dynamic)@object).Value;
+            return new DictionaryEntry(key, value);
+        }
+        public static Tuple<T1, T2> ObjectToTuple<T1, T2>(this object @object)
+        {
+            if (!ObjectIsTuple(@object))
+            {
+                throw new InvalidCastException();
+            }
+            object item1 = ((dynamic)@object).Item1;
+            object item2 = ((dynamic)@object).Item2;
+            if (item1 is T1 t1 && item2 is T2 t2)
+            {
+                return new Tuple<T1, T2>(t1, t2);
+            }
+            else
+            {
+                throw new InvalidCastException();
             }
         }
-        public static void ForEach(this IEnumerable source, Action<object> action)
+
+        #endregion
+        #region EqualsEnumerable
+        public static bool EnumerableEquals(this IEnumerable enumerable1, IEnumerable enumerable2)
         {
-            foreach (object item in source)
-            {
-                action(item);
-            }
+            return new EnumerableComparer(new PropertyEqualsCalculatorConfiguration()).EqualsTyped(enumerable1, enumerable2);
         }
+        /// <returns>Returns true if and only if the items in <paramref name="list1"/> and <paramref name="list2"/> are equal (ignoring the order) using the GRYLibrary-AdvancedObjectAnalysis for object-comparison.</returns>
+        public static bool SetEquals<T>(this ISet<T> set1, ISet<T> set2)
+        {
+            return new SetComparer(new PropertyEqualsCalculatorConfiguration()).EqualsTyped(set1, set2);
+        }
+        public static bool ListEquals(this IList list1, IList list2)
+        {
+            return new ListComparer(new PropertyEqualsCalculatorConfiguration()).Equals(list1, list2);
+        }
+        /// <returns>Returns true if and only if the items in <paramref name="list1"/> and <paramref name="list2"/> are equal using the GRYLibrary-AdvancedObjectAnalysis for object-comparison.</returns>
+        public static bool ListEquals<T>(this IList<T> list1, IList<T> list2)
+        {
+            return new ListComparer(new PropertyEqualsCalculatorConfiguration()).EqualsTyped(list1, list2);
+        }
+        public static bool DictionaryEquals(this IDictionary dictionary1, IDictionary dictionary2)
+        {
+            return new DictionaryComparer(new PropertyEqualsCalculatorConfiguration()).Equals(dictionary1, dictionary2);
+        }
+        public static bool DictionaryEquals<TKey, TValue>(this IDictionary<TKey, TValue> dictionary1, IDictionary<TKey, TValue> dictionary2)
+        {
+            return new DictionaryComparer(new PropertyEqualsCalculatorConfiguration()).DefaultEquals(dictionary1, dictionary2);
+        }
+        public static bool KeyValuePairEquals<TKey, TValue>(this System.Collections.Generic.KeyValuePair<TKey, TValue> keyValuePair1, System.Collections.Generic.KeyValuePair<TKey, TValue> keyValuePair2)
+        {
+            return new KeyValuePairComparer(new PropertyEqualsCalculatorConfiguration()).Equals(keyValuePair1, keyValuePair2);
+        }
+        public static bool TupleEquals<TKey, TValue>(this Tuple<TKey, TValue> tuple1, Tuple<TKey, TValue> tuple2)
+        {
+            return new TupleComparer(new PropertyEqualsCalculatorConfiguration()).Equals(tuple1, tuple2);
+        }
+
+        #endregion
+        #endregion
+
         #region Similarity
         public static int CalculateLevenshteinDistance(string string1, string string2)
         {
@@ -2479,6 +2561,7 @@ namespace GRYLibrary.Core
             return result;
         }
         #endregion
+
         #region Get file extension on windows
         private static string GetDefaultProgramToOpenFile(string extensionWithDot)
         {
@@ -2526,79 +2609,5 @@ namespace GRYLibrary.Core
         }
         #endregion
 
-
-        public static bool ImprovedReferenceEquals(object item1, object item2)
-        {
-            bool itemHasValueType = HasValueType(item1);
-            if (itemHasValueType != HasValueType(item2))
-            {
-                return false;
-            }
-            bool item1IsDefault = IsDefault(item1);
-            bool item2IsDefault = IsDefault(item2);
-            if (item1IsDefault && item2IsDefault)
-            {
-                return true;
-            }
-            if (item1IsDefault && !item2IsDefault)
-            {
-                return false;
-            }
-            if (!item1IsDefault && item2IsDefault)
-            {
-                return false;
-            }
-            if (!item1IsDefault && !item2IsDefault)
-            {
-                if (itemHasValueType)
-                {
-                    Type type = item1.GetType();
-                    if (type.Equals(item2.GetType()))//TODO ignore generics here when type is keyvaluepair
-                    {
-                        if (TypeIsKeyValuePair(type))
-                        {
-                            System.Collections.Generic.KeyValuePair<object, object> kvp1 = ObjectToKeyValuePairUnsafe<object, object>(item1);
-                            System.Collections.Generic.KeyValuePair<object, object> kvp2 = ObjectToKeyValuePairUnsafe<object, object>(item2);
-                            return ImprovedReferenceEquals(kvp1.Key, kvp2.Key) && ImprovedReferenceEquals(kvp1.Value, kvp2.Value);
-                        }
-                        else
-                        {
-                            return item1.Equals(item2);
-                        }
-                    }
-                    else
-                    {
-                        return false;
-                    }
-                }
-                else
-                {
-                    return ReferenceEquals(item1, item2);
-                }
-            }
-            throw new ArgumentException("Can not calculate reference-equals for the given arguments.");
         }
-
-        public static bool HasValueType(object @object)
-        {
-            if (@object == null)
-            {
-                return false;
-            }
-            else
-            {
-                return @object.GetType().IsValueType;
-            }
-        }
-
-        public static string GetNameOfCurrentExecutable()
-        {
-            return Process.GetCurrentProcess().ProcessName;
-        }
-
-        public static string ToSyslogFormat(this DateTime momentOfLogEntry)
-        {
-            return momentOfLogEntry.ToString("MMM dd YYYY HH:mm:ss");
-        }
-    }
 }
