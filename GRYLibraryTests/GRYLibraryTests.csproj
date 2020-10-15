@@ -51,22 +51,22 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="TestData\XSDValidator\Test1\TestXML1_MatchsXSD1.xml">
+    <None Update="Tests\TestData\XSDValidator\Test1\TestXML1_MatchsXSD1.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="TestData\XSDValidator\Test1\TestXML2_MatchsXSD1Not.xml">
+    <None Update="Tests\TestData\XSDValidator\Test1\TestXML2_MatchsXSD1Not.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="TestData\XSDValidator\Test1\TestXSD1.xsd">
+    <None Update="Tests\TestData\XSDValidator\Test1\TestXSD1.xsd">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="TestData\XSLTTransformator\Test1\TestTransformationSource.xml">
+    <None Update="Tests\TestData\XSLTTransformator\Test1\TestTransformationSource.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="TestData\XSLTTransformator\Test1\TestTransformationTarget.xml">
+    <None Update="Tests\TestData\XSLTTransformator\Test1\TestTransformationTarget.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="TestData\XSLTTransformator\Test1\TestXSLT1.xslt">
+    <None Update="Tests\TestData\XSLTTransformator\Test1\TestXSLT1.xslt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

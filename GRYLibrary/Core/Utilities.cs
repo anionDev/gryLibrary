@@ -37,6 +37,14 @@ namespace GRYLibrary.Core
     {
 
         #region Miscellaneous
+
+        public static byte[] GetRandomByteArray(long length = 65536)
+        {
+            byte[] result = new byte[length];
+            new Random().NextBytes(result);
+            return result;
+        }
+
         public static void Shuffle<T>(this IList<T> list)
         {
             Random random = new Random();
@@ -1789,7 +1797,14 @@ namespace GRYLibrary.Core
         }
         public static bool GitRemoteIsAvailable(string repositoryFolder, string remoteName)
         {
-            return ExecuteGitCommand(repositoryFolder, $"ls-remote {remoteName} ", false).ExitCode == 0;
+            try
+            {
+                return ExecuteGitCommand(repositoryFolder, $"ls-remote {remoteName} ", false, 1000 * 60).ExitCode == 0;
+            }
+            catch
+            {
+                return false;
+            }
         }
         /// <returns>Returns the address of the remote with the given <paramref name="remoteName"/>.</returns>
         public static string GetGitRemoteAddress(string repository, string remoteName)
@@ -2519,11 +2534,11 @@ namespace GRYLibrary.Core
         private static string CalculateSimilarityHelperGetIntersection(string string1, string string2)
         {
             IList<char> list = new List<char>();
-            foreach (char chr in string1)
+            foreach (char character in string1)
             {
-                if (string2.Contains(chr))
+                if (string2.Contains(character))
                 {
-                    list.Add(chr);
+                    list.Add(character);
                 }
             }
             string result = new string(list.ToArray());
