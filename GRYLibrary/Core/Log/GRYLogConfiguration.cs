@@ -18,7 +18,7 @@ namespace GRYLibrary.Core.Log
         /// If this value is false then changing this value in the configuration-file has no effect.
         /// </summary>
         public bool ReloadConfigurationWhenConfigurationFileWillBeChanged { get; set; }
-        public HashSet<GRYLogTarget> LogTargets { get; set; }
+        public IList<GRYLogTarget> LogTargets { get; set; }
         public bool WriteLogEntriesAsynchronous { get; set; }
         public bool Enabled { get; set; }
         public string ConfigurationFile { get; set; }
@@ -71,7 +71,7 @@ namespace GRYLibrary.Core.Log
         public void ResetToDefaultValues(string logFile)
         {
             this.ReloadConfigurationWhenConfigurationFileWillBeChanged = true;
-            this.LogTargets = new HashSet<GRYLogTarget>();
+            this.LogTargets = new List<GRYLogTarget>();
             this.WriteLogEntriesAsynchronous = false;
             this.Enabled = true;
             this.ConfigurationFile = string.Empty;
@@ -94,7 +94,7 @@ namespace GRYLibrary.Core.Log
                 new XMLSerializer.KeyValuePair<LogLevel, LoggedMessageTypeConfiguration>(LogLevel.Critical, new LoggedMessageTypeConfiguration() { CustomText = nameof(LogLevel.Critical), ConsoleColor = ConsoleColor.DarkRed })
             };
 
-            this.LogTargets = new HashSet<GRYLogTarget>
+            this.LogTargets = new List<GRYLogTarget>
             {
                 new Console() { Enabled = true, Format = GRYLogLogFormat.GRYLogFormat },
                 new LogFile() { File = logFile, Enabled = !string.IsNullOrWhiteSpace(logFile), Format = GRYLogLogFormat.GRYLogFormat}
@@ -106,6 +106,10 @@ namespace GRYLibrary.Core.Log
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
                 this.LogTargets.Add(new WindowsEventLog() { Enabled = false });
+            }
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                this.LogTargets.Add(new Syslog() { Enabled = false });
             }
         }
         public Target GetLogTarget<Target>() where Target : GRYLogTarget

@@ -8,8 +8,8 @@ namespace GRYLibrary.Core.Log.ConcreteLogTargets
     {
         public LogFile() { }
         public string File { get; set; }
-        public string Encoding { get; set; } = "utf-8";
-
+        public string Encoding { get; set; } = _UTF8Identifier;
+        private const string _UTF8Identifier = "utf-8";
         protected override void ExecuteImplementation(LogItem logItem, GRYLog logObject)
         {
             if (string.IsNullOrWhiteSpace(this.File))
@@ -18,13 +18,13 @@ namespace GRYLibrary.Core.Log.ConcreteLogTargets
             }
             string file = Utilities.ResolveToFullPath(this.File);
             Utilities.EnsureFileExists(file, true);
-            logItem.Format(logObject.Configuration, out string formattedMessage, out int _, out int _, out ConsoleColor _, GRYLogLogFormat.OnlyMessage);
+            logItem.Format(logObject.Configuration, out string formattedMessage, out int _, out int _, out ConsoleColor _, this.Format, logItem.MessageId);
             if (!Utilities.FileIsEmpty(file))
             {
                 formattedMessage = Environment.NewLine + formattedMessage;
             }
             Encoding encoding;
-            if (this.Encoding.Equals("utf-8"))
+            if (this.Encoding.Equals(_UTF8Identifier))
             {
                 encoding = new UTF8Encoding(false);
             }

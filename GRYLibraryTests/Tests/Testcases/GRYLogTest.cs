@@ -7,6 +7,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.IO;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace GRYLibrary.Tests.Testcases
 {
@@ -36,6 +37,31 @@ namespace GRYLibrary.Tests.Testcases
             finally
             {
                 Core.Utilities.EnsureFileDoesNotExist(logFile);
+            }
+        }
+        [TestMethod]
+        public void TestLogFileWithRelativePathWithMessageIf()
+        {
+            string logFile = "logfile2.log";
+            Utilities.EnsureFileDoesNotExist(logFile);
+            try
+            {
+                using GRYLog logObject = GRYLog.Create(logFile);
+                logObject.Configuration.SetFormat(GRYLogLogFormat.GRYLogFormat);
+                string file = logFile;
+                Assert.IsFalse(File.Exists(file));
+                string fileWithRelativePath = logFile;
+                logObject.Configuration.SetLogFile(fileWithRelativePath);
+                Assert.AreEqual(fileWithRelativePath, logObject.Configuration.GetLogFile());
+                Assert.IsFalse(File.Exists(fileWithRelativePath));
+                string testContent = "test";
+                logObject.Log(testContent, LogLevel.Warning, "MyMessageId");
+                Assert.IsTrue(File.Exists(fileWithRelativePath));
+                Assert.IsTrue(Regex.IsMatch(File.ReadAllText(logFile), "^\\[\\d\\d\\d\\d-\\d\\d-\\d\\d \\d\\d:\\d\\d:\\d\\d\\] \\[MyMessageId\\] \\[Warning\\] test$"));
+            }
+            finally
+            {
+                Utilities.EnsureFileDoesNotExist(logFile);
             }
         }
         [TestMethod]

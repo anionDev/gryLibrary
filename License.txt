@@ -1,14 +1,14 @@
 Copyright © 2020 Marius Göcke
 
-GRYLibrary itself is licensed under the terms of the GRYLibrary-License version 1.5 (see appendix 1).
+GRYLibrary itself is licensed under the terms of the GRYLibrary-License version 1.6 (see appendix 1).
 GRYLibrary uses dependencies which are released under their own license:
--Microsoft.CSharp is licensed under the terms of the MIT-license (see appendix 2)
--Microsoft.Extensions.Logging.EventLog is licensed under the terms of the Apache-license version 2.0 (see appendix 3)
--System.Collections.Immutable is licensed under the terms of the MIT-license (see appendix 2)
+ - Microsoft.CSharp is licensed under the terms of the MIT-license (see appendix 2)
+ - Microsoft.Extensions.Logging.EventLog is licensed under the terms of the Apache-license version 2.0 (see appendix 3)
+ - System.Collections.Immutable is licensed under the terms of the MIT-license (see appendix 2)
 
 ----------------------------------------------------------------------
 Appendix 1:
-GRYLibrary-License version 1.5 (GRYL-1.5)
+GRYLibrary-License version 1.6 (GRYL-1.6)
 
 Definitions:
  - "This license" means this GRYLibrary-License.
@@ -19,8 +19,6 @@ You are not allowed to use this product if you do not agree to this license.
 The licensor does not give any warranty that the product is flawless. The licensor is not liable for any damages or costs caused by the use of this product.
 Licensor hereby grants permission by this license to use this product under terms of the GRYL-using-conditions which are defined below if and only if you satisfy the GRYL-user-conditions which are defined below and all of your usecases for this product satisfy the GRYL-ethics-conditions which are defined below.
 Your license expires immediately if one of this conditions is not fulfilled anymore.
-When you are using this product you are allowed to change its sourcecode for your purposes.
-When you are using this product as part of your product you are allowed to distribute your product under the terms of any license you want.
 
 GRYL-using-conditions:
 The licensee is allowed to use the product under the terms of the GNU lesser general public license version 3 (see appendix 4) with the restriction that the licensee is not allowed to exercise any right given by the GNU lesser general public license version 3 if it contradicts any condition defined in this license.
@@ -30,7 +28,7 @@ When you use this product as dependency in your project you are allowed to publi
 
 GRYL-user-conditions:
 You satisfy the GRYL-user-conditions if and only if you are
- - a nonprofit-organization or
+ - a non governmental nonprofit-organization or
  - a private person who does not earn money with your product.
 
 GRYL-ethics-conditions:
