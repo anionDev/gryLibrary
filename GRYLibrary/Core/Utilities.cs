@@ -36,91 +36,15 @@ namespace GRYLibrary.Core
     public static class Utilities
     {
 
-        #region Miscellaneous        
-        
-        public static bool ImprovedReferenceEquals(object item1, object item2)
-        {
-            bool itemHasValueType = HasValueType(item1);
-            if (itemHasValueType != HasValueType(item2))
-            {
-                return false;
-            }
-            bool item1IsDefault = IsDefault(item1);
-            bool item2IsDefault = IsDefault(item2);
-            if (item1IsDefault && item2IsDefault)
-            {
-                return true;
-            }
-            if (item1IsDefault && !item2IsDefault)
-            {
-                return false;
-            }
-            if (!item1IsDefault && item2IsDefault)
-            {
-                return false;
-            }
-            if (!item1IsDefault && !item2IsDefault)
-            {
-                if (itemHasValueType)
-                {
-                    Type type = item1.GetType();
-                    if (type.Equals(item2.GetType()))//TODO ignore generics here when type is keyvaluepair
-                    {
-                        if (TypeIsKeyValuePair(type))
-                        {
-                            System.Collections.Generic.KeyValuePair<object, object> kvp1 = ObjectToKeyValuePairUnsafe<object, object>(item1);
-                            System.Collections.Generic.KeyValuePair<object, object> kvp2 = ObjectToKeyValuePairUnsafe<object, object>(item2);
-                            return ImprovedReferenceEquals(kvp1.Key, kvp2.Key) && ImprovedReferenceEquals(kvp1.Value, kvp2.Value);
-                        }
-                        else
-                        {
-                            return item1.Equals(item2);
-                        }
-                    }
-                    else
-                    {
-                        return false;
-                    }
-                }
-                else
-                {
-                    return ReferenceEquals(item1, item2);
-                }
-            }
-            throw new ArgumentException("Can not calculate reference-equals for the given arguments.");
-        }
+        #region Miscellaneous
 
-        public static bool HasValueType(object @object)
-        {
-            if (@object == null)
-            {
-                return false;
-            }
-            else
-            {
-                return @object.GetType().IsValueType;
-            }
-        }
-
-        public static string GetNameOfCurrentExecutable()
-        {
-            return Process.GetCurrentProcess().ProcessName;
-        }
-
-        public static byte[] GetRandomByteArray(long length = 4096)
-        {
-            byte[] result = new byte[length];
-            new Random().NextBytes(result);
-            return result;
-        }
-        
         public static byte[] GetRandomByteArray(long length = 65536)
         {
             byte[] result = new byte[length];
             new Random().NextBytes(result);
             return result;
         }
-        
+
         public static void Shuffle<T>(this IList<T> list)
         {
             Random random = new Random();
@@ -1873,7 +1797,14 @@ namespace GRYLibrary.Core
         }
         public static bool GitRemoteIsAvailable(string repositoryFolder, string remoteName)
         {
-            return ExecuteGitCommand(repositoryFolder, $"ls-remote {remoteName} ", false).ExitCode == 0;
+            try
+            {
+                return ExecuteGitCommand(repositoryFolder, $"ls-remote {remoteName} ", false, 1000 * 60).ExitCode == 0;
+            }
+            catch
+            {
+                return false;
+            }
         }
         /// <returns>Returns the address of the remote with the given <paramref name="remoteName"/>.</returns>
         public static string GetGitRemoteAddress(string repository, string remoteName)
