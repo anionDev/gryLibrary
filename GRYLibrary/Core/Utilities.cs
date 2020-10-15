@@ -37,6 +37,14 @@ namespace GRYLibrary.Core
     {
 
         #region Miscellaneous
+        
+        public static byte[] GetRandomByteArray(long length = 65536)
+        {
+            byte[] result = new byte[length];
+            new Random().NextBytes(result);
+            return result;
+        }
+        
         public static void Shuffle<T>(this IList<T> list)
         {
             Random random = new Random();
