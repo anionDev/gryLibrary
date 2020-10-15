@@ -1789,7 +1789,7 @@ namespace GRYLibrary.Core
         }
         public static bool GitRemoteIsAvailable(string repositoryFolder, string remoteName)
         {
-            return ExecuteGitCommand(repositoryFolder, $"remote ls-remote {remoteName} ", false).ExitCode == 0;
+            return ExecuteGitCommand(repositoryFolder, $"ls-remote {remoteName} ", false).ExitCode == 0;
         }
         /// <returns>Returns the address of the remote with the given <paramref name="remoteName"/>.</returns>
         public static string GetGitRemoteAddress(string repository, string remoteName)
