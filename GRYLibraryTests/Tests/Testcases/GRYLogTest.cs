@@ -43,7 +43,7 @@ namespace GRYLibrary.Tests.Testcases
         public void TestLogFileWithRelativePathWithMessageIf()
         {
             string logFile = "logfile2.log";
-            Utilities.EnsureFileDoesNotExist(logFile);
+            Core.Utilities.EnsureFileDoesNotExist(logFile);
             try
             {
                 using GRYLog logObject = GRYLog.Create(logFile);
@@ -61,7 +61,7 @@ namespace GRYLibrary.Tests.Testcases
             }
             finally
             {
-                Utilities.EnsureFileDoesNotExist(logFile);
+                Core.Utilities.EnsureFileDoesNotExist(logFile);
             }
         }
         [TestMethod]
