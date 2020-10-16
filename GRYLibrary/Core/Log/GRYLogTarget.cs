@@ -14,7 +14,7 @@ namespace GRYLibrary.Core.Log
     [XmlInclude(typeof(LogFile))]
     [XmlInclude(typeof(Observer))]
     [XmlInclude(typeof(WindowsEventLog))]
-    public abstract class GRYLogTarget : IGRYSerializable
+    public abstract class GRYLogTarget : IGRYSerializable, IDisposable
     {
         public GRYLogLogFormat Format { get; set; } = GRYLogLogFormat.GRYLogFormat;
 
@@ -76,6 +76,8 @@ namespace GRYLibrary.Core.Log
         {
             return new HashSet<Type>() { typeof(LogLevel) ,typeof(GRYLogLogFormat)};
         }
+
+        public abstract void Dispose();
         #endregion
     }
 }

@@ -27,5 +27,9 @@ namespace GRYLibrary.Core.Log.ConcreteLogTargets
         {
             return new HashSet<Type>();
         }
+        public override void Dispose()
+        {
+            GRYLibrary.Core.Utilities.NoOperation();
+        }
     }
 }

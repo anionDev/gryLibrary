@@ -40,5 +40,10 @@ namespace GRYLibrary.Core.Log.ConcreteLogTargets
                 System.Console.ForegroundColor = logObject._ConsoleDefaultColor;
             }
         }
+
+        public override void Dispose()
+        {
+            GRYLibrary.Core.Utilities.NoOperation();
+        }
     }
 }
