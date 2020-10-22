@@ -43,7 +43,6 @@ namespace GRYLibrary.Core
         public GRYLog LogObject { get; set; }
         public string Arguments { get; set; }
         public string ProgramPathAndFile { get; set; }
-        public bool RunAsAdministrator { get; set; } = false;
         public bool CreateWindow { get; set; } = true;
         public string Title { get; set; }
         public string WorkingDirectory { get; set; }
@@ -140,10 +139,6 @@ namespace GRYLibrary.Core
                     RedirectStandardError = true,
                     CreateNoWindow = !this.CreateWindow,
                 };
-                if (this.RunAsAdministrator)
-                {
-                    OperatingSystem.OperatingSystem.GetCurrentOperatingSystem().Accept(new EscalatePrivilegesVisitor(StartInfo));
-                }
                 process.StartInfo = StartInfo;
                 process.OutputDataReceived += (object sender, DataReceivedEventArgs e) =>
                 {
@@ -441,38 +436,6 @@ namespace GRYLibrary.Core
             else
             {
                 throw new InvalidOperationException(this.GetInvalidOperationDueToNotTerminatedMessageByMembername(nameof(this.GetResult)));
-            }
-        }
-
-        private class EscalatePrivilegesVisitor : IOperatingSystemVisitor
-        {
-            private readonly ProcessStartInfo _StartInfo;
-
-            public EscalatePrivilegesVisitor(ProcessStartInfo startInfo)
-            {
-                this._StartInfo = startInfo;
-            }
-
-            public void Handle(OSX operatingSystem)
-            {
-                this._StartInfo.Arguments = $"{this._StartInfo.FileName} {this._StartInfo.Arguments}";
-                this._StartInfo.FileName = "sudo";
-            }
-
-            public void Handle(Windows operatingSystem)
-            {
-                this._StartInfo.Verb = "Runas";
-                this._StartInfo.UseShellExecute = true;
-                this._ExternalProgramExecutor._WindowsOnly_ReadOutputFromFile = true;
-                this._ExternalProgramExecutor._WindowsOnly_ReadOutputFromFile_StdOut_File = Path.GetTempPath() + Guid.NewGuid().ToString();
-                this._ExternalProgramExecutor._WindowsOnly_ReadOutputFromFile_StdErr_File = Path.GetTempPath() + Guid.NewGuid().ToString();
-                this._ExternalProgramExecutor.Arguments = $"{this._ExternalProgramExecutor.Arguments} > {this._ExternalProgramExecutor._WindowsOnly_ReadOutputFromFile_StdOut_File} 2> {this._ExternalProgramExecutor._WindowsOnly_ReadOutputFromFile_StdErr_File}";
-            }
-
-            public void Handle(Linux operatingSystem)
-            {
-                this._StartInfo.Arguments = $"{this._StartInfo.FileName} {this._StartInfo.Arguments}";
-                this._StartInfo.FileName = "sudo";
             }
         }
     }
