@@ -2,8 +2,6 @@
 using GRYLibrary.Core.OperatingSystem;
 using GRYLibrary.Core.OperatingSystem.ConcreteOperatingSystems;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Diagnostics;
-using System.Runtime.InteropServices;
 using System.Threading;
 using Semaphore = GRYLibrary.Core.Semaphore;
 

@@ -1,7 +1,5 @@
 ﻿using GRYLibrary.Core.Exceptions;
 using GRYLibrary.Core.Log;
-using GRYLibrary.Core.OperatingSystem;
-using GRYLibrary.Core.OperatingSystem.ConcreteOperatingSystems;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Concurrent;
@@ -98,6 +96,17 @@ namespace GRYLibrary.Core
         /// Will be thrown if the process could not be started.
         /// </exception>
         public int Start()
+        {
+            return StartImplementation();
+        }
+        /*
+        public int StartWithElevatedPrivileges()
+        {
+            throw new System.NotImplementedException(); 
+            // TODO Call StartImplementation() with elevated privileges and return its return-value
+        }
+        */
+        private int StartImplementation()
         {
             this.CheckIfStartOperationWasAlreadyCalled();
             string originalConsoleTitle = null;
