@@ -16,5 +16,9 @@ namespace GRYLibrary.Core.Log.ConcreteLogTargets
         {
             logObject.InvokeObserver(logItem);
         }
+        public override void Dispose()
+        {
+            GRYLibrary.Core.Utilities.NoOperation();
+        }
     }
 }

@@ -1,7 +1,5 @@
 ﻿using GRYLibrary.Core.Exceptions;
 using GRYLibrary.Core.Log;
-using GRYLibrary.Core.OperatingSystem;
-using GRYLibrary.Core.OperatingSystem.ConcreteOperatingSystems;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Concurrent;
@@ -10,6 +8,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace GRYLibrary.Core
 {
@@ -42,13 +41,18 @@ namespace GRYLibrary.Core
         public GRYLog LogObject { get; set; }
         public string Arguments { get; set; }
         public string ProgramPathAndFile { get; set; }
-        public bool RunAsAdministrator { get; set; } = false;
         public bool CreateWindow { get; set; } = true;
         public string Title { get; set; }
         public string WorkingDirectory { get; set; }
+        /// <remarks>
+        /// This property will be ignored if <see cref="RunSynchronously"/>==false.
+        /// </remarks>
         public bool ThrowErrorIfExitCodeIsNotZero { get; set; } = false;
         public int? TimeoutInMilliseconds { get; set; }
         public bool PrintErrorsAsInformation { get; set; }
+        public bool RunSynchronously { get; set; } = true;
+        public delegate void ExecutionFinishedHandler(ExternalProgramExecutor sender, int exitCode);
+        public event ExecutionFinishedHandler ExecutionFinishedEvent;
         private bool _Running = false;
         private TimeSpan _ExecutionDuration = default;
         public TimeSpan ExecutionDuration
@@ -76,13 +80,14 @@ namespace GRYLibrary.Core
         /// Starts the program which was set in the properties.
         /// </summary>
         /// <returns>
-        /// Returns the exit-code of the executed program.
+        /// If <see cref="RunSynchronously"/>==true then the exit-code of the executed program will be returned.
+        /// If <see cref="RunSynchronously"/>==false then the process-id of the executed program will be returned.
         /// </returns>
         /// <exception cref="UnexpectedExitCodeException">
         /// Will be thrown if <see cref="ThrowErrorIfExitCodeIsNotZero"/> and the exitcode of the executed program is not 0.
         /// </exception>
         /// <exception cref="InvalidOperationException">
-        /// Will be thrown if <see cref="StartConsoleApplicationInCurrentConsoleWindow"/> was already called.
+        /// Will be thrown if <see cref="Start"/> was already called.
         /// </exception>
         /// <exception cref="ArgumentException">
         /// Will be thrown if the given working-directory does not exist.
@@ -90,7 +95,18 @@ namespace GRYLibrary.Core
         /// <exception cref="ProcessStartException">
         /// Will be thrown if the process could not be started.
         /// </exception>
-        public int StartConsoleApplicationInCurrentConsoleWindow()
+        public int Start()
+        {
+            return StartImplementation();
+        }
+        /*
+        public int StartWithElevatedPrivileges()
+        {
+            throw new System.NotImplementedException(); 
+            // TODO Call StartImplementation() with elevated privileges and return its return-value
+        }
+        */
+        private int StartImplementation()
         {
             this.CheckIfStartOperationWasAlreadyCalled();
             string originalConsoleTitle = null;
@@ -103,7 +119,7 @@ namespace GRYLibrary.Core
                 Utilities.NoOperation();
             }
             this.ProcessWasAbortedDueToTimeout = false;
-            using Process process = new Process();
+            Process process = new Process();
             try
             {
                 try
@@ -132,10 +148,6 @@ namespace GRYLibrary.Core
                     RedirectStandardError = true,
                     CreateNoWindow = !this.CreateWindow,
                 };
-                if (this.RunAsAdministrator)
-                {
-                    OperatingSystem.OperatingSystem.GetCurrentOperatingSystem().Accept(new EscalatePrivilegesVisitor(StartInfo));
-                }
                 process.StartInfo = StartInfo;
                 process.OutputDataReceived += (object sender, DataReceivedEventArgs e) =>
                 {
@@ -178,41 +190,46 @@ namespace GRYLibrary.Core
                     readLogItemsThread.LogOverhead = this.LogOverhead;
                     readLogItemsThread.Start();
                 }
-                if (this.TimeoutInMilliseconds.HasValue)
+                Task<int> task = new Task<int>(() =>
                 {
-                    if (!process.WaitForExit(this.TimeoutInMilliseconds.Value))
+                    WaitForProcessEnd(process);
+                    stopWatch.Stop();
+                    this.ExecutionDuration = stopWatch.Elapsed;
+                    this.ExitCode = process.ExitCode;
+                    while (0 < this._NotLoggedOutputLines.Count)
                     {
-                        process.Kill();
-                        this.ProcessWasAbortedDueToTimeout = true;
+                        Thread.Sleep(60);
                     }
+                    this._AllStdErrLinesAsArray = this._AllStdErrLines.ToArray();
+                    this._AllStdOutLinesAsArray = this._AllStdOutLines.ToArray();
+                    if (this.LogOverhead)
+                    {
+                        this.LogObject.Log($"Finished '{this.ProgramPathAndFile} {this.Arguments}'", LogLevel.Debug);
+                        this.LogObject.Log(this.GetResult(), LogLevel.Debug);
+                    }
+                    ExecutionFinishedEvent?.Invoke(this, this.ExitCode);
+                    process.Dispose();
+                    if (this.RunSynchronously && this.ThrowErrorIfExitCodeIsNotZero && this.ExitCode != 0)
+                    {
+                        throw new UnexpectedExitCodeException($"'{executionInfoAsString}' had exitcode {this.ExitCode}. Duration: {Utilities.DurationToUserFriendlyString(this.ExecutionDuration)}", this);
+                    }
+                    else
+                    {
+                        return this.ExitCode;
+                    }
+                });
+                task.Start();
+                int result;
+                if (RunSynchronously)
+                {
+                    task.Wait();
+                    result = task.Result;
                 }
                 else
                 {
-                    process.WaitForExit();
+                    result = process.Id;
                 }
-                stopWatch.Stop();
-                this.ExecutionState = ExecutionState.Terminated;
-                this.ExecutionDuration = stopWatch.Elapsed;
-                this.ExitCode = process.ExitCode;
-                while (this._NotLoggedOutputLines.Count > 0)
-                {
-                    Thread.Sleep(60);
-                }
-                this._AllStdErrLinesAsArray = this._AllStdErrLines.ToArray();
-                this._AllStdOutLinesAsArray = this._AllStdOutLines.ToArray();
-                if (this.LogOverhead)
-                {
-                    this.LogObject.Log($"Finished '{this.ProgramPathAndFile} {this.Arguments}'", LogLevel.Debug);
-                    this.LogObject.Log(this.GetResult(), LogLevel.Debug);
-                }
-                if (this.ThrowErrorIfExitCodeIsNotZero && this.ExitCode != 0)
-                {
-                    throw new UnexpectedExitCodeException($"'{executionInfoAsString}' had exitcode {this.ExitCode}. Duration: {Utilities.DurationToUserFriendlyString(this.ExecutionDuration)}", this);
-                }
-                else
-                {
-                    return this.ExitCode;
-                }
+                return result;
             }
             finally
             {
@@ -231,6 +248,23 @@ namespace GRYLibrary.Core
             }
         }
 
+        private void WaitForProcessEnd(Process process)
+        {
+            if (this.TimeoutInMilliseconds.HasValue)
+            {
+                if (!process.WaitForExit(this.TimeoutInMilliseconds.Value))
+                {
+                    process.Kill();
+                    process.WaitForExit();
+                    this.ProcessWasAbortedDueToTimeout = true;
+                }
+            }
+            else
+            {
+                process.WaitForExit();
+            }
+            this.ExecutionState = ExecutionState.Terminated;
+        }
         private void CheckIfStartOperationWasAlreadyCalled()
         {
             lock (this._LockObject)
@@ -411,32 +445,6 @@ namespace GRYLibrary.Core
             else
             {
                 throw new InvalidOperationException(this.GetInvalidOperationDueToNotTerminatedMessageByMembername(nameof(this.GetResult)));
-            }
-        }
-        private class EscalatePrivilegesVisitor : IOperatingSystemVisitor
-        {
-            private readonly ProcessStartInfo _StartInfo;
-
-            public EscalatePrivilegesVisitor(ProcessStartInfo startInfo)
-            {
-                this._StartInfo = startInfo;
-            }
-
-            public void Handle(OSX operatingSystem)
-            {
-                this._StartInfo.Arguments = $"{this._StartInfo.FileName} {this._StartInfo.Arguments}";
-                this._StartInfo.FileName = "sudo";
-            }
-
-            public void Handle(Windows operatingSystem)
-            {
-                this._StartInfo.Verb = "Runas";
-            }
-
-            public void Handle(Linux operatingSystem)
-            {
-                this._StartInfo.Arguments = $"{this._StartInfo.FileName} {this._StartInfo.Arguments}";
-                this._StartInfo.FileName = "sudo";
             }
         }
     }

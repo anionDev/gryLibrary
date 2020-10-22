@@ -1,5 +1,4 @@
-﻿using GRYLibrary.Core;
-using GRYLibrary.Core.AdvancedObjectAnalysis;
+﻿using GRYLibrary.Core.AdvancedObjectAnalysis;
 using GRYLibrary.Core.Log;
 using GRYLibrary.Core.Log.ConcreteLogTargets;
 using GRYLibrary.Core.XMLSerializer;

@@ -11,7 +11,7 @@ using Console = GRYLibrary.Core.Log.ConcreteLogTargets.Console;
 
 namespace GRYLibrary.Core.Log
 {
-    public class GRYLogConfiguration : IGRYSerializable
+    public class GRYLogConfiguration : IGRYSerializable, IDisposable
     {
 
         /// <summary>
@@ -174,7 +174,15 @@ namespace GRYLibrary.Core.Log
         {
             return new HashSet<Type>();
         }
+
         #endregion
+        public void Dispose()
+        {
+            foreach (GRYLogTarget target in this.LogTargets)
+            {
+                target.Dispose();
+            }
+        }
     }
 
 }
