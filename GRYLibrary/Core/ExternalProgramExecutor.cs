@@ -462,6 +462,11 @@ namespace GRYLibrary.Core
             public void Handle(Windows operatingSystem)
             {
                 this._StartInfo.Verb = "Runas";
+                this._StartInfo.UseShellExecute = true;
+                this._ExternalProgramExecutor._WindowsOnly_ReadOutputFromFile = true;
+                this._ExternalProgramExecutor._WindowsOnly_ReadOutputFromFile_StdOut_File = Path.GetTempPath() + Guid.NewGuid().ToString();
+                this._ExternalProgramExecutor._WindowsOnly_ReadOutputFromFile_StdErr_File = Path.GetTempPath() + Guid.NewGuid().ToString();
+                this._ExternalProgramExecutor.Arguments = $"{this._ExternalProgramExecutor.Arguments} > {this._ExternalProgramExecutor._WindowsOnly_ReadOutputFromFile_StdOut_File} 2> {this._ExternalProgramExecutor._WindowsOnly_ReadOutputFromFile_StdErr_File}";
             }
 
             public void Handle(Linux operatingSystem)
