@@ -20,7 +20,7 @@ namespace GRYLibrary.Core.Log.ConcreteLogTargets
 
             ExternalProgramExecutor externalProgramExecutor = ExternalProgramExecutor.Create("Logger", $"--tag {Utilities.GetNameOfCurrentExecutable()} {messageId} -- [{logItem.LogLevel}] [{logObject.Configuration.Name}] {logItem.PlainMessage}", System.IO.Directory.GetCurrentDirectory(), string.Empty, false, (int)Math.Round(TimeSpan.FromSeconds(20).TotalMilliseconds));
             externalProgramExecutor.ThrowErrorIfExitCodeIsNotZero = true;
-            externalProgramExecutor.StartConsoleApplicationInCurrentConsoleWindow();
+            externalProgramExecutor.Start();
         }
 
         public override ISet<Type> FurtherGetExtraTypesWhichAreRequiredForSerialization()

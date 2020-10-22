@@ -1268,7 +1268,7 @@ namespace GRYLibrary.Core
             externalProgramExecutor.ThrowErrorIfExitCodeIsNotZero = true;
             externalProgramExecutor.CreateWindow = false;
             externalProgramExecutor.LogObject.Configuration.GetLogTarget<Log.ConcreteLogTargets.Console>().Enabled = false;
-            externalProgramExecutor.StartConsoleApplicationInCurrentConsoleWindow();
+            externalProgramExecutor.Start();
         }
         public static ISet<Guid> GetAvailableVolumeIds()
         {
@@ -1276,7 +1276,7 @@ namespace GRYLibrary.Core
             externalProgramExecutor.ThrowErrorIfExitCodeIsNotZero = true;
             externalProgramExecutor.CreateWindow = false;
             externalProgramExecutor.LogObject.Configuration.GetLogTarget<Log.ConcreteLogTargets.Console>().Enabled = false;
-            externalProgramExecutor.StartConsoleApplicationInCurrentConsoleWindow();
+            externalProgramExecutor.Start();
             HashSet<Guid> result = new HashSet<Guid>();
             for (int i = 0; i < externalProgramExecutor.AllStdOutLines.Length - 1; i++)
             {
@@ -1319,7 +1319,7 @@ namespace GRYLibrary.Core
             externalProgramExecutor.ThrowErrorIfExitCodeIsNotZero = true;
             externalProgramExecutor.CreateWindow = false;
             externalProgramExecutor.LogObject.Configuration.GetLogTarget<Log.ConcreteLogTargets.Console>().Enabled = false;
-            externalProgramExecutor.StartConsoleApplicationInCurrentConsoleWindow();
+            externalProgramExecutor.Start();
             for (int i = 0; i < externalProgramExecutor.AllStdOutLines.Length; i++)
             {
                 string line = externalProgramExecutor.AllStdOutLines[i].Trim();
@@ -1353,7 +1353,7 @@ namespace GRYLibrary.Core
             externalProgramExecutor.ThrowErrorIfExitCodeIsNotZero = true;
             externalProgramExecutor.CreateWindow = false;
             externalProgramExecutor.LogObject.Configuration.GetLogTarget<Log.ConcreteLogTargets.Console>().Enabled = false;
-            externalProgramExecutor.StartConsoleApplicationInCurrentConsoleWindow();
+            externalProgramExecutor.Start();
             if (mountPoint.Length > 3)
             {
                 EnsureDirectoryDoesNotExist(mountPoint);
@@ -1745,7 +1745,7 @@ namespace GRYLibrary.Core
             ExternalProgramExecutor externalProgramExecutor = ExternalProgramExecutor.CreateByGRYLog("git", argument, log, repositoryFolder, string.Empty, false, timeoutInMilliseconds);
             externalProgramExecutor.PrintErrorsAsInformation = printErrorsAsInformation;
             externalProgramExecutor.ThrowErrorIfExitCodeIsNotZero = throwErrorIfExitCodeIsNotZero;
-            externalProgramExecutor.StartConsoleApplicationInCurrentConsoleWindow();
+            externalProgramExecutor.Start();
             return new GitCommandResult(argument, repositoryFolder, externalProgramExecutor.AllStdOutLines, externalProgramExecutor.AllStdErrLines, externalProgramExecutor.ExitCode);
         }
         /// <returns>
@@ -1756,7 +1756,7 @@ namespace GRYLibrary.Core
             ExternalProgramExecutor externalProgramExecutor = ExternalProgramExecutor.Create("git", "submodule status" + (recursive ? " --recursive" : string.Empty), repositoryFolder);
             externalProgramExecutor.ThrowErrorIfExitCodeIsNotZero = true;
             externalProgramExecutor.LogObject.Configuration.Enabled = false;
-            externalProgramExecutor.StartConsoleApplicationInCurrentConsoleWindow();
+            externalProgramExecutor.Start();
             List<string> result = new List<string>();
             foreach (string rawLine in externalProgramExecutor.AllStdOutLines)
             {
@@ -2093,7 +2093,7 @@ namespace GRYLibrary.Core
             if (FileIsExecutable(file))
             {
                 ExternalProgramExecutor result = ExternalProgramExecutor.Create(file, string.Empty);
-                result.StartConsoleApplicationInCurrentConsoleWindow();
+                result.Start();
                 return result;
             }
             else
@@ -2105,7 +2105,7 @@ namespace GRYLibrary.Core
 
         public static void OpenFileWithDefaultProgram(string file)
         {
-            ExternalProgramExecutor.Create(file, string.Empty).StartConsoleApplicationInCurrentConsoleWindow();
+            ExternalProgramExecutor.Create(file, string.Empty).Start();
         }
         private class FileIsExecutableVisitor : IOperatingSystemVisitor<bool>
         {
