@@ -101,15 +101,15 @@ namespace GRYLibrary.Core.Log
             };
             foreach (GRYLogTarget target in this.LogTargets)
             {
-                target.Initialize();
+                target.Enabled = true;
             }
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                this.LogTargets.Add(new WindowsEventLog() { Enabled = false });
+                this.LogTargets.Add(new WindowsEventLog());
             }
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
-                this.LogTargets.Add(new Syslog() { Enabled = false });
+                this.LogTargets.Add(new Syslog());
             }
         }
         public Target GetLogTarget<Target>() where Target : GRYLogTarget

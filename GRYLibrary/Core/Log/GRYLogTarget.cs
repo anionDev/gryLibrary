@@ -18,24 +18,16 @@ namespace GRYLibrary.Core.Log
     {
         public GRYLogLogFormat Format { get; set; } = GRYLogLogFormat.GRYLogFormat;
 
-        public HashSet<LogLevel> LogLevels { get; set; }
-        public bool Enabled { get; set; }
-        public abstract ISet<Type> FurtherGetExtraTypesWhichAreRequiredForSerialization();
-        public GRYLogTarget()
-        {
-        }
-
-        public void Initialize()
-        {
-            Enabled = true;
-            this.LogLevels = new HashSet<LogLevel>
+        public ISet<LogLevel> LogLevels { get; set; } = new HashSet<LogLevel>
             {
                  LogLevel.Information,
                  LogLevel.Warning,
                  LogLevel.Error,
                  LogLevel.Critical
             };
-        }
+        public bool Enabled { get; set; } = false;
+        public abstract ISet<Type> FurtherGetExtraTypesWhichAreRequiredForSerialization();
+
         internal void Execute(LogItem logItem, GRYLog logObject)
         {
             this.ExecuteImplementation(logItem, logObject);
@@ -74,7 +66,7 @@ namespace GRYLibrary.Core.Log
 
         public ISet<Type> GetExtraTypesWhichAreRequiredForSerialization()
         {
-            return new HashSet<Type>() { typeof(LogLevel) ,typeof(GRYLogLogFormat)};
+            return new HashSet<Type>() { typeof(LogLevel), typeof(GRYLogLogFormat) };
         }
 
         public abstract void Dispose();
