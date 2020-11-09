@@ -288,6 +288,10 @@ namespace GRYLibrary.Core
             }
             this.CurrentExecutionState = ExecutionState.Terminated;
         }
+        public void WaitUntilTerminated()
+        {
+            Utilities.WaitUntilConditionIsTrue(() => this.CurrentExecutionState == ExecutionState.Terminated);
+        }
         private void CheckIfStartOperationWasAlreadyCalled()
         {
             lock (this._LockObject)
