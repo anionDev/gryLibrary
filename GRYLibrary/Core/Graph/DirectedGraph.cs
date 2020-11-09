@@ -147,8 +147,10 @@ namespace GRYLibrary.Core.Graph
             {
                 for (int j = 0; j < adjacencyMatrix.GetLength(1); j++)
                 {
-                    DirectedEdge newEdge = new DirectedEdge(vertices[i], vertices[j], nameof(Edge) + "_" + (i + 1).ToString() + "_" + (j + 1).ToString());
-                    newEdge.Weight = adjacencyMatrix[i, j];
+                    DirectedEdge newEdge = new DirectedEdge(vertices[i], vertices[j], nameof(Edge) + "_" + (i + 1).ToString() + "_" + (j + 1).ToString())
+                    {
+                        Weight = adjacencyMatrix[i, j]
+                    };
                     edges.Add(newEdge);
                 }
             }

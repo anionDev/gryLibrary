@@ -11,9 +11,9 @@ namespace GRYLibrary.Core.Log
         public GRYLogSubNamespaceProvider(GRYLog logObject, string subnamespace)
         {
             this._LogObject = logObject;
+            subnamespace = subnamespace.Trim();
             this._SubNamespace = subnamespace;
             this._OriginalNamespace = this._LogObject.Configuration.Name;
-            subnamespace = subnamespace.Trim();
             if (!string.IsNullOrEmpty(subnamespace))
             {
                 string prefix;

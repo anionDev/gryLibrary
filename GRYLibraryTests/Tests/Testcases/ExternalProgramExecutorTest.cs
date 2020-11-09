@@ -14,31 +14,17 @@ namespace GRYLibrary.Tests.Testcases
         public void TestSimpleEcho()
         {
             string testStdOut = "test";
-            ExternalProgramExecutor e = ExternalProgramExecutor.Create("echo", testStdOut);
-            int result = e.Start();
+            ExternalProgramExecutor e = new ExternalProgramExecutor("echo", testStdOut);
+            int result = e.StartSynchronously();
             Assert.AreEqual(0, result);
             Assert.AreEqual(1, e.AllStdOutLines.Length);
             Assert.AreEqual(testStdOut, e.AllStdOutLines[0]);
             Assert.AreEqual(0, e.AllStdErrLines.Length);
         }
-        [TestMethod]
-        public void TestSimpleEcho2()
-        {
-            string testStdOut = "test othertest";
-            ExternalProgramExecutor e = ExternalProgramExecutor.Create("echo", testStdOut);
-            int result = e.Start();
-            Assert.AreEqual(0, result);
-            Assert.AreEqual(1, e.AllStdOutLines.Length);
-            Assert.AreEqual(testStdOut, e.AllStdOutLines[0]);
-            Assert.AreEqual(0, e.AllStdErrLines.Length);
-        }
-        
-        [Ignore]
         [TestMethod]
         public void TestAsyncExecution()
         {
-            ExternalProgramExecutor externalProgramExecutor = ExternalProgramExecutor.Create(GetTimeoutTool(), 2.ToString());
-            externalProgramExecutor.RunSynchronously = false;
+            ExternalProgramExecutor externalProgramExecutor = new ExternalProgramExecutor(GetTimeoutTool(), 2.ToString());
             Semaphore semaphore = new Semaphore();
             semaphore.Increment();
             externalProgramExecutor.ExecutionFinishedEvent += (ExternalProgramExecutor sender, int exitCode) =>
@@ -46,11 +32,11 @@ namespace GRYLibrary.Tests.Testcases
                 Assert.AreEqual(0, exitCode);
                 semaphore.Decrement();
             };
-            int processId = externalProgramExecutor.Start();
-            Assert.AreNotEqual(0, processId);
+             externalProgramExecutor.StartAsynchronously();
+            Assert.AreNotEqual(0, externalProgramExecutor.ProcessId);
             while (semaphore.Value != 0)
             {
-                Thread.Sleep(60);
+                Thread.Sleep(200);
             }
         }
         public string GetTimeoutTool()

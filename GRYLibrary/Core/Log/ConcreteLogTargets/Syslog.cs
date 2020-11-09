@@ -18,9 +18,11 @@ namespace GRYLibrary.Core.Log.ConcreteLogTargets
                 messageId = $"--rfc5424 --msgid {logItem.MessageId}";
             }
 
-            ExternalProgramExecutor externalProgramExecutor = ExternalProgramExecutor.Create("Logger", $"--tag {Utilities.GetNameOfCurrentExecutable()} {messageId} -- [{logItem.LogLevel}] [{logObject.Configuration.Name}] {logItem.PlainMessage}", System.IO.Directory.GetCurrentDirectory(), string.Empty, false, (int)Math.Round(TimeSpan.FromSeconds(20).TotalMilliseconds));
-            externalProgramExecutor.ThrowErrorIfExitCodeIsNotZero = true;
-            externalProgramExecutor.Start();
+            using ExternalProgramExecutor externalProgramExecutor = new ExternalProgramExecutor("Logger", $"--tag {Utilities.GetNameOfCurrentExecutable()} {messageId} -- [{logItem.LogLevel}] [{logObject.Configuration.Name}] {logItem.PlainMessage}")
+            {
+                ThrowErrorIfExitCodeIsNotZero = true
+            };
+            externalProgramExecutor.StartSynchronously();
         }
 
         public override ISet<Type> FurtherGetExtraTypesWhichAreRequiredForSerialization()
