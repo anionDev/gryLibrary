@@ -11,9 +11,11 @@ namespace GRYLibrary.TestData.TestTypes.ComplexDataStructure
 
         internal static MoneyAmount GetRandom()
         {
-            MoneyAmount result = new MoneyAmount();
-            result.Amount = (decimal)new Random().NextDouble() * 500;
-            result.Currency = "USD";
+            MoneyAmount result = new MoneyAmount
+            {
+                Amount = (decimal)new Random().NextDouble() * 500,
+                Currency = "USD"
+            };
             return result;
         }
         #region Overhead

@@ -1264,19 +1264,23 @@ namespace GRYLibrary.Core
             {
                 EnsureDirectoryExists(mountPoint);
             }
-            ExternalProgramExecutor externalProgramExecutor = ExternalProgramExecutor.Create("mountvol", $"{mountPoint} \\\\?\\Volume{{{volumeId}}}\\");
-            externalProgramExecutor.ThrowErrorIfExitCodeIsNotZero = true;
-            externalProgramExecutor.CreateWindow = false;
+            using ExternalProgramExecutor externalProgramExecutor = new ExternalProgramExecutor("mountvol", $"{mountPoint} \\\\?\\Volume{{{volumeId}}}\\")
+            {
+                ThrowErrorIfExitCodeIsNotZero = true,
+                CreateWindow = false
+            };
             externalProgramExecutor.LogObject.Configuration.GetLogTarget<Log.ConcreteLogTargets.Console>().Enabled = false;
-            externalProgramExecutor.Start();
+            externalProgramExecutor.StartSynchronously();
         }
         public static ISet<Guid> GetAvailableVolumeIds()
         {
-            ExternalProgramExecutor externalProgramExecutor = ExternalProgramExecutor.Create("mountvol", string.Empty);
-            externalProgramExecutor.ThrowErrorIfExitCodeIsNotZero = true;
-            externalProgramExecutor.CreateWindow = false;
+            using ExternalProgramExecutor externalProgramExecutor = new ExternalProgramExecutor("mountvol", string.Empty)
+            {
+                ThrowErrorIfExitCodeIsNotZero = true,
+                CreateWindow = false
+            };
             externalProgramExecutor.LogObject.Configuration.GetLogTarget<Log.ConcreteLogTargets.Console>().Enabled = false;
-            externalProgramExecutor.Start();
+            externalProgramExecutor.StartSynchronously();
             HashSet<Guid> result = new HashSet<Guid>();
             for (int i = 0; i < externalProgramExecutor.AllStdOutLines.Length - 1; i++)
             {
@@ -1315,11 +1319,13 @@ namespace GRYLibrary.Core
         public static ISet<string> GetMountPoints(Guid volumeId)
         {
             HashSet<string> result = new HashSet<string>();
-            ExternalProgramExecutor externalProgramExecutor = ExternalProgramExecutor.Create("mountvol", string.Empty);
-            externalProgramExecutor.ThrowErrorIfExitCodeIsNotZero = true;
-            externalProgramExecutor.CreateWindow = false;
+            using ExternalProgramExecutor externalProgramExecutor = new ExternalProgramExecutor("mountvol", string.Empty)
+            {
+                ThrowErrorIfExitCodeIsNotZero = true,
+                CreateWindow = false
+            };
             externalProgramExecutor.LogObject.Configuration.GetLogTarget<Log.ConcreteLogTargets.Console>().Enabled = false;
-            externalProgramExecutor.Start();
+            externalProgramExecutor.StartSynchronously();
             for (int i = 0; i < externalProgramExecutor.AllStdOutLines.Length; i++)
             {
                 string line = externalProgramExecutor.AllStdOutLines[i].Trim();
@@ -1349,11 +1355,13 @@ namespace GRYLibrary.Core
         }
         public static void RemoveMountPointOfVolume(string mountPoint)
         {
-            ExternalProgramExecutor externalProgramExecutor = ExternalProgramExecutor.Create("mountvol", $"{mountPoint} /d");
-            externalProgramExecutor.ThrowErrorIfExitCodeIsNotZero = true;
-            externalProgramExecutor.CreateWindow = false;
+            using ExternalProgramExecutor externalProgramExecutor = new ExternalProgramExecutor("mountvol", $"{mountPoint} /d")
+            {
+                ThrowErrorIfExitCodeIsNotZero = true,
+                CreateWindow = false
+            };
             externalProgramExecutor.LogObject.Configuration.GetLogTarget<Log.ConcreteLogTargets.Console>().Enabled = false;
-            externalProgramExecutor.Start();
+            externalProgramExecutor.StartSynchronously();
             if (mountPoint.Length > 3)
             {
                 EnsureDirectoryDoesNotExist(mountPoint);
@@ -1742,10 +1750,13 @@ namespace GRYLibrary.Core
             using GRYLog log = GRYLog.Create();
             log.Configuration.Enabled = false;
             log.Configuration.GetLogTarget<Log.ConcreteLogTargets.Console>().Enabled = logEnabled;
-            ExternalProgramExecutor externalProgramExecutor = ExternalProgramExecutor.CreateByGRYLog("git", argument, log, repositoryFolder, string.Empty, false, timeoutInMilliseconds);
-            externalProgramExecutor.PrintErrorsAsInformation = printErrorsAsInformation;
-            externalProgramExecutor.ThrowErrorIfExitCodeIsNotZero = throwErrorIfExitCodeIsNotZero;
-            externalProgramExecutor.Start();
+            using ExternalProgramExecutor externalProgramExecutor = new ExternalProgramExecutor("git", argument, repositoryFolder)
+            {
+                TimeoutInMilliseconds = timeoutInMilliseconds,
+                PrintErrorsAsInformation = printErrorsAsInformation,
+                ThrowErrorIfExitCodeIsNotZero = throwErrorIfExitCodeIsNotZero
+            };
+            externalProgramExecutor.StartSynchronously();
             return new GitCommandResult(argument, repositoryFolder, externalProgramExecutor.AllStdOutLines, externalProgramExecutor.AllStdErrLines, externalProgramExecutor.ExitCode);
         }
         /// <returns>
@@ -1753,10 +1764,12 @@ namespace GRYLibrary.Core
         /// </returns>
         public static IEnumerable<string> GetGitSubmodulePaths(string repositoryFolder, bool recursive = true)
         {
-            ExternalProgramExecutor externalProgramExecutor = ExternalProgramExecutor.Create("git", "submodule status" + (recursive ? " --recursive" : string.Empty), repositoryFolder);
-            externalProgramExecutor.ThrowErrorIfExitCodeIsNotZero = true;
+            using ExternalProgramExecutor externalProgramExecutor = new ExternalProgramExecutor("git", "submodule status" + (recursive ? " --recursive" : string.Empty), repositoryFolder)
+            {
+                ThrowErrorIfExitCodeIsNotZero = true
+            };
             externalProgramExecutor.LogObject.Configuration.Enabled = false;
-            externalProgramExecutor.Start();
+            externalProgramExecutor.StartSynchronously();
             List<string> result = new List<string>();
             foreach (string rawLine in externalProgramExecutor.AllStdOutLines)
             {
@@ -2092,8 +2105,8 @@ namespace GRYLibrary.Core
         {
             if (FileIsExecutable(file))
             {
-                ExternalProgramExecutor result = ExternalProgramExecutor.Create(file, string.Empty);
-                result.Start();
+                using ExternalProgramExecutor result = new ExternalProgramExecutor(file, string.Empty);
+                result.StartSynchronously();
                 return result;
             }
             else
@@ -2102,10 +2115,9 @@ namespace GRYLibrary.Core
             }
         }
 
-
         public static void OpenFileWithDefaultProgram(string file)
         {
-            ExternalProgramExecutor.Create(file, string.Empty).Start();
+            new ExternalProgramExecutor(file, string.Empty).StartAsynchronously();
         }
         private class FileIsExecutableVisitor : IOperatingSystemVisitor<bool>
         {

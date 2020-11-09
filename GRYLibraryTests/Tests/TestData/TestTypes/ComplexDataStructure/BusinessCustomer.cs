@@ -11,11 +11,13 @@ namespace GRYLibrary.TestData.TestTypes.ComplexDataStructure
 
         internal static ICustomer GetRandom()
         {
-            BusinessCustomer result = new BusinessCustomer();
-            result.CompanyName = ComplexDataStructureUtilities.GetRandomName();
-            result.Website = ComplexDataStructureUtilities.GetRandomWebsite();
-            result.ContactPhoneNumber = ComplexDataStructureUtilities.GetRandomPhoneNumber();
-            result.MainResidence = Address.GetRandom();
+            BusinessCustomer result = new BusinessCustomer
+            {
+                CompanyName = ComplexDataStructureUtilities.GetRandomName(),
+                Website = ComplexDataStructureUtilities.GetRandomWebsite(),
+                ContactPhoneNumber = ComplexDataStructureUtilities.GetRandomPhoneNumber(),
+                MainResidence = Address.GetRandom()
+            };
             return result;
         }
         #region Overhead
