@@ -711,7 +711,7 @@ namespace GRYLibrary.Core
                         Interlocked.Decrement(ref this._AmountOfRunningFunctions);
                     }
                 }));
-                SpinWait.SpinUntil(() => this.ResultSet || this._AmountOfRunningFunctions == 0);
+                WaitUntilConditionIsTrue(() => this.ResultSet || this._AmountOfRunningFunctions == 0);
                 if (this._AmountOfRunningFunctions == 0 && !this.ResultSet)
                 {
                     throw new Exception("No result was calculated");
@@ -720,6 +720,13 @@ namespace GRYLibrary.Core
                 {
                     return this.Result;
                 }
+            }
+        }
+        public static void WaitUntilConditionIsTrue(Func<bool> condition)
+        {
+            while (!condition())
+            {
+                Thread.Sleep(50);
             }
         }
         public static ISet<string> ToCaseInsensitiveSet(this ISet<string> input)
