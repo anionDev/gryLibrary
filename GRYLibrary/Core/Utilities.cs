@@ -1013,10 +1013,6 @@ namespace GRYLibrary.Core
         {
             return path.EnsurePathEndsWithoutSlash().EnsurePathEndsWithoutBackslash();
         }
-        public static string EnsurePathDoesNotHaveLeadingOrTrailingSlashOrBackslash(this string path)
-        {
-            return path.EnsurePathStartsWithoutSlashOrBackslash().EnsurePathEndsWithoutSlashOrBackslash();
-        }
 
         public static string EnsurePathHasNoLeadingOrTrailingQuotes(this string path)
         {
