@@ -45,6 +45,27 @@ namespace GRYLibrary.Core
             return result;
         }
 
+        /// <summary>
+        /// This is the inverse function of <see cref="ConcatBytesArraysWithLengthInformation"/>
+        /// </summary>
+        internal static byte[][] GetBytesArraysFromConcatBytesArraysWithLengthInformation(byte[] bytes)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// This is the inverse function of <see cref="GetBytesArraysFromConcatBytesArraysWithLengthInformation"/>
+        /// </summary>
+        internal static byte[] ConcatBytesArraysWithLengthInformation(params byte[][] byteArrays)
+        {
+            byte[] result = new byte[] { };
+            foreach (var byteArray in byteArrays)
+            {
+                result = Concat(result, IntToByteArray(byteArray.Length), byteArray);
+            }
+            return result;
+        }
+
         public static void Shuffle<T>(this IList<T> list)
         {
             Random random = new Random();
@@ -888,23 +909,10 @@ namespace GRYLibrary.Core
         {
             return Directory.GetFiles(path).Length > 0;
         }
-        public static byte[] StringToByteArray(string hex)
-        {
-            if (hex.Length % 2 == 1)
-            {
-                hex = "0" + hex;
-            }
-            byte[] result = new byte[hex.Length >> 1];
-            for (int i = 0; i < hex.Length >> 1; ++i)
-            {
-                result[i] = (byte)((GetHexValue(hex[i << 1]) << 4) + GetHexValue(hex[(i << 1) + 1]));
-            }
-            return result;
-        }
 
         public static int GetHexValue(char hex)
         {
-            int val = (int)hex;
+            int val = hex;
             return val - (val < 58 ? 48 : 55);
         }
 
@@ -1028,25 +1036,33 @@ namespace GRYLibrary.Core
             return true;
         }
 
+        public static byte[] SimpleStringToByteArray(string @string)
+        {
+            return new UTF8Encoding(false).GetBytes(@string);
+        }
+        public static string SimpleByteArrayToString(byte[] bytes)
+        {
+            return new UTF8Encoding(false).GetString(bytes);
+        }
         public static string ByteArrayToHexString(byte[] value)
         {
             return BitConverter.ToString(value).Replace("-", string.Empty);
         }
 
-        public static byte[] HexStringToByteArray(string hexString)
+        public static byte[] HexStringToByteArray(string hex)
         {
-            if (hexString.Length % 2 == 1)
+            if (hex.Length % 2 == 1)
             {
-                hexString = "0" + hexString;
+                hex = "0" + hex;
             }
-            int inputLength = hexString.Length;
-            byte[] bytes = new byte[inputLength / 2];
-            for (int i = 0; i < inputLength; i += 2)
+            byte[] result = new byte[hex.Length >> 1];
+            for (int i = 0; i < hex.Length >> 1; ++i)
             {
-                bytes[i / 2] = Convert.ToByte(hexString.Substring(i, 2), 16);
+                result[i] = (byte)((GetHexValue(hex[i << 1]) << 4) + GetHexValue(hex[(i << 1) + 1]));
             }
-            return bytes;
+            return result;
         }
+
         public static string IntegerToHexString(BigInteger input)
         {
             string result = input.ToString("X");
@@ -1063,7 +1079,16 @@ namespace GRYLibrary.Core
         {
             return BigInteger.Parse(input, NumberStyles.HexNumber);
         }
-        public static T[] Concat<T>(T[] array1, T[] array2)
+        public static T[] Concat<T>(params T[][] arrays)
+        {
+            T[] result = new T[] { };
+            foreach (var array in arrays)
+            {
+                result = Concat2Arrays(result, array);
+            }
+            return result;
+        }
+        private static T[] Concat2Arrays<T>(T[] array1, T[] array2)
         {
             T[] result = new T[array1.Length + array2.Length];
             array1.CopyTo(result, 0);
@@ -1391,6 +1416,55 @@ namespace GRYLibrary.Core
                 }
             }
             throw new KeyNotFoundException($"No volume could be found which provides the volume accessible at {mountPoint}");
+        }
+
+
+        public static T[] PadLeft<T>(T[] array, int length)
+        {
+            return PadLeft(array, default, length);
+        }
+        public static T[] PadLeft<T>(T[] array, T fillItem, int length)
+        {
+            return PadHelper(array, length, fillItem, true);
+        }
+        public static T[] PadRight<T>(T[] array, int length)
+        {
+            return PadRight(array, default, length);
+        }
+        public static T[] PadRight<T>(T[] array, T fillItem, int length)
+        {
+            return PadHelper(array, length, fillItem, false);
+        }
+        private static T[] PadHelper<T>(T[] array, int length, T fillItem, bool PadLeft)
+        {
+
+            T[] result = array;
+            while (array.Length <= length)
+            {
+                if (PadLeft)
+                {
+                    Concat(new T[] { fillItem }, result);
+                }
+                else
+                {
+                    Concat(result, new T[] { fillItem });
+                }
+            }
+            return result;
+        }
+        /// <param name="value">
+        /// must contain maximal 4 bytes.
+        /// </param>
+        public static int ByteArrayToInt(byte[] value)
+        {
+            throw new NotImplementedException();
+        }
+        /// <returns>
+        /// Returns an array with exactly 4 bytes.
+        /// </returns>
+        public static byte[] IntToByteArray(int value)
+        {
+            throw new NotImplementedException();
         }
         public static bool NullSafeSetEquals<T>(this ISet<T> @this, ISet<T> obj)
         {
@@ -2616,6 +2690,16 @@ namespace GRYLibrary.Core
             StringBuilder pszOut = new StringBuilder((int)pcchOut);
             AssocQueryString(AssocF.Verify, assocStr, extensionWithDot, null, pszOut, ref pcchOut);
             return pszOut.ToString();
+        }
+
+        public static (T[], T[]) Split<T>(T[] source, int index)
+        {
+            int len2 = source.Length - index;
+            T[] first = new T[index];
+            T[] last = new T[len2];
+            Array.Copy(source, 0, first, 0, index);
+            Array.Copy(source, index, last, 0, len2);
+            return (first, last);
         }
 
         [Flags]

@@ -38,11 +38,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Remove="Core\GRYCryptoSystem\EncryptionAlgorithms\AES256.cs~RF62ed5b0.TMP" />
-    <None Remove="Core\GRYCryptoSystem\EncryptionAlgorithms\Asymmetric\RSA.cs~RF63b5083.TMP" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.EventLog" Version="3.1.8" />
     <PackageReference Include="System.Collections.Immutable" Version="1.7.1" />

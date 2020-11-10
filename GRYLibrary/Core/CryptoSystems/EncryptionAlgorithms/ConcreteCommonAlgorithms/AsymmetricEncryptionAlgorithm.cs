@@ -1,6 +1,6 @@
-﻿namespace GRYLibrary.Core.GRYCryptoSystem.EncryptionAlgorithms
+﻿namespace GRYLibrary.Core.CryptoSystems.EncryptionAlgorithms.ConcreteCommonAlgorithms
 {
-    public interface IAsymmetricEncryptionAlgorithm : IEncryptionAlgorithm
+    public abstract class AsymmetricEncryptionAlgorithm : CommonEncryptionAlgorithm
     {
         /// <summary>
         /// Generates a valid key-pair for this asymmetric encryption algorithm.
@@ -13,6 +13,6 @@
         /// The first tuple-item represents the private-key.
         /// The second tuple-item represents the public-key.
         /// </returns>
-        public (byte[]/*Private key*/, byte[]/*Public key*/) GenerateRandomKeyPair();
+        public abstract (byte[]/*Private key*/, byte[]/*Public key*/) GenerateRandomKeyPair();
     }
 }
