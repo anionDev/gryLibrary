@@ -11,7 +11,7 @@ using Console = GRYLibrary.Core.Log.ConcreteLogTargets.Console;
 
 namespace GRYLibrary.Core.Log
 {
-    public class GRYLogConfiguration : IGRYSerializable
+    public class GRYLogConfiguration : IGRYSerializable, IDisposable
     {
 
         /// <summary>
@@ -101,15 +101,15 @@ namespace GRYLibrary.Core.Log
             };
             foreach (GRYLogTarget target in this.LogTargets)
             {
-                target.Initialize();
+                target.Enabled = true;
             }
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                this.LogTargets.Add(new WindowsEventLog() { Enabled = false });
+                this.LogTargets.Add(new WindowsEventLog());
             }
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
-                this.LogTargets.Add(new Syslog() { Enabled = false });
+                this.LogTargets.Add(new Syslog());
             }
         }
         public Target GetLogTarget<Target>() where Target : GRYLogTarget
@@ -174,7 +174,15 @@ namespace GRYLibrary.Core.Log
         {
             return new HashSet<Type>();
         }
+
         #endregion
+        public void Dispose()
+        {
+            foreach (GRYLogTarget target in this.LogTargets)
+            {
+                target.Dispose();
+            }
+        }
     }
 
 }

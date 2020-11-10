@@ -14,10 +14,12 @@ namespace GRYLibrary.TestData.TestTypes.ComplexDataStructure
 
         internal static OrderItem GetRandom(Product product)
         {
-            OrderItem result = new OrderItem();
-            result.Product = product;
-            result.Price = MoneyAmount.GetRandom();
-            result.NotesFromCustomer = ComplexDataStructureUtilities.GetRandomNotes();
+            OrderItem result = new OrderItem
+            {
+                Product = product,
+                Price = MoneyAmount.GetRandom(),
+                NotesFromCustomer = ComplexDataStructureUtilities.GetRandomNotes()
+            };
             if (new Random().NextDouble() < 0)
             {
                 result.UsedVoucherCode = ComplexDataStructureUtilities.GetRandomName();

@@ -14,12 +14,14 @@ namespace GRYLibrary.TestData.TestTypes.ComplexDataStructure
 
         internal static ICustomer GetRandom()
         {
-            PrivateCustomer result = new PrivateCustomer();
-            result.Forename = ComplexDataStructureUtilities.GetRandomName();
-            result.Surname = ComplexDataStructureUtilities.GetRandomName();
-            result.ContactPhoneNumber =ComplexDataStructureUtilities. GetRandomPhoneNumber();
-            result.MainResidence = Address.GetRandom();
-            result.DateOfBirth = ComplexDataStructureUtilities.GetRandomDateOfBirth();
+            PrivateCustomer result = new PrivateCustomer
+            {
+                Forename = ComplexDataStructureUtilities.GetRandomName(),
+                Surname = ComplexDataStructureUtilities.GetRandomName(),
+                ContactPhoneNumber = ComplexDataStructureUtilities.GetRandomPhoneNumber(),
+                MainResidence = Address.GetRandom(),
+                DateOfBirth = ComplexDataStructureUtilities.GetRandomDateOfBirth()
+            };
             return result;
         }
         #region Overhead

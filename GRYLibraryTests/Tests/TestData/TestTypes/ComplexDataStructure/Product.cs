@@ -9,8 +9,10 @@ namespace GRYLibrary.TestData.TestTypes.ComplexDataStructure
 
         internal static Product GetRandom()
         {
-            Product result = new Product();
-            result.Name = GetRandomName();
+            Product result = new Product
+            {
+                Name = GetRandomName()
+            };
             return result;
         }
 

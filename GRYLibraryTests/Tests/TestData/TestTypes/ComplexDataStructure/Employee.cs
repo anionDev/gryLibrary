@@ -14,12 +14,14 @@ namespace GRYLibrary.TestData.TestTypes.ComplexDataStructure
 
         public static Employee GetRandom(OrganizationUnit organizationUnit = null)
         {
-            Employee result = new Employee();
-            result.OrganizationUnit = organizationUnit;
-            result.Forename =ComplexDataStructureUtilities. GetRandomName();
-            result.Surname = ComplexDataStructureUtilities.GetRandomName();
-            result.DateOfBirth = ComplexDataStructureUtilities.GetRandomDateOfBirth();
-            result.MainResidence = Address.GetRandom();
+            Employee result = new Employee
+            {
+                OrganizationUnit = organizationUnit,
+                Forename = ComplexDataStructureUtilities.GetRandomName(),
+                Surname = ComplexDataStructureUtilities.GetRandomName(),
+                DateOfBirth = ComplexDataStructureUtilities.GetRandomDateOfBirth(),
+                MainResidence = Address.GetRandom()
+            };
             return result;
         }
 
