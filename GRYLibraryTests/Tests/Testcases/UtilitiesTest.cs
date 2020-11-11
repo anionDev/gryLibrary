@@ -489,5 +489,17 @@ namespace GRYLibrary.Tests.Testcases
             Assert.IsFalse(Core.Utilities.ImprovedReferenceEquals(kvp1, kvp3));
             Assert.IsFalse(Core.Utilities.ImprovedReferenceEquals(kvp1, kvp4));
         }
+
+        [TestMethod]
+        public void EnsurePathHasNoLeadingOrTrailingQuotesTest()
+        {
+            Assert.AreEqual("a", Core.Utilities.EnsurePathHasNoLeadingOrTrailingQuotes("'\"'\"a\"'\"'"));
+        }
+        [TestMethod]
+        public void EnsurePathDoesNotHaveLeadingOrTrailingSlashOrBackslashTest()
+        {
+            Assert.AreEqual("a", Core.Utilities.EnsurePathEndsWithoutSlashOrBackslash("a/"));
+            Assert.AreEqual("a", Core.Utilities.EnsurePathEndsWithoutSlashOrBackslash("a\\"));
+        }
     }
 }

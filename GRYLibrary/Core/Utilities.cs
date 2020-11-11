@@ -921,6 +921,8 @@ namespace GRYLibrary.Core
             File.WriteAllText(file, string.Empty, Encoding.ASCII);
         }
 
+        private const char SingleQuote = '\'';
+        private const char DoubleQuote = '"';
         private const char Slash = '/';
         private const char Backslash = '\\';
         public static string EnsurePathStartsWithSlash(this string path)
@@ -1015,9 +1017,22 @@ namespace GRYLibrary.Core
         {
             return path.EnsurePathStartsWithoutSlash().EnsurePathStartsWithoutBackslash();
         }
-        public static string EnsurePathSEndsWithoutSlashOrBackslash(this string path)
+        public static string EnsurePathEndsWithoutSlashOrBackslash(this string path)
         {
             return path.EnsurePathEndsWithoutSlash().EnsurePathEndsWithoutBackslash();
+        }
+
+        public static string EnsurePathHasNoLeadingOrTrailingQuotes(this string path)
+        {
+            var result = path;
+            bool changed = true;
+            while (changed)
+            {
+                string old = result;
+                result = result.TrimStart(SingleQuote).TrimEnd(SingleQuote).TrimStart(DoubleQuote).TrimEnd(DoubleQuote);
+                changed = old != result;
+            }
+            return result;
         }
 
         public static bool StartsWith<T>(T[] entireArray, T[] start)
