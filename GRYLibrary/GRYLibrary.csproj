@@ -4,13 +4,13 @@
     <TargetFramework>netstandard2.1</TargetFramework>
     <Authors>Marius Göcke</Authors>
     <Company />
-    <Version>0.8.16</Version>
+    <Version>0.8.17</Version>
     <Description>The GRYLibrary is a collection with some useful .NET classes and functions which are very easy (re)usable.</Description>
     <Copyright>Copyright © 2020 Marius Göcke</Copyright>
     <PackageLicenseExpression>GRYL-1.6</PackageLicenseExpression>
     <RepositoryUrl>https://github.com/anionDev/gryLibrary</RepositoryUrl>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-    <AssemblyVersion>0.8.16.0</AssemblyVersion>
+    <AssemblyVersion>0.8.17.0</AssemblyVersion>
     <SignAssembly>false</SignAssembly>
     <AssemblyOriginatorKeyFile>GRYLibrary.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
@@ -39,8 +39,8 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging.EventLog" Version="3.1.8" />
-    <PackageReference Include="System.Collections.Immutable" Version="1.7.1" />
+    <PackageReference Include="Microsoft.Extensions.Logging.EventLog" Version="5.0.0" />
+    <PackageReference Include="System.Collections.Immutable" Version="5.0.0" />
   </ItemGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
