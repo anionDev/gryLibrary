@@ -695,7 +695,7 @@ namespace GRYLibrary.Core
             {
                 if (functions.Count == 0)
                 {
-                    throw new ArgumentException();
+                    throw new ArgumentException($"Argument '{ nameof(functions) }' does not contain any function.");
                 }
                 Parallel.ForEach(functions, new ParallelOptions { MaxDegreeOfParallelism = _MaximalDegreeOfParallelism }, new Action<Func<T>, ParallelLoopState>((Func<T> function, ParallelLoopState state) =>
                 {
@@ -1145,7 +1145,7 @@ namespace GRYLibrary.Core
             bool terminatedInGivenTimeSpan = workerThread.Join(timeout);
             if (!terminatedInGivenTimeSpan)
             {
-                workerThread.Abort();
+                workerThread.Interrupt();
             }
             return terminatedInGivenTimeSpan;
         }
@@ -2622,7 +2622,7 @@ namespace GRYLibrary.Core
         {
             return FileExtentionInfo(AssocStr.Executable, extensionWithDot);
         }
-        [DllImport("Shlwapi.dll", SetLastError = true, CharSet = CharSet.Auto)]
+        [DllImport("Shlwapi.dll", SetLastError = true, CharSet = CharSet.Unicode)]
         static extern uint AssocQueryString(AssocF flags, AssocStr str, string pszAssoc, string pszExtra, [Out] StringBuilder pszOut, [In][Out] ref uint pcchOut);
         private static string FileExtentionInfo(AssocStr assocStr, string extensionWithDot)
         {
