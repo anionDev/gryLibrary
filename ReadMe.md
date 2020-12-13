@@ -1,5 +1,7 @@
 ﻿# GRYLibrary
 
+[![CodeFactor](https://www.codefactor.io/repository/github/aniondev/grylibrary/badge/master)](https://www.codefactor.io/repository/github/aniondev/grylibrary/overview/master)
+
 The GRYLibrary is a collection with some useful .NET classes and functions which are very easy (re)usable.
 
 The GRYLibrary follows the declarative-programming-paradigm:
