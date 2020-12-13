@@ -1,7 +1,7 @@
 ﻿# GRYLibrary
 
 [![CodeFactor](https://www.codefactor.io/repository/github/aniondev/grylibrary/badge/master)](https://www.codefactor.io/repository/github/aniondev/grylibrary/overview/master)
-![Generic badge](https://img.shields.io/badge/coverage-__coverageinpercent__%25-green)
+![Generic badge](https://img.shields.io/badge/coverage-1%25-green)
 
 The GRYLibrary is a collection with some useful .NET classes and functions which are very easy (re)usable.
 

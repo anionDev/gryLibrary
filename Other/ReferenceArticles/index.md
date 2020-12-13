@@ -10,6 +10,6 @@ This reference refers to the latest version of the GRYLibrary. [![NuGet](https:/
 - [API Documentation](api/index.md)
 - [GRYLibrary-repository](https://github.com/anionDev/GRYLibrary)
 - [GRYLibraryReference-repository](https://github.com/anionDev/GRYLibraryReference)
-- [Test-coverage](https://aniondev.github.io/GRYLibraryReference/TestCoverage/index.htm) ![Generic badge](https://img.shields.io/badge/coverage-__coverageinpercent__%25-green)
+- [Test-coverage](https://aniondev.github.io/GRYLibraryReference/TestCoverage/index.htm) ![Generic badge](https://img.shields.io/badge/coverage-1%25-green)
 - [Nuget-release](https://www.nuget.org/packages/GRYLibrary)
 - [License](https://raw.githubusercontent.com/anionDev/GRYLibrary/master/License.txt)
