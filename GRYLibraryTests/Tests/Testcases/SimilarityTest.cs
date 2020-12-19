@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using GRYLibrary.Core;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace GRYLibrary.Tests.Testcases
 {
@@ -7,18 +8,21 @@ namespace GRYLibrary.Tests.Testcases
     {
         #region Jaccard
         [TestMethod]
+        [TestProperty(nameof(TestKind), nameof(TestKind.UnitTest))]
         public void TestCalculateJaccardSimilarityWithEqualStrings()
         {
             string testString = "test";
             Assert.AreEqual(1, Core.Utilities.CalculateJaccardSimilarity(testString, testString));
         }
         [TestMethod]
+        [TestProperty(nameof(TestKind), nameof(TestKind.UnitTest))]
         public void TestJaccardIndexWithEqualStrings()
         {
             string testString = "test";
             Assert.AreEqual(0.5, Core.Utilities.CalculateJaccardIndex(testString, testString));
         }
         [TestMethod]
+        [TestProperty(nameof(TestKind), nameof(TestKind.UnitTest))]
         public void TestJaccardSimilarityWithDifferentValues()
         {
             Assert.AreEqual(8 / (double)9, Core.Utilities.CalculateJaccardSimilarity("test", "test2"));
@@ -35,6 +39,7 @@ namespace GRYLibrary.Tests.Testcases
             Assert.AreEqual(7 / (double)9, Core.Utilities.CalculateJaccardSimilarity("12345678", "1x34567890"));
         }
         [TestMethod]
+        [TestProperty(nameof(TestKind), nameof(TestKind.UnitTest))]
         public void TestJaccardIndexSimilarityWithCompletelyDifferentStrings()
         {
             Assert.AreEqual(0, Core.Utilities.CalculateJaccardSimilarity("abcd", "efgh"));
@@ -42,18 +47,21 @@ namespace GRYLibrary.Tests.Testcases
         #endregion
         #region Levenshtein
         [TestMethod]
+        [TestProperty(nameof(TestKind), nameof(TestKind.UnitTest))]
         public void TestLevenshteinSimilarityWithEqualStrings()
         {
             string testString = "test";
             Assert.AreEqual(1, Core.Utilities.CalculateLevenshteinSimilarity(testString, testString));
         }
         [TestMethod]
+        [TestProperty(nameof(TestKind), nameof(TestKind.UnitTest))]
         public void TestLevenshteinDistanceWithEqualStrings()
         {
             string testString = "test";
             Assert.AreEqual(0, Core.Utilities.CalculateLevenshteinDistance(testString, testString));
         }
         [TestMethod]
+        [TestProperty(nameof(TestKind), nameof(TestKind.UnitTest))]
         public void TestLevenshteinDistanceWithDifferentValues()
         {
             Assert.AreEqual(1, Core.Utilities.CalculateLevenshteinDistance("test", "test2"));
@@ -67,6 +75,7 @@ namespace GRYLibrary.Tests.Testcases
             Assert.AreEqual(4,Core.Utilities.CalculateLevenshteinDistance("abcd", "efgh"));
         }
         [TestMethod]
+        [TestProperty(nameof(TestKind), nameof(TestKind.UnitTest))]
         public void TestLevenshteinSimilarityWithDifferentValues()
         {
             Assert.AreEqual(4 / (double)5, Core.Utilities.CalculateLevenshteinSimilarity("test", "test2"));
@@ -83,6 +92,7 @@ namespace GRYLibrary.Tests.Testcases
             Assert.AreEqual(7 / (double)10, Core.Utilities.CalculateLevenshteinSimilarity("12345678", "1x34567890"));
         }
         [TestMethod]
+        [TestProperty(nameof(TestKind), nameof(TestKind.UnitTest))]
         public void TestLevenshteinSimilarityWithCompletelyDifferentStrings()
         {
             Assert.AreEqual(0, Core.Utilities.CalculateLevenshteinSimilarity("abcd", "efgh"));
@@ -91,17 +101,20 @@ namespace GRYLibrary.Tests.Testcases
         #endregion
         #region Cosine
         [TestMethod]
+        [TestProperty(nameof(TestKind), nameof(TestKind.UnitTest))]
         public void TestCosineSimilarityWithEqualStrings()
         {
             string testString = "test";
             Assert.AreEqual(1, Core.Utilities.CalculateCosineSimilarity(testString, testString));
         }
         [TestMethod]
+        [TestProperty(nameof(TestKind), nameof(TestKind.UnitTest))]
         public void TestCosineSimilarityWithCompletelyDifferentStrings()
         {
             Assert.AreEqual(0, Core.Utilities.CalculateCosineSimilarity("abcd", "efgh"));
         }
         [TestMethod]
+        [TestProperty(nameof(TestKind), nameof(TestKind.UnitTest))]
         public void TestCosineSimilarityWithDifferentValues()
         {
             TestRange(0.9, Core.Utilities.CalculateCosineSimilarity("test", "test2"), 1);
@@ -119,10 +132,12 @@ namespace GRYLibrary.Tests.Testcases
         }
 
         #endregion
+        #region Helper
         private void TestRange(double minimumValue, double actualValue, double maximalValue)
         {
             Assert.IsTrue(minimumValue < actualValue, $"Expected {minimumValue}<{actualValue}");
             Assert.IsTrue(actualValue < maximalValue, $"Expected {actualValue}<{maximalValue}");
         }
+        #endregion
     }
 }
