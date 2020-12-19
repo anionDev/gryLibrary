@@ -26,5 +26,9 @@
         /// Tests that will be done by reflection to assert a certain property for all types (or all methods or all attributes) in a certain scope.
         /// </summary>
         ReflectionTest = 5,
+        /// <summary>
+        /// Tests to demonstrate a certain thing.
+        /// </summary>
+        DemonstrationTest = 6,
     }
 }
