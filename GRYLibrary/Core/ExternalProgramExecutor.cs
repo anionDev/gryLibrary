@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -91,7 +92,10 @@ namespace GRYLibrary.Core
 
             try
             {
-                originalConsoleTitle = Console.Title;
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                {
+                    originalConsoleTitle = Console.Title;
+                }
                 originalConsoleForegroundColor = Console.ForegroundColor;
                 originalConsoleBackgroundColor = Console.BackgroundColor;
             }
@@ -223,7 +227,7 @@ namespace GRYLibrary.Core
                     stopWatch.Stop();
                     this.ExecutionDuration = stopWatch.Elapsed;
                     this.ExitCode = _Process.ExitCode;
-                    while (0 < this._NotLoggedOutputLines.Count)
+                    while (!_NotLoggedOutputLines.IsEmpty)
                     {
                         Thread.Sleep(60);
                     }
@@ -456,7 +460,7 @@ namespace GRYLibrary.Core
         }
         private void LogOutputImplementation()
         {
-            while (this.Running() || this._NotLoggedOutputLines.Count > 0)
+            while (this.Running() || !this._NotLoggedOutputLines.IsEmpty)
             {
                 if (this._NotLoggedOutputLines.TryDequeue(out (LogLevel, string) logItem))
                 {

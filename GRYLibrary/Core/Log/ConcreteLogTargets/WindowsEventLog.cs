@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Runtime.Versioning;
 using Microsoft.Extensions.Logging;
 
 namespace GRYLibrary.Core.Log.ConcreteLogTargets
 {
+    [SupportedOSPlatform("windows")]
     public class WindowsEventLog : GRYLogTarget
     {
         public WindowsEventLog() { }
@@ -20,10 +22,10 @@ namespace GRYLibrary.Core.Log.ConcreteLogTargets
             {
                 messageId = $"{logItem.MessageId}: ";
             }
-            eventLog.WriteEntry(messageId + logItem.PlainMessage, this.ConvertLogLevel(logItem.LogLevel), logItem.EventId, logItem.Category);
+            eventLog.WriteEntry(messageId + logItem.PlainMessage, ConvertLogLevel(logItem.LogLevel), logItem.EventId, logItem.Category);
         }
 
-        private EventLogEntryType ConvertLogLevel(LogLevel logLevel)
+        private static EventLogEntryType ConvertLogLevel(LogLevel logLevel)
         {
             if (logLevel == LogLevel.Trace)
             {
@@ -57,7 +59,7 @@ namespace GRYLibrary.Core.Log.ConcreteLogTargets
         }
         public override void Dispose()
         {
-            GRYLibrary.Core.Utilities.NoOperation();
+            Utilities.NoOperation();
         }
     }
 }

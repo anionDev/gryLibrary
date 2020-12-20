@@ -558,7 +558,7 @@ namespace GRYLibrary.Core
                     {
                         string sourceFolderTrimmed = sourceFolder.Trim().TrimStart('/', '\\').TrimEnd('/', '\\');
                         string fileName = Path.GetFileName(sourceFile);
-                        string fullTargetFolder = Path.Combine(targetFolder, Path.GetDirectoryName(sourceFile).Substring(sourceFolderTrimmed.Length).TrimStart('/', '\\'));
+                        string fullTargetFolder = Path.Combine(targetFolder, Path.GetDirectoryName(sourceFile)[sourceFolderTrimmed.Length..].TrimStart('/', '\\'));
                         EnsureDirectoryExists(fullTargetFolder);
                         string targetFile = Path.Combine(fullTargetFolder, fileName);
                         if (File.Exists(targetFile))
@@ -716,7 +716,7 @@ namespace GRYLibrary.Core
             {
                 if (functions.Count == 0)
                 {
-                    throw new ArgumentException();
+                    throw new ArgumentException($"Argument '{ nameof(functions) }' does not contain any function.");
                 }
                 Parallel.ForEach(functions, new ParallelOptions { MaxDegreeOfParallelism = _MaximalDegreeOfParallelism }, new Action<Func<T>, ParallelLoopState>((Func<T> function, ParallelLoopState state) =>
                 {
@@ -810,11 +810,11 @@ namespace GRYLibrary.Core
             string quotedExe = "\"" + exe + "\"";
             if (rawCmd.StartsWith(exe))
             {
-                rawCmd = rawCmd.Substring(exe.Length + 1);
+                rawCmd = rawCmd[(exe.Length + 1)..];
             }
             else if (rawCmd.StartsWith(quotedExe))
             {
-                rawCmd = rawCmd.Substring(quotedExe.Length + 1);
+                rawCmd = rawCmd[(quotedExe.Length + 1)..];
             }
             return rawCmd.Trim();
         }
@@ -1083,7 +1083,7 @@ namespace GRYLibrary.Core
             string result = input.ToString("X");
             if (result.StartsWith("0"))
             {
-                return result.Substring(1);
+                return result[1..];
             }
             else
             {
@@ -1170,7 +1170,7 @@ namespace GRYLibrary.Core
             bool terminatedInGivenTimeSpan = workerThread.Join(timeout);
             if (!terminatedInGivenTimeSpan)
             {
-                workerThread.Abort();
+                workerThread.Interrupt();
             }
             return terminatedInGivenTimeSpan;
         }
@@ -1338,7 +1338,7 @@ namespace GRYLibrary.Core
                     string prefix = "\\\\?\\Volume{";
                     if (line.StartsWith(prefix))
                     {
-                        line = line.Substring(prefix.Length);//remove "\\?\Volume{"
+                        line = line[prefix.Length..];//remove "\\?\Volume{"
                         line = line[0..^2];//remove "}\"
                         string nextLine = externalProgramExecutor.AllStdOutLines[i + 1].Trim();
                         if (Directory.Exists(nextLine) || nextLine.StartsWith("***"))
@@ -1743,7 +1743,7 @@ namespace GRYLibrary.Core
             {
                 return input.ToUpper();
             }
-            return input.First().ToString().ToUpper() + input.Substring(1).ToLower();
+            return input.First().ToString().ToUpper() + input[1..].ToLower();
         }
         private static readonly char[] Whitespace = new char[] { ' ' };
         private static readonly char[] WhitespaceAndPartialWordIndicators = new char[] { ' ', '_', '-' };
@@ -1819,14 +1819,14 @@ namespace GRYLibrary.Core
             }
             IEnumerable<string> words = input.Split(new[] { '-', '_' }, StringSplitOptions.RemoveEmptyEntries)
                          .Select(word => word.Substring(0, 1).ToUpper() +
-                                         word.Substring(1).ToLower());
+                                         word[1..].ToLower());
 
             return string.Concat(words);
         }
         public static string ToCamelCase(this string input)
         {
             string pascalCase = input.ToPascalCase();
-            return char.ToLowerInvariant(pascalCase[0]) + pascalCase.Substring(1);
+            return char.ToLowerInvariant(pascalCase[0]) + pascalCase[1..];
         }
 
         private static readonly Regex _OneOrMoreHexSigns = new Regex(@"^[0-9a-f]+$");
@@ -2696,7 +2696,7 @@ namespace GRYLibrary.Core
         {
             return FileExtentionInfo(AssocStr.Executable, extensionWithDot);
         }
-        [DllImport("Shlwapi.dll", SetLastError = true, CharSet = CharSet.Auto)]
+        [DllImport("Shlwapi.dll", SetLastError = true, CharSet = CharSet.Unicode)]
         static extern uint AssocQueryString(AssocF flags, AssocStr str, string pszAssoc, string pszExtra, [Out] StringBuilder pszOut, [In][Out] ref uint pcchOut);
         private static string FileExtentionInfo(AssocStr assocStr, string extensionWithDot)
         {
