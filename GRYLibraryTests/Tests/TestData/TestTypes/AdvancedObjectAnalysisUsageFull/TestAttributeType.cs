@@ -2,7 +2,7 @@
 using System.Xml;
 using System.Xml.Schema;
 
-namespace GRYLibrary.TestData.TestTypes.AdvancedObjectAnalysisUsageFull
+namespace GRYLibrary.Tests.TestData.TestTypes.AdvancedObjectAnalysisUsageFull
 {
     public class TestAttributeType
     {

@@ -4,7 +4,7 @@ using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
 
-namespace GRYLibrary.TestData.TestTypes.XMLSerializableType
+namespace GRYLibrary.Tests.TestData.TestTypes.XMLSerializableType
 {
     public class TypeWithDictionaryGeneric<T, U> : IXmlSerializable
     {

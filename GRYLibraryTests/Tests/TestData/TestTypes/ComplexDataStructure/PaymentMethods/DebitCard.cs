@@ -1,6 +1,6 @@
-﻿
-using GRYLibrary.Core.AdvancedObjectAnalysis;
-namespace GRYLibrary.TestData.TestTypes.ComplexDataStructure.PaymentMethods
+﻿using GRYLibrary.Core.AdvancedObjectAnalysis;
+
+namespace GRYLibrary.Tests.TestData.TestTypes.ComplexDataStructure.PaymentMethods
 {
     public class DebitCard : PaymentMethod
     {

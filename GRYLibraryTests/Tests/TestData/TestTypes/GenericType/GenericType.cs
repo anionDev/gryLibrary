@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace GRYLibrary.TestData.TestTypes.GenericType
+namespace GRYLibrary.Tests.TestData.TestTypes.GenericType
 {
     public class GenericType<T>
     {

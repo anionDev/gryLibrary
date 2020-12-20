@@ -747,10 +747,19 @@ namespace GRYLibrary.Core
         private static readonly IFormatter _Formatter = new BinaryFormatter();
         public static T DeepClone<T>(this T @object)
         {
-            using Stream memoryStream = new MemoryStream();
-            _Formatter.Serialize(memoryStream, @object);
-            memoryStream.Position = 0;
-            return (T)_Formatter.Deserialize(memoryStream);
+            return Generic.GenericDeserialize<T>(Generic.GenericSerialize(@object));
+        }
+        /// <summary>
+        /// Casts an object to the given type if possible.
+        /// This can be useful for example to to cast 'Action&lt;Object&gt' to 'Action' or 'Func&lt;string&gt' to 'Func&lt;Object&gt' to fulfil interface-compatibility.
+        /// </summary>
+        public static object Cast(object @object, Type targetType)
+        {
+            throw new NotImplementedException();// TODO call CastHelper using reflection
+        }
+        private static T CastHelper<T>(object @object)
+        {
+            return (T)@object;
         }
         public static long GetTotalFreeSpace(string driveName)
         {
@@ -2626,10 +2635,12 @@ namespace GRYLibrary.Core
         static extern uint AssocQueryString(AssocF flags, AssocStr str, string pszAssoc, string pszExtra, [Out] StringBuilder pszOut, [In][Out] ref uint pcchOut);
         private static string FileExtentionInfo(AssocStr assocStr, string extensionWithDot)
         {
+#pragma warning disable CA1806 // Do not ignore method results
             uint pcchOut = 0;
             AssocQueryString(AssocF.Verify, assocStr, extensionWithDot, null, null, ref pcchOut);
             StringBuilder pszOut = new StringBuilder((int)pcchOut);
             AssocQueryString(AssocF.Verify, assocStr, extensionWithDot, null, pszOut, ref pcchOut);
+#pragma warning restore CA1806 // Do not ignore method results
             return pszOut.ToString();
         }
 
@@ -2638,7 +2649,9 @@ namespace GRYLibrary.Core
         {
             Init_NoRemapCLSID = 0x1,
             Init_ByExeName = 0x2,
+#pragma warning disable CA1069 // Enums values should not be duplicated
             Open_ByExeName = 0x2,
+#pragma warning restore CA1069 // Enums values should not be duplicated
             Init_DefaultToStar = 0x4,
             Init_DefaultToFolder = 0x8,
             NoUserSettings = 0x10,
