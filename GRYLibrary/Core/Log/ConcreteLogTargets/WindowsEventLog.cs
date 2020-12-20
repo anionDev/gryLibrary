@@ -1,20 +1,31 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Runtime.Versioning;
 using Microsoft.Extensions.Logging;
 
 namespace GRYLibrary.Core.Log.ConcreteLogTargets
 {
+    [SupportedOSPlatform("windows")]
     public class WindowsEventLog : GRYLogTarget
     {
         public WindowsEventLog() { }
         protected override void ExecuteImplementation(LogItem logItem, GRYLog logObject)
         {
-            using EventLog eventLog = new EventLog("Application");
-            eventLog.Source = logObject.Configuration.Name;
-            eventLog.WriteEntry(logItem.PlainMessage, this.ConvertLogLevel(logItem.LogLevel), logItem.EventId, logItem.Category);
+            using EventLog eventLog = new EventLog(Utilities.GetNameOfCurrentExecutable()) { Source = logObject.Configuration.Name };
+            string messageId;
+            if (string.IsNullOrWhiteSpace(logItem.MessageId))
+            {
+                messageId = string.Empty;
+            }
+            else
+            {
+                messageId = $"{logItem.MessageId}: ";
+            }
+            eventLog.WriteEntry(messageId + logItem.PlainMessage, ConvertLogLevel(logItem.LogLevel), logItem.EventId, logItem.Category);
         }
 
-        private EventLogEntryType ConvertLogLevel(LogLevel logLevel)
+        private static EventLogEntryType ConvertLogLevel(LogLevel logLevel)
         {
             if (logLevel == LogLevel.Trace)
             {
@@ -41,6 +52,14 @@ namespace GRYLibrary.Core.Log.ConcreteLogTargets
                 return EventLogEntryType.Error;
             }
             throw new KeyNotFoundException($"Loglevel '{logLevel}' is not writeable to windows-eventlog");
+        }
+        public override ISet<Type> FurtherGetExtraTypesWhichAreRequiredForSerialization()
+        {
+            return new HashSet<Type>();
+        }
+        public override void Dispose()
+        {
+            Utilities.NoOperation();
         }
     }
 }

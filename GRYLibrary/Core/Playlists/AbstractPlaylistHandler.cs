@@ -84,7 +84,7 @@ namespace GRYLibrary.Core.Playlists
                         if (loadTransitively && (!alreadyProcessedPlaylistFiles.Contains(playlistItemToLower)))
                         {
                             alreadyProcessedPlaylistFiles.Add(playlistItemToLower);
-                            newList.AddRange(ExtensionsOfReadablePlaylists[Path.GetExtension(playlistItemToLower).Substring(1)].GetSongsFromPlaylistImplementation(playlistItem, removeDuplicatedItems, loadTransitively, alreadyProcessedPlaylistFiles, workingDirectory));
+                            newList.AddRange(ExtensionsOfReadablePlaylists[Path.GetExtension(playlistItemToLower)[1..]].GetSongsFromPlaylistImplementation(playlistItem, removeDuplicatedItems, loadTransitively, alreadyProcessedPlaylistFiles, workingDirectory));
                         }
                     }
                     else
@@ -112,7 +112,7 @@ namespace GRYLibrary.Core.Playlists
 
         public static AbstractPlaylistHandler GetConcretePlaylistHandler(string file)
         {
-            return ExtensionsOfReadablePlaylists[Path.GetExtension(file.ToLower()).Substring(1)];
+            return ExtensionsOfReadablePlaylists[Path.GetExtension(file.ToLower())[1..]];
         }
         public IEnumerable<string> GetSongsFromPlaylist(string playlistFile, bool removeDuplicatedItems = true, bool loadTransitively = true)
         {
@@ -163,7 +163,7 @@ namespace GRYLibrary.Core.Playlists
         public static bool IsReadablePlaylist(string file)
         {
             file = file.ToLower();
-            foreach (System.Collections.Generic.KeyValuePair<string, AbstractPlaylistHandler> keyValuePair in ExtensionsOfReadablePlaylists)
+            foreach (KeyValuePair<string, AbstractPlaylistHandler> keyValuePair in ExtensionsOfReadablePlaylists)
             {
                 if (file.EndsWith("." + keyValuePair.Key))
                 {
@@ -191,7 +191,7 @@ namespace GRYLibrary.Core.Playlists
                 }
                 else
                 {
-                    extension = extension.Substring(1).ToLower();
+                    extension = extension[1..].ToLower();
                     return (this.AllowedFiletypesForMusicFiles.Contains(extension) || ExtensionsOfReadablePlaylists.ContainsKey(extension)) && File.Exists(item);
                 }
             }

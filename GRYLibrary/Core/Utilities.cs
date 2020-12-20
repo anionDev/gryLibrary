@@ -1,4 +1,6 @@
-﻿using System;
+﻿using GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper;
+using System;
+using System.ComponentModel;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
@@ -18,13 +20,31 @@ using System.Xml.Xsl;
 using static GRYLibrary.Core.TableGenerator;
 using System.Reflection;
 using System.Dynamic;
-using System.ComponentModel;
 using GRYLibrary.Core.XMLSerializer;
+using System.Net.Sockets;
+using GRYLibrary.Core.OperatingSystem;
+using GRYLibrary.Core.OperatingSystem.ConcreteOperatingSystems;
+using GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper.CustomComparer;
+using System.Runtime.InteropServices;
+using GRYLibrary.Core.Log;
+using GRYLibrary.Core.AdvancedObjectAnalysis;
+using System.Collections;
+using System.Diagnostics;
 
 namespace GRYLibrary.Core
 {
     public static class Utilities
     {
+
+        #region Miscellaneous
+
+        public static byte[] GetRandomByteArray(long length = 65536)
+        {
+            byte[] result = new byte[length];
+            new Random().NextBytes(result);
+            return result;
+        }
+
         public static void Shuffle<T>(this IList<T> list)
         {
             Random random = new Random();
@@ -70,6 +90,37 @@ namespace GRYLibrary.Core
             return result;
         }
 
+        public static bool IsValidXML(string xmlString)
+        {
+            if (string.IsNullOrWhiteSpace(xmlString))
+            {
+                return false;
+            }
+            try
+            {
+                XDocument.Parse(xmlString);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public static int Count(this IEnumerable enumerable)
+        {
+            int result = 0;
+            IEnumerator enumerator = enumerable.GetEnumerator();
+            while (enumerator.MoveNext())
+            {
+                result += 1;
+            }
+            return result;
+        }
+        /// <summary>
+        /// This function does nothing.
+        /// The purpose of this function is to say explicitly that nothing should be done at the point where this function is called.
+        /// </summary>
         public static void NoOperation()
         {
             //nothing to do
@@ -121,7 +172,65 @@ namespace GRYLibrary.Core
             }
             return @string;
         }
+        public static bool ObjectIsPrimitive(object @object)
+        {
+            return TypeIsPrimitive(@object.GetType());
+        }
+        public static bool TypeIsPrimitive(Type type)
+        {
+            if (type.IsGenericType)
+            {
+                return false;
+            }
+            else
+            {
+                return type.IsPrimitive || typeof(string).Equals(type) || type.IsValueType;
+            }
+        }
+        public static bool IsAssignableFrom(object @object, Type genericTypeToCompare)
+        {
+            return TypeIsAssignableFrom(@object.GetType(), genericTypeToCompare);
+        }
+        public static bool TypeIsAssignableFrom(Type typeForCheck, Type parentType)
+        {
+            ISet<Type> typesToCheck = GetTypeWithParentTypesAndInterfaces(typeForCheck);
+            return typesToCheck.Contains(parentType, TypeComparerIgnoringGenerics);
+        }
+        public static ISet<Type> GetTypeWithParentTypesAndInterfaces(Type type)
+        {
+            HashSet<Type> result = new HashSet<Type> { type };
+            result.UnionWith(type.GetInterfaces());
+            if (type.BaseType != null)
+            {
+                result.UnionWith(GetTypeWithParentTypesAndInterfaces(type.BaseType));
+            }
+            return result;
+        }
+        public static IEqualityComparer<Type> TypeComparerIgnoringGenerics { get; } = new TypeComparerIgnoringGenericsType();
+        private class TypeComparerIgnoringGenericsType : IEqualityComparer<Type>
+        {
+            public bool Equals(Type x, Type y)
+            {
+                if (!x.Name.Equals(y.Name))
+                {
+                    return false;
+                }
+                if (!x.Namespace.Equals(y.Namespace))
+                {
+                    return false;
+                }
+                if (!x.Assembly.Equals(y.Assembly))
+                {
+                    return false;
+                }
+                return true;
+            }
 
+            public int GetHashCode(Type obj)
+            {
+                return obj.GetHashCode();
+            }
+        }
         public static void ReplaceUnderscoresInFile(string file, IDictionary<string, string> replacements)
         {
             ReplaceUnderscoresInFile(file, replacements, new UTF8Encoding(false));
@@ -138,7 +247,7 @@ namespace GRYLibrary.Core
         }
         public static void WriteToConsoleAsASCIITable(IList<IList<string>> columns)
         {
-            string[] table = TableGenerator.Generate(JaggedArrayToTwoDimensionalArray(EnumerableOfEnumerableToJaggedArray(columns)), new ASCIITable());
+            string[] table = Generate(JaggedArrayToTwoDimensionalArray(EnumerableOfEnumerableToJaggedArray(columns)), new ASCIITable());
             foreach (string line in table)
             {
                 Console.WriteLine(line);
@@ -326,30 +435,55 @@ namespace GRYLibrary.Core
 
         internal static bool TryResolvePathByPathVariable(string program, out string programWithFullPath)
         {
-            programWithFullPath = null;
-            string[] knownExtension = new string[] { ".exe", ".cmd" };
-            string paths = Environment.ExpandEnvironmentVariables("%PATH%");
-            bool @break = false;
-            foreach (string path in paths.Split(';'))
+            (bool, string) result = OperatingSystem.OperatingSystem.GetCurrentOperatingSystem().Accept(new TryResolvePathByPathVariableVisitor(program));
+            programWithFullPath = result.Item2;
+            return result.Item1;
+        }
+
+        private class TryResolvePathByPathVariableVisitor : IOperatingSystemVisitor<(bool/*Success*/, string/*programWithFullPath*/)>
+        {
+            private readonly string _Programname;
+
+            public TryResolvePathByPathVariableVisitor(string programname)
             {
-                foreach (string combined in GetCombinations(path, knownExtension, program))
+                this._Programname = programname;
+            }
+
+            public (bool, string) Handle(OSX operatingSystem)
+            {
+                throw new NotImplementedException();
+            }
+
+            public (bool, string) Handle(Windows operatingSystem)
+            {
+                string program = null;
+                string[] knownExtension = new string[] { ".exe", ".cmd" };
+                string paths = Environment.ExpandEnvironmentVariables("%PATH%");
+                bool @break = false;
+                foreach (string path in paths.Split(';'))
                 {
-                    if (File.Exists(combined))
+                    foreach (string combined in GetCombinations(path, knownExtension, this._Programname))
                     {
-                        programWithFullPath = combined;
-                        @break = true;
+                        if (File.Exists(combined))
+                        {
+                            program = combined;
+                            @break = true;
+                            break;
+                        }
+                    }
+                    if (@break)
+                    {
                         break;
                     }
                 }
-                if (@break)
-                {
-                    break;
-                }
+                return (program != null, program);
             }
-            return programWithFullPath != null;
 
+            public (bool, string) Handle(Linux operatingSystem)
+            {
+                throw new NotImplementedException();
+            }
         }
-
         private static IEnumerable<string> GetCombinations(string path, string[] knownExtensions, string program)
         {
             string programToLower = program.ToLower();
@@ -401,9 +535,9 @@ namespace GRYLibrary.Core
                 {
                     if (fileSelectorPredicate(sourceFile))
                     {
-                        string sourceFolderTrimmed = sourceFolder.Trim().TrimStart(_Slash, _Backslash).TrimEnd(_Slash, _Backslash);
+                        string sourceFolderTrimmed = sourceFolder.Trim().TrimStart('/', '\\').TrimEnd('/', '\\');
                         string fileName = Path.GetFileName(sourceFile);
-                        string fullTargetFolder = Path.Combine(targetFolder, Path.GetDirectoryName(sourceFile).Substring(sourceFolderTrimmed.Length).TrimStart(_Slash, _Backslash));
+                        string fullTargetFolder = Path.Combine(targetFolder, Path.GetDirectoryName(sourceFile)[sourceFolderTrimmed.Length..].TrimStart('/', '\\'));
                         EnsureDirectoryExists(fullTargetFolder);
                         string targetFile = Path.Combine(fullTargetFolder, fileName);
                         if (File.Exists(targetFile))
@@ -561,7 +695,7 @@ namespace GRYLibrary.Core
             {
                 if (functions.Count == 0)
                 {
-                    throw new ArgumentException();
+                    throw new ArgumentException($"Argument '{ nameof(functions) }' does not contain any function.");
                 }
                 Parallel.ForEach(functions, new ParallelOptions { MaxDegreeOfParallelism = _MaximalDegreeOfParallelism }, new Action<Func<T>, ParallelLoopState>((Func<T> function, ParallelLoopState state) =>
                 {
@@ -577,7 +711,7 @@ namespace GRYLibrary.Core
                         Interlocked.Decrement(ref this._AmountOfRunningFunctions);
                     }
                 }));
-                SpinWait.SpinUntil(() => this.ResultSet || this._AmountOfRunningFunctions == 0);
+                WaitUntilConditionIsTrue(() => this.ResultSet || this._AmountOfRunningFunctions == 0);
                 if (this._AmountOfRunningFunctions == 0 && !this.ResultSet)
                 {
                     throw new Exception("No result was calculated");
@@ -588,9 +722,16 @@ namespace GRYLibrary.Core
                 }
             }
         }
+        public static void WaitUntilConditionIsTrue(Func<bool> condition)
+        {
+            while (!condition())
+            {
+                Thread.Sleep(50);
+            }
+        }
         public static ISet<string> ToCaseInsensitiveSet(this ISet<string> input)
         {
-            ISet<TupleWithValueComparisonEquals<string, string>> tupleList = new HashSet<TupleWithValueComparisonEquals<string, string>>(input.Select((item) => new TupleWithValueComparisonEquals<string, string>(item, item.ToLower())));
+            ISet<WriteableTuple<string, string>> tupleList = new HashSet<WriteableTuple<string, string>>(input.Select((item) => new WriteableTuple<string, string>(item, item.ToLower())));
             return new HashSet<string>(tupleList.Select((item) => item.Item1));
         }
         public static dynamic ToDynamic(this object value)
@@ -648,129 +789,13 @@ namespace GRYLibrary.Core
             string quotedExe = "\"" + exe + "\"";
             if (rawCmd.StartsWith(exe))
             {
-                rawCmd = rawCmd.Substring(exe.Length + 1);
+                rawCmd = rawCmd[(exe.Length + 1)..];
             }
             else if (rawCmd.StartsWith(quotedExe))
             {
-                rawCmd = rawCmd.Substring(quotedExe.Length + 1);
+                rawCmd = rawCmd[(quotedExe.Length + 1)..];
             }
             return rawCmd.Trim();
-        }
-
-        public static string ToPascalCase(this string input)
-        {
-            if (input == null)
-            {
-                return string.Empty;
-            }
-            else
-            {
-                return string.Concat(input.Split(new[] { '-', '_' }, StringSplitOptions.RemoveEmptyEntries).Select(word => word.Substring(0, 1).ToUpper() + word.Substring(1).ToLower()));
-            }
-        }
-        public static string ToCamelCase(this string input)
-        {
-            string pascalCase = input.ToPascalCase();
-            return char.ToLowerInvariant(pascalCase[0]) + pascalCase.Substring(1);
-        }
-
-        private static readonly Regex _OneOrMoreHexSigns = new Regex(@"^[0-9a-f]+$");
-        public static bool IsHexString(string result)
-        {
-            return _OneOrMoreHexSigns.Match(result.ToLower()).Success;
-        }
-        public static bool IsHexDigit(this char @char)
-        {
-            return (@char >= '0' && @char <= '9') || (@char >= 'a' && @char <= 'f') || (@char >= 'A' && @char <= 'F');
-        }
-
-        public static bool IsAllUpper(this string input)
-        {
-            for (int i = 0; i < input.Length; i++)
-            {
-                if (char.IsLetter(input[i]) && !char.IsUpper(input[i]))
-                {
-                    return false;
-                }
-            }
-            return true;
-        }
-
-
-        public static bool IsAllLower(this string input)
-        {
-            for (int i = 0; i < input.Length; i++)
-            {
-                if (char.IsLetter(input[i]) && !char.IsLower(input[i]))
-                {
-                    return false;
-                }
-            }
-            return true;
-        }
-
-        public static bool IsNegative(this TimeSpan timeSpan)
-        {
-            return timeSpan.Ticks < 0;
-        }
-        public static bool IsPositive(this TimeSpan timeSpan)
-        {
-            return timeSpan.Ticks > 0;
-        }
-        public static string ToOnlyFirstCharToUpper(this string input)
-        {
-            if (string.IsNullOrEmpty(input))
-            {
-                return input;
-            }
-            if (input.Length == 1)
-            {
-                return input.ToUpper();
-            }
-            return input.First().ToString().ToUpper() + input.Substring(1).ToLower();
-        }
-        private static readonly char[] Whitespace = new char[] { ' ' };
-        private static readonly char[] WhitespaceAndPartialWordIndicators = new char[] { ' ', '_', '-' };
-        public static string ToOnlyFirstCharOfEveryWordToUpper(this string input)
-        {
-            return ToOnlyFirstCharOfEveryWordToUpper(input, (lastCharacter) => Whitespace.Contains(lastCharacter));
-        }
-        public static string ToOnlyFirstCharOfEveryWordOrPartialWordToUpper(this string input)
-        {
-            return ToOnlyFirstCharOfEveryWordToUpper(input, (lastCharacter) => WhitespaceAndPartialWordIndicators.Contains(lastCharacter));
-        }
-        public static string ToOnlyFirstCharOfEveryNewLetterSequenceToUpper(this string input)
-        {
-            return ToOnlyFirstCharOfEveryWordToUpper(input, (lastCharacter) => !char.IsLetter(lastCharacter));
-        }
-        public static string ToOnlyFirstCharOfEveryWordToUpper(this string input, Func<char, bool> printCharUppercaseDependentOnPreviousChar)
-        {
-            if (string.IsNullOrWhiteSpace(input))
-            {
-                return input;
-            }
-            char[] splitted = input.ToCharArray();
-            char lastChar = default;
-            for (int i = 0; i < splitted.Length; i++)
-            {
-                if (0 == i)
-                {
-                    splitted[i] = splitted[i].ToString().ToUpper().First();
-                }
-                if (0 < i)
-                {
-                    if (printCharUppercaseDependentOnPreviousChar(lastChar))
-                    {
-                        splitted[i] = splitted[i].ToString().ToUpper().First();
-                    }
-                    else
-                    {
-                        splitted[i] = splitted[i].ToString().ToLower().First();
-                    }
-                }
-                lastChar = splitted[i];
-            }
-            return new string(splitted);
         }
 
         public static bool FileEndsWithEmptyLine(string file)
@@ -791,7 +816,7 @@ namespace GRYLibrary.Core
         }
         public static bool IsRelativePath(string path)
         {
-            if (string.IsNullOrWhiteSpace(path) || path.IndexOfAny(Path.GetInvalidPathChars()) != -1)
+            if (string.IsNullOrWhiteSpace(path) || path.IndexOfAny(Path.GetInvalidPathChars()) != -1 || path.Length > 255)
             {
                 return false;
             }
@@ -799,12 +824,12 @@ namespace GRYLibrary.Core
         }
         public static bool IsAbsolutePath(string path)
         {
-            if (string.IsNullOrWhiteSpace(path) || path.IndexOfAny(Path.GetInvalidPathChars()) != -1 || !Path.IsPathRooted(path))
+            if (string.IsNullOrWhiteSpace(path) || path.IndexOfAny(Path.GetInvalidPathChars()) != -1 || path.Length > 255 || !Path.IsPathRooted(path))
             {
                 return false;
             }
             string pathRoot = Path.GetPathRoot(path).Trim();
-            return (pathRoot.Length > 2 || pathRoot == _Slash.ToString()) && !(pathRoot == path && pathRoot.StartsWith(_Backslash.ToString() + _Backslash.ToString()) && pathRoot.IndexOf(_Backslash, 2) == -1);
+            return (pathRoot.Length > 2 || pathRoot == "/") && !(pathRoot == path && pathRoot.StartsWith(@"\\") && pathRoot.IndexOf('\\', 2) == -1);
         }
         public static string GetAbsolutePath(string basePath, string relativePath)
         {
@@ -823,7 +848,7 @@ namespace GRYLibrary.Core
             relativePath = relativePath.Trim();
             basePath = basePath.Trim();
             string finalPath;
-            if (!Path.IsPathRooted(relativePath) || _Backslash.ToString().Equals(Path.GetPathRoot(relativePath)))
+            if (!Path.IsPathRooted(relativePath) || @"\".Equals(Path.GetPathRoot(relativePath)))
             {
                 if (relativePath.StartsWith(Path.DirectorySeparatorChar.ToString()))
                 {
@@ -859,6 +884,10 @@ namespace GRYLibrary.Core
             }
             return true;
         }
+        public static bool DirectoryDoesNotContainFolder(string path)
+        {
+            return Directory.GetFiles(path).Length > 0;
+        }
         public static byte[] StringToByteArray(string hex)
         {
             if (hex.Length % 2 == 1)
@@ -875,7 +904,8 @@ namespace GRYLibrary.Core
 
         public static int GetHexValue(char hex)
         {
-            return hex - (hex < 58 ? 48 : 55);
+            int val = (int)hex;
+            return val - (val < 58 ? 48 : 55);
         }
 
         public static void ClearFile(string file)
@@ -883,35 +913,37 @@ namespace GRYLibrary.Core
             File.WriteAllText(file, string.Empty, Encoding.ASCII);
         }
 
-        private const char _Slash = '/';
-        private const char _Backslash = '\\';
+        private const char SingleQuote = '\'';
+        private const char DoubleQuote = '"';
+        private const char Slash = '/';
+        private const char Backslash = '\\';
         public static string EnsurePathStartsWithSlash(this string path)
         {
-            if (path.StartsWith(_Slash.ToString()))
+            if (path.StartsWith(Slash.ToString()))
             {
                 return path;
             }
             else
             {
-                return _Slash + path;
+                return Slash + path;
             }
         }
         public static string EnsurePathStartsWithBackslash(this string path)
         {
-            if (path.StartsWith(_Slash.ToString()))
+            if (path.StartsWith(Slash.ToString()))
             {
                 return path;
             }
             else
             {
-                return _Backslash + path;
+                return Backslash + path;
             }
         }
         public static string EnsurePathStartsWithoutSlash(this string path)
         {
-            if (path.StartsWith(_Slash.ToString()))
+            if (path.StartsWith(Slash.ToString()))
             {
-                return path.TrimStart(_Slash);
+                return path.TrimStart(Slash);
             }
             else
             {
@@ -920,9 +952,9 @@ namespace GRYLibrary.Core
         }
         public static string EnsurePathStartsWithoutBackslash(this string path)
         {
-            if (path.StartsWith(_Backslash.ToString()))
+            if (path.StartsWith(Backslash.ToString()))
             {
-                return path.TrimStart(_Slash);
+                return path.TrimStart(Slash);
             }
             else
             {
@@ -931,31 +963,31 @@ namespace GRYLibrary.Core
         }
         public static string EnsurePathEndsWithSlash(this string path)
         {
-            if (path.EndsWith(_Slash.ToString()))
+            if (path.EndsWith(Slash.ToString()))
             {
                 return path;
             }
             else
             {
-                return path + _Slash;
+                return path + Slash;
             }
         }
         public static string EnsurePathEndsWithBackslash(this string path)
         {
-            if (path.EndsWith(_Backslash.ToString()))
+            if (path.EndsWith(Backslash.ToString()))
             {
                 return path;
             }
             else
             {
-                return path + _Backslash;
+                return path + Backslash;
             }
         }
         public static string EnsurePathEndsWithoutSlash(this string path)
         {
-            if (path.EndsWith(_Slash.ToString()))
+            if (path.EndsWith(Slash.ToString()))
             {
-                return path.TrimEnd(_Slash);
+                return path.TrimEnd(Slash);
             }
             else
             {
@@ -964,9 +996,9 @@ namespace GRYLibrary.Core
         }
         public static string EnsurePathEndsWithoutBackslash(this string path)
         {
-            if (path.EndsWith(_Backslash.ToString()))
+            if (path.EndsWith(Backslash.ToString()))
             {
-                return path.TrimEnd(_Backslash);
+                return path.TrimEnd(Backslash);
             }
             else
             {
@@ -977,9 +1009,22 @@ namespace GRYLibrary.Core
         {
             return path.EnsurePathStartsWithoutSlash().EnsurePathStartsWithoutBackslash();
         }
-        public static string EnsurePathSEndsWithoutSlashOrBackslash(this string path)
+        public static string EnsurePathEndsWithoutSlashOrBackslash(this string path)
         {
             return path.EnsurePathEndsWithoutSlash().EnsurePathEndsWithoutBackslash();
+        }
+
+        public static string EnsurePathHasNoLeadingOrTrailingQuotes(this string path)
+        {
+            var result = path;
+            bool changed = true;
+            while (changed)
+            {
+                string old = result;
+                result = result.TrimStart(SingleQuote).TrimEnd(SingleQuote).TrimStart(DoubleQuote).TrimEnd(DoubleQuote);
+                changed = old != result;
+            }
+            return result;
         }
 
         public static bool StartsWith<T>(T[] entireArray, T[] start)
@@ -1022,7 +1067,7 @@ namespace GRYLibrary.Core
             string result = input.ToString("X");
             if (result.StartsWith("0"))
             {
-                return result.Substring(1);
+                return result[1..];
             }
             else
             {
@@ -1060,18 +1105,14 @@ namespace GRYLibrary.Core
                 throw new Exception("Assertion failed. Condition is false." + (string.IsNullOrWhiteSpace(message) ? string.Empty : " " + message));
             }
         }
-        public static string[][] ReadCSVFile(string file, string separator = ";", bool ignoreFirstLine = false)
+        public static List<string[]> ReadCSVFile(string file, string separator = ";", bool ignoreFirstLine = false)
         {
             return ReadCSVFile(file, new UTF8Encoding(false), separator, ignoreFirstLine);
         }
-        public static string[][] ReadCSVFile(string file, Encoding encoding, string separator = ";", bool ignoreFirstLine = false)
+        public static List<string[]> ReadCSVFile(string file, Encoding encoding, string separator = ";", bool ignoreFirstLine = false)
         {
+            List<string[]> outterList = new List<string[]>();
             string[] lines = File.ReadAllLines(file, encoding);
-            if (lines.Length == 0)
-            {
-                return new string[][] { };
-            }
-            List<List<string>> outterList = new List<List<string>>();
             for (int i = 0; i < lines.Length; i++)
             {
                 if (!(i == 0 && ignoreFirstLine))
@@ -1088,27 +1129,38 @@ namespace GRYLibrary.Core
                         {
                             innerList.Add(line);
                         }
-                        outterList.Add(innerList);
+                        outterList.Add(innerList.ToArray());
                     }
                 }
             }
-            return EnumerableOfEnumerableToJaggedArray(outterList);
+            return outterList;
         }
-        public static bool RunWithTimeout(this ThreadStart threadStart, TimeSpan timeout)
+        /// <summary>
+        /// Executes <paramref name="action"/>. When <paramref name="action"/> longer takes than <paramref name="timeout"/> then <paramref name="action"/> will be aborted.
+        /// </summary>
+        public static bool RunWithTimeout(this ThreadStart action, TimeSpan timeout)
         {
-            Thread workerThread = new Thread(threadStart);
+            Thread workerThread = new Thread(action);
             workerThread.Start();
             bool terminatedInGivenTimeSpan = workerThread.Join(timeout);
             if (!terminatedInGivenTimeSpan)
             {
-                workerThread.Abort();
+                workerThread.Interrupt();
             }
             return terminatedInGivenTimeSpan;
         }
+
         public static string ResolveToFullPath(this string path)
         {
             return ResolveToFullPath(path, Directory.GetCurrentDirectory());
         }
+        /// <summary>
+        /// This function transforms <paramref name="path"/> into an absolute path.
+        /// It does not matter if you pass a relative or absolute path: This function checks that.
+        /// </summary>
+        /// <returns>
+        /// Returns an absolute path.
+        /// </returns>
         public static string ResolveToFullPath(this string path, string baseDirectory)
         {
             path = path.Trim();
@@ -1121,28 +1173,37 @@ namespace GRYLibrary.Core
                 return Path.GetFullPath(new Uri(Path.Combine(baseDirectory, path)).LocalPath);
             }
         }
-
+        /// <summary>
+        /// This function takes a given <paramref name="xml"/>-string and validates it against a given <paramref name="xsd"/>-string.
+        /// </summary>
+        /// <returns>
+        /// This function returns true if and only if <paramref name="errorMessages"/> is empty.
+        /// If this function returns true it means, that <paramref name="xml"/> is structured according to <paramref name="xsd"/>.
+        /// </returns>
         public static bool ValidateXMLAgainstXSD(string xml, string xsd, out IList<object> errorMessages)
         {
+            errorMessages = new List<object>();
             try
             {
                 XmlSchemaSet schemaSet = new XmlSchemaSet();
                 schemaSet.Add(null, XmlReader.Create(new StringReader(xsd)));
                 XDocument xDocument = XDocument.Parse(xml);
-                List<object> errorMessagesList = new List<object>();
 
+                List<object> events = new List<object>();
                 xDocument.Validate(schemaSet, (o, eventArgument) =>
                 {
-                    errorMessagesList.Add(eventArgument);
+                    events.Add(eventArgument);
                 });
-                errorMessages = errorMessagesList;
-                return errorMessages.Count == 0;
+                foreach (object @event in events)
+                {
+                    errorMessages.Add(@event);
+                }
             }
             catch (Exception exception)
             {
-                errorMessages = new List<object>() { exception };
-                return false;
+                errorMessages.Add(exception);
             }
+            return errorMessages.Count == 0;
         }
 
         public static readonly XmlWriterSettings ApplyXSLTToXMLXMLWriterDefaultSettings = new XmlWriterSettings() { Indent = true, Encoding = new UTF8Encoding(false), OmitXmlDeclaration = true, IndentChars = "    " };
@@ -1205,25 +1266,43 @@ namespace GRYLibrary.Core
             using StreamReader streamReader = new StreamReader(memoryStream);
             return streamReader.ReadToEnd();
         }
+        public static string XmlToString(XmlDocument xmlDocument)
+        {
+            StringBuilder stringBuilder = new StringBuilder();
+            using (XmlWriter writer = XmlWriter.Create(stringBuilder, new XmlWriterSettings
+            {
+                Encoding = FormatXMLFile_DefaultEncoding,
+                Indent = true,
+                IndentChars = "  ",
+                OmitXmlDeclaration = false,
+                NewLineChars = Environment.NewLine
+            }))
+                xmlDocument.Save(writer);
+            return stringBuilder.ToString();
+        }
         public static void AddMountPointForVolume(Guid volumeId, string mountPoint)
         {
             if (mountPoint.Length > 3)
             {
                 EnsureDirectoryExists(mountPoint);
             }
-            ExternalProgramExecutor externalProgramExecutor = ExternalProgramExecutor.Create("mountvol", $"{mountPoint} \\\\?\\Volume{{{volumeId}}}\\");
-            externalProgramExecutor.ThrowErrorIfExitCodeIsNotZero = true;
-            externalProgramExecutor.CreateWindow = false;
+            using ExternalProgramExecutor externalProgramExecutor = new ExternalProgramExecutor("mountvol", $"{mountPoint} \\\\?\\Volume{{{volumeId}}}\\")
+            {
+                ThrowErrorIfExitCodeIsNotZero = true,
+                CreateWindow = false
+            };
             externalProgramExecutor.LogObject.Configuration.GetLogTarget<Log.ConcreteLogTargets.Console>().Enabled = false;
-            externalProgramExecutor.StartConsoleApplicationInCurrentConsoleWindow();
+            externalProgramExecutor.StartSynchronously();
         }
         public static ISet<Guid> GetAvailableVolumeIds()
         {
-            ExternalProgramExecutor externalProgramExecutor = ExternalProgramExecutor.Create("mountvol", string.Empty);
-            externalProgramExecutor.ThrowErrorIfExitCodeIsNotZero = true;
-            externalProgramExecutor.CreateWindow = false;
+            using ExternalProgramExecutor externalProgramExecutor = new ExternalProgramExecutor("mountvol", string.Empty)
+            {
+                ThrowErrorIfExitCodeIsNotZero = true,
+                CreateWindow = false
+            };
             externalProgramExecutor.LogObject.Configuration.GetLogTarget<Log.ConcreteLogTargets.Console>().Enabled = false;
-            externalProgramExecutor.StartConsoleApplicationInCurrentConsoleWindow();
+            externalProgramExecutor.StartSynchronously();
             HashSet<Guid> result = new HashSet<Guid>();
             for (int i = 0; i < externalProgramExecutor.AllStdOutLines.Length - 1; i++)
             {
@@ -1234,7 +1313,7 @@ namespace GRYLibrary.Core
                     string prefix = "\\\\?\\Volume{";
                     if (line.StartsWith(prefix))
                     {
-                        line = line.Substring(prefix.Length);//remove "\\?\Volume{"
+                        line = line[prefix.Length..];//remove "\\?\Volume{"
                         line = line[0..^2];//remove "}\"
                         string nextLine = externalProgramExecutor.AllStdOutLines[i + 1].Trim();
                         if (Directory.Exists(nextLine) || nextLine.StartsWith("***"))
@@ -1262,11 +1341,13 @@ namespace GRYLibrary.Core
         public static ISet<string> GetMountPoints(Guid volumeId)
         {
             HashSet<string> result = new HashSet<string>();
-            ExternalProgramExecutor externalProgramExecutor = ExternalProgramExecutor.Create("mountvol", string.Empty);
-            externalProgramExecutor.ThrowErrorIfExitCodeIsNotZero = true;
-            externalProgramExecutor.CreateWindow = false;
+            using ExternalProgramExecutor externalProgramExecutor = new ExternalProgramExecutor("mountvol", string.Empty)
+            {
+                ThrowErrorIfExitCodeIsNotZero = true,
+                CreateWindow = false
+            };
             externalProgramExecutor.LogObject.Configuration.GetLogTarget<Log.ConcreteLogTargets.Console>().Enabled = false;
-            externalProgramExecutor.StartConsoleApplicationInCurrentConsoleWindow();
+            externalProgramExecutor.StartSynchronously();
             for (int i = 0; i < externalProgramExecutor.AllStdOutLines.Length; i++)
             {
                 string line = externalProgramExecutor.AllStdOutLines[i].Trim();
@@ -1296,11 +1377,13 @@ namespace GRYLibrary.Core
         }
         public static void RemoveMountPointOfVolume(string mountPoint)
         {
-            ExternalProgramExecutor externalProgramExecutor = ExternalProgramExecutor.Create("mountvol", $"{mountPoint} /d");
-            externalProgramExecutor.ThrowErrorIfExitCodeIsNotZero = true;
-            externalProgramExecutor.CreateWindow = false;
+            using ExternalProgramExecutor externalProgramExecutor = new ExternalProgramExecutor("mountvol", $"{mountPoint} /d")
+            {
+                ThrowErrorIfExitCodeIsNotZero = true,
+                CreateWindow = false
+            };
             externalProgramExecutor.LogObject.Configuration.GetLogTarget<Log.ConcreteLogTargets.Console>().Enabled = false;
-            externalProgramExecutor.StartConsoleApplicationInCurrentConsoleWindow();
+            externalProgramExecutor.StartSynchronously();
             if (mountPoint.Length > 3)
             {
                 EnsureDirectoryDoesNotExist(mountPoint);
@@ -1308,9 +1391,9 @@ namespace GRYLibrary.Core
         }
         public static Guid GetVolumeIdByMountPoint(string mountPoint)
         {
-            if (!mountPoint.EndsWith(_Backslash))
+            if (!mountPoint.EndsWith("\\"))
             {
-                mountPoint += _Backslash;
+                mountPoint += "\\";
             }
             foreach (Guid volumeId in GetAvailableVolumeIds())
             {
@@ -1389,23 +1472,392 @@ namespace GRYLibrary.Core
                 return false;
             }
         }
-        public static GitCommandResult ExecuteGitCommand(string repository, string argument, bool throwErrorIfExitCodeIsNotZero = false, int? timeoutInMilliseconds = null, bool printErrorsAsInformation = false)
+        public static DateTime GetTimeFromInternetUtC()
         {
-            ExternalProgramExecutor externalProgramExecutor = ExternalProgramExecutor.Create("git", argument, repository, string.Empty, false, timeoutInMilliseconds);
-            externalProgramExecutor.PrintErrorsAsInformation = printErrorsAsInformation;
-            externalProgramExecutor.ThrowErrorIfExitCodeIsNotZero = throwErrorIfExitCodeIsNotZero;
-            externalProgramExecutor.StartConsoleApplicationInCurrentConsoleWindow();
-            return new GitCommandResult(argument, repository, externalProgramExecutor.AllStdOutLines, externalProgramExecutor.AllStdErrLines, externalProgramExecutor.ExitCode);
+            return GetTimeFromInternet(TimeZoneInfo.Utc);
+        }
+        public static DateTime GetTimeFromInternetCurrentTimeZone()
+        {
+            return GetTimeFromInternet(TimeZoneInfo.Local);
+        }
+        public static DateTime GetTimeFromInternet(TimeZoneInfo timezone)
+        {
+            return GetTimeFromInternet(timezone, "yy-MM-dd HH:mm:ss", "time.nist.gov", 13, 7, 17);
+        }
+        public static DateTime GetTimeFromInternet(TimeZoneInfo timezone, string format, string domain, int port, int begin, int length)
+        {
+            using StreamReader streamReader = new StreamReader(new TcpClient(domain, port).GetStream());
+            DateTime originalDateTime = DateTime.ParseExact(streamReader.ReadToEnd().Substring(begin, length), format, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal);
+            return TimeZoneInfo.ConvertTime(originalDateTime, timezone);
+        }
+
+        public static SerializableDictionary<TKey, TValue> ToSerializableDictionary<TKey, TValue>(this IDictionary<TKey, TValue> dictionary)
+        {
+            SerializableDictionary<TKey, TValue> result = new SerializableDictionary<TKey, TValue>();
+            foreach (System.Collections.Generic.KeyValuePair<TKey, TValue> kvp in dictionary)
+            {
+                result.Add(kvp.Key, kvp.Value);
+            }
+            return result;
+        }
+
+        public static bool IsDefault(object @object)
+        {
+            if (@object == null)
+            {
+                return true;
+            }
+            else
+            {
+                return EqualityComparer<object>.Default.Equals(@object, GetDefault(@object.GetType()));
+            }
+        }
+        public static object GetDefault(Type type)
+        {
+            if (type.IsValueType)
+            {
+                return Activator.CreateInstance(type);
+            }
+            else
+            {
+                return null;
+            }
+        }
+        public static void ResolvePathOfProgram(ref string program, ref string argument)
+        {
+            if (File.Exists(program))
+            {
+                string resultProgram;
+                string resultArgument;
+                if (FileIsExecutable(program))
+                {
+                    resultProgram = program;
+                    resultArgument = argument;
+                }
+                else
+                {
+                    if (OperatingSystem.OperatingSystem.GetCurrentOperatingSystem() is Windows)
+                    {
+                        resultProgram = GetDefaultProgramToOpenFile(Path.GetExtension(program));
+                        resultArgument = program;
+                    }
+                    else
+                    {
+                        resultProgram = program;
+                        resultArgument = argument;
+                    }
+                }
+                program = resultProgram;
+                argument = resultArgument;
+                return;
+            }
+            if (!(program.Contains("/") || program.Contains("\\") || program.Contains(":")))
+            {
+                if (TryResolvePathByPathVariable(program, out string programWithFullPath))
+                {
+                    program = programWithFullPath;
+                    return;
+                }
+            }
+            throw new FileNotFoundException($"Program '{program}' can not be found");
+        }
+
+        public static string GetAssertionFailMessage(object expectedObject, object actualObject, int maxLengthPerObject = 1000)
+        {
+            return $"Equal failed. Expected: <{Environment.NewLine}{Generic.GenericToString(expectedObject, maxLengthPerObject)}{Environment.NewLine}> Actual: <{Environment.NewLine}{Generic.GenericToString(actualObject, maxLengthPerObject)}{Environment.NewLine}>";
+        }
+        public static void ForEach<T>(this IEnumerable<T> source, Action<T> action)
+        {
+            foreach (T item in source)
+            {
+                action(item);
+            }
+        }
+        public static void ForEach(this IEnumerable source, Action<object> action)
+        {
+            foreach (object item in source)
+            {
+                action(item);
+            }
+        }
+
+
+        public static bool ImprovedReferenceEquals(object item1, object item2)
+        {
+            bool itemHasValueType = HasValueType(item1);
+            if (itemHasValueType != HasValueType(item2))
+            {
+                return false;
+            }
+            bool item1IsDefault = IsDefault(item1);
+            bool item2IsDefault = IsDefault(item2);
+            if (item1IsDefault && item2IsDefault)
+            {
+                return true;
+            }
+            if (item1IsDefault && !item2IsDefault)
+            {
+                return false;
+            }
+            if (!item1IsDefault && item2IsDefault)
+            {
+                return false;
+            }
+            if (!item1IsDefault && !item2IsDefault)
+            {
+                if (itemHasValueType)
+                {
+                    Type type = item1.GetType();
+                    if (type.Equals(item2.GetType()))//TODO ignore generics here when type is keyvaluepair
+                    {
+                        if (TypeIsKeyValuePair(type))
+                        {
+                            System.Collections.Generic.KeyValuePair<object, object> kvp1 = ObjectToKeyValuePairUnsafe<object, object>(item1);
+                            System.Collections.Generic.KeyValuePair<object, object> kvp2 = ObjectToKeyValuePairUnsafe<object, object>(item2);
+                            return ImprovedReferenceEquals(kvp1.Key, kvp2.Key) && ImprovedReferenceEquals(kvp1.Value, kvp2.Value);
+                        }
+                        else
+                        {
+                            return item1.Equals(item2);
+                        }
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    return ReferenceEquals(item1, item2);
+                }
+            }
+            throw new ArgumentException("Can not calculate reference-equals for the given arguments.");
+        }
+
+        public static bool HasValueType(object @object)
+        {
+            if (@object == null)
+            {
+                return false;
+            }
+            else
+            {
+                return @object.GetType().IsValueType;
+            }
+        }
+
+        public static string GetNameOfCurrentExecutable()
+        {
+            return Process.GetCurrentProcess().ProcessName;
+        }
+
+        public static bool IsNegative(this TimeSpan timeSpan)
+        {
+            return timeSpan.Ticks < 0;
+        }
+        public static bool IsPositive(this TimeSpan timeSpan)
+        {
+            return timeSpan.Ticks > 0;
+        }
+        public static string ToOnlyFirstCharToUpper(this string input)
+        {
+            if (string.IsNullOrEmpty(input))
+            {
+                return input;
+            }
+            if (input.Length == 1)
+            {
+                return input.ToUpper();
+            }
+            return input.First().ToString().ToUpper() + input[1..].ToLower();
+        }
+        private static readonly char[] Whitespace = new char[] { ' ' };
+        private static readonly char[] WhitespaceAndPartialWordIndicators = new char[] { ' ', '_', '-' };
+        public static string ToOnlyFirstCharOfEveryWordToUpper(this string input)
+        {
+            return ToOnlyFirstCharOfEveryWordToUpper(input, (lastCharacter) => Whitespace.Contains(lastCharacter));
+        }
+        public static string ToOnlyFirstCharOfEveryWordOrPartialWordToUpper(this string input)
+        {
+            return ToOnlyFirstCharOfEveryWordToUpper(input, (lastCharacter) => WhitespaceAndPartialWordIndicators.Contains(lastCharacter));
+        }
+        public static string ToOnlyFirstCharOfEveryNewLetterSequenceToUpper(this string input)
+        {
+            return ToOnlyFirstCharOfEveryWordToUpper(input, (lastCharacter) => !char.IsLetter(lastCharacter));
+        }
+        public static string ToOnlyFirstCharOfEveryWordToUpper(this string input, Func<char, bool> printCharUppercaseDependentOnPreviousChar)
+        {
+            if (string.IsNullOrWhiteSpace(input))
+            {
+                return input;
+            }
+            char[] splitted = input.ToCharArray();
+            char lastChar = default;
+            for (int i = 0; i < splitted.Length; i++)
+            {
+                if (0 == i)
+                {
+                    splitted[i] = splitted[i].ToString().ToUpper().First();
+                }
+                if (0 < i)
+                {
+                    if (printCharUppercaseDependentOnPreviousChar(lastChar))
+                    {
+                        splitted[i] = splitted[i].ToString().ToUpper().First();
+                    }
+                    else
+                    {
+                        splitted[i] = splitted[i].ToString().ToLower().First();
+                    }
+                }
+                lastChar = splitted[i];
+            }
+            return new string(splitted);
+        }
+        public static bool IsAllUpper(this string input)
+        {
+            for (int i = 0; i < input.Length; i++)
+            {
+                if (char.IsLetter(input[i]) && !char.IsUpper(input[i]))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        public static bool IsAllLower(this string input)
+        {
+            for (int i = 0; i < input.Length; i++)
+            {
+                if (char.IsLetter(input[i]) && !char.IsLower(input[i]))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+        public static string ToPascalCase(this string input)
+        {
+            if (input == null)
+            {
+                return string.Empty;
+            }
+            IEnumerable<string> words = input.Split(new[] { '-', '_' }, StringSplitOptions.RemoveEmptyEntries)
+                         .Select(word => word.Substring(0, 1).ToUpper() +
+                                         word[1..].ToLower());
+
+            return string.Concat(words);
+        }
+        public static string ToCamelCase(this string input)
+        {
+            string pascalCase = input.ToPascalCase();
+            return char.ToLowerInvariant(pascalCase[0]) + pascalCase[1..];
+        }
+
+        private static readonly Regex _OneOrMoreHexSigns = new Regex(@"^[0-9a-f]+$");
+        public static bool IsHexString(string result)
+        {
+            return _OneOrMoreHexSigns.Match(result.ToLower()).Success;
+        }
+        public static bool IsHexDigit(this char @char)
+        {
+            return (@char >= '0' && @char <= '9') || (@char >= 'a' && @char <= 'f') || (@char >= 'A' && @char <= 'F');
+        }
+        #endregion
+
+        #region Git
+        public static GitCommandResult ExecuteGitCommand(string repositoryFolder, string argument, bool throwErrorIfExitCodeIsNotZero = false, int? timeoutInMilliseconds = null, bool printErrorsAsInformation = false, bool logEnabled = false)
+        {
+            using GRYLog log = GRYLog.Create();
+            log.Configuration.Enabled = false;
+            log.Configuration.GetLogTarget<Log.ConcreteLogTargets.Console>().Enabled = logEnabled;
+            using ExternalProgramExecutor externalProgramExecutor = new ExternalProgramExecutor("git", argument, repositoryFolder)
+            {
+                TimeoutInMilliseconds = timeoutInMilliseconds,
+                PrintErrorsAsInformation = printErrorsAsInformation,
+                ThrowErrorIfExitCodeIsNotZero = throwErrorIfExitCodeIsNotZero
+            };
+            externalProgramExecutor.StartSynchronously();
+            return new GitCommandResult(argument, repositoryFolder, externalProgramExecutor.AllStdOutLines, externalProgramExecutor.AllStdErrLines, externalProgramExecutor.ExitCode);
+        }
+        /// <returns>
+        /// Returns a enumeration of the submodule-paths of <paramref name="repositoryFolder"/>.
+        /// </returns>
+        public static IEnumerable<string> GetGitSubmodulePaths(string repositoryFolder, bool recursive = true)
+        {
+            using ExternalProgramExecutor externalProgramExecutor = new ExternalProgramExecutor("git", "submodule status" + (recursive ? " --recursive" : string.Empty), repositoryFolder)
+            {
+                ThrowErrorIfExitCodeIsNotZero = true
+            };
+            externalProgramExecutor.LogObject.Configuration.Enabled = false;
+            externalProgramExecutor.StartSynchronously();
+            List<string> result = new List<string>();
+            foreach (string rawLine in externalProgramExecutor.AllStdOutLines)
+            {
+                string line = rawLine.Trim();
+                if (line.Contains(" "))
+                {
+                    string[] splitted = line.Split(' ');
+                    int amountOfWhitespaces = splitted.Length - 1;
+                    if (0 < amountOfWhitespaces)
+                    {
+                        string rawPath = splitted[1];
+                        if (rawPath.Contains("..") || rawPath == "./")
+                        {
+                            continue;
+                        }
+                        else
+                        {
+                            result.Add(Path.Combine(repositoryFolder, rawPath.Replace("/", Path.DirectorySeparatorChar.ToString())));
+                        }
+                    }
+                }
+            }
+            return result;
         }
         public static bool GitRepositoryContainsObligatoryFiles(string repositoryFolder, out ISet<string> missingFiles)
         {
-            List<Tuple<string, ISet<string>>> fileLists = new List<Tuple<string/*file*/, ISet<string>/*aliase*/>>();
-            fileLists.Add(Tuple.Create<string, ISet<string>>(".gitignore", new HashSet<string>()));
-            fileLists.Add(Tuple.Create<string, ISet<string>>("License.txt", new HashSet<string>() { "License", "License.md" }));
-            fileLists.Add(Tuple.Create<string, ISet<string>>("ReadMe.md", new HashSet<string>() { "ReadMe", "ReadMe.txt" }));
-            return GitRepositoryContainsObligatoryFiles(repositoryFolder, out missingFiles, fileLists);
+            List<Tuple<string, ISet<string>>> fileLists = new List<Tuple<string/*file*/, ISet<string>/*aliase*/>>
+            {
+                Tuple.Create<string, ISet<string>>(".gitignore", new HashSet<string>()),
+                Tuple.Create<string, ISet<string>>("License.txt", new HashSet<string>() { "License", "License.md" }),
+                Tuple.Create<string, ISet<string>>("ReadMe.md", new HashSet<string>() { "ReadMe", "ReadMe.txt" })
+            };
+            return GitRepositoryContainsFiles(repositoryFolder, out missingFiles, fileLists);
         }
-        public static bool GitRepositoryContainsObligatoryFiles(string repositoryFolder, out ISet<string> missingFiles, IEnumerable<Tuple<string/*file*/, ISet<string>/*aliase*/>> fileLists)
+        public static void AddGitRemote(string repositoryFolder, string remoteFolder, string remoteName)
+        {
+            ExecuteGitCommand(repositoryFolder, $"remote add {remoteName} \"{remoteFolder}\"", true);
+        }
+        public static bool GitRemoteIsAvailable(string repositoryFolder, string remoteName)
+        {
+            try
+            {
+                return ExecuteGitCommand(repositoryFolder, $"ls-remote {remoteName} ", false, 1000 * 60).ExitCode == 0;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+        /// <returns>Returns the address of the remote with the given <paramref name="remoteName"/>.</returns>
+        public static string GetGitRemoteAddress(string repository, string remoteName)
+        {
+            return ExtractTextFromOutput(ExecuteGitCommand(repository, $"config --get remote.{remoteName}.url", true).StdOutLines);
+        }
+        public static void SetGitRemoteAddress(string repositoryFolder, string remoteName, string newRemoteAddress)
+        {
+            ExecuteGitCommand(repositoryFolder, $"remote set-url {remoteName} {newRemoteAddress}", true);
+        }
+        /// <summary>Removes unused internal files in the .git-folder of the given <paramref name="repositoryFolder"/>.</summary>
+        /// <remarks>Warning: After executing this function deleted commits can not be restored because then they are really deleted.</remarks>
+        public static void GitTidyUp(string repositoryFolder)
+        {
+            ExecuteGitCommand(repositoryFolder, $"reflog expire --expire-unreachable=now --all", true);
+            ExecuteGitCommand(repositoryFolder, $"gc --prune=now", true);
+        }
+        public static bool GitRepositoryContainsFiles(string repositoryFolder, out ISet<string> missingFiles, IEnumerable<Tuple<string/*file*/, ISet<string>/*aliase*/>> fileLists)
         {
             missingFiles = new HashSet<string>();
             foreach (Tuple<string, ISet<string>> file in fileLists)
@@ -1416,6 +1868,16 @@ namespace GRYLibrary.Core
                 }
             }
             return missingFiles.Count == 0;
+        }
+        /// <returns>
+        /// Returns the names of all remotes of the given <paramref name="repositoryFolder"/>.
+        /// </returns>
+        /// <remarks>
+        /// This function does not return the addresses of these remotes.
+        /// </remarks>
+        public static IEnumerable<string> GetAllGitRemotes(string repositoryFolder)
+        {
+            return ExecuteGitCommand(repositoryFolder, "remote", true).StdOutLines.Where(line => !string.IsNullOrWhiteSpace(line));
         }
         public static bool AtLeastOneFileExistsInFolder(string repositoryFolder, IEnumerable<string> files, out string foundFile)
         {
@@ -1430,65 +1892,215 @@ namespace GRYLibrary.Core
             foundFile = null;
             return false;
         }
-        public static bool IsInGitSubmodule(string repositoryFolder)
+        /// <returns>
+        /// Returns a tuple.
+        /// tuple.Item1 represents the remote-name.
+        /// tuple.Item1 represents the remote-branchname.
+        /// </returns>
+        public static IEnumerable<Tuple<string/*remote-name*/, string/*branch-name*/>> GetAllGitRemoteBranches(string repository)
         {
-            return !GetGitBaseRepositoryPathHelper(repositoryFolder).Equals(string.Empty);
-        }
-        public static string GetGitBaseRepositoryPath(string repositoryFolder)
-        {
-            string basePath = GetGitBaseRepositoryPathHelper(repositoryFolder);
-            if (basePath.Equals(string.Empty))
+            return ExecuteGitCommand(repository, "branch -r", true).StdOutLines.Where(line => !string.IsNullOrWhiteSpace(line)).Select(line =>
             {
-                throw new KeyNotFoundException("No base-repository found in '" + repositoryFolder + "'");
+                if (line.Contains("/"))
+                {
+                    string[] splitted = line.Split(new[] { '/' }, 2);
+                    return new Tuple<string, string>(splitted[0].Trim(), splitted[1].Trim());
+                }
+                else
+                {
+                    throw new Exception($"'{repository}> git branch -r' contained the unexpected output-line '{line}'.");
+                }
+            });
+        }
+        /// <returns>Returns the names of the remotes of the given <paramref name="repositoryFolder"/>.</returns>
+        public static IEnumerable<string> GetGitRemotes(string repositoryFolder)
+        {
+            return ExecuteGitCommand(repositoryFolder, "remote", true).StdOutLines.Where(line => !string.IsNullOrWhiteSpace(line));
+        }
+        public static void RemoveGitRemote(string repositoryFolder, string remote)
+        {
+            ExecuteGitCommand(repositoryFolder, $"remote remove {remote}", true);
+        }
+        public static IEnumerable<string> GetLocalGitBranchNames(string repositoryFolder)
+        {
+            return ExecuteGitCommand(repositoryFolder, "branch", true).StdOutLines.Where(line => !string.IsNullOrWhiteSpace(line)).Select(line => line.Replace("*", string.Empty).Trim());
+        }
+        /// <returns>Returns the toplevel of the <paramref name="repositoryFolder"/>.</returns>
+        public static string GetTopLevelOfGitRepositoryPath(string repositoryFolder)
+        {
+            if (IsInGitRepository(repositoryFolder))
+            {
+                return ExtractTextFromOutput(ExecuteGitCommand(repositoryFolder, "rev-parse --show-toplevel", true).StdOutLines);
             }
             else
             {
-                return basePath;
+                throw new ArgumentException($"The given folder '{repositoryFolder}' is not a git-repository.");
             }
         }
-        private static string GetGitBaseRepositoryPathHelper(string repositoryFolder)
+        private static string ExtractTextFromOutput(string[] lines)
         {
-            return ExecuteGitCommand(repositoryFolder, "rev-parse --show-superproject-working-tree", true).GetFirstStdOutLine();
+            return string.Join(string.Empty, lines).Trim();
         }
-        public static bool IsGitRepository(string folder)
+        /// <returns>Returns true if and only if <paramref name="repositoryFolder"/> is in a repository which is used as submodule.</returns>
+        public static bool IsInGitSubmodule(string repositoryFolder)
         {
-            return Directory.Exists(Path.Combine(folder, ".git")) || File.Exists(Path.Combine(folder, ".git"));
-        }
-        public static string GitCommit(string repository, string commitMessage, out bool commitWasCreated)
-        {
-            commitWasCreated = GitRepositoryHasUncommittedChanges(repository);
-            if (commitWasCreated)
+            if (IsInGitRepository(repositoryFolder))
             {
-                ExecuteGitCommand(repository, $"add -A", true);
-                ExecuteGitCommand(repository, $"commit -m \"{commitMessage}\"", true);
+                return !GetParentGitRepositoryPathHelper(repositoryFolder).Equals(string.Empty);
             }
-            return GetLastGitCommitId(repository);
-        }
-        public static string GetLastGitCommitId(string repositoryFolder)
-        {
-            return ExecuteGitCommand(repositoryFolder, $"rev-parse HEAD", true).GetFirstStdOutLine();
-        }
-        public static void GitFetch(string repository, string remoteName = "--all", bool printErrorsAsInformation = true)
-        {
-            ExecuteGitCommand(repository, $"fetch {remoteName} --tags --prune", true, null, printErrorsAsInformation);
-        }
-
-        public static bool GitRepositoryHasUncommittedChanges(string repository)
-        {
-            int exitCode = ExecuteGitCommand(repository, "diff-index --quiet HEAD --", false).ExitCode;
-            if (exitCode == 0)
+            else
             {
                 return false;
             }
-            else if (exitCode == 1)
+        }
+
+        /// <returns>
+        /// If <paramref name="repositoryFolder"/> is used as submodule then this function returns the toplevel-folder of the parent-repository.
+        /// </returns>
+        public static string GetParentGitRepositoryPath(string repositoryFolder)
+        {
+            if (IsInGitRepository(repositoryFolder))
             {
-                return true;
+                string content = GetParentGitRepositoryPathHelper(repositoryFolder);
+                if (string.IsNullOrEmpty(content))
+                {
+                    throw new ArgumentException($"The given folder '{repositoryFolder}' is not used as submodule so a parent-repository-path can not be calculated.");
+                }
+                else
+                {
+                    return content;
+                }
             }
             else
             {
-                throw new Exception("Could not calculate uncommitted changes in '" + repository + "'");
+                throw new ArgumentException($"The given folder '{repositoryFolder}' is not a git-repository.");
             }
         }
+        private static string GetParentGitRepositoryPathHelper(string repositoryFolder)
+        {
+            return ExtractTextFromOutput(ExecuteGitCommand(repositoryFolder, "rev-parse --show-superproject-working-tree", true).StdOutLines);
+        }
+        /// <returns>
+        /// Returns true if and only if <paramref name="folder"/> is the toplevel of a git-repository.
+        /// </returns>
+        public static bool IsGitRepository(string folder)
+        {
+            string combinedPath = Path.Combine(folder, ".git");
+            return Directory.Exists(combinedPath) || File.Exists(combinedPath);
+        }
+        /// <returns>
+        /// Returns true if and only if <paramref name="folder"/> or a parent-folder of <paramref name="folder"/> is a toplevel of a git-repository.
+        /// </returns>
+        public static bool IsInGitRepository(string folder)
+        {
+            DirectoryInfo directoryInfo = new DirectoryInfo(folder);
+            if (IsGitRepository(directoryInfo.FullName))
+            {
+                return true;
+            }
+            else if (directoryInfo.Parent == null)
+            {
+                return false;
+            }
+            else
+            {
+                return IsInGitRepository(directoryInfo.Parent.FullName);
+            }
+        }
+        /// <summary>
+        /// Commits all staged and unstaged changes in <paramref name="repositoryFolder"/>.
+        /// </summary>
+        /// <param name="repositoryFolder">Repository where changes should be committed</param>
+        /// <param name="commitMessage">Message for the commit</param>
+        /// <param name="commitWasCreated">Will be set to true if and only if really a commit was created. Will be set to false if and only if there are no changes to get committed.</param>
+        /// <returns>Returns the commit-id of the currently checked out commit. This returns the id of the new created commit if there were changes which were committed by this function.</returns>
+        /// <exception cref="UnexpectedExitCodeException">If there are uncommitted changes in submodules of <paramref name="repositoryFolder"/>.</exception>
+        public static string GitCommit(string repositoryFolder, string commitMessage, out bool commitWasCreated, bool logEnabled = false)
+        {
+            commitWasCreated = false;
+            if (GitRepositoryHasUncommittedChanges(repositoryFolder))
+            {
+                ExecuteGitCommand(repositoryFolder, $"add -A", true, logEnabled: logEnabled);
+                ExecuteGitCommand(repositoryFolder, $"commit -m \"{commitMessage}\"", true, logEnabled: logEnabled);
+                commitWasCreated = true;
+            }
+            return GetLastGitCommitId(repositoryFolder, "HEAD");
+        }
+        /// <returns>Returns the commit-id of the given <paramref name="revision"/>.</returns>
+        public static string GetLastGitCommitId(string repositoryFolder, string revision = "HEAD")
+        {
+            return ExecuteGitCommand(repositoryFolder, $"rev-parse {revision}", true).GetFirstStdOutLine();
+        }
+        /// <param name="printErrorsAsInformation">
+        /// Represents a value which indicates if the git-output which goes to stderr should be treated as stdout.
+        /// The default-value is true since even if no error occurs git write usual information to stderr.
+        /// If really an error occures (=the exit-code of git is not 0) then this function throws an exception
+        /// </param>
+        public static void GitFetch(string repositoryFolder, string remoteName = "--all", bool printErrorsAsInformation = true, bool logEnabled = false)
+        {
+            ExecuteGitCommand(repositoryFolder, $"fetch {remoteName} --tags --prune", true, printErrorsAsInformation: printErrorsAsInformation, logEnabled: logEnabled);
+        }
+        public static bool GitRepositoryHasUnstagedChanges(string repositoryFolder)
+        {
+            if (GitRepositoryHasUnstagedChangesOfTrackedFiles(repositoryFolder))
+            {
+                return true;
+            }
+            if (GitRepositoryHasNewUntrackedFiles(repositoryFolder))
+            {
+                return true;
+            }
+            return false;
+        }
+
+        public static IEnumerable<string> GetFilesOfGitRepository(string repositoryFolder, string revision)
+        {
+            return ExecuteGitCommand(repositoryFolder, $"ls-tree --full-tree -r --name-only {revision}", true).StdOutLines;
+        }
+
+        public static bool GitRepositoryHasNewUntrackedFiles(string repositoryFolder)
+        {
+            return GitChangesHelper(repositoryFolder, "ls-files --exclude-standard --others");
+        }
+
+        public static bool GitRepositoryHasUnstagedChangesOfTrackedFiles(string repositoryFolder)
+        {
+            return GitChangesHelper(repositoryFolder, "diff");
+        }
+
+        public static bool GitRepositoryHasStagedChanges(string repositoryFolder)
+        {
+            return GitChangesHelper(repositoryFolder, "diff --cached");
+        }
+
+        private static bool GitChangesHelper(string repositoryFolder, string argument)
+        {
+            GitCommandResult result = ExecuteGitCommand(repositoryFolder, argument, true);
+            foreach (string line in result.StdOutLines)
+            {
+                if (!string.IsNullOrWhiteSpace(line))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public static bool GitRepositoryHasUncommittedChanges(string repositoryFolder)
+        {
+            if (GitRepositoryHasUnstagedChanges(repositoryFolder))
+            {
+                return true;
+            }
+            if (GitRepositoryHasStagedChanges(repositoryFolder))
+            {
+                return true;
+            }
+            return false;
+        }
+        /// <remarks>
+        /// <paramref name="revision"/> can be all kinds of revision-labels, for example "HEAD" or branch-names (e. g. "master") oder revision-ids (e. g. "a1b2c3b4").
+        /// </remarks>
         public static int GetAmountOfCommitsInGitRepository(string repositoryFolder, string revision = "HEAD")
         {
             return int.Parse(ExecuteGitCommand(repositoryFolder, $"rev-list --count {revision}", true).GetFirstStdOutLine());
@@ -1497,14 +2109,560 @@ namespace GRYLibrary.Core
         {
             return ExecuteGitCommand(repositoryFolder, $"rev-parse --abbrev-ref HEAD", true).GetFirstStdOutLine();
         }
-        public static SerializableDictionary<TKey, TValue> ToSerializableDictionary<TKey, TValue>(this IDictionary<TKey, TValue> dictionary)
+        /// <remarks>
+        /// <paramref name="ancestor"/> and <paramref name="descendant"/> can be all kinds of revision-labels, for example "HEAD" or branch-names (e. g. "master") oder revision-ids (e. g. "a1b2c3b4").
+        /// </remarks>
+        public static bool IsGitCommitAncestor(string repositoryFolder, string ancestor, string descendant = "HEAD")
         {
-            SerializableDictionary<TKey, TValue> result = new SerializableDictionary<TKey, TValue>();
-            foreach (System.Collections.Generic.KeyValuePair<TKey, TValue> keyValuePair in dictionary)
+            return ExecuteGitCommand(repositoryFolder, $"merge-base --is-ancestor {ancestor} {descendant}", false).ExitCode == 0;
+        }
+        #endregion
+
+        #region Execute or open file
+        public static bool FileIsExecutable(string file)
+        {
+            return OperatingSystem.OperatingSystem.GetCurrentOperatingSystem().Accept(new FileIsExecutableVisitor(file));
+        }
+        public static ExternalProgramExecutor ExecuteFile(string file)
+        {
+            if (FileIsExecutable(file))
             {
-                result.Add(keyValuePair.Key, keyValuePair.Value);
+                using ExternalProgramExecutor result = new ExternalProgramExecutor(file, string.Empty);
+                result.StartSynchronously();
+                return result;
+            }
+            else
+            {
+                throw new Exception($"File '{file}' can not be executed");
+            }
+        }
+
+        public static void OpenFileWithDefaultProgram(string file)
+        {
+            new ExternalProgramExecutor(file, string.Empty).StartAsynchronously();
+        }
+        private class FileIsExecutableVisitor : IOperatingSystemVisitor<bool>
+        {
+            private readonly string _File;
+
+            public FileIsExecutableVisitor(string file)
+            {
+                this._File = file;
+            }
+
+            public bool Handle(OSX operatingSystem)
+            {
+                return true;
+            }
+
+            public bool Handle(Windows operatingSystem)
+            {
+                string fileToLower = this._File.ToLower();
+                return fileToLower.EndsWith(".exe")
+                    || fileToLower.EndsWith(".cmd")
+                    || fileToLower.EndsWith(".bat");
+            }
+
+            public bool Handle(Linux operatingSystem)
+            {
+                return true;
+            }
+        }
+
+
+
+
+        #endregion
+
+        #region Enumerable
+
+        #region IsEnumerable
+        /// <returns>Returns true if and only if the most concrete type of <paramref name="object"/> implements <see cref="IEnumerable"/>.</returns>
+        public static bool ObjectIsEnumerable(this object @object)
+        {
+            return @object is IEnumerable;
+        }
+        public static bool TypeIsEnumerable(this Type type)
+        {
+            return TypeIsAssignableFrom(type, typeof(IEnumerable)) && !typeof(string).Equals(type);
+        }
+        /// <returns>Returns true if and only if the most concrete type of <paramref name="object"/> implements <see cref="ISet{T}"/>.</returns>
+        public static bool ObjectIsSet(this object @object)
+        {
+            return TypeIsSet(@object.GetType());
+        }
+        public static bool TypeIsSet(this Type type)
+        {
+            return TypeIsAssignableFrom(type, typeof(ISet<>));
+        }
+        public static bool ObjectIsList(this object @object)
+        {
+            return TypeIsList(@object.GetType());
+        }
+        public static bool TypeIsList(this Type type)
+        {
+            return TypeIsListNotGeneric(type) || TypeIsListGeneric(type);
+        }
+        public static bool TypeIsListNotGeneric(this Type type)
+        {
+            return TypeIsAssignableFrom(type, typeof(IList));
+        }
+        public static bool TypeIsListGeneric(this Type type)
+        {
+            return TypeIsAssignableFrom(type, typeof(IList<>));
+        }
+        /// <returns>Returns true if and only if the most concrete type of <paramref name="object"/> implements <see cref="IDictionary{TKey, TValue}"/> or <see cref="IDictionary"/>.</returns>
+        public static bool ObjectIsDictionary(this object @object)
+        {
+            return TypeIsDictionary(@object.GetType());
+        }
+        public static void AddItemToEnumerable(object enumerable, object[] addMethodArgument)
+        {
+            enumerable.GetType().GetMethod("Add").Invoke(enumerable, addMethodArgument);
+        }
+        public static bool TypeIsDictionary(this Type type)
+        {
+            return TypeIsDictionaryNotGeneric(type) || TypeIsDictionaryGeneric(type);
+        }
+        public static bool TypeIsDictionaryNotGeneric(this Type type)
+        {
+            return TypeIsAssignableFrom(type, typeof(IDictionary));
+        }
+        public static bool TypeIsDictionaryGeneric(this Type type)
+        {
+            return TypeIsAssignableFrom(type, typeof(IDictionary<,>));
+        }
+        public static bool ObjectIsKeyValuePair(this object @object)
+        {
+            return TypeIsKeyValuePair(@object.GetType());
+        }
+        public static bool TypeIsKeyValuePair(this Type type)
+        {
+            return TypeIsAssignableFrom(type, typeof(System.Collections.Generic.KeyValuePair<,>)) || TypeIsAssignableFrom(type, typeof(XMLSerializer.KeyValuePair<object, object>));
+        }
+        public static bool ObjectIsDictionaryEntry(this object @object)
+        {
+            return TypeIsDictionaryEntry(@object.GetType());
+        }
+        public static bool TypeIsDictionaryEntry(this Type type)
+        {
+            return TypeIsAssignableFrom(type, typeof(DictionaryEntry));
+        }
+        public static bool ObjectIsTuple(this object @object)
+        {
+            return TypeIsTuple(@object.GetType());
+        }
+        public static bool TypeIsTuple(this Type type)
+        {
+            return TypeIsAssignableFrom(type, typeof(Tuple<,>));
+        }
+
+        #endregion
+        #region ToEnumerable
+        public static IEnumerable ObjectToEnumerable(this object @object)
+        {
+            if (!ObjectIsEnumerable(@object))
+            {
+                throw new InvalidCastException();
+            }
+            return @object as IEnumerable;
+        }
+        public static IEnumerable<T> ObjectToEnumerable<T>(this object @object)
+        {
+            if (!ObjectIsEnumerable(@object))
+            {
+                throw new InvalidCastException();
+            }
+            IEnumerable objects = ObjectToEnumerable(@object);
+            List<T> result = new List<T>();
+            foreach (object obj in objects)
+            {
+                if (obj is T t)
+                {
+                    result.Add(t);
+                }
+                else if (IsDefault(obj))
+                {
+                    result.Add(default);
+                }
+                else
+                {
+                    throw new InvalidCastException();
+                }
             }
             return result;
         }
+        public static ISet<T> ObjectToSet<T>(this object @object)
+        {
+            if (!ObjectIsSet(@object))
+            {
+                throw new InvalidCastException();
+            }
+            IEnumerable objects = ObjectToEnumerable(@object);
+            HashSet<T> result = new HashSet<T>();
+            foreach (object obj in objects)
+            {
+                if (obj is T t)
+                {
+                    result.Add(t);
+                }
+                else if (IsDefault(obj))
+                {
+                    result.Add(default);
+                }
+                else
+                {
+                    throw new InvalidCastException();
+                }
+            }
+            return result;
+        }
+        /// <returns>Returns true if and only if the most concrete type of <paramref name="object"/> implements <see cref="IList{T}"/> or <see cref="IList"/>.</returns>
+        public static IList ObjectToList(this object @object)
+        {
+            return ObjectToList<object>(@object).ToList();
+        }
+        public static IList<T> ObjectToList<T>(this object @object)
+        {
+            if (!ObjectIsList(@object))
+            {
+                throw new InvalidCastException();
+            }
+            IEnumerable objects = ObjectToEnumerable(@object);
+            List<T> result = new List<T>();
+            foreach (object obj in objects)
+            {
+                if (obj is T t)
+                {
+                    result.Add(t);
+                }
+                else if (IsDefault(obj))
+                {
+                    result.Add(default);
+                }
+                else
+                {
+                    throw new InvalidCastException();
+                }
+            }
+            return result;
+        }
+        public static IDictionary ObjectToDictionary(this object @object)
+        {
+            IDictionary result = new Hashtable();
+            foreach (System.Collections.Generic.KeyValuePair<object, object> item in ObjectToDictionary<object, object>(@object))
+            {
+                result.Add(item.Key, item.Value);
+            }
+            return result;
+        }
+        public static IDictionary<TKey, TValue> ObjectToDictionary<TKey, TValue>(this object @object)
+        {
+            if (!ObjectIsDictionary(@object))
+            {
+                throw new InvalidCastException();
+            }
+            IEnumerable<object> objects = ObjectToEnumerable<object>(@object);
+            Dictionary<TKey, TValue> result = new Dictionary<TKey, TValue>();
+            foreach (object obj in objects)
+            {
+                System.Collections.Generic.KeyValuePair<TKey, TValue> kvp = ObjectToKeyValuePair<TKey, TValue>(obj);
+                result.Add(kvp.Key, kvp.Value);
+            }
+            return result;
+        }
+        public static System.Collections.Generic.KeyValuePair<TKey, TValue> ObjectToKeyValuePair<TKey, TValue>(this object @object)
+        {
+            if (!ObjectIsKeyValuePair(@object))
+            {
+                throw new InvalidCastException();
+            }
+            return ObjectToKeyValuePairUnsafe<TKey, TValue>(@object);
+        }
+
+        internal static System.Collections.Generic.KeyValuePair<TKey, TValue> ObjectToKeyValuePairUnsafe<TKey, TValue>(object @object)
+        {
+            object key = ((dynamic)@object).Key;
+            object value = ((dynamic)@object).Value;
+            TKey tKey;
+            TValue tValue;
+
+            if (key is TKey key1)
+            {
+                tKey = key1;
+            }
+            else if (IsDefault(key))
+            {
+                tKey = default;
+            }
+            else
+            {
+                throw new InvalidCastException();
+            }
+            if (value is TValue value1)
+            {
+                tValue = value1;
+            }
+            else if (IsDefault(value))
+            {
+                tValue = default;
+            }
+            else
+            {
+                throw new InvalidCastException();
+            }
+            return new System.Collections.Generic.KeyValuePair<TKey, TValue>(tKey, tValue);
+        }
+
+        public static DictionaryEntry ObjectToDictionaryEntry(object @object)
+        {
+            if (!ObjectIsDictionaryEntry(@object))
+            {
+                throw new InvalidCastException();
+            }
+            object key = ((dynamic)@object).Key;
+            object value = ((dynamic)@object).Value;
+            return new DictionaryEntry(key, value);
+        }
+        public static Tuple<T1, T2> ObjectToTuple<T1, T2>(this object @object)
+        {
+            if (!ObjectIsTuple(@object))
+            {
+                throw new InvalidCastException();
+            }
+            object item1 = ((dynamic)@object).Item1;
+            object item2 = ((dynamic)@object).Item2;
+            if (item1 is T1 t1 && item2 is T2 t2)
+            {
+                return new Tuple<T1, T2>(t1, t2);
+            }
+            else
+            {
+                throw new InvalidCastException();
+            }
+        }
+
+        #endregion
+        #region EqualsEnumerable
+        public static bool EnumerableEquals(this IEnumerable enumerable1, IEnumerable enumerable2)
+        {
+            return new EnumerableComparer(new PropertyEqualsCalculatorConfiguration()).EqualsTyped(enumerable1, enumerable2);
+        }
+        /// <returns>Returns true if and only if the items in <paramref name="list1"/> and <paramref name="list2"/> are equal (ignoring the order) using the GRYLibrary-AdvancedObjectAnalysis for object-comparison.</returns>
+        public static bool SetEquals<T>(this ISet<T> set1, ISet<T> set2)
+        {
+            return new SetComparer(new PropertyEqualsCalculatorConfiguration()).EqualsTyped(set1, set2);
+        }
+        public static bool ListEquals(this IList list1, IList list2)
+        {
+            return new ListComparer(new PropertyEqualsCalculatorConfiguration()).Equals(list1, list2);
+        }
+        /// <returns>Returns true if and only if the items in <paramref name="list1"/> and <paramref name="list2"/> are equal using the GRYLibrary-AdvancedObjectAnalysis for object-comparison.</returns>
+        public static bool ListEquals<T>(this IList<T> list1, IList<T> list2)
+        {
+            return new ListComparer(new PropertyEqualsCalculatorConfiguration()).EqualsTyped(list1, list2);
+        }
+        public static bool DictionaryEquals(this IDictionary dictionary1, IDictionary dictionary2)
+        {
+            return new DictionaryComparer(new PropertyEqualsCalculatorConfiguration()).Equals(dictionary1, dictionary2);
+        }
+        public static bool DictionaryEquals<TKey, TValue>(this IDictionary<TKey, TValue> dictionary1, IDictionary<TKey, TValue> dictionary2)
+        {
+            return new DictionaryComparer(new PropertyEqualsCalculatorConfiguration()).DefaultEquals(dictionary1, dictionary2);
+        }
+        public static bool KeyValuePairEquals<TKey, TValue>(this System.Collections.Generic.KeyValuePair<TKey, TValue> keyValuePair1, System.Collections.Generic.KeyValuePair<TKey, TValue> keyValuePair2)
+        {
+            return new KeyValuePairComparer(new PropertyEqualsCalculatorConfiguration()).Equals(keyValuePair1, keyValuePair2);
+        }
+        public static bool TupleEquals<TKey, TValue>(this Tuple<TKey, TValue> tuple1, Tuple<TKey, TValue> tuple2)
+        {
+            return new TupleComparer(new PropertyEqualsCalculatorConfiguration()).Equals(tuple1, tuple2);
+        }
+
+        #endregion
+        #endregion
+
+        #region Similarity
+        public static int CalculateLevenshteinDistance(string string1, string string2)
+        {
+            if (string.IsNullOrEmpty(string1) && string.IsNullOrEmpty(string2))
+            {
+                return 0;
+            }
+            if (string.IsNullOrEmpty(string1))
+            {
+                return string2.Length;
+            }
+            if (string.IsNullOrEmpty(string2))
+            {
+                return string1.Length;
+            }
+            int lengthA = string1.Length;
+            int lengthB = string2.Length;
+            int[,] distance = new int[lengthA + 1, lengthB + 1];
+            for (int i = 0; i <= lengthA; distance[i, 0] = i++) ;
+            for (int j = 0; j <= lengthB; distance[0, j] = j++) ;
+
+            for (int i = 1; i <= lengthA; i++)
+            {
+                for (int j = 1; j <= lengthB; j++)
+                {
+                    int cost = string2[j - 1] == string1[i - 1] ? 0 : 1;
+                    distance[i, j] = Math.Min(Math.Min(distance[i - 1, j] + 1, distance[i, j - 1] + 1), distance[i - 1, j - 1] + cost);
+                }
+            }
+
+            return distance[lengthA, lengthB];
+        }
+        public static double CalculateLevenshteinSimilarity(string string1, string string2)
+        {
+            int levenshteinDistance = CalculateLevenshteinDistance(string1, string2);
+            if (levenshteinDistance == 0)
+            {
+                return 1;
+            }
+            int maxLength = Math.Max(string1.Length, string2.Length);
+            if (levenshteinDistance == maxLength)
+            {
+                return 0;
+            }
+            else
+            {
+                return 1 - ((double)levenshteinDistance) / maxLength;
+            }
+        }
+        public static double CalculateCosineSimilarity(string string1, string string2)
+        {
+            int length1 = string1.Length;
+            int length2 = string2.Length;
+            if ((length1 == 0 && length2 > 0) || (length2 == 0 && length1 > 0))
+            {
+                return 0;
+            }
+            IDictionary<string, int> a = CalculateSimilarityHelperConvert(CalculateSimilarityHelperGetCharFrequencyMap(string1));
+            IDictionary<string, int> b = CalculateSimilarityHelperConvert(CalculateSimilarityHelperGetCharFrequencyMap(string2));
+            HashSet<string> intersection = CalculateSimilarityHelperGetIntersectionOfCharSet(a.Keys, b.Keys);
+            double dotProduct = 0, magnitudeA = 0, magnitudeB = 0;
+            foreach (string item in intersection)
+            {
+                dotProduct += a[item] * b[item];
+            }
+            foreach (string k in a.Keys)
+            {
+                magnitudeA += Math.Pow(a[k], 2);
+            }
+            foreach (string k in b.Keys)
+            {
+                magnitudeB += Math.Pow(b[k], 2);
+            }
+            return dotProduct / Math.Sqrt(magnitudeA * magnitudeB);
+        }
+        public static double CalculateJaccardIndex(string string1, string string2)
+        {
+            return CalculateSimilarityHelperGetIntersection(string1, string2).Count() / (double)CalculateSimilarityHelperGetUnion(string1, string2).Count();
+        }
+        public static double CalculateJaccardSimilarity(string string1, string string2)
+        {
+            return CalculateJaccardIndex(string1, string2) * 2;
+        }
+        private static string CalculateSimilarityHelperGetIntersection(string string1, string string2)
+        {
+            IList<char> list = new List<char>();
+            foreach (char character in string1)
+            {
+                if (string2.Contains(character))
+                {
+                    list.Add(character);
+                }
+            }
+            string result = new string(list.ToArray());
+            return result;
+        }
+        private static IDictionary<char, int> CalculateSimilarityHelperGetCharFrequencyMap(string str)
+        {
+            Dictionary<char, int> result = new Dictionary<char, int>();
+            foreach (char chr in str)
+            {
+                if (result.ContainsKey(chr))
+                {
+                    result[chr] = result[chr] + 1;
+                }
+                else
+                {
+                    result.Add(chr, 1);
+                }
+            }
+            return result;
+        }
+        private static string CalculateSimilarityHelperGetUnion(string string1, string string2)
+        {
+            return new string((string1 + string2).ToCharArray());
+        }
+        private static HashSet<string> CalculateSimilarityHelperGetIntersectionOfCharSet(ICollection<string> keys1, ICollection<string> keys2)
+        {
+            HashSet<string> result = new HashSet<string>();
+            result.UnionWith(keys1);
+            result.IntersectWith(keys2);
+            return result;
+        }
+
+        private static IDictionary<string, int> CalculateSimilarityHelperConvert(IDictionary<char, int> dictionary)
+        {
+            IDictionary<string, int> result = new Dictionary<string, int>();
+            foreach (System.Collections.Generic.KeyValuePair<char, int> obj in dictionary)
+            {
+                result.Add(obj.Key.ToString(), obj.Value);
+            }
+            return result;
+        }
+        #endregion
+
+        #region Get file extension on windows
+        private static string GetDefaultProgramToOpenFile(string extensionWithDot)
+        {
+            return FileExtentionInfo(AssocStr.Executable, extensionWithDot);
+        }
+        [DllImport("Shlwapi.dll", SetLastError = true, CharSet = CharSet.Unicode)]
+        static extern uint AssocQueryString(AssocF flags, AssocStr str, string pszAssoc, string pszExtra, [Out] StringBuilder pszOut, [In][Out] ref uint pcchOut);
+        private static string FileExtentionInfo(AssocStr assocStr, string extensionWithDot)
+        {
+            uint pcchOut = 0;
+            AssocQueryString(AssocF.Verify, assocStr, extensionWithDot, null, null, ref pcchOut);
+            StringBuilder pszOut = new StringBuilder((int)pcchOut);
+            AssocQueryString(AssocF.Verify, assocStr, extensionWithDot, null, pszOut, ref pcchOut);
+            return pszOut.ToString();
+        }
+
+        [Flags]
+        private enum AssocF
+        {
+            Init_NoRemapCLSID = 0x1,
+            Init_ByExeName = 0x2,
+            Open_ByExeName = 0x2,
+            Init_DefaultToStar = 0x4,
+            Init_DefaultToFolder = 0x8,
+            NoUserSettings = 0x10,
+            NoTruncate = 0x20,
+            Verify = 0x40,
+            RemapRunDll = 0x80,
+            NoFixUps = 0x100,
+            IgnoreBaseClass = 0x200
+        }
+
+        private enum AssocStr
+        {
+            Command = 1,
+            Executable,
+            FriendlyDocName,
+            FriendlyAppName,
+            NoOpen,
+            ShellNewValue,
+            DDECommand,
+            DDEIfExec,
+            DDEApplication,
+            DDETopic
+        }
+        #endregion
+
     }
 }

@@ -7,6 +7,7 @@ namespace GRYLibrary.Core.Graph
     {
         public Vertex Source { get; private set; }
         public Vertex Target { get; private set; }
+        public DirectedEdge() { }
         public DirectedEdge(Vertex source, Vertex target) : this(source, target, CalculateName(source, target))
         {
         }

@@ -50,7 +50,7 @@ namespace GRYLibrary.Core.Playlists.ConcretePlaylistHandler
                 }
                 if (payload.StartsWith("-"))
                 {
-                    excludedItems.Add(payload.Substring(1));
+                    excludedItems.Add(payload[1..]);
                 }
                 else
                 {
@@ -95,7 +95,6 @@ namespace GRYLibrary.Core.Playlists.ConcretePlaylistHandler
 
         private bool TryToApplyConfigurationFile(string playlistFile, ref List<string> result)
         {
-            //TODO refactor this
             try
             {
                 string m3uConfigurationFile = new FileInfo(playlistFile).Directory.FullName + ConfigurationFileInCurrentFolder;
@@ -177,7 +176,7 @@ namespace GRYLibrary.Core.Playlists.ConcretePlaylistHandler
                             if (trimmedLine.Contains(":"))
                             {
                                 string optionKey = trimmedLine.Split(':')[0].ToLower();
-                                string optionValue = trimmedLine.Substring(optionKey.Length + 1);
+                                string optionValue = trimmedLine[(optionKey.Length + 1)..];
                                 if (optionKey.Equals("on"))
                                 {
                                     currentConfiguration = new M3UConfigurationPerPC(trimmedLine.Split(':')[1].ToUpper());
@@ -211,7 +210,7 @@ namespace GRYLibrary.Core.Playlists.ConcretePlaylistHandler
                 foreach (string item in input)
                 {
                     string newItem = item;
-                    foreach (System.Collections.Generic.KeyValuePair<string, string> replacement in configuration.Replace)
+                    foreach (KeyValuePair<string, string> replacement in configuration.Replace)
                     {
                         newItem = newItem.Replace(replacement.Key, replacement.Value);
                     }

@@ -45,7 +45,7 @@ namespace GRYLibrary.Core.Log
             {
                 this._ConsoleDefaultColor = System.Console.ForegroundColor;
                 this.Configuration = configuration;
-                this.Configuration.GetLogTarget<LogFile>().Enabled = !string.IsNullOrWhiteSpace(this.Configuration.LogFile);
+                this.Configuration.GetLogTarget<LogFile>().Enabled = !string.IsNullOrWhiteSpace(this.Configuration.GetLogFile());
                 if (this.Configuration.ReloadConfigurationWhenConfigurationFileWillBeChanged && File.Exists(this.Configuration.ConfigurationFile))
                 {
                     this.StartFileWatcherForConfigurationFile(this.Configuration.ConfigurationFile);
@@ -74,8 +74,7 @@ namespace GRYLibrary.Core.Log
 
         public override bool Equals(object obj)
         {
-            GRYLog typedObject = obj as GRYLog;
-            if (typedObject == null)
+            if (!(obj is GRYLog typedObject))
             {
                 return false;
             }
@@ -104,7 +103,7 @@ namespace GRYLibrary.Core.Log
                 }
                 catch (Exception exception)
                 {
-                    this.Log($"Could not reload Configuration of {nameof(GRYLog)} stored in {configurationFile}", LogLevel.Error, exception);
+                    this.Log($"Could not reload Configuration of {nameof(GRYLog)} stored in {configurationFile}", LogLevel.Error, exception, 0x78200001.ToString());
                 }
                 finally
                 {
@@ -172,46 +171,46 @@ namespace GRYLibrary.Core.Log
             }
         }
 
-        public void Log(string message)
+        public void Log(string message, string messagId = null)
         {
-            this.Log(message, LogLevel.Information);
+            this.Log(message, LogLevel.Information, messagId);
         }
-        public void Log(string message, Exception exception)
+        public void Log(string message, Exception exception, string messageId = null)
         {
-            this.Log(message, LogLevel.Error, exception);
+            this.Log(message, LogLevel.Error, exception, messageId);
         }
-        public void Log(string message, LogLevel logLevel, Exception exception)
+        public void Log(string message, LogLevel logLevel, Exception exception, string messageId)
         {
-            this.Log(this.GetExceptionMessage(message, exception), logLevel);
+            this.Log(this.GetExceptionMessage(message, exception), logLevel, messageId);
         }
-        public void Log(string message, LogLevel logLevel)
+        public void Log(string message, LogLevel logLevel, string messageId = null)
         {
-            this.Log(() => message, logLevel);
+            this.Log(() => message, logLevel, messageId);
         }
 
-        public void Log(Func<string> getMessage)
+        public void Log(Func<string> getMessage, string messageId)
         {
-            this.Log(getMessage, LogLevel.Information);
+            this.Log(getMessage, LogLevel.Information, messageId);
         }
-        public void Log(Func<string> getMessage, Exception exception)
+        public void Log(Func<string> getMessage, Exception exception, string messageId)
         {
-            this.Log(getMessage, LogLevel.Error, exception);
+            this.Log(getMessage, LogLevel.Error, exception, messageId);
         }
-        public void Log(Exception exception)
+        public void Log(Exception exception, string messageId)
         {
-            this.Log(LogLevel.Error, exception);
+            this.Log(LogLevel.Error, exception, messageId);
         }
-        public void Log(LogLevel logLevel, Exception exception)
+        public void Log(LogLevel logLevel, Exception exception, string messageId)
         {
-            this.Log(() => "An exception occurred", logLevel, exception);
+            this.Log(() => "An exception occurred", logLevel, exception, messageId);
         }
-        public void Log(Func<string> getMessage, LogLevel logLevel, Exception exception)
+        public void Log(Func<string> getMessage, LogLevel logLevel, Exception exception, string messageId)
         {
-            this.Log(() => this.GetExceptionMessage(getMessage(), exception), logLevel);
+            this.Log(() => this.GetExceptionMessage(getMessage(), exception), logLevel, messageId);
         }
-        public void Log(Func<string> getMessage, LogLevel logLevel)
+        public void Log(Func<string> getMessage, LogLevel logLevel, string messageId)
         {
-            this.Log(new LogItem(getMessage, logLevel));
+            this.Log(new LogItem(getMessage, logLevel, messageId));
         }
         public void Log(LogItem logitem)
         {
@@ -319,16 +318,19 @@ namespace GRYLibrary.Core.Log
         public void ExecuteAndLog(Action action, string nameOfAction, bool preventThrowingExceptions = false, LogLevel logLevelForOverhead = LogLevel.Debug, string subNamespaceForLog = "")
         {
             this.Log($"Action '{nameOfAction}' will be started now.", logLevelForOverhead);
+            Stopwatch stopWatch = new Stopwatch();
             try
             {
                 using (this.UseSubNamespace(subNamespaceForLog))
                 {
+                    stopWatch.Start();
                     action();
+                    stopWatch.Stop();
                 }
             }
             catch (Exception exception)
             {
-                this.Log($"An exception occurred while executing action '{nameOfAction}'.", LogLevel.Error, exception);
+                this.Log($"An exception occurred while executing action '{nameOfAction}'.", LogLevel.Error, exception, 0x78200002.ToString());
                 if (!preventThrowingExceptions)
                 {
                     throw;
@@ -336,22 +338,26 @@ namespace GRYLibrary.Core.Log
             }
             finally
             {
-                this.Log($"Action '{nameOfAction}' finished.", logLevelForOverhead);
+                this.Log($"Action '{nameOfAction}' finished. Duration: {Utilities.DurationToUserFriendlyString(stopWatch.Elapsed)}", logLevelForOverhead);
             }
         }
         public TResult ExecuteAndLog<TResult>(Func<TResult> action, string nameOfAction, bool preventThrowingExceptions = false, LogLevel logLevelForOverhead = LogLevel.Debug, TResult defaultValue = default, string subNamespaceForLog = "")
         {
             this.Log($"Action '{nameOfAction}' will be started now.", logLevelForOverhead);
+            Stopwatch stopWatch = new Stopwatch();
             try
             {
                 using (this.UseSubNamespace(subNamespaceForLog))
                 {
-                    return action();
+                    stopWatch.Start();
+                    TResult result = action();
+                    stopWatch.Stop();
+                    return result;
                 }
             }
             catch (Exception exception)
             {
-                this.Log($"An exception occurred while executing action '{nameOfAction}'.", LogLevel.Error, exception);
+                this.Log($"An exception occurred while executing action '{nameOfAction}'.", LogLevel.Error, exception, 0x78200003.ToString());
                 if (preventThrowingExceptions)
                 {
                     return defaultValue;
@@ -363,7 +369,7 @@ namespace GRYLibrary.Core.Log
             }
             finally
             {
-                this.Log($"Action '{nameOfAction}' finished.", logLevelForOverhead);
+                this.Log($"Action '{nameOfAction}' finished. Duration: {Utilities.DurationToUserFriendlyString(stopWatch.Elapsed)}", logLevelForOverhead);
             }
         }
 
@@ -408,7 +414,7 @@ namespace GRYLibrary.Core.Log
         }
         public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
         {
-            this.Log(() => $"{this.FormatEvent(eventId)} | { formatter(state, exception)}", logLevel);
+            this.Log(() => $"{this.FormatEvent(eventId)} | { formatter(state, exception)}", logLevel, 0x78200004.ToString());
         }
 
 

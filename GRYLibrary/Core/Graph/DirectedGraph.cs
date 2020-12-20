@@ -10,6 +10,7 @@ namespace GRYLibrary.Core.Graph
         public override ISet<Edge> Edges { get { return new HashSet<Edge>(this._DirectedEdges); } }
         public ISet<Edge> DirectedEdges { get { return new HashSet<Edge>(this._DirectedEdges); } }
         private readonly ISet<DirectedEdge> _DirectedEdges = new HashSet<DirectedEdge>();
+        public DirectedGraph() { }
 
         public override void Accept(IGraphVisitor visitor)
         {
@@ -146,14 +147,17 @@ namespace GRYLibrary.Core.Graph
             {
                 for (int j = 0; j < adjacencyMatrix.GetLength(1); j++)
                 {
-                    DirectedEdge newEdge = new DirectedEdge(vertices[i], vertices[j], nameof(Edge) + "_" + (i + 1).ToString() + "_" + (j + 1).ToString());
-                    newEdge.Weight = adjacencyMatrix[i, j];
+                    DirectedEdge newEdge = new DirectedEdge(vertices[i], vertices[j], nameof(Edge) + "_" + (i + 1).ToString() + "_" + (j + 1).ToString())
+                    {
+                        Weight = adjacencyMatrix[i, j]
+                    };
                     edges.Add(newEdge);
                 }
             }
             return new Tuple<IList<DirectedEdge>, IList<Vertex>>(edges, vertices);
         }
 
+        /// <inheritdoc/>
         public override void AddEdge(Edge edge)
         {
             if (!(edge is DirectedEdge))
@@ -165,6 +169,7 @@ namespace GRYLibrary.Core.Graph
             this._DirectedEdges.Add((DirectedEdge)edge);
             this.OnEdgeAdded(edge);
         }
+        /// <inheritdoc/>
         public override void RemoveEdge(Edge edge)
         {
             if (edge is DirectedEdge)

@@ -36,14 +36,13 @@ namespace GRYLibrary.Core.Streams
             }
             public override bool Equals(object obj)
             {
-                StreamPipe typedObject = (StreamPipe)obj as StreamPipe;
-                if (typedObject == null)
+                if ((StreamPipe)obj is StreamPipe typedObject)
                 {
-                    return false;
+                    return typedObject.Source.Equals(this.Source) && typedObject.Target.Equals(this.Target);
                 }
                 else
                 {
-                    return typedObject.Source.Equals(this.Source) && typedObject.Target.Equals(this.Target);
+                    return false;
                 }
             }
             private bool _Started = false;

@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Xml.Serialization;
 
 namespace GRYLibrary.Core.Graph
 {
+    [XmlInclude(typeof(UndirectedEdge))]
+    [XmlInclude(typeof(DirectedEdge))]
     public abstract class Edge
     {
         public string Name { get; set; }

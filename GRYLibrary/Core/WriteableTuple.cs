@@ -1,5 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using GRYLibrary.Core.AdvancedObjectAnalysis;
+using System;
 
 namespace GRYLibrary.Core
 {
@@ -17,19 +17,12 @@ namespace GRYLibrary.Core
         public new T2 Item2 { get; set; }
         public override int GetHashCode()
         {
-            if (EqualityComparer<T1>.Default.Equals(this.Item1, default))
-            {
-                return 986987671;
-            }
-            else
-            {
-                return this.Item1.GetHashCode();
-            }
+            return Generic.GenericGetHashCode(this.Item1);
         }
+
         public override bool Equals(object obj)
         {
-            WriteableTuple<T1, T2> typedObject = obj as WriteableTuple<T1, T2>;
-            if (typedObject == null)
+            if (!(obj is WriteableTuple<T1, T2> typedObject))
             {
                 return false;
             }

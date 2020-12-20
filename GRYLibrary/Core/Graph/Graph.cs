@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Xml.Serialization;
 
 namespace GRYLibrary.Core.Graph
 {
@@ -11,6 +12,8 @@ namespace GRYLibrary.Core.Graph
     /// <remarks>
     /// This graph does not support two edges between the same two vertices.
     /// </remarks>
+    [XmlInclude(typeof(UndirectedGraph))]
+    [XmlInclude(typeof(DirectedGraph))]
     public abstract class Graph
     {
         public ISet<Vertex> Vertices { get { return new HashSet<Vertex>(this._Vertices); } }
@@ -336,7 +339,7 @@ namespace GRYLibrary.Core.Graph
         }
 
         /// <returns>
-        /// Returns true if and only if the adjacency-matrices of this and <paramref name="obj"/> are equal.
+        /// Returns true if and only if the graphs have the same structure.
         /// </returns>
         /// <remarks>
         /// This function ignores properties like <see cref="SelfLoopIsAllowed"/> or the name of the edges and vertices.
@@ -366,8 +369,7 @@ namespace GRYLibrary.Core.Graph
         /// <remarks>This operations does not work yet due to missing implementation of <see cref="IsSubgraph"/>.</remarks>
         public bool IsSubgraphOf(Graph graph, out IDictionary<Vertex, Vertex> mappingFromgraphToThisGraph)
         {
-            IDictionary<Vertex, Vertex> mappingFromSubgraphToThisGraph;
-            bool result = graph.IsSubgraph(this, out mappingFromSubgraphToThisGraph);
+            bool result = graph.IsSubgraph(this, out IDictionary<Vertex, Vertex> mappingFromSubgraphToThisGraph);
             if (result)
             {
                 mappingFromgraphToThisGraph = mappingFromSubgraphToThisGraph.ToDictionary(keyValuePair => keyValuePair.Value, keyValuePair => keyValuePair.Key);

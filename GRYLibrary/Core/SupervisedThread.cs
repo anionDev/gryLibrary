@@ -74,7 +74,7 @@ namespace GRYLibrary.Core
         {
             if (this._Running)
             {
-                this._Thread.Abort();
+                this._Thread.Interrupt();
             }
         }
     }

@@ -1,12 +1,15 @@
-﻿using System;
+﻿using GRYLibrary.Core.AdvancedObjectAnalysis;
+using System.Xml;
+using System.Xml.Schema;
 using System.Xml.Serialization;
 
 namespace GRYLibrary.Core.XMLSerializer
 {
-    [Serializable]
-    [XmlType(TypeName = "KeyValuePair")]
-    public struct KeyValuePair<TKey, TValue>
+    public class KeyValuePair<TKey, TValue> : IXmlSerializable
     {
+        public KeyValuePair()
+        {
+        }
         public KeyValuePair(TKey key, TValue value)
         {
             this.Key = key;
@@ -15,18 +18,42 @@ namespace GRYLibrary.Core.XMLSerializer
         public TKey Key { get; set; }
 
         public TValue Value { get; set; }
-        public override bool Equals(object obj)
+
+        public System.Collections.Generic.KeyValuePair<object, object> ToDotNetKeyValuePair()
         {
-            if (!(obj is KeyValuePair<TKey, TValue>))
-            {
-                return false;
-            }
-            KeyValuePair<TKey, TValue> typedObject = new KeyValuePair<TKey, TValue>();
-            return this.Key.Equals(typedObject.Key) && this.Value.Equals(typedObject.Value);
+            return new System.Collections.Generic.KeyValuePair<object, object>(this.Key, this.Value);
         }
+
+        #region Overhead
+        public override bool Equals(object @object)
+        {
+            return Generic.GenericEquals(this, @object);
+        }
+
         public override int GetHashCode()
         {
-            return HashCode.Combine(this.Key);
+            return Generic.GenericGetHashCode(this);
         }
+
+        public override string ToString()
+        {
+            return Generic.GenericToString(this);
+        }
+
+        public XmlSchema GetSchema()
+        {
+            return Generic.GenericGetSchema(this);
+        }
+
+        public void ReadXml(XmlReader reader)
+        {
+            Generic.GenericReadXml(this, reader);
+        }
+
+        public void WriteXml(XmlWriter writer)
+        {
+            Generic.GenericWriteXml(this, writer);
+        }
+        #endregion
     }
 }

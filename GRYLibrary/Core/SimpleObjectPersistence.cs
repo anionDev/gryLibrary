@@ -19,16 +19,20 @@ namespace GRYLibrary.Core
         public static SimpleObjectPersistence<T> CreateByFile(string file)
         {
             file = Utilities.ResolveToFullPath(file);
-            SimpleObjectPersistence<T> result = new SimpleObjectPersistence<T>();
-            result.File = file;
+            SimpleObjectPersistence<T> result = new SimpleObjectPersistence<T>
+            {
+                File = file
+            };
             return result;
         }
         public static SimpleObjectPersistence<T> CreateByObjectAndFile(T @object, string file)
         {
             file = Utilities.ResolveToFullPath(file);
-            SimpleObjectPersistence<T> result = new SimpleObjectPersistence<T>();
-            result.File = file;
-            result.Object = @object;
+            SimpleObjectPersistence<T> result = new SimpleObjectPersistence<T>
+            {
+                File = file,
+                Object = @object
+            };
             return result;
         }
 
