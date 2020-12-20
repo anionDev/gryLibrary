@@ -7,6 +7,7 @@ namespace GRYLibrary.Tests.Testcases
     public class NonPersistentInputHistoryListTest
     {
         [TestMethod]
+        [TestProperty(nameof(TestKind), nameof(TestKind.UnitTest))]
         public void NonPersistentInputHistoryListTest1()
         {
             NonPersistentInputHistoryList inpustList = new NonPersistentInputHistoryList();
