@@ -401,9 +401,9 @@ namespace GRYLibrary.Core
                 {
                     if (fileSelectorPredicate(sourceFile))
                     {
-                        string sourceFolderTrimmed = sourceFolder.Trim().TrimStart('/', '\\').TrimEnd('/', '\\');
+                        string sourceFolderTrimmed = sourceFolder.Trim().TrimStart(_Slash, _Backslash).TrimEnd(_Slash, _Backslash);
                         string fileName = Path.GetFileName(sourceFile);
-                        string fullTargetFolder = Path.Combine(targetFolder, Path.GetDirectoryName(sourceFile).Substring(sourceFolderTrimmed.Length).TrimStart('/', '\\'));
+                        string fullTargetFolder = Path.Combine(targetFolder, Path.GetDirectoryName(sourceFile).Substring(sourceFolderTrimmed.Length).TrimStart(_Slash, _Backslash));
                         EnsureDirectoryExists(fullTargetFolder);
                         string targetFile = Path.Combine(fullTargetFolder, fileName);
                         if (File.Exists(targetFile))
@@ -663,11 +663,10 @@ namespace GRYLibrary.Core
             {
                 return string.Empty;
             }
-            IEnumerable<string> words = input.Split(new[] { '-', '_' }, StringSplitOptions.RemoveEmptyEntries)
-                         .Select(word => word.Substring(0, 1).ToUpper() +
-                                         word.Substring(1).ToLower());
-
-            return string.Concat(words);
+            else
+            {
+                return string.Concat(input.Split(new[] { '-', '_' }, StringSplitOptions.RemoveEmptyEntries).Select(word => word.Substring(0, 1).ToUpper() + word.Substring(1).ToLower()));
+            }
         }
         public static string ToCamelCase(this string input)
         {
@@ -675,10 +674,10 @@ namespace GRYLibrary.Core
             return char.ToLowerInvariant(pascalCase[0]) + pascalCase.Substring(1);
         }
 
-        private static readonly Regex OneOrMoreHexSigns = new Regex(@"^[0-9a-f]+$");
+        private static readonly Regex _OneOrMoreHexSigns = new Regex(@"^[0-9a-f]+$");
         public static bool IsHexString(string result)
         {
-            return OneOrMoreHexSigns.Match(result.ToLower()).Success;
+            return _OneOrMoreHexSigns.Match(result.ToLower()).Success;
         }
         public static bool IsHexDigit(this char @char)
         {
@@ -792,7 +791,7 @@ namespace GRYLibrary.Core
         }
         public static bool IsRelativePath(string path)
         {
-            if (string.IsNullOrWhiteSpace(path) || path.IndexOfAny(Path.GetInvalidPathChars()) != -1 || path.Length > 255)
+            if (string.IsNullOrWhiteSpace(path) || path.IndexOfAny(Path.GetInvalidPathChars()) != -1)
             {
                 return false;
             }
@@ -800,12 +799,12 @@ namespace GRYLibrary.Core
         }
         public static bool IsAbsolutePath(string path)
         {
-            if (string.IsNullOrWhiteSpace(path) || path.IndexOfAny(Path.GetInvalidPathChars()) != -1 || path.Length > 255 || !Path.IsPathRooted(path))
+            if (string.IsNullOrWhiteSpace(path) || path.IndexOfAny(Path.GetInvalidPathChars()) != -1 || !Path.IsPathRooted(path))
             {
                 return false;
             }
             string pathRoot = Path.GetPathRoot(path).Trim();
-            return pathRoot.Length <= 2 && pathRoot != "/" ? false : !(pathRoot == path && pathRoot.StartsWith(@"\\") && pathRoot.IndexOf('\\', 2) == -1);
+            return (pathRoot.Length > 2 || pathRoot == _Slash.ToString()) && !(pathRoot == path && pathRoot.StartsWith(_Backslash.ToString() + _Backslash.ToString()) && pathRoot.IndexOf(_Backslash, 2) == -1);
         }
         public static string GetAbsolutePath(string basePath, string relativePath)
         {
@@ -824,7 +823,7 @@ namespace GRYLibrary.Core
             relativePath = relativePath.Trim();
             basePath = basePath.Trim();
             string finalPath;
-            if (!Path.IsPathRooted(relativePath) || @"\".Equals(Path.GetPathRoot(relativePath)))
+            if (!Path.IsPathRooted(relativePath) || _Backslash.ToString().Equals(Path.GetPathRoot(relativePath)))
             {
                 if (relativePath.StartsWith(Path.DirectorySeparatorChar.ToString()))
                 {
@@ -860,10 +859,6 @@ namespace GRYLibrary.Core
             }
             return true;
         }
-        public static bool DirectoryDoesNotContainFolder(string path)
-        {
-            return Directory.GetFiles(path).Length > 0;
-        }
         public static byte[] StringToByteArray(string hex)
         {
             if (hex.Length % 2 == 1)
@@ -880,8 +875,7 @@ namespace GRYLibrary.Core
 
         public static int GetHexValue(char hex)
         {
-            int val = (int)hex;
-            return val - (val < 58 ? 48 : 55);
+            return hex - (hex < 58 ? 48 : 55);
         }
 
         public static void ClearFile(string file)
@@ -889,35 +883,35 @@ namespace GRYLibrary.Core
             File.WriteAllText(file, string.Empty, Encoding.ASCII);
         }
 
-        private const char Slash = '/';
-        private const char Backslash = '\\';
+        private const char _Slash = '/';
+        private const char _Backslash = '\\';
         public static string EnsurePathStartsWithSlash(this string path)
         {
-            if (path.StartsWith(Slash.ToString()))
+            if (path.StartsWith(_Slash.ToString()))
             {
                 return path;
             }
             else
             {
-                return Slash + path;
+                return _Slash + path;
             }
         }
         public static string EnsurePathStartsWithBackslash(this string path)
         {
-            if (path.StartsWith(Slash.ToString()))
+            if (path.StartsWith(_Slash.ToString()))
             {
                 return path;
             }
             else
             {
-                return Backslash + path;
+                return _Backslash + path;
             }
         }
         public static string EnsurePathStartsWithoutSlash(this string path)
         {
-            if (path.StartsWith(Slash.ToString()))
+            if (path.StartsWith(_Slash.ToString()))
             {
-                return path.TrimStart(Slash);
+                return path.TrimStart(_Slash);
             }
             else
             {
@@ -926,9 +920,9 @@ namespace GRYLibrary.Core
         }
         public static string EnsurePathStartsWithoutBackslash(this string path)
         {
-            if (path.StartsWith(Backslash.ToString()))
+            if (path.StartsWith(_Backslash.ToString()))
             {
-                return path.TrimStart(Slash);
+                return path.TrimStart(_Slash);
             }
             else
             {
@@ -937,31 +931,31 @@ namespace GRYLibrary.Core
         }
         public static string EnsurePathEndsWithSlash(this string path)
         {
-            if (path.EndsWith(Slash.ToString()))
+            if (path.EndsWith(_Slash.ToString()))
             {
                 return path;
             }
             else
             {
-                return path + Slash;
+                return path + _Slash;
             }
         }
         public static string EnsurePathEndsWithBackslash(this string path)
         {
-            if (path.EndsWith(Backslash.ToString()))
+            if (path.EndsWith(_Backslash.ToString()))
             {
                 return path;
             }
             else
             {
-                return path + Backslash;
+                return path + _Backslash;
             }
         }
         public static string EnsurePathEndsWithoutSlash(this string path)
         {
-            if (path.EndsWith(Slash.ToString()))
+            if (path.EndsWith(_Slash.ToString()))
             {
-                return path.TrimEnd(Slash);
+                return path.TrimEnd(_Slash);
             }
             else
             {
@@ -970,9 +964,9 @@ namespace GRYLibrary.Core
         }
         public static string EnsurePathEndsWithoutBackslash(this string path)
         {
-            if (path.EndsWith(Backslash.ToString()))
+            if (path.EndsWith(_Backslash.ToString()))
             {
-                return path.TrimEnd(Backslash);
+                return path.TrimEnd(_Backslash);
             }
             else
             {
@@ -1066,16 +1060,16 @@ namespace GRYLibrary.Core
                 throw new Exception("Assertion failed. Condition is false." + (string.IsNullOrWhiteSpace(message) ? string.Empty : " " + message));
             }
         }
-        public static string[,] ReadCSVFile(string file, string separator = ";", bool ignoreFirstLine = false)
+        public static string[][] ReadCSVFile(string file, string separator = ";", bool ignoreFirstLine = false)
         {
             return ReadCSVFile(file, new UTF8Encoding(false), separator, ignoreFirstLine);
         }
-        public static string[,] ReadCSVFile(string file, Encoding encoding, string separator = ";", bool ignoreFirstLine = false)
+        public static string[][] ReadCSVFile(string file, Encoding encoding, string separator = ";", bool ignoreFirstLine = false)
         {
             string[] lines = File.ReadAllLines(file, encoding);
             if (lines.Length == 0)
             {
-                return new string[,] { };
+                return new string[][] { };
             }
             List<List<string>> outterList = new List<List<string>>();
             for (int i = 0; i < lines.Length; i++)
@@ -1098,7 +1092,7 @@ namespace GRYLibrary.Core
                     }
                 }
             }
-            return JaggedArrayToTwoDimensionalArray(EnumerableOfEnumerableToJaggedArray(outterList));
+            return EnumerableOfEnumerableToJaggedArray(outterList);
         }
         public static bool RunWithTimeout(this ThreadStart threadStart, TimeSpan timeout)
         {
@@ -1127,7 +1121,7 @@ namespace GRYLibrary.Core
                 return Path.GetFullPath(new Uri(Path.Combine(baseDirectory, path)).LocalPath);
             }
         }
-        
+
         public static bool ValidateXMLAgainstXSD(string xml, string xsd, out IList<object> errorMessages)
         {
             try
@@ -1144,9 +1138,9 @@ namespace GRYLibrary.Core
                 errorMessages = errorMessagesList;
                 return errorMessages.Count == 0;
             }
-            catch (Exception e)
+            catch (Exception exception)
             {
-                errorMessages = new List<object>() { e };
+                errorMessages = new List<object>() { exception };
                 return false;
             }
         }
@@ -1314,9 +1308,9 @@ namespace GRYLibrary.Core
         }
         public static Guid GetVolumeIdByMountPoint(string mountPoint)
         {
-            if (!mountPoint.EndsWith("\\"))
+            if (!mountPoint.EndsWith(_Backslash))
             {
-                mountPoint += "\\";
+                mountPoint += _Backslash;
             }
             foreach (Guid volumeId in GetAvailableVolumeIds())
             {
@@ -1506,9 +1500,9 @@ namespace GRYLibrary.Core
         public static SerializableDictionary<TKey, TValue> ToSerializableDictionary<TKey, TValue>(this IDictionary<TKey, TValue> dictionary)
         {
             SerializableDictionary<TKey, TValue> result = new SerializableDictionary<TKey, TValue>();
-            foreach (System.Collections.Generic.KeyValuePair<TKey, TValue> kvp in dictionary)
+            foreach (System.Collections.Generic.KeyValuePair<TKey, TValue> keyValuePair in dictionary)
             {
-                result.Add(kvp.Key, kvp.Value);
+                result.Add(keyValuePair.Key, keyValuePair.Value);
             }
             return result;
         }

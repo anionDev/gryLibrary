@@ -157,5 +157,77 @@ namespace GRYLibrary.Tests
             Assert.AreEqual("test1", reloadedDictionary[1]);
             Assert.AreEqual("test2", reloadedDictionary[2]);
         }
+        [TestMethod]
+        public void CSVTest1()
+        {
+            string file = "file1.csv";
+            try
+            {
+                File.WriteAllText(file, "h1;h2;h3" + Environment.NewLine + "v1;v2;v3" + Environment.NewLine + "v4;v5;v6");
+                string[][] content = Utilities.ReadCSVFile(file);
+                Assert.AreEqual(3, content.Length);
+
+                for (int i = 0; i < content.Length; i++)
+                {
+                    string[] currentLine = content[i];
+                    Assert.AreEqual(3, currentLine.Length);
+                    if (i == 0)
+                    {
+                        Assert.AreEqual("h1", currentLine[0]);
+                        Assert.AreEqual("h2", currentLine[1]);
+                        Assert.AreEqual("h3", currentLine[2]);
+                    }
+                    if (i == 1)
+                    {
+                        Assert.AreEqual("v1", currentLine[0]);
+                        Assert.AreEqual("v2", currentLine[1]);
+                        Assert.AreEqual("v3", currentLine[2]);
+                    }
+                    if (i == 2)
+                    {
+                        Assert.AreEqual("v4", currentLine[0]);
+                        Assert.AreEqual("v5", currentLine[1]);
+                        Assert.AreEqual("v6", currentLine[2]);
+                    }
+                }
+            }
+            finally
+            {
+                Utilities.EnsureFileDoesNotExist(file);
+            }
+        }
+        [TestMethod]
+        public void CSVTest2()
+        {
+            string file = "file1.csv";
+            try
+            {
+                File.WriteAllText(file, "h1,h2,h3" + Environment.NewLine + "v1,v2,v3" + Environment.NewLine + "v4,v5,v6");
+                string[][] content = Utilities.ReadCSVFile(file,",",true);
+                Assert.AreEqual(2, content.Length);
+
+                for (int i = 0; i < content.Length; i++)
+                {
+                    string[] currentLine = content[i];
+                    Assert.AreEqual(3, currentLine.Length);
+                     if (i == 0)
+                    {
+                        Assert.AreEqual("v1", currentLine[0]);
+                        Assert.AreEqual("v2", currentLine[1]);
+                        Assert.AreEqual("v3", currentLine[2]);
+                    }
+                    if (i == 1)
+                    {
+                        Assert.AreEqual("v4", currentLine[0]);
+                        Assert.AreEqual("v5", currentLine[1]);
+                        Assert.AreEqual("v6", currentLine[2]);
+                    }
+                }
+            }
+            finally
+            {
+                Utilities.EnsureFileDoesNotExist(file);
+            }
+        }
     }
 }
