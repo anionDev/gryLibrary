@@ -14,6 +14,7 @@ namespace GRYLibrary.Core.AdvancedXMLSerialysis
 {
     public class GenericXMLSerializer
     {
+#pragma warning disable CA1822 // Mark members as static
         public SerializationConfiguration SerializationConfiguration { get; set; }
         private readonly Type _T;
         public GenericXMLSerializer() : this(typeof(object))
@@ -93,7 +94,7 @@ namespace GRYLibrary.Core.AdvancedXMLSerialysis
         }
         public object/*T*/ Deserialize(XmlReader reader)
         {
-            object result = GetSerializer().Deserialize(reader);
+            object result = this.GetSerializer().Deserialize(reader);
             GRYSObject gRYSObject = (GRYSObject)result;
             return gRYSObject.Get();
         }
@@ -149,11 +150,10 @@ namespace GRYLibrary.Core.AdvancedXMLSerialysis
                 }
             }
         }
-
+#pragma warning restore CA1822 // Mark members as static
     }
     public class GenericXMLSerializer<T> : GenericXMLSerializer
     {
-
         public T DeserializeTyped(string serializedObject)
         {
             return (T)this.Deserialize(serializedObject);

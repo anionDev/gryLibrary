@@ -1,9 +1,8 @@
-﻿using GRYLibrary.TestData.TestTypes.ComplexDataStructure.PaymentMethods;
-using System;
+﻿using System;
 using GRYLibrary.Core.AdvancedObjectAnalysis;
+using GRYLibrary.Tests.TestData.TestTypes.ComplexDataStructure.PaymentMethods;
 
-
-namespace GRYLibrary.TestData.TestTypes.ComplexDataStructure
+namespace GRYLibrary.Tests.TestData.TestTypes.ComplexDataStructure
 {
     public abstract class PaymentMethod
     {

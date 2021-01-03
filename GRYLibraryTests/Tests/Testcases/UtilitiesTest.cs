@@ -1,7 +1,7 @@
 ﻿using GRYLibrary.Core;
 using GRYLibrary.Core.XMLSerializer;
-using GRYLibrary.TestData.TestTypes.CyclicDataStructure;
-using GRYLibrary.TestData.TestTypes.SimpleDataStructure;
+using GRYLibrary.Tests.TestData.TestTypes.CyclicDataStructure;
+using GRYLibrary.Tests.TestData.TestTypes.SimpleDataStructure;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections;

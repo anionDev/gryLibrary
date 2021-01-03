@@ -1,9 +1,9 @@
 ﻿using GRYLibrary.Core.AdvancedObjectAnalysis;
 using GRYLibrary.Core.AdvancedXMLSerialysis;
-using GRYLibrary.TestData.TestTypes.ComplexDataStructure;
-using GRYLibrary.TestData.TestTypes.CyclicDataStructure;
-using GRYLibrary.TestData.TestTypes.SimpleDataStructure;
-using GRYLibrary.TestData.TestTypes.XMLSerializableType;
+using GRYLibrary.Tests.TestData.TestTypes.ComplexDataStructure;
+using GRYLibrary.Tests.TestData.TestTypes.CyclicDataStructure;
+using GRYLibrary.Tests.TestData.TestTypes.SimpleDataStructure;
+using GRYLibrary.Tests.TestData.TestTypes.XMLSerializableType;
 using GRYLibrary.Tests.Utilities;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections;

@@ -1,6 +1,6 @@
 Copyright © 2020 Marius Göcke
 
-GRYLibrary itself is licensed under the terms of the GRYLibrary-License version 1.6 (see appendix 1).
+GRYLibrary itself is licensed under the terms of the GRYLibrary-License version 1.7 (see appendix 1).
 GRYLibrary uses dependencies which are released under their own license:
  - Microsoft.CSharp is licensed under the terms of the MIT-license (see appendix 2)
  - Microsoft.Extensions.Logging.EventLog is licensed under the terms of the Apache-license version 2.0 (see appendix 3)
@@ -8,7 +8,7 @@ GRYLibrary uses dependencies which are released under their own license:
 
 ----------------------------------------------------------------------
 Appendix 1:
-GRYLibrary-License version 1.6 (GRYL-1.6)
+GRYLibrary-License version 1.7 (GRYL-1.7)
 
 Definitions:
  - "This license" means this GRYLibrary-License.
@@ -22,14 +22,17 @@ Your license expires immediately if one of this conditions is not fulfilled anym
 
 GRYL-using-conditions:
 The licensee is allowed to use the product under the terms of the GNU lesser general public license version 3 (see appendix 4) with the restriction that the licensee is not allowed to exercise any right given by the GNU lesser general public license version 3 if it contradicts any condition defined in this license.
-When you use this product as dependency in your project you are allowed to publish, release and distribute your product under the terms of any license you want as long as
- - all of your usecases of this product in your product always comply with the terms of this license and
- - you make it clear for everyone that this product (and the usage of this product as part in your product) is still licensed under the terms of this license regardless of the license under which your product is distributed. It is not allowed to change the license for this product when you distribute your product.
+When you use this product as dependency in your project you are allowed to publish, release and distribute your product under the terms of any license you want as long as you obey all of the following requirements:
+ - All of your usecases of this product in your product always comply with the terms of this license.
+ - You make it clear for everyone that this product and the usage of this product as part in your product is still licensed under the terms of this license regardless of the license under which your product is distributed. It is not allowed to change the license for this product.
+ - You do not provide a function for the user of your product to simply and directly execute functions of this product. You are only allowed to use this product in your product internally.
 
 GRYL-user-conditions:
-You satisfy the GRYL-user-conditions if and only if you are
- - a non governmental nonprofit-organization or
- - a private person who does not earn money with your product.
+You satisfy the GRYL-user-conditions if and only if at least one of the following things applies to you when you use this product:
+ - You use this product in a non governmental nonprofit-organization.
+ - Your product is an open-source-project which satisfies the four essential freedoms defined at https://www.gnu.org/philosophy/free-sw.en.html and everybody is allowed to use your product for free.
+ - You use this product as a private person who does not earn money with your product.
+You do not satisfy the GRYL-user-conditions if you has received this product because a product which you are using depends on this product.
 
 GRYL-ethics-conditions:
 A usecase for this product satisfies the conditions for ethical usage if and only if the usecase fulfills the ethical claims defined by the Hippocratic-license version 2.0 (see appendix 5).
