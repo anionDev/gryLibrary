@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Xml;
 using System.Xml.Schema;
 
-namespace GRYLibrary.TestData.TestTypes.SimpleDataStructure
+namespace GRYLibrary.Tests.TestData.TestTypes.SimpleDataStructure
 {
     public class SimpleDataStructure3: IGRYSerializable
     {

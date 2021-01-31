@@ -66,16 +66,19 @@ namespace GRYLibrary.Tests.Testcases
         }
 
         [TestMethod]
+        [TestProperty(nameof(TestKind), nameof(TestKind.UnitTest))]
         public void CommonTestM3U()
         {
             this.CommonTest("Test.m3u", M3UHandler.Instance);
         }
         [TestMethod]
+        [TestProperty(nameof(TestKind), nameof(TestKind.UnitTest))]
         public void CommonTestPLS()
         {
             this.CommonTest("Test.pls", PLSHandler.Instance);
         }
         [TestMethod]
+        [TestProperty(nameof(TestKind), nameof(TestKind.UnitTest))]
         public void CommonTestM3UReferencedPlaylist()
         {
             string directoryName = @"test\test";
@@ -107,6 +110,7 @@ namespace GRYLibrary.Tests.Testcases
             }
         }
         [TestMethod]
+        [TestProperty(nameof(TestKind), nameof(TestKind.UnitTest))]
         public void M3UConfigurationWithRelativePath1()
         {
             string directoryName = "test";
@@ -139,11 +143,11 @@ namespace GRYLibrary.Tests.Testcases
                 Core.Utilities.EnsureFileDoesNotExist(m3uFile2);
                 Core.Utilities.EnsureDirectoryDoesNotExist(directoryName);
                 Core.Utilities.EnsureFileDoesNotExist(configurationFile);
-
             }
         }
 
         [TestMethod]
+        [TestProperty(nameof(TestKind), nameof(TestKind.UnitTest))]
         public void M3UConfigurationWithRelativePath2()
         {
             string currentDirectory = Directory.GetCurrentDirectory();
@@ -228,6 +232,21 @@ namespace GRYLibrary.Tests.Testcases
             }
         }
 
+        [Ignore]
+        [TestMethod]
+        [TestProperty(nameof(TestKind), nameof(TestKind.RegressionTest))]//Verifies that the content of a folder will be loaded when a playlist contains this folder
+        public void LoadPlaylistWhichContainsFolder()
+        {
+            throw new NotImplementedException();
+        }
+
+        [Ignore]
+        [TestMethod]
+        [TestProperty(nameof(TestKind), nameof(TestKind.UnitTest))]
+        public void LoadPlaylistWithRelativePathsPracticalExample()
+        {
+            throw new NotImplementedException();
+        }
         private void EnsureFilesAreDeleted(IEnumerable<string> files)
         {
             foreach (string file in files)
@@ -237,6 +256,7 @@ namespace GRYLibrary.Tests.Testcases
         }
 
         [TestMethod]
+        [TestProperty(nameof(TestKind), nameof(TestKind.UnitTest))]
         public void CommonTestM3UConfigurationWithAbsolutePath()
         {
             string directoryName = Directory.GetCurrentDirectory() + "\\test";

@@ -1,14 +1,14 @@
 ﻿using GRYLibrary.Core.AdvancedObjectAnalysis;
-using GRYLibrary.TestData.TestTypes.CyclicDataStructure;
-using GRYLibrary.TestData.TestTypes.GenericType;
-using GRYLibrary.TestData.TestTypes.SimpleDataStructure;
+using GRYLibrary.Tests.TestData.TestTypes.CyclicDataStructure;
+using GRYLibrary.Tests.TestData.TestTypes.GenericType;
+using GRYLibrary.Tests.TestData.TestTypes.SimpleDataStructure;
 using System.Collections;
 using System.Collections.Generic;
 using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
 
-namespace GRYLibrary.TestData.TestTypes.XMLSerializableType
+namespace GRYLibrary.Tests.TestData.TestTypes.XMLSerializableType
 {
     public class XMLSerializableType : IXmlSerializable
     {

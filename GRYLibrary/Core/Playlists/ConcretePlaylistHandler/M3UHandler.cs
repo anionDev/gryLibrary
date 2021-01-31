@@ -50,7 +50,7 @@ namespace GRYLibrary.Core.Playlists.ConcretePlaylistHandler
                 }
                 if (payload.StartsWith("-"))
                 {
-                    excludedItems.Add(payload.Substring(1));
+                    excludedItems.Add(payload[1..]);
                 }
                 else
                 {
@@ -176,7 +176,7 @@ namespace GRYLibrary.Core.Playlists.ConcretePlaylistHandler
                             if (trimmedLine.Contains(":"))
                             {
                                 string optionKey = trimmedLine.Split(':')[0].ToLower();
-                                string optionValue = trimmedLine.Substring(optionKey.Length + 1);
+                                string optionValue = trimmedLine[(optionKey.Length + 1)..];
                                 if (optionKey.Equals("on"))
                                 {
                                     currentConfiguration = new M3UConfigurationPerPC(trimmedLine.Split(':')[1].ToUpper());

@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using GRYLibrary.Core;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 
 namespace GRYLibrary.Tests.Testcases
@@ -7,6 +8,7 @@ namespace GRYLibrary.Tests.Testcases
     public class PropertyTest
     {
         [TestMethod]
+        [TestProperty(nameof(TestKind), nameof(TestKind.UnitTest))]
         public void SimplePropertyTests()
         {
             object object1 = new object();

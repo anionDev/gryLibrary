@@ -1,6 +1,5 @@
-﻿using GRYLibrary.TestData.TestTypes.SimpleDataStructure;
+﻿using GRYLibrary.Tests.TestData.TestTypes.SimpleDataStructure;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-
 
 namespace GRYLibrary.Tests.Testcases.AdvancedObjectAnalysisTests.ToString
 {

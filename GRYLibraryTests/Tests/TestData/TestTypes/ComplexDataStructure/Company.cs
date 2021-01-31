@@ -7,7 +7,7 @@ using GRYLibrary.Core;
 using GRYLibrary.Core.AdvancedObjectAnalysis;
 using GRYLibrary.Core.AdvancedObjectAnalysis.GenericXMLSerializerHelper;
 
-namespace GRYLibrary.TestData.TestTypes.ComplexDataStructure
+namespace GRYLibrary.Tests.TestData.TestTypes.ComplexDataStructure
 {
     public class Company : IGRYSerializable
     {

@@ -1,6 +1,6 @@
 ﻿using GRYLibrary.Core.AdvancedObjectAnalysis;
 
-namespace GRYLibrary.TestData.TestTypes.ComplexDataStructure.PaymentMethods
+namespace GRYLibrary.Tests.TestData.TestTypes.ComplexDataStructure.PaymentMethods
 {
     public class CreditCard: PaymentMethod
     {

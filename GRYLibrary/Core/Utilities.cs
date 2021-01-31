@@ -30,6 +30,8 @@ using GRYLibrary.Core.Log;
 using GRYLibrary.Core.AdvancedObjectAnalysis;
 using System.Collections;
 using System.Diagnostics;
+using static System.Net.Mime.MediaTypeNames;
+using Microsoft.Win32;
 
 namespace GRYLibrary.Core
 {
@@ -42,6 +44,27 @@ namespace GRYLibrary.Core
         {
             byte[] result = new byte[length];
             new Random().NextBytes(result);
+            return result;
+        }
+
+        /// <summary>
+        /// This is the inverse function of <see cref="ConcatBytesArraysWithLengthInformation"/>
+        /// </summary>
+        internal static byte[][] GetBytesArraysFromConcatBytesArraysWithLengthInformation(byte[] bytes)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// This is the inverse function of <see cref="GetBytesArraysFromConcatBytesArraysWithLengthInformation"/>
+        /// </summary>
+        internal static byte[] ConcatBytesArraysWithLengthInformation(params byte[][] byteArrays)
+        {
+            byte[] result = Array.Empty<byte>();
+            foreach (var byteArray in byteArrays)
+            {
+                result = Concat(result, IntToByteArray(byteArray.Length), byteArray);
+            }
             return result;
         }
 
@@ -537,7 +560,7 @@ namespace GRYLibrary.Core
                     {
                         string sourceFolderTrimmed = sourceFolder.Trim().TrimStart('/', '\\').TrimEnd('/', '\\');
                         string fileName = Path.GetFileName(sourceFile);
-                        string fullTargetFolder = Path.Combine(targetFolder, Path.GetDirectoryName(sourceFile).Substring(sourceFolderTrimmed.Length).TrimStart('/', '\\'));
+                        string fullTargetFolder = Path.Combine(targetFolder, Path.GetDirectoryName(sourceFile)[sourceFolderTrimmed.Length..].TrimStart('/', '\\'));
                         EnsureDirectoryExists(fullTargetFolder);
                         string targetFile = Path.Combine(fullTargetFolder, fileName);
                         if (File.Exists(targetFile))
@@ -695,7 +718,7 @@ namespace GRYLibrary.Core
             {
                 if (functions.Count == 0)
                 {
-                    throw new ArgumentException();
+                    throw new ArgumentException($"Argument '{ nameof(functions) }' does not contain any function.");
                 }
                 Parallel.ForEach(functions, new ParallelOptions { MaxDegreeOfParallelism = _MaximalDegreeOfParallelism }, new Action<Func<T>, ParallelLoopState>((Func<T> function, ParallelLoopState state) =>
                 {
@@ -747,10 +770,19 @@ namespace GRYLibrary.Core
         private static readonly IFormatter _Formatter = new BinaryFormatter();
         public static T DeepClone<T>(this T @object)
         {
-            using Stream memoryStream = new MemoryStream();
-            _Formatter.Serialize(memoryStream, @object);
-            memoryStream.Position = 0;
-            return (T)_Formatter.Deserialize(memoryStream);
+            return Generic.GenericDeserialize<T>(Generic.GenericSerialize(@object));
+        }
+        /// <summary>
+        /// Casts an object to the given type if possible.
+        /// This can be useful for example to to cast 'Action&lt;Object&gt' to 'Action' or 'Func&lt;string&gt' to 'Func&lt;Object&gt' to fulfil interface-compatibility.
+        /// </summary>
+        public static object Cast(object @object, Type targetType)
+        {
+            throw new NotImplementedException();// TODO call CastHelper using reflection
+        }
+        private static T CastHelper<T>(object @object)
+        {
+            return (T)@object;
         }
         public static long GetTotalFreeSpace(string driveName)
         {
@@ -789,11 +821,11 @@ namespace GRYLibrary.Core
             string quotedExe = "\"" + exe + "\"";
             if (rawCmd.StartsWith(exe))
             {
-                rawCmd = rawCmd.Substring(exe.Length + 1);
+                rawCmd = rawCmd[(exe.Length + 1)..];
             }
             else if (rawCmd.StartsWith(quotedExe))
             {
-                rawCmd = rawCmd.Substring(quotedExe.Length + 1);
+                rawCmd = rawCmd[(quotedExe.Length + 1)..];
             }
             return rawCmd.Trim();
         }
@@ -888,23 +920,10 @@ namespace GRYLibrary.Core
         {
             return Directory.GetFiles(path).Length > 0;
         }
-        public static byte[] StringToByteArray(string hex)
-        {
-            if (hex.Length % 2 == 1)
-            {
-                hex = "0" + hex;
-            }
-            byte[] result = new byte[hex.Length >> 1];
-            for (int i = 0; i < hex.Length >> 1; ++i)
-            {
-                result[i] = (byte)((GetHexValue(hex[i << 1]) << 4) + GetHexValue(hex[(i << 1) + 1]));
-            }
-            return result;
-        }
 
         public static int GetHexValue(char hex)
         {
-            int val = (int)hex;
+            int val = hex;
             return val - (val < 58 ? 48 : 55);
         }
 
@@ -1043,31 +1062,39 @@ namespace GRYLibrary.Core
             return true;
         }
 
+        public static byte[] SimpleStringToByteArray(string @string)
+        {
+            return new UTF8Encoding(false).GetBytes(@string);
+        }
+        public static string SimpleByteArrayToString(byte[] bytes)
+        {
+            return new UTF8Encoding(false).GetString(bytes);
+        }
         public static string ByteArrayToHexString(byte[] value)
         {
             return BitConverter.ToString(value).Replace("-", string.Empty);
         }
 
-        public static byte[] HexStringToByteArray(string hexString)
+        public static byte[] HexStringToByteArray(string hex)
         {
-            if (hexString.Length % 2 == 1)
+            if (hex.Length % 2 == 1)
             {
-                hexString = "0" + hexString;
+                hex = "0" + hex;
             }
-            int inputLength = hexString.Length;
-            byte[] bytes = new byte[inputLength / 2];
-            for (int i = 0; i < inputLength; i += 2)
+            byte[] result = new byte[hex.Length >> 1];
+            for (int i = 0; i < hex.Length >> 1; ++i)
             {
-                bytes[i / 2] = Convert.ToByte(hexString.Substring(i, 2), 16);
+                result[i] = (byte)((GetHexValue(hex[i << 1]) << 4) + GetHexValue(hex[(i << 1) + 1]));
             }
-            return bytes;
+            return result;
         }
+
         public static string IntegerToHexString(BigInteger input)
         {
             string result = input.ToString("X");
             if (result.StartsWith("0"))
             {
-                return result.Substring(1);
+                return result[1..];
             }
             else
             {
@@ -1078,7 +1105,16 @@ namespace GRYLibrary.Core
         {
             return BigInteger.Parse(input, NumberStyles.HexNumber);
         }
-        public static T[] Concat<T>(T[] array1, T[] array2)
+        public static T[] Concat<T>(params T[][] arrays)
+        {
+            T[] result = Array.Empty<T>();
+            foreach (var array in arrays)
+            {
+                result = Concat2Arrays(result, array);
+            }
+            return result;
+        }
+        private static T[] Concat2Arrays<T>(T[] array1, T[] array2)
         {
             T[] result = new T[array1.Length + array2.Length];
             array1.CopyTo(result, 0);
@@ -1145,7 +1181,7 @@ namespace GRYLibrary.Core
             bool terminatedInGivenTimeSpan = workerThread.Join(timeout);
             if (!terminatedInGivenTimeSpan)
             {
-                workerThread.Abort();
+                workerThread.Interrupt();
             }
             return terminatedInGivenTimeSpan;
         }
@@ -1313,7 +1349,7 @@ namespace GRYLibrary.Core
                     string prefix = "\\\\?\\Volume{";
                     if (line.StartsWith(prefix))
                     {
-                        line = line.Substring(prefix.Length);//remove "\\?\Volume{"
+                        line = line[prefix.Length..];//remove "\\?\Volume{"
                         line = line[0..^2];//remove "}\"
                         string nextLine = externalProgramExecutor.AllStdOutLines[i + 1].Trim();
                         if (Directory.Exists(nextLine) || nextLine.StartsWith("***"))
@@ -1406,6 +1442,55 @@ namespace GRYLibrary.Core
                 }
             }
             throw new KeyNotFoundException($"No volume could be found which provides the volume accessible at {mountPoint}");
+        }
+
+
+        public static T[] PadLeft<T>(T[] array, int length)
+        {
+            return PadLeft(array, default, length);
+        }
+        public static T[] PadLeft<T>(T[] array, T fillItem, int length)
+        {
+            return PadHelper(array, length, fillItem, true);
+        }
+        public static T[] PadRight<T>(T[] array, int length)
+        {
+            return PadRight(array, default, length);
+        }
+        public static T[] PadRight<T>(T[] array, T fillItem, int length)
+        {
+            return PadHelper(array, length, fillItem, false);
+        }
+        private static T[] PadHelper<T>(T[] array, int length, T fillItem, bool PadLeft)
+        {
+
+            T[] result = array;
+            while (array.Length <= length)
+            {
+                if (PadLeft)
+                {
+                    Concat(new T[] { fillItem }, result);
+                }
+                else
+                {
+                    Concat(result, new T[] { fillItem });
+                }
+            }
+            return result;
+        }
+        /// <param name="value">
+        /// must contain maximal 4 bytes.
+        /// </param>
+        public static int ByteArrayToInt(byte[] value)
+        {
+            throw new NotImplementedException();
+        }
+        /// <returns>
+        /// Returns an array with exactly 4 bytes.
+        /// </returns>
+        public static byte[] IntToByteArray(int value)
+        {
+            throw new NotImplementedException();
         }
         public static bool NullSafeSetEquals<T>(this ISet<T> @this, ISet<T> obj)
         {
@@ -1669,7 +1754,7 @@ namespace GRYLibrary.Core
             {
                 return input.ToUpper();
             }
-            return input.First().ToString().ToUpper() + input.Substring(1).ToLower();
+            return input.First().ToString().ToUpper() + input[1..].ToLower();
         }
         private static readonly char[] Whitespace = new char[] { ' ' };
         private static readonly char[] WhitespaceAndPartialWordIndicators = new char[] { ' ', '_', '-' };
@@ -1745,14 +1830,14 @@ namespace GRYLibrary.Core
             }
             IEnumerable<string> words = input.Split(new[] { '-', '_' }, StringSplitOptions.RemoveEmptyEntries)
                          .Select(word => word.Substring(0, 1).ToUpper() +
-                                         word.Substring(1).ToLower());
+                                         word[1..].ToLower());
 
             return string.Concat(words);
         }
         public static string ToCamelCase(this string input)
         {
             string pascalCase = input.ToPascalCase();
-            return char.ToLowerInvariant(pascalCase[0]) + pascalCase.Substring(1);
+            return char.ToLowerInvariant(pascalCase[0]) + pascalCase[1..];
         }
 
         private static readonly Regex _OneOrMoreHexSigns = new Regex(@"^[0-9a-f]+$");
@@ -1764,16 +1849,52 @@ namespace GRYLibrary.Core
         {
             return (@char >= '0' && @char <= '9') || (@char >= 'a' && @char <= 'f') || (@char >= 'A' && @char <= 'F');
         }
+
+        public static bool DarkModeEnabled()
+        {
+            return OperatingSystem.OperatingSystem.GetCurrentOperatingSystem().Accept(_DarkModeEnabledVisitor);
+        }
+        private static readonly IOperatingSystemVisitor<bool> _DarkModeEnabledVisitor = new DarkModeEnabledVisitor();
+        private class DarkModeEnabledVisitor : IOperatingSystemVisitor<bool>
+        {
+            public bool Handle(OSX operatingSystem)
+            {
+                throw new NotSupportedException();
+            }
+
+            public bool Handle(Windows operatingSystem)
+            {
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                {
+                    try
+                    {
+                        using RegistryKey key = Registry.CurrentUser.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize");
+                        return ((int)key.GetValue("AppsUseLightTheme")) == 0;
+                    }
+                    catch
+                    {
+                        NoOperation();
+                    }
+                }
+                return false;
+            }
+
+            public bool Handle(Linux operatingSystem)
+            {
+                throw new NotSupportedException();
+            }
+        }
         #endregion
 
         #region Git
-        public static GitCommandResult ExecuteGitCommand(string repositoryFolder, string argument, bool throwErrorIfExitCodeIsNotZero = false, int? timeoutInMilliseconds = null, bool printErrorsAsInformation = false, bool logEnabled = false)
+        public static GitCommandResult ExecuteGitCommand(string repositoryFolder, string argument, bool throwErrorIfExitCodeIsNotZero = false, int? timeoutInMilliseconds = null, bool printErrorsAsInformation = false, bool writeOutputConsole = false)
         {
             using GRYLog log = GRYLog.Create();
-            log.Configuration.Enabled = false;
-            log.Configuration.GetLogTarget<Log.ConcreteLogTargets.Console>().Enabled = logEnabled;
+            log.Configuration.Enabled = true;
+            log.Configuration.SetEnabledOfAllLogTargets(writeOutputConsole);
             using ExternalProgramExecutor externalProgramExecutor = new ExternalProgramExecutor("git", argument, repositoryFolder)
             {
+                LogObject = log,
                 TimeoutInMilliseconds = timeoutInMilliseconds,
                 PrintErrorsAsInformation = printErrorsAsInformation,
                 ThrowErrorIfExitCodeIsNotZero = throwErrorIfExitCodeIsNotZero
@@ -2015,30 +2136,30 @@ namespace GRYLibrary.Core
         /// <param name="commitWasCreated">Will be set to true if and only if really a commit was created. Will be set to false if and only if there are no changes to get committed.</param>
         /// <returns>Returns the commit-id of the currently checked out commit. This returns the id of the new created commit if there were changes which were committed by this function.</returns>
         /// <exception cref="UnexpectedExitCodeException">If there are uncommitted changes in submodules of <paramref name="repositoryFolder"/>.</exception>
-        public static string GitCommit(string repositoryFolder, string commitMessage, out bool commitWasCreated, bool logEnabled = false)
+        public static string GitCommit(string repositoryFolder, string commitMessage, out bool commitWasCreated, bool writeOutputConsole = false)
         {
             commitWasCreated = false;
             if (GitRepositoryHasUncommittedChanges(repositoryFolder))
             {
-                ExecuteGitCommand(repositoryFolder, $"add -A", true, logEnabled: logEnabled);
-                ExecuteGitCommand(repositoryFolder, $"commit -m \"{commitMessage}\"", true, logEnabled: logEnabled);
+                ExecuteGitCommand(repositoryFolder, $"add -A", true, writeOutputConsole: writeOutputConsole);
+                ExecuteGitCommand(repositoryFolder, $"commit -m \"{commitMessage}\"", true, writeOutputConsole: writeOutputConsole);
                 commitWasCreated = true;
             }
-            return GetLastGitCommitId(repositoryFolder, "HEAD");
+            return GetLastGitCommitId(repositoryFolder, "HEAD", writeOutputConsole);
         }
         /// <returns>Returns the commit-id of the given <paramref name="revision"/>.</returns>
-        public static string GetLastGitCommitId(string repositoryFolder, string revision = "HEAD")
+        public static string GetLastGitCommitId(string repositoryFolder, string revision = "HEAD", bool writeOutputConsole = false)
         {
-            return ExecuteGitCommand(repositoryFolder, $"rev-parse {revision}", true).GetFirstStdOutLine();
+            return ExecuteGitCommand(repositoryFolder, $"rev-parse {revision}", true, writeOutputConsole: writeOutputConsole).GetFirstStdOutLine();
         }
         /// <param name="printErrorsAsInformation">
         /// Represents a value which indicates if the git-output which goes to stderr should be treated as stdout.
         /// The default-value is true since even if no error occurs git write usual information to stderr.
         /// If really an error occures (=the exit-code of git is not 0) then this function throws an exception
         /// </param>
-        public static void GitFetch(string repositoryFolder, string remoteName = "--all", bool printErrorsAsInformation = true, bool logEnabled = false)
+        public static void GitFetch(string repositoryFolder, string remoteName = "--all", bool printErrorsAsInformation = true, bool writeOutputConsole = false)
         {
-            ExecuteGitCommand(repositoryFolder, $"fetch {remoteName} --tags --prune", true, printErrorsAsInformation: printErrorsAsInformation, logEnabled: logEnabled);
+            ExecuteGitCommand(repositoryFolder, $"fetch {remoteName} --tags --prune", true, printErrorsAsInformation: printErrorsAsInformation, writeOutputConsole: writeOutputConsole);
         }
         public static bool GitRepositoryHasUnstagedChanges(string repositoryFolder)
         {
@@ -2622,15 +2743,27 @@ namespace GRYLibrary.Core
         {
             return FileExtentionInfo(AssocStr.Executable, extensionWithDot);
         }
-        [DllImport("Shlwapi.dll", SetLastError = true, CharSet = CharSet.Auto)]
+        [DllImport("Shlwapi.dll", SetLastError = true, CharSet = CharSet.Unicode)]
         static extern uint AssocQueryString(AssocF flags, AssocStr str, string pszAssoc, string pszExtra, [Out] StringBuilder pszOut, [In][Out] ref uint pcchOut);
         private static string FileExtentionInfo(AssocStr assocStr, string extensionWithDot)
         {
+#pragma warning disable CA1806 // Do not ignore method results
             uint pcchOut = 0;
             AssocQueryString(AssocF.Verify, assocStr, extensionWithDot, null, null, ref pcchOut);
             StringBuilder pszOut = new StringBuilder((int)pcchOut);
             AssocQueryString(AssocF.Verify, assocStr, extensionWithDot, null, pszOut, ref pcchOut);
+#pragma warning restore CA1806 // Do not ignore method results
             return pszOut.ToString();
+        }
+
+        public static (T[], T[]) Split<T>(T[] source, int index)
+        {
+            int len2 = source.Length - index;
+            T[] first = new T[index];
+            T[] last = new T[len2];
+            Array.Copy(source, 0, first, 0, index);
+            Array.Copy(source, index, last, 0, len2);
+            return (first, last);
         }
 
         [Flags]
@@ -2638,7 +2771,9 @@ namespace GRYLibrary.Core
         {
             Init_NoRemapCLSID = 0x1,
             Init_ByExeName = 0x2,
+#pragma warning disable CA1069 // Enums values should not be duplicated
             Open_ByExeName = 0x2,
+#pragma warning restore CA1069 // Enums values should not be duplicated
             Init_DefaultToStar = 0x4,
             Init_DefaultToFolder = 0x8,
             NoUserSettings = 0x10,

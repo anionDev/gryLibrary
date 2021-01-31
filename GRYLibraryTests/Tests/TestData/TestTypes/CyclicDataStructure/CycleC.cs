@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Xml;
 using System.Xml.Schema;
 
-namespace GRYLibrary.TestData.TestTypes.CyclicDataStructure
+namespace GRYLibrary.Tests.TestData.TestTypes.CyclicDataStructure
 {
     [Serializable]
     public class CycleC : IGRYSerializable

@@ -1,8 +1,7 @@
 ﻿using System;
 using GRYLibrary.Core.AdvancedObjectAnalysis;
 
-
-namespace GRYLibrary.TestData.TestTypes.ComplexDataStructure
+namespace GRYLibrary.Tests.TestData.TestTypes.ComplexDataStructure
 {
     public class MoneyAmount
     {
