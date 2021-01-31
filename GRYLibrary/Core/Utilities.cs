@@ -1887,11 +1887,11 @@ namespace GRYLibrary.Core
         #endregion
 
         #region Git
-        public static GitCommandResult ExecuteGitCommand(string repositoryFolder, string argument, bool throwErrorIfExitCodeIsNotZero = false, int? timeoutInMilliseconds = null, bool printErrorsAsInformation = false, bool writeOutputConsole = false)
+        public static GitCommandResult ExecuteGitCommand(string repositoryFolder, string argument, bool throwErrorIfExitCodeIsNotZero = false, int? timeoutInMilliseconds = null, bool printErrorsAsInformation = false, bool writeOutputToConsole = false)
         {
             using GRYLog log = GRYLog.Create();
             log.Configuration.Enabled = true;
-            log.Configuration.SetEnabledOfAllLogTargets(writeOutputConsole);
+            log.Configuration.SetEnabledOfAllLogTargets(writeOutputToConsole);
             using ExternalProgramExecutor externalProgramExecutor = new ExternalProgramExecutor("git", argument, repositoryFolder)
             {
                 LogObject = log,
@@ -2136,30 +2136,30 @@ namespace GRYLibrary.Core
         /// <param name="commitWasCreated">Will be set to true if and only if really a commit was created. Will be set to false if and only if there are no changes to get committed.</param>
         /// <returns>Returns the commit-id of the currently checked out commit. This returns the id of the new created commit if there were changes which were committed by this function.</returns>
         /// <exception cref="UnexpectedExitCodeException">If there are uncommitted changes in submodules of <paramref name="repositoryFolder"/>.</exception>
-        public static string GitCommit(string repositoryFolder, string commitMessage, out bool commitWasCreated, bool writeOutputConsole = false)
+        public static string GitCommit(string repositoryFolder, string commitMessage, out bool commitWasCreated, bool writeOutputToConsole = false)
         {
             commitWasCreated = false;
             if (GitRepositoryHasUncommittedChanges(repositoryFolder))
             {
-                ExecuteGitCommand(repositoryFolder, $"add -A", true, writeOutputConsole: writeOutputConsole);
-                ExecuteGitCommand(repositoryFolder, $"commit -m \"{commitMessage}\"", true, writeOutputConsole: writeOutputConsole);
+                ExecuteGitCommand(repositoryFolder, $"add -A", true, writeOutputToConsole: writeOutputToConsole);
+                ExecuteGitCommand(repositoryFolder, $"commit -m \"{commitMessage}\"", true, writeOutputToConsole: writeOutputToConsole);
                 commitWasCreated = true;
             }
-            return GetLastGitCommitId(repositoryFolder, "HEAD", writeOutputConsole);
+            return GetLastGitCommitId(repositoryFolder, "HEAD", writeOutputToConsole);
         }
         /// <returns>Returns the commit-id of the given <paramref name="revision"/>.</returns>
-        public static string GetLastGitCommitId(string repositoryFolder, string revision = "HEAD", bool writeOutputConsole = false)
+        public static string GetLastGitCommitId(string repositoryFolder, string revision = "HEAD", bool writeOutputToConsole = false)
         {
-            return ExecuteGitCommand(repositoryFolder, $"rev-parse {revision}", true, writeOutputConsole: writeOutputConsole).GetFirstStdOutLine();
+            return ExecuteGitCommand(repositoryFolder, $"rev-parse {revision}", true, writeOutputToConsole: writeOutputToConsole).GetFirstStdOutLine();
         }
         /// <param name="printErrorsAsInformation">
         /// Represents a value which indicates if the git-output which goes to stderr should be treated as stdout.
         /// The default-value is true since even if no error occurs git write usual information to stderr.
         /// If really an error occures (=the exit-code of git is not 0) then this function throws an exception
         /// </param>
-        public static void GitFetch(string repositoryFolder, string remoteName = "--all", bool printErrorsAsInformation = true, bool writeOutputConsole = false)
+        public static void GitFetch(string repositoryFolder, string remoteName = "--all", bool printErrorsAsInformation = true, bool writeOutputToConsole = false)
         {
-            ExecuteGitCommand(repositoryFolder, $"fetch {remoteName} --tags --prune", true, printErrorsAsInformation: printErrorsAsInformation, writeOutputConsole: writeOutputConsole);
+            ExecuteGitCommand(repositoryFolder, $"fetch {remoteName} --tags --prune", true, printErrorsAsInformation: printErrorsAsInformation, writeOutputToConsole: writeOutputToConsole);
         }
         public static bool GitRepositoryHasUnstagedChanges(string repositoryFolder)
         {
