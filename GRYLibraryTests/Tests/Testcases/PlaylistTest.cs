@@ -232,7 +232,7 @@ namespace GRYLibrary.Tests.Testcases
             }
         }
 
-
+        [Ignore]
         [TestMethod]
         [TestProperty(nameof(TestKind), nameof(TestKind.RegressionTest))]//Verifies that the content of a folder will be loaded when a playlist contains this folder
         public void LoadPlaylistWhichContainsFolder()
@@ -240,6 +240,7 @@ namespace GRYLibrary.Tests.Testcases
             throw new NotImplementedException();
         }
 
+        [Ignore]
         [TestMethod]
         [TestProperty(nameof(TestKind), nameof(TestKind.UnitTest))]
         public void LoadPlaylistWithRelativePathsPracticalExample()

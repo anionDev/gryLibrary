@@ -10,7 +10,6 @@ namespace GRYLibrary.Tests.Testcases
         [TestMethod]
         public void FileSelectorTest1()
         {
-            GRYLibrary.Core.Utilities.DarkModeEnabled();
             string baseDir = "basetestdir/";
             string dir1 = baseDir + "dir1/";
             string dir2 = dir1 + "dir2/";
