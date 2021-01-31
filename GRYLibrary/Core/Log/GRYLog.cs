@@ -74,7 +74,7 @@ namespace GRYLibrary.Core.Log
 
         public override bool Equals(object obj)
         {
-            if (!(obj is GRYLog typedObject))
+            if (obj is not GRYLog typedObject)
             {
                 return false;
             }
@@ -123,7 +123,7 @@ namespace GRYLibrary.Core.Log
         }
         public void LogGeneralProgramInformation()
         {
-            ProcessModule module = Process.GetProcessById(Process.GetCurrentProcess().Id).MainModule;
+            ProcessModule module = Process.GetProcessById(Environment.ProcessId).MainModule;
             this.Log($"Executing assembly-name: {AppDomain.CurrentDomain.FriendlyName} ({module.FileName})", LogLevel.Information);
             this.Log($"Executing file-version: {module.FileVersionInfo.FileVersion}", LogLevel.Information);
             this.Log($"Current working-directory: {Directory.GetCurrentDirectory()}", LogLevel.Information);

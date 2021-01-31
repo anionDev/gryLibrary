@@ -97,7 +97,7 @@ namespace GRYLibrary.Core.Log
             this.LogTargets = new List<GRYLogTarget>
             {
                 new Console() { Enabled = true, Format = GRYLogLogFormat.GRYLogFormat },
-                new LogFile() { File = logFile, Enabled = !string.IsNullOrWhiteSpace(logFile), Format = GRYLogLogFormat.GRYLogFormat}
+                new LogFile() { Enabled = !string.IsNullOrWhiteSpace(logFile), Format = GRYLogLogFormat.GRYLogFormat, File = logFile }
             };
             foreach (GRYLogTarget target in this.LogTargets)
             {
@@ -139,6 +139,13 @@ namespace GRYLibrary.Core.Log
                 item.Enabled = newEnabledValue;
             }
         }
+        public void Dispose()
+        {
+            foreach (GRYLogTarget target in this.LogTargets)
+            {
+                target.Dispose();
+            }
+        }
         #region Overhead
         public override bool Equals(object @object)
         {
@@ -176,13 +183,6 @@ namespace GRYLibrary.Core.Log
         }
 
         #endregion
-        public void Dispose()
-        {
-            foreach (GRYLogTarget target in this.LogTargets)
-            {
-                target.Dispose();
-            }
-        }
     }
 
 }

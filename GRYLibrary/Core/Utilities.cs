@@ -30,6 +30,8 @@ using GRYLibrary.Core.Log;
 using GRYLibrary.Core.AdvancedObjectAnalysis;
 using System.Collections;
 using System.Diagnostics;
+using static System.Net.Mime.MediaTypeNames;
+using Microsoft.Win32;
 
 namespace GRYLibrary.Core
 {
@@ -58,7 +60,7 @@ namespace GRYLibrary.Core
         /// </summary>
         internal static byte[] ConcatBytesArraysWithLengthInformation(params byte[][] byteArrays)
         {
-            byte[] result = new byte[] { };
+            byte[] result = Array.Empty<byte>();
             foreach (var byteArray in byteArrays)
             {
                 result = Concat(result, IntToByteArray(byteArray.Length), byteArray);
@@ -1105,7 +1107,7 @@ namespace GRYLibrary.Core
         }
         public static T[] Concat<T>(params T[][] arrays)
         {
-            T[] result = new T[] { };
+            T[] result = Array.Empty<T>();
             foreach (var array in arrays)
             {
                 result = Concat2Arrays(result, array);
@@ -1847,16 +1849,52 @@ namespace GRYLibrary.Core
         {
             return (@char >= '0' && @char <= '9') || (@char >= 'a' && @char <= 'f') || (@char >= 'A' && @char <= 'F');
         }
+
+        public static bool DarkModeEnabled()
+        {
+            return OperatingSystem.OperatingSystem.GetCurrentOperatingSystem().Accept(_DarkModeEnabledVisitor);
+        }
+        private static readonly IOperatingSystemVisitor<bool> _DarkModeEnabledVisitor = new DarkModeEnabledVisitor();
+        private class DarkModeEnabledVisitor : IOperatingSystemVisitor<bool>
+        {
+            public bool Handle(OSX operatingSystem)
+            {
+                throw new NotSupportedException();
+            }
+
+            public bool Handle(Windows operatingSystem)
+            {
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                {
+                    try
+                    {
+                        using RegistryKey key = Registry.CurrentUser.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize");
+                        return ((int)key.GetValue("AppsUseLightTheme")) == 0;
+                    }
+                    catch
+                    {
+                        NoOperation();
+                    }
+                }
+                return false;
+            }
+
+            public bool Handle(Linux operatingSystem)
+            {
+                throw new NotSupportedException();
+            }
+        }
         #endregion
 
         #region Git
-        public static GitCommandResult ExecuteGitCommand(string repositoryFolder, string argument, bool throwErrorIfExitCodeIsNotZero = false, int? timeoutInMilliseconds = null, bool printErrorsAsInformation = false, bool logEnabled = false)
+        public static GitCommandResult ExecuteGitCommand(string repositoryFolder, string argument, bool throwErrorIfExitCodeIsNotZero = false, int? timeoutInMilliseconds = null, bool printErrorsAsInformation = false, bool writeOutputConsole = false)
         {
             using GRYLog log = GRYLog.Create();
-            log.Configuration.Enabled = false;
-            log.Configuration.GetLogTarget<Log.ConcreteLogTargets.Console>().Enabled = logEnabled;
+            log.Configuration.Enabled = true;
+            log.Configuration.SetEnabledOfAllLogTargets(writeOutputConsole);
             using ExternalProgramExecutor externalProgramExecutor = new ExternalProgramExecutor("git", argument, repositoryFolder)
             {
+                LogObject = log,
                 TimeoutInMilliseconds = timeoutInMilliseconds,
                 PrintErrorsAsInformation = printErrorsAsInformation,
                 ThrowErrorIfExitCodeIsNotZero = throwErrorIfExitCodeIsNotZero
@@ -2098,30 +2136,30 @@ namespace GRYLibrary.Core
         /// <param name="commitWasCreated">Will be set to true if and only if really a commit was created. Will be set to false if and only if there are no changes to get committed.</param>
         /// <returns>Returns the commit-id of the currently checked out commit. This returns the id of the new created commit if there were changes which were committed by this function.</returns>
         /// <exception cref="UnexpectedExitCodeException">If there are uncommitted changes in submodules of <paramref name="repositoryFolder"/>.</exception>
-        public static string GitCommit(string repositoryFolder, string commitMessage, out bool commitWasCreated, bool logEnabled = false)
+        public static string GitCommit(string repositoryFolder, string commitMessage, out bool commitWasCreated, bool writeOutputConsole = false)
         {
             commitWasCreated = false;
             if (GitRepositoryHasUncommittedChanges(repositoryFolder))
             {
-                ExecuteGitCommand(repositoryFolder, $"add -A", true, logEnabled: logEnabled);
-                ExecuteGitCommand(repositoryFolder, $"commit -m \"{commitMessage}\"", true, logEnabled: logEnabled);
+                ExecuteGitCommand(repositoryFolder, $"add -A", true, writeOutputConsole: writeOutputConsole);
+                ExecuteGitCommand(repositoryFolder, $"commit -m \"{commitMessage}\"", true, writeOutputConsole: writeOutputConsole);
                 commitWasCreated = true;
             }
-            return GetLastGitCommitId(repositoryFolder, "HEAD");
+            return GetLastGitCommitId(repositoryFolder, "HEAD", writeOutputConsole);
         }
         /// <returns>Returns the commit-id of the given <paramref name="revision"/>.</returns>
-        public static string GetLastGitCommitId(string repositoryFolder, string revision = "HEAD")
+        public static string GetLastGitCommitId(string repositoryFolder, string revision = "HEAD", bool writeOutputConsole = false)
         {
-            return ExecuteGitCommand(repositoryFolder, $"rev-parse {revision}", true).GetFirstStdOutLine();
+            return ExecuteGitCommand(repositoryFolder, $"rev-parse {revision}", true, writeOutputConsole: writeOutputConsole).GetFirstStdOutLine();
         }
         /// <param name="printErrorsAsInformation">
         /// Represents a value which indicates if the git-output which goes to stderr should be treated as stdout.
         /// The default-value is true since even if no error occurs git write usual information to stderr.
         /// If really an error occures (=the exit-code of git is not 0) then this function throws an exception
         /// </param>
-        public static void GitFetch(string repositoryFolder, string remoteName = "--all", bool printErrorsAsInformation = true, bool logEnabled = false)
+        public static void GitFetch(string repositoryFolder, string remoteName = "--all", bool printErrorsAsInformation = true, bool writeOutputConsole = false)
         {
-            ExecuteGitCommand(repositoryFolder, $"fetch {remoteName} --tags --prune", true, printErrorsAsInformation: printErrorsAsInformation, logEnabled: logEnabled);
+            ExecuteGitCommand(repositoryFolder, $"fetch {remoteName} --tags --prune", true, printErrorsAsInformation: printErrorsAsInformation, writeOutputConsole: writeOutputConsole);
         }
         public static bool GitRepositoryHasUnstagedChanges(string repositoryFolder)
         {
