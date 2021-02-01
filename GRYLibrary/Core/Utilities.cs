@@ -1850,12 +1850,48 @@ namespace GRYLibrary.Core
             return (@char >= '0' && @char <= '9') || (@char >= 'a' && @char <= 'f') || (@char >= 'A' && @char <= 'F');
         }
 
-        public static bool DarkModeEnabled()
+        public static bool DarkModeEnabled
         {
-            return OperatingSystem.OperatingSystem.GetCurrentOperatingSystem().Accept(_DarkModeEnabledVisitor);
+            get
+            {
+                return OperatingSystem.OperatingSystem.GetCurrentOperatingSystem().Accept(_DarkModeEnabledVisitor);
+            }
+            set
+            {
+                OperatingSystem.OperatingSystem.GetCurrentOperatingSystem().Accept(new SetDarkModeEnabledVisitor(value));
+            }
         }
-        private static readonly IOperatingSystemVisitor<bool> _DarkModeEnabledVisitor = new DarkModeEnabledVisitor();
-        private class DarkModeEnabledVisitor : IOperatingSystemVisitor<bool>
+        private static readonly IOperatingSystemVisitor<bool> _DarkModeEnabledVisitor = new GetDarkModeEnabledVisitor();
+        private class SetDarkModeEnabledVisitor : IOperatingSystemVisitor
+        {
+            private readonly bool _Enabled;
+
+            public SetDarkModeEnabledVisitor(bool enabled)
+            {
+                this._Enabled = enabled;
+            }
+
+            public void Handle(OSX operatingSystem)
+            {
+                throw new NotImplementedException();
+            }
+
+            public void Handle(Windows operatingSystem)
+            {
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                {
+                    using RegistryKey key = Registry.CurrentUser.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize", true);
+
+                    key.SetValue("AppsUseLightTheme", _Enabled ? 0 : 1);
+                }
+            }
+
+            public void Handle(Linux operatingSystem)
+            {
+                throw new NotImplementedException();
+            }
+        }
+        private class GetDarkModeEnabledVisitor : IOperatingSystemVisitor<bool>
         {
             public bool Handle(OSX operatingSystem)
             {
