@@ -32,6 +32,8 @@ using System.Collections;
 using System.Diagnostics;
 using static System.Net.Mime.MediaTypeNames;
 using Microsoft.Win32;
+using System.Reactive.Linq;
+using System.Reactive.Subjects;
 
 namespace GRYLibrary.Core
 {
@@ -1860,6 +1862,33 @@ namespace GRYLibrary.Core
             {
                 OperatingSystem.OperatingSystem.GetCurrentOperatingSystem().Accept(new SetDarkModeEnabledVisitor(value));
             }
+        }
+        public static (IObservable<T>, Action) FuncToObservable<T>(Func<T> valueFunction, TimeSpan updateInterval)
+        {
+            Subject<T> subject = new Subject<T>();
+            bool enabled = true;
+            SupervisedThread thread = SupervisedThread.Create(() =>
+            {
+                while (enabled)
+                {
+                    try
+                    {
+                        Thread.Sleep(updateInterval);
+                        if (subject.HasObservers)
+                        {
+                            subject.OnNext(valueFunction());
+                        }
+                    }
+                    catch
+                    {
+                        NoOperation();
+                    }
+                }
+                subject.OnCompleted();
+                subject.Dispose();
+            });
+            thread.Start();
+            return (subject.AsObservable().DistinctUntilChanged(), () => enabled = false);
         }
         private static readonly IOperatingSystemVisitor<bool> _DarkModeEnabledVisitor = new GetDarkModeEnabledVisitor();
         private class SetDarkModeEnabledVisitor : IOperatingSystemVisitor
