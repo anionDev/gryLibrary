@@ -6,6 +6,7 @@ GRYLibrary uses dependencies which are released under their own license:
  - Microsoft.Extensions.Logging.EventLog is licensed under the terms of the Apache-license version 2.0 (see appendix 3)
  - Microsoft.Win32.Registry is licensed under the terms of the MIT-license (see appendix 2)
  - System.Collections.Immutable is licensed under the terms of the MIT-license (see appendix 2)
+ - System.Reactive is licensed under the terms of the MIT-license (see appendix 2)
 
 ----------------------------------------------------------------------
 Appendix 1:
