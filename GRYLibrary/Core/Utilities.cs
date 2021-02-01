@@ -1329,8 +1329,11 @@ namespace GRYLibrary.Core
                 ThrowErrorIfExitCodeIsNotZero = true,
                 CreateWindow = false
             };
-            externalProgramExecutor.LogObject.Configuration.GetLogTarget<Log.ConcreteLogTargets.Console>().Enabled = false;
             externalProgramExecutor.StartSynchronously();
+            if (externalProgramExecutor.ExitCode != 0)
+            {
+                throw new Exception($"Exitcode of mountvol was {externalProgramExecutor.ExitCode}. StdErr:" + string.Join(Environment.NewLine, externalProgramExecutor.AllStdErrLines));
+            }
         }
         public static ISet<Guid> GetAvailableVolumeIds()
         {
@@ -1339,8 +1342,11 @@ namespace GRYLibrary.Core
                 ThrowErrorIfExitCodeIsNotZero = true,
                 CreateWindow = false
             };
-            externalProgramExecutor.LogObject.Configuration.GetLogTarget<Log.ConcreteLogTargets.Console>().Enabled = false;
             externalProgramExecutor.StartSynchronously();
+            if (externalProgramExecutor.ExitCode != 0)
+            {
+                throw new Exception($"Exitcode of mountvol was {externalProgramExecutor.ExitCode}. StdErr:" + string.Join(Environment.NewLine, externalProgramExecutor.AllStdErrLines));
+            }
             HashSet<Guid> result = new HashSet<Guid>();
             for (int i = 0; i < externalProgramExecutor.AllStdOutLines.Length - 1; i++)
             {
@@ -1348,7 +1354,7 @@ namespace GRYLibrary.Core
                 try
                 {
                     string line = rawLine.Trim(); //line looks like "\\?\Volume{80aa12de-7392-4051-8cd2-f28bf56dc9d3}\"
-                    string prefix = "\\\\?\\Volume{";
+                    string prefix = @"\\?\Volume{";
                     if (line.StartsWith(prefix))
                     {
                         line = line[prefix.Length..];//remove "\\?\Volume{"
@@ -1384,8 +1390,11 @@ namespace GRYLibrary.Core
                 ThrowErrorIfExitCodeIsNotZero = true,
                 CreateWindow = false
             };
-            externalProgramExecutor.LogObject.Configuration.GetLogTarget<Log.ConcreteLogTargets.Console>().Enabled = false;
             externalProgramExecutor.StartSynchronously();
+            if (externalProgramExecutor.ExitCode != 0)
+            {
+                throw new Exception($"Exitcode of mountvol was {externalProgramExecutor.ExitCode}. StdErr:" + string.Join(Environment.NewLine, externalProgramExecutor.AllStdErrLines));
+            }
             for (int i = 0; i < externalProgramExecutor.AllStdOutLines.Length; i++)
             {
                 string line = externalProgramExecutor.AllStdOutLines[i].Trim();
@@ -1419,9 +1428,12 @@ namespace GRYLibrary.Core
             {
                 ThrowErrorIfExitCodeIsNotZero = true,
                 CreateWindow = false
-            };
-            externalProgramExecutor.LogObject.Configuration.GetLogTarget<Log.ConcreteLogTargets.Console>().Enabled = false;
+            }; 
             externalProgramExecutor.StartSynchronously();
+            if (externalProgramExecutor.ExitCode != 0)
+            {
+                throw new Exception($"Exitcode of mountvol was {externalProgramExecutor.ExitCode}. StdErr:{Environment.NewLine}" + string.Join(Environment.NewLine, externalProgramExecutor.AllStdErrLines));
+            }
             if (mountPoint.Length > 3)
             {
                 EnsureDirectoryDoesNotExist(mountPoint);
