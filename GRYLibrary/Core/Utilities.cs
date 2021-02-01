@@ -1907,13 +1907,9 @@ namespace GRYLibrary.Core
         /// </returns>
         public static IEnumerable<string> GetGitSubmodulePaths(string repositoryFolder, bool recursive = true)
         {
-            using ExternalProgramExecutor externalProgramExecutor = new ExternalProgramExecutor("git", "submodule status" + (recursive ? " --recursive" : string.Empty), repositoryFolder)
-            {
-                ThrowErrorIfExitCodeIsNotZero = true
-            };
-            externalProgramExecutor.StartSynchronously();
+            GitCommandResult commandresult = ExecuteGitCommand(repositoryFolder, "submodule status" + (recursive ? " --recursive" : string.Empty), true);
             List<string> result = new List<string>();
-            foreach (string rawLine in externalProgramExecutor.AllStdOutLines)
+            foreach (string rawLine in commandresult.StdOutLines)
             {
                 string line = rawLine.Trim();
                 if (line.Contains(" "))
@@ -1954,7 +1950,7 @@ namespace GRYLibrary.Core
         {
             try
             {
-                return ExecuteGitCommand(repositoryFolder, $"ls-remote {remoteName} ", false, 1000 * 60).ExitCode == 0;
+                return ExecuteGitCommand(repositoryFolder, $"ls-remote {remoteName}", false, 1000 * 60, writeOutputToConsole: false).ExitCode == 0;
             }
             catch
             {
@@ -1972,10 +1968,10 @@ namespace GRYLibrary.Core
         }
         /// <summary>Removes unused internal files in the .git-folder of the given <paramref name="repositoryFolder"/>.</summary>
         /// <remarks>Warning: After executing this function deleted commits can not be restored because then they are really deleted.</remarks>
-        public static void GitTidyUp(string repositoryFolder)
+        public static void GitTidyUp(string repositoryFolder, bool writeOutputToConsole = false)
         {
-            ExecuteGitCommand(repositoryFolder, $"reflog expire --expire-unreachable=now --all", true);
-            ExecuteGitCommand(repositoryFolder, $"gc --prune=now", true);
+            ExecuteGitCommand(repositoryFolder, $"reflog expire --expire-unreachable=now --all", true, writeOutputToConsole: writeOutputToConsole);
+            ExecuteGitCommand(repositoryFolder, $"gc --prune=now", true, writeOutputToConsole: writeOutputToConsole);
         }
         public static bool GitRepositoryContainsFiles(string repositoryFolder, out ISet<string> missingFiles, IEnumerable<Tuple<string/*file*/, ISet<string>/*aliase*/>> fileLists)
         {
