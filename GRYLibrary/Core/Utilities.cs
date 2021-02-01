@@ -1911,7 +1911,6 @@ namespace GRYLibrary.Core
             {
                 ThrowErrorIfExitCodeIsNotZero = true
             };
-            externalProgramExecutor.LogObject.Configuration.Enabled = false;
             externalProgramExecutor.StartSynchronously();
             List<string> result = new List<string>();
             foreach (string rawLine in externalProgramExecutor.AllStdOutLines)
