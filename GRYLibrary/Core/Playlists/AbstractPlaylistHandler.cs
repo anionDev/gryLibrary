@@ -112,22 +112,23 @@ namespace GRYLibrary.Core.Playlists
         {
             return ExtensionsOfReadablePlaylists[Path.GetExtension(file.ToLower())[1..]];
         }
-        public IEnumerable<string> GetSongsFromPlaylist(string playlistFile, bool removeDuplicatedItems = true, bool loadTransitively = true)
+        public IEnumerable<string> GetSongs(string file, bool removeDuplicatedItems = true, bool loadTransitively = true)
         {
+            // TODO move logic from m3u handler to here
             string workingDirectory;
-            if (Utilities.IsAbsolutePath(playlistFile))
+            if (Utilities.IsAbsolutePath(file))
             {
-                workingDirectory = Path.GetDirectoryName(playlistFile);
+                workingDirectory = Path.GetDirectoryName(file);
             }
-            else if (Utilities.IsRelativePath(playlistFile))
+            else if (Utilities.IsRelativePath(file))
             {
-                workingDirectory = Path.Combine(Directory.GetCurrentDirectory(), Path.GetDirectoryName(playlistFile));
+                workingDirectory = Path.Combine(Directory.GetCurrentDirectory(), Path.GetDirectoryName(file));
             }
             else
             {
-                throw new Exception(playlistFile + " has an unknown format.");
+                throw new Exception(file + " has an unknown format.");
             }
-            return this.GetSongsFromPlaylist(new FileInfo(playlistFile).Name, workingDirectory, removeDuplicatedItems, loadTransitively);
+            return this.GetSongsFromPlaylist(new FileInfo(file).Name, workingDirectory, removeDuplicatedItems, loadTransitively);
         }
         public IEnumerable<string> GetSongsFromPlaylist(string playlistFile, string workingDirectory, bool removeDuplicatedItems = true, bool loadTransitively = true)
         {
@@ -143,7 +144,7 @@ namespace GRYLibrary.Core.Playlists
                 if (addOnlyNotExistingSongs)
                 {
                     HashSet<string> newSongsAsSet = new HashSet<string>(newSongs);
-                    IEnumerable<string> alreadyExistingItems = this.GetSongsFromPlaylist(playlistFile, true, false);
+                    IEnumerable<string> alreadyExistingItems = this.GetSongs(playlistFile, true, false);
                     foreach (string alreadyExistingItem in alreadyExistingItems)
                     {
                         newSongsAsSet.Remove(alreadyExistingItem);
@@ -193,6 +194,13 @@ namespace GRYLibrary.Core.Playlists
                     return (this.AllowedFiletypesForMusicFiles.Contains(extension) || ExtensionsOfReadablePlaylists.ContainsKey(extension)) && File.Exists(item);
                 }
             }
+        }
+        protected bool IsSingleMusicFile(string file)
+        {
+            var fileLower = file.ToLower();
+            return fileLower.EndsWith(".mp3")
+                || fileLower.EndsWith(".wav")
+                || fileLower.EndsWith(".wma");
         }
     }
 }

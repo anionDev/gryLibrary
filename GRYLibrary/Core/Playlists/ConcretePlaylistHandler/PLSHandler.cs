@@ -34,7 +34,7 @@ namespace GRYLibrary.Core.Playlists.ConcretePlaylistHandler
                     return int.Parse(line.Split('=')[1].Trim());
                 }
             }
-            return this.GetSongsFromPlaylist(playlistFile, true, true).Count();
+            return this.GetSongs(playlistFile, true, true).Count();
         }
         private void SetAmountOfItems(string playlistFile, int amount)
         {
