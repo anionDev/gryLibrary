@@ -32,38 +32,37 @@ namespace GRYLibrary.Core.Playlists.ConcretePlaylistHandler
 
         protected override Tuple<IEnumerable<string>, IEnumerable<string>> GetSongsFromPlaylist(string playlistFile)
         {
-            string directory = Path.GetDirectoryName(playlistFile);
+            if (!File.Exists(playlistFile))
+            {
+                throw new FileNotFoundException(playlistFile);
+            }
+            string directoryOfPlaylistfile = new DirectoryInfo(playlistFile).Parent.FullName;
             List<string> lines = File.ReadAllLines(playlistFile, Encoding).Select(line => line.Replace("\"", string.Empty).Trim()).Where(line => !(string.IsNullOrWhiteSpace(line) || line.StartsWith("#"))).ToList();
-            List<string> result = new List<string>();
+            string directory = Path.GetDirectoryName(playlistFile);
+            List<string> includedItems = new List<string>();
             List<string> excludedItems = new List<string>();
 
             foreach (string line in lines)
             {
-                string payload;
-                if (line.Contains("*"))
+                if (line.StartsWith("-"))
                 {
-                    payload = line.Split('*')[0];
+                    excludedItems.Add(line[1..]);
                 }
                 else
                 {
-                    payload = line;
-                }
-                if (payload.StartsWith("-"))
-                {
-                    excludedItems.Add(payload[1..]);
-                }
-                else
-                {
-                    result.Add(payload);
+                    includedItems.Add(line);
                 }
             }
-            this.TryToApplyConfigurationFile(playlistFile, ref result);
+            this.TryToApplyConfigurationFile(playlistFile, ref includedItems);
             this.TryToApplyConfigurationFile(playlistFile, ref excludedItems);
-            this.ResolvePaths(ref result, directory);
+            // problem here: content like "./referencedfolder" will get resolved to "C:\...\GRYLibrary\GRYLibraryTests\bin\Debug\net5.0\./referencedfolder"
+            this.ResolvePaths(ref includedItems, directory);
             this.ResolvePaths(ref excludedItems, directory);
-            return new Tuple<IEnumerable<string>, IEnumerable<string>>(result, excludedItems);
+            return new Tuple<IEnumerable<string>, IEnumerable<string>>(includedItems, excludedItems);
         }
-
+        /**
+         * This function returns <param name="items"/> but with file-paths resolved relative to directory.
+         */
         private void ResolvePaths(ref List<string> items, string directory)
         {
             List<string> result = new List<string>();
@@ -81,24 +80,24 @@ namespace GRYLibrary.Core.Playlists.ConcretePlaylistHandler
             items = result;
         }
 
-        private string ConvertToAbsolutePathIfPossible(string pathBase, string path)
+        private string ConvertToAbsolutePathIfPossible(string pathBase, string file)
         {
-            if (Utilities.IsRelativePath(path))
+            if (Utilities.IsRelativePath(file))
             {
-                return Utilities.GetAbsolutePath(pathBase, path);
+                return Utilities.GetAbsolutePath(pathBase, file);
             }
             else
             {
-                return path;
+                return file;
             }
         }
 
-        private bool TryToApplyConfigurationFile(string playlistFile, ref List<string> result)
+        private bool TryToApplyConfigurationFile(string playlistFile, ref List<string> listOfItems)
         {
             try
             {
                 string m3uConfigurationFile = new FileInfo(playlistFile).Directory.FullName + ConfigurationFileInCurrentFolder;
-                bool configurationAppliedFound = this.SetResultAndApplayConfigurationFile(ref result, m3uConfigurationFile);
+                bool configurationAppliedFound = this.SetResultAndApplayConfigurationFile(ref listOfItems, m3uConfigurationFile);
                 if (configurationAppliedFound)
                 {
                     return configurationAppliedFound;
@@ -106,7 +105,7 @@ namespace GRYLibrary.Core.Playlists.ConcretePlaylistHandler
                 else
                 {
                     m3uConfigurationFile = new FileInfo(m3uConfigurationFile).Directory.Parent.FullName + ConfigurationFileInCurrentFolder;
-                    configurationAppliedFound = this.SetResultAndApplayConfigurationFile(ref result, m3uConfigurationFile);
+                    configurationAppliedFound = this.SetResultAndApplayConfigurationFile(ref listOfItems, m3uConfigurationFile);
                     if (configurationAppliedFound)
                     {
                         return configurationAppliedFound;
@@ -114,7 +113,7 @@ namespace GRYLibrary.Core.Playlists.ConcretePlaylistHandler
                     else
                     {
                         m3uConfigurationFile = new FileInfo(m3uConfigurationFile).Directory.Parent.FullName + ConfigurationFileInCurrentFolder;
-                        return this.SetResultAndApplayConfigurationFile(ref result, m3uConfigurationFile);
+                        return this.SetResultAndApplayConfigurationFile(ref listOfItems, m3uConfigurationFile);
                     }
                 }
             }

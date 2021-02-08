@@ -157,7 +157,8 @@ namespace GRYLibrary.Tests.Testcases
             string mainPlaylistFile = "m3utest/dir1/t1.m3u";
             filesWithTheirContent.Add("m3utest/.m3uconfiguration", new string[] { "on:all", @"replace:{DefaultPath};" + defaultMusicFolder });
             filesWithTheirContent.Add(mainPlaylistFile, new string[] {
-                @"myTrack1.mp3", @"{DefaultPath}\myTrack2.mp3",
+                @"myTrack1.mp3",
+                @"{DefaultPath}\myTrack2.mp3",
                 @"..\notwanted\notWanted1.mp3",
                 @"..\notwanted\notWanted2.mp3",
                 @"..\notwanted\notWanted3.mp3",
@@ -212,16 +213,10 @@ namespace GRYLibrary.Tests.Testcases
                 }
                 ISet<string> playlistItems = new HashSet<string>(M3UHandler.Instance.GetSongsFromPlaylist(mainPlaylistFile));
                 string[] expected = new string[] {
-                    Path.Combine(currentDirectory, @"m3utest\dir1\myTrack1.mp3"),
-                    @"C:\Data\MyMusicFolder\myTrack2.mp3",
-                Core.    Utilities.GetAbsolutePath(Path.Combine(currentDirectory,@"m3utest"), @"notwanted\wanted.mp3"),
-                    Path.Combine(currentDirectory, @"m3utest\dir1\myTrack3.mp3"),
-                    @"C:\Data\MyMusicFolder\myTrack4.mp3",
-                    Path.Combine(currentDirectory, @"m3utest\dir2\myTrack5.mp3"),
-                    @"C:\Data\MyMusicFolder\myTrack6.mp3",
-                    Path.Combine(currentDirectory, @"m3utest\dir3\myTrack7.mp3"),
-                    @"C:\Data\MyMusicFolder\myTrack8.mp3",
-                  Core.  Utilities.GetAbsolutePath(Path.Combine(currentDirectory,@"m3utest"),@"wanted\wanted2.mp3"),
+                    Path.Combine(currentDirectory, @"m3utest\dir1\myTrack1.mp3"), @"C:\Data\MyMusicFolder\myTrack2.mp3", Core.Utilities.GetAbsolutePath(Path.Combine(currentDirectory,@"m3utest"), @"notwanted\wanted.mp3"),
+                    Path.Combine(currentDirectory, @"m3utest\dir1\myTrack3.mp3"), @"C:\Data\MyMusicFolder\myTrack4.mp3",
+                    Path.Combine(currentDirectory, @"m3utest\dir2\myTrack5.mp3"), @"C:\Data\MyMusicFolder\myTrack6.mp3",
+                    Path.Combine(currentDirectory, @"m3utest\dir3\myTrack7.mp3"), @"C:\Data\MyMusicFolder\myTrack8.mp3", Core.Utilities.GetAbsolutePath(Path.Combine(currentDirectory,@"m3utest"),@"wanted\wanted2.mp3"),
                 };
                 Assert.IsTrue(playlistItems.SetEquals(expected));
             }
@@ -232,21 +227,35 @@ namespace GRYLibrary.Tests.Testcases
             }
         }
 
-        [Ignore]
         [TestMethod]
         [TestProperty(nameof(TestKind), nameof(TestKind.RegressionTest))]//Verifies that the content of a folder will be loaded when a playlist contains this folder
         public void LoadPlaylistWhichContainsFolder()
         {
-            throw new NotImplementedException();
+
+            string currentDirectory = Directory.GetCurrentDirectory();
+            string referencedFolder = Path.Combine(currentDirectory, "./referencedfolder");
+            Core.Utilities.EnsureDirectoryExists(referencedFolder);
+            string referencedFile = Path.Combine(referencedFolder, "test.mp3");
+            Core.Utilities.EnsureFileExists(referencedFile);
+            string m3uFile = Path.Combine(currentDirectory, "m3ufile.m3u");
+            try
+            {
+                Encoding encoding = new UTF8Encoding(false);
+                Core.Utilities.EnsureFileExists(referencedFile);
+                string referencedContent = "referencedfoldercontent.mp3";
+                File.WriteAllText(referencedFile, referencedContent);
+                File.WriteAllText(m3uFile, referencedFolder);
+                ISet<string> playlistItems = new HashSet<string>(M3UHandler.Instance.GetSongsFromPlaylist(m3uFile));
+                Assert.AreEqual(1, playlistItems.Count);
+                Assert.AreEqual(referencedContent, playlistItems.First());
+            }
+            finally
+            {
+                Core.Utilities.EnsureDirectoryDoesNotExist(referencedFolder);
+                Core.Utilities.EnsureFileDoesNotExist(m3uFile);
+            }
         }
 
-        [Ignore]
-        [TestMethod]
-        [TestProperty(nameof(TestKind), nameof(TestKind.UnitTest))]
-        public void LoadPlaylistWithRelativePathsPracticalExample()
-        {
-            throw new NotImplementedException();
-        }
         private void EnsureFilesAreDeleted(IEnumerable<string> files)
         {
             foreach (string file in files)
