@@ -1428,7 +1428,7 @@ namespace GRYLibrary.Core
             {
                 ThrowErrorIfExitCodeIsNotZero = true,
                 CreateWindow = false
-            }; 
+            };
             externalProgramExecutor.StartSynchronously();
             if (externalProgramExecutor.ExitCode != 0)
             {
@@ -2676,6 +2676,12 @@ namespace GRYLibrary.Core
         #endregion
 
         #region Similarity
+        public static PercentValue CalculateCombinedSimilarity(string string1, string string2)
+        {
+            return new PercentValue(CalculateCosineSimilarity(string1, string2).Value * (1 / 3)
+                + CalculateJaccardSimilarity(string1, string2).Value * (1 / 3)
+                + CalculateLevenshteinSimilarity(string1, string2).Value * (1 / 3));
+        }
         public static int CalculateLevenshteinDistance(string string1, string string2)
         {
             if (string.IsNullOrEmpty(string1) && string.IsNullOrEmpty(string2))
@@ -2707,30 +2713,30 @@ namespace GRYLibrary.Core
 
             return distance[lengthA, lengthB];
         }
-        public static double CalculateLevenshteinSimilarity(string string1, string string2)
+        public static PercentValue CalculateLevenshteinSimilarity(string string1, string string2)
         {
             int levenshteinDistance = CalculateLevenshteinDistance(string1, string2);
             if (levenshteinDistance == 0)
             {
-                return 1;
+                return PercentValue.HundredPercent;
             }
             int maxLength = Math.Max(string1.Length, string2.Length);
             if (levenshteinDistance == maxLength)
             {
-                return 0;
+                return PercentValue.ZeroPercent;
             }
             else
             {
-                return 1 - ((double)levenshteinDistance) / maxLength;
+                return new PercentValue(1 - ((double)levenshteinDistance) / maxLength);
             }
         }
-        public static double CalculateCosineSimilarity(string string1, string string2)
+        public static PercentValue CalculateCosineSimilarity(string string1, string string2)
         {
             int length1 = string1.Length;
             int length2 = string2.Length;
             if ((length1 == 0 && length2 > 0) || (length2 == 0 && length1 > 0))
             {
-                return 0;
+                return PercentValue.ZeroPercent;
             }
             IDictionary<string, int> a = CalculateSimilarityHelperConvert(CalculateSimilarityHelperGetCharFrequencyMap(string1));
             IDictionary<string, int> b = CalculateSimilarityHelperConvert(CalculateSimilarityHelperGetCharFrequencyMap(string2));
@@ -2748,15 +2754,15 @@ namespace GRYLibrary.Core
             {
                 magnitudeB += Math.Pow(b[k], 2);
             }
-            return dotProduct / Math.Sqrt(magnitudeA * magnitudeB);
+            return new PercentValue( dotProduct / Math.Sqrt(magnitudeA * magnitudeB));
         }
         public static double CalculateJaccardIndex(string string1, string string2)
         {
             return CalculateSimilarityHelperGetIntersection(string1, string2).Count() / (double)CalculateSimilarityHelperGetUnion(string1, string2).Count();
         }
-        public static double CalculateJaccardSimilarity(string string1, string string2)
+        public static PercentValue CalculateJaccardSimilarity(string string1, string string2)
         {
-            return CalculateJaccardIndex(string1, string2) * 2;
+            return new PercentValue(CalculateJaccardIndex(string1, string2) * 2);
         }
         private static string CalculateSimilarityHelperGetIntersection(string string1, string string2)
         {
@@ -2798,7 +2804,6 @@ namespace GRYLibrary.Core
             result.IntersectWith(keys2);
             return result;
         }
-
         private static IDictionary<string, int> CalculateSimilarityHelperConvert(IDictionary<char, int> dictionary)
         {
             IDictionary<string, int> result = new Dictionary<string, int>();

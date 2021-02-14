@@ -7,7 +7,14 @@ namespace GRYLibrary.Core.Playlists.ConcretePlaylistHandler
     public class M3UHandler : AbstractPlaylistHandler
     {
         public static M3UHandler Instance { get; } = new M3UHandler();
-        private M3UHandler() { }
+        public IList<(string/*Alias*/, string/*Folder*/)> DefaultFolder { get; }
+        public M3UHandler() : this(new List<(string, string)>())
+        {
+        }
+        public M3UHandler(IList<(string/*Alias*/, string/*Folder*/)> defaultFolder)
+        {
+            DefaultFolder = defaultFolder;
+        }
         protected override void AddSongsToPlaylistImplementation(string playlistFile, IEnumerable<string> newSongs)
         {
             if (!Utilities.FileIsEmpty(playlistFile) && !Utilities.FileEndsWithEmptyLine(playlistFile))
