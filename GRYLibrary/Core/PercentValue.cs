@@ -61,5 +61,15 @@ namespace GRYLibrary.Core
         {
             return HashCode.Combine(Value);
         }
+
+        public static bool operator ==(PercentValue left, PercentValue right)
+        {
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(PercentValue left, PercentValue right)
+        {
+            return !(left == right);
+        }
     }
 }

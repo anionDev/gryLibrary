@@ -7,103 +7,51 @@ namespace GRYLibrary.Core.Playlists.ConcretePlaylistHandler
     public class M3UHandler : AbstractPlaylistHandler
     {
         public static M3UHandler Instance { get; } = new M3UHandler();
-        public IList<(string/*Alias*/, string/*Folder*/)> DefaultFolder { get; }
-        public M3UHandler() : this(new List<(string, string)>())
+        public M3UHandler() : base()
         {
         }
-        public M3UHandler(IList<(string/*Alias*/, string/*Folder*/)> defaultFolder)
+        public M3UHandler(IList<(string/*alias*/, string/*folder*/)> defaultMusicFolder) : base(defaultMusicFolder)
         {
-            DefaultFolder = defaultFolder;
-        }
-        protected override void AddSongsToPlaylistImplementation(string playlistFile, IEnumerable<string> newSongs)
-        {
-            if (!Utilities.FileIsEmpty(playlistFile) && !Utilities.FileEndsWithEmptyLine(playlistFile))
-            {
-                File.AppendAllText(playlistFile, Environment.NewLine, Encoding);
-            }
-            File.AppendAllLines(playlistFile, newSongs, Encoding);
         }
 
-        protected override void DeleteSongsFromPlaylistImplementation(string playlistFile, IEnumerable<string> songsToDelete)
+        public override void CreatePlaylist(string file)
         {
-            List<string> files = new List<string>();
-            foreach (string item in File.ReadAllLines(playlistFile, Encoding))
-            {
-                if (!songsToDelete.Contains(item))
-                {
-                    files.Add(item);
-                }
-            }
-            File.WriteAllLines(playlistFile, files, Encoding);
+            File.Create(file).Close();
         }
 
-        protected override Tuple<IEnumerable<string>, IEnumerable<string>> GetSongsFromPlaylist(string playlistFile)
+        protected override Tuple<IEnumerable<string>, IEnumerable<string>> GetSongsFromPlaylistImplementation(string playlistFile)
         {
-            if (!File.Exists(playlistFile))
-            {
-                throw new FileNotFoundException(playlistFile);
-            }
-            string directoryOfPlaylistfile = new DirectoryInfo(playlistFile).Parent.FullName;
-            string directory = Path.GetDirectoryName(playlistFile);
-            List<string> lines = File.ReadAllLines(playlistFile, Encoding)
-                .Select(line => line.Replace("\"", string.Empty).Trim())
-                .Where(line => !(string.IsNullOrWhiteSpace(line) || line.StartsWith("#")))
-                .Select(line => Utilities.ResolveToFullPath(line, directoryOfPlaylistfile))
-                .ToList();
+            IEnumerable<string> lines = File.ReadAllLines(playlistFile, Encoding)
+                .Where(line => !string.IsNullOrWhiteSpace(line) && !line.StartsWith("#"));
             List<string> includedItems = new List<string>();
             List<string> excludedItems = new List<string>();
-
             foreach (string line in lines)
             {
                 if (line.StartsWith("-"))
                 {
-                    excludedItems.Add(line[1..]);
+                    excludedItems.Add(line);
                 }
                 else
                 {
                     includedItems.Add(line);
                 }
             }
-            includedItems = includedItems.SelectMany(item => Resolve(item)).ToList();
-            excludedItems = includedItems.SelectMany(item => Resolve(item)).ToList();
             return new Tuple<IEnumerable<string>, IEnumerable<string>>(includedItems, excludedItems);
         }
 
-        private IEnumerable<string> Resolve(string item)
+        protected override void AddSongsToPlaylistImplementation(string playlistFile, IEnumerable<string> newSongs)
         {
-            List<string> resultList = new List<string>();
-            if (item.ToLower().EndsWith(".m3u"))
-            {
-                return this.GetSongs(item, true/*TODO this value must be inherited*/, true/*TODO this value must be inherited*/);
-            }
-            else if (IsSingleMusicFile(item))
-            {
-                resultList.Add(item);
-            }
-            else if (Directory.Exists(item))
-            {
-                Utilities.ForEachFileAndDirectoryTransitively(item,
-                    (string currentDirectory, object argument/*resultList*/) =>
-                    {
-                        List<string> resultListTyped = (List<string>)argument;
-                        resultListTyped.AddRange(this.GetSongs(currentDirectory, true/*TODO this value must be inherited*/, true/*TODO this value must be inherited*/));
-                    }, (string currentFile, object argument/*resultList*/) =>
-                    {
-                        List<string> resultListTyped = (List<string>)argument;
-                        resultListTyped.AddRange(this.GetSongs(currentFile, true/*TODO this value must be inherited*/, true/*TODO this value must be inherited*/));
-                    }, false, resultList, resultList);
-            }
-            else
-            {
-                Utilities.NoOperation();
-            }
-            return resultList;
+            File.AppendAllLines(playlistFile, newSongs, Encoding);
         }
 
-        public override void CreatePlaylist(string file)
+        protected override void DeleteSongsFromPlaylistImplementation(string playlistFile, IEnumerable<string> songsToDelete)
         {
-            Utilities.EnsureFileExists(file);
+            File.AppendAllLines(playlistFile, songsToDelete.Select(song => "-" + song), Encoding);
         }
 
+        protected override void NormalizePlaylistImplementation(string playlistFile)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

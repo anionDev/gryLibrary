@@ -30,7 +30,6 @@ using GRYLibrary.Core.Log;
 using GRYLibrary.Core.AdvancedObjectAnalysis;
 using System.Collections;
 using System.Diagnostics;
-using static System.Net.Mime.MediaTypeNames;
 using Microsoft.Win32;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
@@ -2754,7 +2753,7 @@ namespace GRYLibrary.Core
             {
                 magnitudeB += Math.Pow(b[k], 2);
             }
-            return new PercentValue( dotProduct / Math.Sqrt(magnitudeA * magnitudeB));
+            return new PercentValue(dotProduct / Math.Sqrt(magnitudeA * magnitudeB));
         }
         public static double CalculateJaccardIndex(string string1, string string2)
         {
