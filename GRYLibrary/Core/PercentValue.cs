@@ -61,7 +61,7 @@ namespace GRYLibrary.Core
         {
             return HashCode.Combine(Value);
         }
-
+        #region Operators
         public static bool operator ==(PercentValue left, PercentValue right)
         {
             return left.Equals(right);
@@ -71,5 +71,282 @@ namespace GRYLibrary.Core
         {
             return !(left == right);
         }
+
+        public static bool operator ==(PercentValue left, int right)
+        {
+            return left.Value==right;
+        }
+        public static bool operator !=(PercentValue left, int right)
+        {
+            return left.Value != right;
+        }
+        public static bool operator ==(int left, PercentValue right)
+        {
+            return left == right.Value;
+        }
+
+        public static bool operator !=(int left, PercentValue right)
+        {
+            return left != right.Value;
+        }
+        public static bool operator ==(PercentValue left, double right)
+        {
+            return left.Value ==(decimal) right;
+        }
+
+        public static bool operator !=(PercentValue left, double right)
+        {
+            return left.Value != (decimal)right;
+        }
+        public static bool operator ==(double left, PercentValue right)
+        {
+            return (decimal)left == right.Value;
+        }
+        public static bool operator !=(double left, PercentValue right)
+        {
+            return (decimal)left != right.Value;
+        }
+        public static bool operator ==(PercentValue left, decimal right)
+        {
+            return left.Value == right;
+        }
+        public static bool operator !=(PercentValue left, decimal right)
+        {
+            return left.Value != right;
+        }
+        public static bool operator ==(decimal left, PercentValue right)
+        {
+            return left == right.Value;
+        }
+
+        public static bool operator !=(decimal left, PercentValue right)
+        {
+            return left != right.Value;
+        }
+        public static bool operator <(PercentValue left, PercentValue right)
+        {
+            return left.Value < right.Value;
+        }
+        public static bool operator >(PercentValue left, PercentValue right)
+        {
+            return left.Value > right.Value;
+        }
+        public static bool operator <=(PercentValue left, PercentValue right)
+        {
+            return left.Value <= right.Value;
+        }
+        public static bool operator >=(PercentValue left, PercentValue right)
+        {
+            return left.Value >= right.Value;
+        }
+        public static bool operator <(PercentValue left, int right)
+        {
+            return left.Value < right;
+        }
+        public static bool operator >(PercentValue left, int right)
+        {
+            return left.Value > right;
+        }
+        public static bool operator <=(PercentValue left, int right)
+        {
+            return left.Value <= right;
+        }
+        public static bool operator >=(PercentValue left, int right)
+        {
+            return left.Value >= right;
+        }
+        public static bool operator <(int left, PercentValue right)
+        {
+            return left < right.Value;
+        }
+        public static bool operator >(int left, PercentValue right)
+        {
+            return left > right.Value;
+        }
+        public static bool operator <=(int left, PercentValue right)
+        {
+            return left <= right.Value;
+        }
+        public static bool operator >=(int left, PercentValue right)
+        {
+            return left >= right.Value;
+        }
+        public static bool operator <(PercentValue left, double right)
+        {
+            return left.Value < (decimal)right;
+        }
+        public static bool operator >(PercentValue left, double right)
+        {
+            return left.Value > (decimal)right;
+        }
+        public static bool operator <=(PercentValue left, double right)
+        {
+            return left.Value <= (decimal)right;
+        }
+        public static bool operator >=(PercentValue left, double right)
+        {
+            return left.Value >= (decimal)right;
+        }
+        public static bool operator <(double left, PercentValue right)
+        {
+            return (decimal)left < right.Value;
+        }
+        public static bool operator >(double left, PercentValue right)
+        {
+            return (decimal)left > right.Value;
+        }
+        public static bool operator <=(double left, PercentValue right)
+        {
+            return (decimal)left <= right.Value;
+        }
+        public static bool operator >=(double left, PercentValue right)
+        {
+            return (decimal)left >= right.Value;
+        }
+        public static bool operator <(PercentValue left, decimal right)
+        {
+            return left.Value < right;
+        }
+        public static bool operator >(PercentValue left, decimal right)
+        {
+            return left.Value > right;
+        }
+        public static bool operator <=(PercentValue left, decimal right)
+        {
+            return left.Value <= right;
+        }
+        public static bool operator >=(PercentValue left, decimal right)
+        {
+            return left.Value >= right;
+        }
+        public static bool operator <(decimal left, PercentValue right)
+        {
+            return left < right.Value;
+        }
+        public static bool operator >(decimal left, PercentValue right)
+        {
+            return left > right.Value;
+        }
+        public static bool operator <=(decimal left, PercentValue right)
+        {
+            return left <= right.Value;
+        }
+        public static bool operator >=(decimal left, PercentValue right)
+        {
+            return left >= right.Value;
+        }
+        public static PercentValue operator +(PercentValue left, PercentValue right)
+        {
+            return new PercentValue(left.Value * right.Value);
+        }
+        public static PercentValue operator -(PercentValue left, PercentValue right)
+        {
+            return new PercentValue(left.Value * right.Value);
+        }
+        public static PercentValue operator *(PercentValue left, PercentValue right)
+        {
+            return new PercentValue(left.Value * right.Value);
+        }
+        public static PercentValue operator /(PercentValue left, PercentValue right)
+        {
+            return new PercentValue(left.Value * right.Value);
+        }
+        public static PercentValue operator +(PercentValue left, int right)
+        {
+            return new PercentValue(left.Value + right);
+        }
+        public static PercentValue operator -(PercentValue left, int right)
+        {
+            return new PercentValue(left.Value - right);
+        }
+        public static PercentValue operator *(PercentValue left, int right)
+        {
+            return new PercentValue(left.Value * right);
+        }
+        public static PercentValue operator /(PercentValue left, int right)
+        {
+            return new PercentValue(left.Value * right);
+        }
+        public static PercentValue operator +(int left, PercentValue right)
+        {
+            return new PercentValue(left + right.Value);
+        }
+        public static PercentValue operator -(int left, PercentValue right)
+        {
+            return new PercentValue(left - right.Value);
+        }
+        public static PercentValue operator *(int left, PercentValue right)
+        {
+            return new PercentValue(left * right.Value);
+        }
+        public static PercentValue operator /(int left, PercentValue right)
+        {
+            return new PercentValue(left * right.Value);
+        }
+        public static PercentValue operator +(PercentValue left, double right)
+        {
+            return new PercentValue(left.Value + (decimal)right);
+        }
+        public static PercentValue operator -(PercentValue left, double right)
+        {
+            return new PercentValue(left.Value - (decimal)right);
+        }
+        public static PercentValue operator *(PercentValue left, double right)
+        {
+            return new PercentValue(left.Value * (decimal)right);
+        }
+        public static PercentValue operator /(PercentValue left, double right)
+        {
+            return new PercentValue(left.Value * (decimal)right);
+        }
+        public static PercentValue operator +(double left, PercentValue right)
+        {
+            return new PercentValue((decimal)left + right.Value);
+        }
+        public static PercentValue operator -(double left, PercentValue right)
+        {
+            return new PercentValue((decimal)left - right.Value);
+        }
+        public static PercentValue operator *(double left, PercentValue right)
+        {
+            return new PercentValue((decimal)left * right.Value);
+        }
+        public static PercentValue operator /(double left, PercentValue right)
+        {
+            return new PercentValue((decimal)left * right.Value);
+        }
+        public static PercentValue operator +(PercentValue left, decimal right)
+        {
+            return new PercentValue(left.Value + right);
+        }
+        public static PercentValue operator -(PercentValue left, decimal right)
+        {
+            return new PercentValue(left.Value - right);
+        }
+        public static PercentValue operator *(PercentValue left, decimal right)
+        {
+            return new PercentValue(left.Value * right);
+        }
+        public static PercentValue operator /(PercentValue left, decimal right)
+        {
+            return new PercentValue(left.Value * right);
+        }
+        public static PercentValue operator +(decimal left, PercentValue right)
+        {
+            return new PercentValue(left + right.Value);
+        }
+        public static PercentValue operator -(decimal left, PercentValue right)
+        {
+            return new PercentValue(left - right.Value);
+        }
+        public static PercentValue operator *(decimal left, PercentValue right)
+        {
+            return new PercentValue(left * right.Value);
+        }
+        public static PercentValue operator /(decimal left, PercentValue right)
+        {
+            return new PercentValue(left * right.Value);
+        }
+        #endregion
     }
 }

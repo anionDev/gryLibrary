@@ -117,23 +117,23 @@ namespace GRYLibrary.Tests.Testcases
         [TestProperty(nameof(TestKind), nameof(TestKind.UnitTest))]
         public void TestCosineSimilarityWithDifferentValues()
         {
-            TestRange(0.9, Core.Utilities.CalculateCosineSimilarity("test", "test2"), 1);
-            TestRange(0.8, Core.Utilities.CalculateCosineSimilarity("test1", "test2"), 0.9);
+            TestRange(0.9.ToPercentValue(), Core.Utilities.CalculateCosineSimilarity("test", "test2"), 1.ToPercentValue());
+            TestRange(0.8.ToPercentValue(), Core.Utilities.CalculateCosineSimilarity("test1", "test2"), 0.9.ToPercentValue());
             Assert.AreEqual(0,Core. Utilities.CalculateCosineSimilarity("test", string.Empty));
             Assert.AreEqual(0,Core. Utilities.CalculateCosineSimilarity(string.Empty, "test"));
             Assert.AreEqual(0,Core. Utilities.CalculateCosineSimilarity("test", "a"));
             Assert.AreEqual(0, Core.Utilities.CalculateCosineSimilarity("a", "test"));
-            TestRange(0.1, Core.Utilities.CalculateCosineSimilarity("test", "aeaa"), 0.2);
-            TestRange(0.1, Core.Utilities.CalculateCosineSimilarity("aeaa", "test"), 0.2);
+            TestRange(0.1.ToPercentValue(), Core.Utilities.CalculateCosineSimilarity("test", "aeaa"), 0.2.ToPercentValue());
+            TestRange(0.1.ToPercentValue(), Core.Utilities.CalculateCosineSimilarity("aeaa", "test"), 0.2.ToPercentValue());
             Assert.AreEqual(0, Core.Utilities.CalculateCosineSimilarity("abcd", "efgh"));
-            TestRange(0.1, Core.Utilities.CalculateCosineSimilarity("xx345xxx", "yy345yyy"), 0.2);
-            TestRange(0.3, Core.Utilities.CalculateCosineSimilarity("12xxx678", "12yyy678"), 0.4);
-            TestRange(0.7, Core.Utilities.CalculateCosineSimilarity("12345678", "1x34567890"), 0.8);
+            TestRange(0.1.ToPercentValue(), Core.Utilities.CalculateCosineSimilarity("xx345xxx", "yy345yyy"), 0.2.ToPercentValue());
+            TestRange(0.3.ToPercentValue(), Core.Utilities.CalculateCosineSimilarity("12xxx678", "12yyy678"), 0.4.ToPercentValue());
+            TestRange(0.7.ToPercentValue(), Core.Utilities.CalculateCosineSimilarity("12345678", "1x34567890"), 0.8.ToPercentValue());
         }
 
         #endregion
         #region Helper
-        private void TestRange(double minimumValue, double actualValue, double maximalValue)
+        private void TestRange(PercentValue minimumValue, PercentValue actualValue, PercentValue maximalValue)
         {
             Assert.IsTrue(minimumValue < actualValue, $"Expected {minimumValue}<{actualValue}");
             Assert.IsTrue(actualValue < maximalValue, $"Expected {actualValue}<{maximalValue}");

@@ -49,7 +49,7 @@ namespace GRYLibrary.Tests.Testcases
                 handler.AddSongsToPlaylist(file, newTracks);
 
                 byte[] contentBefore = File.ReadAllBytes(file);
-                handler.AddSongsToPlaylist(file, newTracks, true);
+                handler.AddSongsToPlaylist(file, newTracks);
                 byte[] contentAfter = File.ReadAllBytes(file);
                 CollectionAssert.AreEqual(contentBefore, contentAfter);
             }
@@ -98,7 +98,7 @@ namespace GRYLibrary.Tests.Testcases
                 M3UHandler.Instance.AddSongsToPlaylist(m3uFile, new string[] { "trackA.mp3", nameOfm3ufile2 });
                 M3UHandler.Instance.AddSongsToPlaylist(m3uFile2, new string[] { "trackB.mp3" });
 
-                HashSet<string> playlistItems = new HashSet<string>(M3UHandler.Instance.GetSongs(m3uFile, true, true));
+                HashSet<string> playlistItems = new HashSet<string>(M3UHandler.Instance.GetSongs(m3uFile));
                 Assert.IsTrue(playlistItems.SetEquals(new string[] { Path.Combine(currentDirectory, directoryName + @"\trackA.mp3"), Path.Combine(currentDirectory, directoryName + @"\trackB.mp3") }));
             }
             finally
@@ -133,7 +133,7 @@ namespace GRYLibrary.Tests.Testcases
                 M3UHandler.Instance.AddSongsToPlaylist(m3uFile1, new string[] { "trackA.mp3", nameOfm3ufile2, "{DefaultPath}\\trackB.mp3" });
                 M3UHandler.Instance.AddSongsToPlaylist(m3uFile2, new string[] { "trackC.mp3", "{DefaultPath}\\trackD.mp3" });
 
-                HashSet<string> playlistItems = new HashSet<string>(M3UHandler.Instance.GetSongs(m3uFile1, true, true));
+                HashSet<string> playlistItems = new HashSet<string>(M3UHandler.Instance.GetSongs(m3uFile1));
                 string[] expected = new string[] { Path.Combine(currentDirectory, @"test\trackA.mp3"), @"C:\Data\Music\trackB.mp3", Path.Combine(currentDirectory, @"test\trackC.mp3"), @"C:\Data\Music\trackD.mp3" };
                 Assert.IsTrue(playlistItems.SetEquals(expected));
             }
@@ -287,7 +287,7 @@ namespace GRYLibrary.Tests.Testcases
                 M3UHandler.Instance.AddSongsToPlaylist(m3uFile1, new string[] { "trackA.mp3", nameOfm3ufile2, "{DefaultPath}\\trackB.mp3" });
                 M3UHandler.Instance.AddSongsToPlaylist(m3uFile2, new string[] { "trackC.mp3", "{DefaultPath}\\trackD.mp3" });
 
-                ISet<string> playlistItems = new HashSet<string>(M3UHandler.Instance.GetSongs(m3uFile1, true, true));
+                ISet<string> playlistItems = new HashSet<string>(M3UHandler.Instance.GetSongs(m3uFile1));
                 Assert.IsTrue(playlistItems.SetEquals(new string[] { Path.Combine(directoryName, "trackA.mp3"), @"C:\Data\Music\trackB.mp3", Path.Combine(directoryName, "trackC.mp3"), @"C:\Data\Music\trackD.mp3" }));
             }
             finally

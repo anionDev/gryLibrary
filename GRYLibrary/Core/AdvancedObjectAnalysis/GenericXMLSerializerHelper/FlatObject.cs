@@ -15,7 +15,7 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.GenericXMLSerializerHelper
         {
             if (obj is FlatComplexObject typedObject)
             {
-                return this.ObjectId.Equals((Guid)typedObject.ObjectId);
+                return this.ObjectId.Equals(typedObject.ObjectId);
             }
             else
             {

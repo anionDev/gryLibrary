@@ -40,7 +40,22 @@ namespace GRYLibrary.Core
     {
 
         #region Miscellaneous
-
+        public static PercentValue ToPercentValue(this float value)
+        {
+            return new PercentValue(value);
+        }
+        public static PercentValue ToPercentValue(this int value)
+        {
+            return new PercentValue((decimal)value);
+        }
+        public static PercentValue ToPercentValue(this double value)
+        {
+            return new PercentValue(value);
+        }
+        public static PercentValue ToPercentValue(this decimal value)
+        {
+            return new PercentValue(value);
+        }
         public static byte[] GetRandomByteArray(long length = 65536)
         {
             byte[] result = new byte[length];
