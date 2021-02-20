@@ -46,6 +46,14 @@ namespace GRYLibrary.Core
         {
             return new ByteArray(Utilities.Concat(first.Data, second.Data));
         }
+        public static ByteArray operator +(ByteArray first, byte second)
+        {
+            return first + new byte[] { second };
+        }
+        public static ByteArray operator +(ByteArray first, byte[] second)
+        {
+            return first + new ByteArray(second);
+        }
         public static bool operator ==(ByteArray first, ByteArray second)
         {
             return first.Equals(second);

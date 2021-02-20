@@ -38,8 +38,15 @@ namespace GRYLibrary.Core
 {
     public static class Utilities
     {
-
         #region Miscellaneous
+        public static byte[] ToByteArray(uint value)
+        {
+            throw new NotImplementedException();
+        }
+        public static uint ToByteArray(byte[] value)
+        {
+            throw new NotImplementedException();
+        }
         public static PercentValue ToPercentValue(this float value)
         {
             return new PercentValue(value);
@@ -56,6 +63,25 @@ namespace GRYLibrary.Core
         {
             return new PercentValue(value);
         }
+
+        public static byte[] ToBigEndianInteger(ulong value)
+        {
+            throw new NotImplementedException();
+        }
+        public static byte[] ToLittleEndianInteger(ulong value)
+        {
+            throw new NotImplementedException();
+        }
+
+        public static byte[] ToBigEndianInteger(int value)
+        {
+            throw new NotImplementedException();
+        }
+        public static byte[] ToLittleEndianInteger(int value)
+        {
+            throw new NotImplementedException();
+        }
+
         public static byte[] GetRandomByteArray(long length = 65536)
         {
             byte[] result = new byte[length];
@@ -1095,7 +1121,7 @@ namespace GRYLibrary.Core
         {
             if (hex.Length % 2 == 1)
             {
-                hex = "0" + hex;
+                throw new ArgumentException();
             }
             byte[] result = new byte[hex.Length >> 1];
             for (int i = 0; i < hex.Length >> 1; ++i)
