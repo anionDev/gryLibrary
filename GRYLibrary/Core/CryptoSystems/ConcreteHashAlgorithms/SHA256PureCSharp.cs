@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace GRYLibrary.Core.CryptoSystems.ConcreteHashAlgorithms
 {
@@ -30,31 +28,35 @@ namespace GRYLibrary.Core.CryptoSystems.ConcreteHashAlgorithms
                0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208, 0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2,
             };
             byte[] message = data;
-            int inputLength = data.Length * 8;
+            int L_messageLengthInBits = data.Length * 8;
 
             message = message.Concat(new byte[] { 128 }).ToArray();
 
-            int amountOfBitsToAppend = 512 - (inputLength + 1 + 64) % 512;
-            message = message.Concat(new byte[amountOfBitsToAppend / 8]).ToArray();
-            Debug.Assert((inputLength + 1 + amountOfBitsToAppend + 64) % 512 == 0);
+            int K_amountOfBitsToAppend = 512 - ((L_messageLengthInBits + 8 + 64) % 512);
+            Debug.Assert(K_amountOfBitsToAppend % 8 == 0);
+            int K_amountOfBytesToAppend = K_amountOfBitsToAppend / 8;
+            message = message.Concat(new byte[K_amountOfBytesToAppend]).ToArray();
+            Debug.Assert((L_messageLengthInBits + 8 + K_amountOfBitsToAppend + 64) % 512 == 0);
 
-            message = message.Concat(Utilities.ToBigEndianInteger((ulong)inputLength)).ToArray();
-            Debug.Assert(message.Length % 512 == 0);
+            message = message.Concat(Utilities.UnsignedInteger64BitToByteArray((ulong)L_messageLengthInBits)).ToArray();
+            Debug.Assert(message.Length % 64 == 0);
 
-            int chunkSizeInBit = 512;
-            int chunkSizeInByte = chunkSizeInBit / 8;
-            int amountOfChunks = message.Length / chunkSizeInByte;
+            int chunkSizeInBits = 512;
+            int chunkSizeInBytes = chunkSizeInBits / 8;
+            int amountOfChunks = message.Length / chunkSizeInBytes;
             for (int chunkIndex = 0; chunkIndex < amountOfChunks; chunkIndex++)
             {
-                byte[] currentChunk = message.Skip((amountOfChunks + chunkIndex) * chunkSizeInByte).Take(chunkSizeInByte).ToArray();
-                Debug.Assert(currentChunk.Length == 64);
+                byte[] currentChunk = message.Skip(chunkIndex * chunkSizeInBytes).Take(chunkSizeInBytes).ToArray();
+                Debug.Assert(currentChunk.Length == chunkSizeInBytes);
                 uint[] W = new uint[64];
-                Array.Copy(currentChunk, W, currentChunk.Length);
+                uint[] currentChunkAsUnsignedIntegerArray = Utilities.ByteArrayToUnsignedInteger32BitArray(currentChunk);
+                Debug.Assert(currentChunkAsUnsignedIntegerArray.Length == chunkSizeInBytes / 4);
+                Array.Copy(currentChunkAsUnsignedIntegerArray, W, currentChunkAsUnsignedIntegerArray.Length);
                 for (int i = 16; i < 64; i++)
                 {
                     uint s0 = XOr(XOr(RightRotate(W[i - 15], 7), RightRotate(W[i - 15], 18)), RightShift(W[i - 15], 3));
-                    uint s1 = XOr(XOr(RightRotate(W[i - 2], 17), RightRotate(W[i - 15], 19)), RightShift(W[i - 2], 10));
-                    W[i] = AddModulo32Bit(AddModulo32Bit(AddModulo32Bit(W[i - 16], s0), W[i - 7]) + s1);
+                    uint s1 = XOr(XOr(RightRotate(W[i - 2], 17), RightRotate(W[i - 2], 19)), RightShift(W[i - 2], 10));
+                    W[i] = Add(W[i - 16], s0, W[i - 7] , s1);
                 }
 
                 uint a = H[0];
@@ -69,33 +71,33 @@ namespace GRYLibrary.Core.CryptoSystems.ConcreteHashAlgorithms
                 {
                     uint S1 = XOr(XOr(RightRotate(e, 6), RightRotate(e, 11)), RightRotate(e, 25));
                     uint ch = XOr(And(e, f), And(Not(e), g));
-                    uint temp1 = AddModulo32Bit(h, S1, ch, K[i], W[i]);
+                    uint temp1 = Add(h, S1, ch, K[i], W[i]);
                     uint S0 = XOr(XOr(RightRotate(a, 2), RightRotate(a, 13)), RightRotate(a, 22));
                     uint maj = XOr(XOr(And(a, b), And(a, c)), And(b, c));
-                    uint temp2 = AddModulo32Bit(S0, maj);
+                    uint temp2 = Add(S0, maj);
                     h = g;
                     g = f;
                     f = e;
-                    e = AddModulo32Bit(d, temp1);
+                    e = Add(d, temp1);
                     d = c;
                     c = b;
                     b = a;
-                    a = AddModulo32Bit(temp1, temp2);
+                    a = Add(temp1, temp2);
                 }
-                H[0] = AddModulo32Bit(H[0], a);
-                H[1] = AddModulo32Bit(H[1], b);
-                H[2] = AddModulo32Bit(H[2], c);
-                H[3] = AddModulo32Bit(H[3], d);
-                H[4] = AddModulo32Bit(H[4], e);
-                H[5] = AddModulo32Bit(H[5], f);
-                H[6] = AddModulo32Bit(H[6], g);
-                H[7] = AddModulo32Bit(H[7], h);
+                H[0] = Add( a,H[0]);
+                H[1] = Add( b,H[1]);
+                H[2] = Add( c,H[2]);
+                H[3] = Add( d,H[3]);
+                H[4] = Add( e,H[4]);
+                H[5] = Add( f,H[5]);
+                H[6] = Add( g,H[6]);
+                H[7] = Add( h,H[7]);
 
             }
-            return Utilities.ToByteArray(H[0]).Concat(Utilities.ToByteArray(H[1])).Concat(Utilities.ToByteArray(H[2])).Concat(Utilities.ToByteArray(H[3])).Concat(Utilities.ToByteArray(H[4])).Concat(Utilities.ToByteArray(H[5])).Concat(Utilities.ToByteArray(H[6])).Concat(Utilities.ToByteArray(H[7])).ToArray();
+            return Utilities.UnsignedInteger32BitToByteArray(H[0]).Concat(Utilities.UnsignedInteger32BitToByteArray(H[1])).Concat(Utilities.UnsignedInteger32BitToByteArray(H[2])).Concat(Utilities.UnsignedInteger32BitToByteArray(H[3])).Concat(Utilities.UnsignedInteger32BitToByteArray(H[4])).Concat(Utilities.UnsignedInteger32BitToByteArray(H[5])).Concat(Utilities.UnsignedInteger32BitToByteArray(H[6])).Concat(Utilities.UnsignedInteger32BitToByteArray(H[7])).ToArray();
         }
 
-        private uint AddModulo32Bit(params uint[] summands)
+        private uint Add(params uint[] summands)
         {
             if (summands.Length == 0)
             {
@@ -104,7 +106,7 @@ namespace GRYLibrary.Core.CryptoSystems.ConcreteHashAlgorithms
             uint result = summands[0];
             for (int i = 1; i < summands.Length; i++)
             {
-                result = (uint)(int)((result + (ulong)summands[i]) % Math.Pow(2, 32));
+                result = result + summands[i];
             }
             return result;
         }

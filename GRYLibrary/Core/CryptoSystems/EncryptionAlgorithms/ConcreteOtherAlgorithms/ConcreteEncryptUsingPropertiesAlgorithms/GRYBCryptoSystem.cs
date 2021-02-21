@@ -53,14 +53,14 @@ namespace GRYLibrary.Core.CryptoSystems.EncryptionAlgorithms.ConcreteOtherAlgori
             byte[] internalKey = internalEncryptionAlgorithmForKeys.GenerateRandomKey();
             (byte[], AsymmetricEncryptionAlgorithm)[] encryptedKeysForDecryption = unencryptedPublicPasswordEncryptionKeys.Select(unencryptedPublicPasswordEncryptionKey => (unencryptedPublicPasswordEncryptionKey.Item2.Encrypt(internalKey, unencryptedPublicPasswordEncryptionKey.Item1), unencryptedPublicPasswordEncryptionKey.Item2)).ToArray();
             byte[] content = internalEncryptionAlgorithmForKeys.Encrypt(unencryptedData, internalKey);
-            byte[] header = Utilities.Concat(hashAlgorithm.GetIdentifier(), internalEncryptionAlgorithmForKeys.GetIdentifier(), Utilities.IntToByteArray(encryptedKeysForDecryption.Length), Utilities.IntToByteArray(content.Length));
+            byte[] header = Utilities.Concat(hashAlgorithm.GetIdentifier(), internalEncryptionAlgorithmForKeys.GetIdentifier(), Utilities.UnsignedInteger32BitToByteArray((uint)encryptedKeysForDecryption.Length), Utilities.UnsignedInteger32BitToByteArray((uint)content.Length));
             foreach ((byte[], AsymmetricEncryptionAlgorithm) encryptedKeyForDecryption in encryptedKeysForDecryption)
             {
-                header = Utilities.Concat(header, encryptedKeyForDecryption.Item2.GetIdentifier(), Utilities.IntToByteArray(encryptedKeyForDecryption.Item1.Length), encryptedKeyForDecryption.Item1);
+                header = Utilities.Concat(header, encryptedKeyForDecryption.Item2.GetIdentifier(), Utilities.UnsignedInteger32BitToByteArray((uint)encryptedKeyForDecryption.Item1.Length), encryptedKeyForDecryption.Item1);
             }
             byte[] data = Utilities.Concat(header, content);
             byte[] hashed = hashAlgorithm.Hash(data);
-            return Utilities.Concat(GRYBCryptoSystemDatasetMagicHeaderBytes, Utilities.IntToByteArray(hashed.Length), hashed, data);
+            return Utilities.Concat(GRYBCryptoSystemDatasetMagicHeaderBytes, Utilities.UnsignedInteger32BitToByteArray((uint)hashed.Length), hashed, data);
         }
 
         public static byte[] DeserializeAndDecrypt(byte[] encryptedData, byte[] password)

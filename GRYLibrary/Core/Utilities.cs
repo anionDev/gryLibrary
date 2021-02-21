@@ -39,14 +39,6 @@ namespace GRYLibrary.Core
     public static class Utilities
     {
         #region Miscellaneous
-        public static byte[] ToByteArray(uint value)
-        {
-            throw new NotImplementedException();
-        }
-        public static uint ToByteArray(byte[] value)
-        {
-            throw new NotImplementedException();
-        }
         public static PercentValue ToPercentValue(this float value)
         {
             return new PercentValue(value);
@@ -63,23 +55,12 @@ namespace GRYLibrary.Core
         {
             return new PercentValue(value);
         }
-
-        public static byte[] ToBigEndianInteger(ulong value)
+        public static uint SwapEndianness(uint value)
         {
-            throw new NotImplementedException();
-        }
-        public static byte[] ToLittleEndianInteger(ulong value)
-        {
-            throw new NotImplementedException();
-        }
-
-        public static byte[] ToBigEndianInteger(int value)
-        {
-            throw new NotImplementedException();
-        }
-        public static byte[] ToLittleEndianInteger(int value)
-        {
-            throw new NotImplementedException();
+            return ((value & 0x000000ff) << 24) +
+                   ((value & 0x0000ff00) << 8) +
+                   ((value & 0x00ff0000) >> 8) +
+                   ((value & 0xff000000) >> 24);
         }
 
         public static byte[] GetRandomByteArray(long length = 65536)
@@ -92,7 +73,7 @@ namespace GRYLibrary.Core
         /// <summary>
         /// This is the inverse function of <see cref="ConcatBytesArraysWithLengthInformation"/>
         /// </summary>
-        internal static byte[][] GetBytesArraysFromConcatBytesArraysWithLengthInformation(byte[] bytes)
+        public static byte[][] GetBytesArraysFromConcatBytesArraysWithLengthInformation(byte[] bytes)
         {
             throw new NotImplementedException();
         }
@@ -100,12 +81,26 @@ namespace GRYLibrary.Core
         /// <summary>
         /// This is the inverse function of <see cref="GetBytesArraysFromConcatBytesArraysWithLengthInformation"/>
         /// </summary>
-        internal static byte[] ConcatBytesArraysWithLengthInformation(params byte[][] byteArrays)
+        public static byte[] ConcatBytesArraysWithLengthInformation(params byte[][] byteArrays)
         {
             byte[] result = Array.Empty<byte>();
-            foreach (var byteArray in byteArrays)
+            foreach (byte[] byteArray in byteArrays)
             {
-                result = Concat(result, IntToByteArray(byteArray.Length), byteArray);
+                result = Concat(result, UnsignedInteger32BitToByteArray((uint)byteArray.Length), byteArray);
+            }
+            return result;
+        }
+
+        public static uint[] ByteArrayToUnsignedInteger32BitArray(byte[] byteArray)
+        {
+            if ((byteArray.Length % 4) != 0)
+            {
+                throw new ArgumentException();
+            }
+            var result = new uint[byteArray.Length / 4];
+            for (int i = 0; i < byteArray.Length / 4; i++)
+            {
+                result[i] = ByteArrayToUnsignedInteger32Bit(new byte[] { byteArray[4 * i], byteArray[4 * i + 1], byteArray[4 * i + 2], byteArray[4 * i + 3] });
             }
             return result;
         }
@@ -1077,7 +1072,7 @@ namespace GRYLibrary.Core
 
         public static string EnsurePathHasNoLeadingOrTrailingQuotes(this string path)
         {
-            var result = path;
+            string result = path;
             bool changed = true;
             while (changed)
             {
@@ -1150,7 +1145,7 @@ namespace GRYLibrary.Core
         public static T[] Concat<T>(params T[][] arrays)
         {
             T[] result = Array.Empty<T>();
-            foreach (var array in arrays)
+            foreach (T[] array in arrays)
             {
                 result = Concat2Arrays(result, array);
             }
@@ -1517,7 +1512,6 @@ namespace GRYLibrary.Core
         }
         private static T[] PadHelper<T>(T[] array, int length, T fillItem, bool PadLeft)
         {
-
             T[] result = array;
             while (array.Length <= length)
             {
@@ -1533,18 +1527,115 @@ namespace GRYLibrary.Core
             return result;
         }
         /// <param name="value">
-        /// must contain maximal 4 bytes.
+        /// must contain exacltly 4 bytes.
         /// </param>
-        public static int ByteArrayToInt(byte[] value)
+        public static uint ByteArrayToUnsignedInteger32Bit(byte[] value, Endianness endianness = Endianness.BigEndian)
         {
-            throw new NotImplementedException();
+            if (value.Length != 4)
+            {
+                throw new ArgumentException();
+            }
+            if (endianness == Endianness.BigEndian)
+            {
+                return (((uint)value[0]) << 24)
+                     + (((uint)value[1]) << 16)
+                     + (((uint)value[2]) << 08)
+                     + (((uint)value[3]) << 00);
+            }
+            if (endianness == Endianness.MixedEndian)
+            {
+                throw new NotImplementedException();
+            }
+            if (endianness == Endianness.LittleEndian)
+            {
+                throw new NotImplementedException();
+            }
+            throw new ArgumentException();
         }
         /// <returns>
         /// Returns an array with exactly 4 bytes.
         /// </returns>
-        public static byte[] IntToByteArray(int value)
+        public static byte[] UnsignedInteger32BitToByteArray(uint value, Endianness endianness = Endianness.BigEndian)
         {
-            throw new NotImplementedException();
+            byte[] result = new byte[4];
+            if (endianness == Endianness.BigEndian)
+            {
+                result[0] = (byte)((value & 0xff000000) >> 24);
+                result[1] = (byte)((value & 0x00ff0000) >> 16);
+                result[2] = (byte)((value & 0x0000ff00) >> 08);
+                result[3] = (byte)((value & 0x000000ff) >> 00);
+                return result;
+            }
+            if (endianness == Endianness.MixedEndian)
+            {
+                throw new NotImplementedException();
+                return result;
+            }
+            if (endianness == Endianness.LittleEndian)
+            {
+                throw new NotImplementedException();
+                return result;
+            }
+            throw new ArgumentException();
+        }
+        /// <param name="value">
+        /// must contain exacltly 8 bytes.
+        /// </param>
+        public static ulong ByteArrayToUnsignedInteger64Bit(byte[] value, Endianness endianness = Endianness.BigEndian)
+        {
+            if (value.Length != 8)
+            {
+                throw new ArgumentException();
+            }
+            if (endianness == Endianness.BigEndian)
+            {
+                throw new NotImplementedException();
+            }
+            if (endianness == Endianness.MixedEndian)
+            {
+                throw new NotImplementedException();
+            }
+            if (endianness == Endianness.LittleEndian)
+            {
+                throw new NotImplementedException();
+            }
+            throw new ArgumentException();
+        }
+        /// <returns>
+        /// Returns an array with exactly 8 bytes.
+        /// </returns>
+        public static byte[] UnsignedInteger64BitToByteArray(ulong value, Endianness endianness = Endianness.BigEndian)
+        {
+            byte[] result = new byte[8];
+            if (endianness == Endianness.BigEndian)
+            {
+                result[0] = (byte)((value & 0xff00000000000000) >> 56);
+                result[1] = (byte)((value & 0x00ff000000000000) >> 48);
+                result[2] = (byte)((value & 0x0000ff0000000000) >> 40);
+                result[3] = (byte)((value & 0x000000ff00000000) >> 32);
+                result[4] = (byte)((value & 0x00000000ff000000) >> 24);
+                result[5] = (byte)((value & 0x0000000000ff0000) >> 16);
+                result[6] = (byte)((value & 0x000000000000ff00) >> 08);
+                result[7] = (byte)((value & 0x00000000000000ff) >> 00);
+                return result;
+            }
+            if (endianness == Endianness.MixedEndian)
+            {
+                throw new NotImplementedException();
+                return result;
+            }
+            if (endianness == Endianness.LittleEndian)
+            {
+                throw new NotImplementedException();
+                return result;
+            }
+            throw new ArgumentException();
+        }
+        public enum Endianness
+        {
+            BigEndian = 0,
+            MixedEndian = 1,
+            LittleEndian = 2,
         }
         public static bool NullSafeSetEquals<T>(this ISet<T> @this, ISet<T> obj)
         {
