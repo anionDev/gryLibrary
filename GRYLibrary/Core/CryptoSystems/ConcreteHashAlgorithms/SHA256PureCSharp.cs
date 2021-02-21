@@ -11,13 +11,10 @@ namespace GRYLibrary.Core.CryptoSystems.ConcreteHashAlgorithms
         {
             return Utilities.PadLeft(Encoding.ASCII.GetBytes("SHA256PC#"), 10);
         }
-
-        public override byte[] Hash(byte[] data)
-        {
-            uint[] H = new uint[8] {
+        public uint[] H_InitialValue = new uint[8] {
                 0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19,
             };
-            uint[] K = new uint[64]{
+        public uint[] K_InitialValue = new uint[64]{
                0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
                0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3, 0x72be5d74, 0x80deb1fe, 0x9bdc06a7, 0xc19bf174,
                0xe49b69c1, 0xefbe4786, 0x0fc19dc6, 0x240ca1cc, 0x2de92c6f, 0x4a7484aa, 0x5cb0a9dc, 0x76f988da,
@@ -27,6 +24,12 @@ namespace GRYLibrary.Core.CryptoSystems.ConcreteHashAlgorithms
                0x19a4c116, 0x1e376c08, 0x2748774c, 0x34b0bcb5, 0x391c0cb3, 0x4ed8aa4a, 0x5b9cca4f, 0x682e6ff3,
                0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208, 0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2,
             };
+
+        public override byte[] Hash(byte[] data)
+        {
+            uint[] H = this.H_InitialValue.ToArray();
+            uint[] K = this.K_InitialValue.ToArray();
+
             byte[] message = data;
             int L_messageLengthInBits = data.Length * 8;
 
@@ -56,7 +59,7 @@ namespace GRYLibrary.Core.CryptoSystems.ConcreteHashAlgorithms
                 {
                     uint s0 = XOr(XOr(RightRotate(W[i - 15], 7), RightRotate(W[i - 15], 18)), RightShift(W[i - 15], 3));
                     uint s1 = XOr(XOr(RightRotate(W[i - 2], 17), RightRotate(W[i - 2], 19)), RightShift(W[i - 2], 10));
-                    W[i] = Add(W[i - 16], s0, W[i - 7] , s1);
+                    W[i] = Add(W[i - 16], s0, W[i - 7], s1);
                 }
 
                 uint a = H[0];
@@ -84,29 +87,33 @@ namespace GRYLibrary.Core.CryptoSystems.ConcreteHashAlgorithms
                     b = a;
                     a = Add(temp1, temp2);
                 }
-                H[0] = Add( a,H[0]);
-                H[1] = Add( b,H[1]);
-                H[2] = Add( c,H[2]);
-                H[3] = Add( d,H[3]);
-                H[4] = Add( e,H[4]);
-                H[5] = Add( f,H[5]);
-                H[6] = Add( g,H[6]);
-                H[7] = Add( h,H[7]);
+                H[0] = Add(a, H[0]);
+                H[1] = Add(b, H[1]);
+                H[2] = Add(c, H[2]);
+                H[3] = Add(d, H[3]);
+                H[4] = Add(e, H[4]);
+                H[5] = Add(f, H[5]);
+                H[6] = Add(g, H[6]);
+                H[7] = Add(h, H[7]);
 
             }
-            return Utilities.UnsignedInteger32BitToByteArray(H[0]).Concat(Utilities.UnsignedInteger32BitToByteArray(H[1])).Concat(Utilities.UnsignedInteger32BitToByteArray(H[2])).Concat(Utilities.UnsignedInteger32BitToByteArray(H[3])).Concat(Utilities.UnsignedInteger32BitToByteArray(H[4])).Concat(Utilities.UnsignedInteger32BitToByteArray(H[5])).Concat(Utilities.UnsignedInteger32BitToByteArray(H[6])).Concat(Utilities.UnsignedInteger32BitToByteArray(H[7])).ToArray();
+            return Utilities.UnsignedInteger32BitToByteArray(H[0])
+           .Concat(Utilities.UnsignedInteger32BitToByteArray(H[1]))
+           .Concat(Utilities.UnsignedInteger32BitToByteArray(H[2]))
+           .Concat(Utilities.UnsignedInteger32BitToByteArray(H[3]))
+           .Concat(Utilities.UnsignedInteger32BitToByteArray(H[4]))
+           .Concat(Utilities.UnsignedInteger32BitToByteArray(H[5]))
+           .Concat(Utilities.UnsignedInteger32BitToByteArray(H[6]))
+           .Concat(Utilities.UnsignedInteger32BitToByteArray(H[7]))
+           .ToArray();
         }
 
         private uint Add(params uint[] summands)
         {
-            if (summands.Length == 0)
+            uint result = 0;
+            for (int i = 0; i < summands.Length; i++)
             {
-                throw new ArgumentException();
-            }
-            uint result = summands[0];
-            for (int i = 1; i < summands.Length; i++)
-            {
-                result = result + summands[i];
+                result += summands[i];
             }
             return result;
         }
