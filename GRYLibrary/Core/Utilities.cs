@@ -40,7 +40,7 @@ namespace GRYLibrary.Core
     {
         #region Constants
         public const string EmptyString = "";
-        public const string SpecialCharacterTest = "<Special-character-Test: (^äöüß/\\€\"\'+-*®¬¼😊👍✆⊆ℙ≈∑∞∫/𝄞𝄤𝅘𝅥𝅮) (您好) (Здравствуйте) (नमस्कार)>";
+        public const string SpecialCharacterTestString = "<Special-character-Test: (^äöüß/\\€\"\'+-*®¬¼😊👍✆⊆ℙ≈∑∞∫/𝄞𝄤𝅘𝅥𝅮) (您好) (Здравствуйте) (नमस्कार)>";
         #endregion
 
         #region Miscellaneous
@@ -60,12 +60,59 @@ namespace GRYLibrary.Core
         {
             return new PercentValue(value);
         }
+        public static void Repeat<T>(this Action<uint> action, uint amountOfExecutions)
+        {
+            for (uint i = 0; i < amountOfExecutions; i++)
+            {
+                action(i);
+            }
+        }
+        /// <summary>
+        /// Checks if the given <paramref name="subList"/> is contained in <paramref name="list"/>.
+        /// </summary>
+        /// <remarks>
+        /// For performance-reasons this function will be reduced to a string-representation comparison.
+        /// For this reason it is required to specify a <paramref name="serializableFunction"/> thich returns a string-representation for a list-item.
+        /// It is also required to pass a <paramref name="separator"/> which will never occurr in any string-representation of any list-item.
+        /// </remarks>
+        /// <returns>
+        /// Returns true if and only if the given <paramref name="subList"/> is contained in <paramref name="list"/> in the correct order.
+        /// </returns>
+        public static bool ContainsSublist<T>(this IList<T> list, IList<T> subList, Func<T, string> serializableFunction, string separator = "-")
+        {
+            if (list == null || subList == null)
+            {
+                throw new ArgumentException();
+            }
+            if (subList.Count > list.Count)
+            {
+                return false;
+            }
+            if (subList.Count == 0)
+            {
+                return true;
+            }
+            string listAsString = string.Join(separator, list.Select(item => serializableFunction(item)));
+            string subListAsString = string.Join(separator, subList.Select(item => serializableFunction(item)));
+            return listAsString.Contains(subListAsString);
+        }
+        public static IList<T> NTimes<T>(this IEnumerable<T> input, uint n)
+        {
+            List<T> result = new List<T>();
+            int i = 0;
+            while (i < n)
+            {
+                i += 1;
+                result.AddRange(input);
+            }
+            return result;
+        }
         public static uint SwapEndianness(uint value)
         {
-            return ((value & 0x000000ff) << 24) +
-                   ((value & 0x0000ff00) << 8) +
-                   ((value & 0x00ff0000) >> 8) +
-                   ((value & 0xff000000) >> 24);
+            return ((value & 0x000000ff) << 24)
+                 + ((value & 0x0000ff00) << 08)
+                 + ((value & 0x00ff0000) >> 08)
+                 + ((value & 0xff000000) >> 24);
         }
 
         public static byte[] GetRandomByteArray(long length = 65536)
@@ -100,9 +147,9 @@ namespace GRYLibrary.Core
         {
             if ((byteArray.Length % 4) != 0)
             {
-                throw new ArgumentException();
+                throw new ArgumentException($"The argument for parameter {nameof(byteArray)} must have a length which is a multiple of 4.");
             }
-            var result = new uint[byteArray.Length / 4];
+            uint[] result = new uint[byteArray.Length / 4];
             for (int i = 0; i < byteArray.Length / 4; i++)
             {
                 result[i] = ByteArrayToUnsignedInteger32Bit(new byte[] { byteArray[4 * i], byteArray[4 * i + 1], byteArray[4 * i + 2], byteArray[4 * i + 3] });
