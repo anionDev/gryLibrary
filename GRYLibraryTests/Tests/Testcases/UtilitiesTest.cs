@@ -501,5 +501,31 @@ namespace GRYLibrary.Tests.Testcases
             Assert.AreEqual("a", Core.Utilities.EnsurePathEndsWithoutSlashOrBackslash("a/"));
             Assert.AreEqual("a", Core.Utilities.EnsurePathEndsWithoutSlashOrBackslash("a\\"));
         }
+        [TestMethod]
+        public void HexStringToByteArrayTest()
+        {
+            // arrange
+            var input = "de";
+            var expected = new byte[] { 222 };
+
+            // act
+            var actual = GRYLibrary.Core.Utilities.HexStringToByteArray(input);
+
+            // assert
+            Assert.IsTrue(expected.SequenceEqual(actual));
+        }
+        [TestMethod]
+        public void ByteArrayToHexStringTest()
+        {
+            // arrange
+            var input =new byte[] { 222 } ;
+            var expected = "DE";
+
+            // act
+            var actual = GRYLibrary.Core.Utilities.ByteArrayToHexString(input);
+
+            // assert
+            Assert.IsTrue(expected.SequenceEqual(actual));
+        }
     }
 }
