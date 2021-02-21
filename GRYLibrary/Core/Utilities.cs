@@ -1544,13 +1544,19 @@ namespace GRYLibrary.Core
             }
             if (endianness == Endianness.MixedEndian)
             {
-                throw new NotImplementedException();
+                return (((uint)value[1]) << 24)
+                     + (((uint)value[0]) << 16)
+                     + (((uint)value[3]) << 08)
+                     + (((uint)value[2]) << 00);
             }
             if (endianness == Endianness.LittleEndian)
             {
-                throw new NotImplementedException();
+                return (((uint)value[4]) << 24)
+                     + (((uint)value[3]) << 16)
+                     + (((uint)value[2]) << 08)
+                     + (((uint)value[1]) << 00);
             }
-            throw new ArgumentException();
+            throw new ArgumentException($"Unknown or unsupported value given for parameter {nameof(endianness)}");
         }
         /// <returns>
         /// Returns an array with exactly 4 bytes.
@@ -1568,15 +1574,21 @@ namespace GRYLibrary.Core
             }
             if (endianness == Endianness.MixedEndian)
             {
-                throw new NotImplementedException();
+                result[0] = (byte)((value & 0x00ff0000) >> 24);
+                result[1] = (byte)((value & 0xff000000) >> 16);
+                result[2] = (byte)((value & 0x000000ff) >> 08);
+                result[3] = (byte)((value & 0x0000ff00) >> 00);
                 return result;
             }
             if (endianness == Endianness.LittleEndian)
             {
-                throw new NotImplementedException();
+                result[0] = (byte)((value & 0x000000ff) >> 24);
+                result[1] = (byte)((value & 0x0000ff00) >> 16);
+                result[2] = (byte)((value & 0x00ff0000) >> 08);
+                result[3] = (byte)((value & 0xff000000) >> 00);
                 return result;
             }
-            throw new ArgumentException();
+            throw new ArgumentException($"Unknown or unsupported value given for parameter {nameof(endianness)}");
         }
         /// <param name="value">
         /// must contain exacltly 8 bytes.
@@ -1589,17 +1601,38 @@ namespace GRYLibrary.Core
             }
             if (endianness == Endianness.BigEndian)
             {
-                throw new NotImplementedException();
+                return (((ulong)value[0]) << 56)
+                     + (((ulong)value[1]) << 48)
+                     + (((ulong)value[2]) << 40)
+                     + (((ulong)value[3]) << 32)
+                     + (((ulong)value[4]) << 24)
+                     + (((ulong)value[5]) << 16)
+                     + (((ulong)value[6]) << 08)
+                     + (((ulong)value[7]) << 00);
             }
             if (endianness == Endianness.MixedEndian)
             {
-                throw new NotImplementedException();
+                return (((ulong)value[1]) << 56)
+                     + (((ulong)value[0]) << 48)
+                     + (((ulong)value[3]) << 40)
+                     + (((ulong)value[2]) << 32)
+                     + (((ulong)value[5]) << 24)
+                     + (((ulong)value[4]) << 16)
+                     + (((ulong)value[7]) << 08)
+                     + (((ulong)value[6]) << 00);
             }
             if (endianness == Endianness.LittleEndian)
             {
-                throw new NotImplementedException();
+                return (((ulong)value[7]) << 56)
+                     + (((ulong)value[6]) << 48)
+                     + (((ulong)value[5]) << 40)
+                     + (((ulong)value[4]) << 32)
+                     + (((ulong)value[3]) << 24)
+                     + (((ulong)value[2]) << 16)
+                     + (((ulong)value[1]) << 08)
+                     + (((ulong)value[0]) << 00);
             }
-            throw new ArgumentException();
+            throw new ArgumentException($"Unknown or unsupported value given for parameter {nameof(endianness)}");
         }
         /// <returns>
         /// Returns an array with exactly 8 bytes.
@@ -1621,15 +1654,29 @@ namespace GRYLibrary.Core
             }
             if (endianness == Endianness.MixedEndian)
             {
-                throw new NotImplementedException();
+                result[0] = (byte)((value & 0x00ff000000000000) >> 56);
+                result[1] = (byte)((value & 0xff00000000000000) >> 48);
+                result[2] = (byte)((value & 0x000000ff00000000) >> 40);
+                result[3] = (byte)((value & 0x0000ff0000000000) >> 32);
+                result[4] = (byte)((value & 0x0000000000ff0000) >> 24);
+                result[5] = (byte)((value & 0x00000000ff000000) >> 16);
+                result[6] = (byte)((value & 0x00000000000000ff) >> 08);
+                result[7] = (byte)((value & 0x000000000000ff00) >> 00);
                 return result;
             }
             if (endianness == Endianness.LittleEndian)
             {
-                throw new NotImplementedException();
+                result[0] = (byte)((value & 0x00000000000000ff) >> 56);
+                result[1] = (byte)((value & 0x000000000000ff00) >> 48);
+                result[2] = (byte)((value & 0x0000000000ff0000) >> 40);
+                result[3] = (byte)((value & 0x00000000ff000000) >> 32);
+                result[4] = (byte)((value & 0x000000ff00000000) >> 24);
+                result[5] = (byte)((value & 0x0000ff0000000000) >> 16);
+                result[6] = (byte)((value & 0x00ff000000000000) >> 08);
+                result[7] = (byte)((value & 0xff00000000000000) >> 00);
                 return result;
             }
-            throw new ArgumentException();
+            throw new ArgumentException($"Unknown or unsupported value given for parameter {nameof(endianness)}");
         }
         public enum Endianness
         {
