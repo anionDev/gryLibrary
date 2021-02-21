@@ -24,7 +24,7 @@ namespace GRYLibrary.Core
         }
         public ByteArray CreateByInteger(BigInteger value)
         {
-            return this.CreateByHexString(Utilities.IntegerToHexString(value));
+            return this.CreateByHexString(Utilities.BigIntegerToHexString(value));
         }
         public ByteArray CreateByString(string value)
         {

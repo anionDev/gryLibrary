@@ -38,6 +38,11 @@ namespace GRYLibrary.Core
 {
     public static class Utilities
     {
+        #region Constants
+        public const string EmptyString = "";
+        public const string SpecialCharacterTest = "<Special-character-Test: (^äöüß/\\€\"\'+-*®¬¼😊👍✆⊆ℙ≈∑∞∫/𝄞𝄤𝅘𝅥𝅮) (您好) (Здравствуйте) (नमस्कार)>";
+        #endregion
+
         #region Miscellaneous
         public static PercentValue ToPercentValue(this float value)
         {
@@ -958,12 +963,6 @@ namespace GRYLibrary.Core
             return Directory.GetFiles(path).Length > 0;
         }
 
-        public static int GetHexValue(char hex)
-        {
-            int val = hex;
-            return val - (val < 58 ? 48 : 55);
-        }
-
         public static void ClearFile(string file)
         {
             File.WriteAllText(file, string.Empty, Encoding.ASCII);
@@ -1099,11 +1098,11 @@ namespace GRYLibrary.Core
             return true;
         }
 
-        public static byte[] SimpleStringToByteArray(string @string)
+        public static byte[] StringToByteArray(string @string)
         {
             return new UTF8Encoding(false).GetBytes(@string);
         }
-        public static string SimpleByteArrayToString(byte[] bytes)
+        public static string ByteArrayToString(byte[] bytes)
         {
             return new UTF8Encoding(false).GetString(bytes);
         }
@@ -1127,21 +1126,19 @@ namespace GRYLibrary.Core
             return result;
         }
 
-        public static string IntegerToHexString(BigInteger input)
+        private static int GetHexValue(char hex)
         {
-            string result = input.ToString("X");
-            if (result.StartsWith("0"))
-            {
-                return result[1..];
-            }
-            else
-            {
-                return result;
-            }
+            int val = hex;
+            return val - (val < 58 ? 48 : 55);
         }
-        public static BigInteger HexStringToInteger(string input)
+
+        public static string BigIntegerToHexString(BigInteger input)
         {
-            return BigInteger.Parse(input, NumberStyles.HexNumber);
+            return input.ToString("X");
+        }
+        public static BigInteger HexStringToBigInteger(string input)
+        {
+            return BigInteger.Parse(input.ToUpper(), NumberStyles.HexNumber);
         }
         public static T[] Concat<T>(params T[][] arrays)
         {

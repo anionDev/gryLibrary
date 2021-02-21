@@ -22,7 +22,7 @@ namespace GRYLibrary.Tests.Tests.Testcases.CryptoSystemsTests
         private void AssertSHA256ValueIsEqualsToDotNetImplementation(string input)
         {
             // arrange
-            byte[] inputAsByteArray = Core.Utilities.SimpleStringToByteArray(input);
+            byte[] inputAsByteArray = Core.Utilities.StringToByteArray(input);
             HashAlgorithm sha256PureCSharp = new SHA256PureCSharp();
             HashAlgorithm verificationAlgorithm = new SHA256();
             byte[] expectedResult = verificationAlgorithm.Hash(inputAsByteArray);
