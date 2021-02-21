@@ -1112,16 +1112,17 @@ namespace GRYLibrary.Core
             return BitConverter.ToString(value).Replace("-", string.Empty);
         }
 
-        public static byte[] HexStringToByteArray(string hex)
+        public static byte[] HexStringToByteArray(string hexString)
         {
-            if (hex.Length % 2 == 1)
+            if (hexString.Length % 2 == 1)
             {
                 throw new ArgumentException();
             }
-            byte[] result = new byte[hex.Length >> 1];
-            for (int i = 0; i < hex.Length >> 1; ++i)
+            hexString = hexString.ToUpper();
+            byte[] result = new byte[hexString.Length >> 1];
+            for (int i = 0; i < hexString.Length >> 1; ++i)
             {
-                result[i] = (byte)((GetHexValue(hex[i << 1]) << 4) + GetHexValue(hex[(i << 1) + 1]));
+                result[i] = (byte)((GetHexValue(hexString[i << 1]) << 4) + GetHexValue(hexString[(i << 1) + 1]));
             }
             return result;
         }
