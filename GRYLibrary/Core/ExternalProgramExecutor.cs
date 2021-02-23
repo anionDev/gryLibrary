@@ -33,6 +33,7 @@ namespace GRYLibrary.Core
         public string Title { get; set; }
         public string LogNamespace { get; set; }
         public string WorkingDirectory { get; set; }
+        public bool UpdateConsoleTitle { get; set; } = false;
         /// <remarks>
         /// This property will be ignored if <see cref="RunSynchronously"/>==false.
         /// </remarks>
@@ -92,12 +93,12 @@ namespace GRYLibrary.Core
 
             try
             {
+                originalConsoleForegroundColor = Console.ForegroundColor;
+                originalConsoleBackgroundColor = Console.BackgroundColor;
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 {
                     originalConsoleTitle = Console.Title;
                 }
-                originalConsoleForegroundColor = Console.ForegroundColor;
-                originalConsoleBackgroundColor = Console.BackgroundColor;
             }
             catch
             {
@@ -105,13 +106,16 @@ namespace GRYLibrary.Core
             }
             try
             {
-                try
+                if (UpdateConsoleTitle)
                 {
-                    Console.Title = this.Title;
-                }
-                catch
-                {
-                    Utilities.NoOperation();
+                    try
+                    {
+                        Console.Title = this.Title;
+                    }
+                    catch
+                    {
+                        Utilities.NoOperation();
+                    }
                 }
                 Task task = StartProgram();
                 task.Wait();
@@ -122,7 +126,10 @@ namespace GRYLibrary.Core
                 try
                 {
                     this._Running = false;
-                    Console.Title = originalConsoleTitle;
+                    if (UpdateConsoleTitle)
+                    {
+                        Console.Title = originalConsoleTitle;
+                    }
                     Console.ForegroundColor = originalConsoleForegroundColor;
                     Console.BackgroundColor = originalConsoleBackgroundColor;
                 }
