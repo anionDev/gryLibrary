@@ -1,4 +1,4 @@
-Copyright © 2020 Marius Göcke
+Copyright © 2021 Marius Göcke
 
 GRYLibrary itself is licensed under the terms of the GRYLibrary-License version 1.7 (see appendix 1).
 GRYLibrary uses dependencies which are released under their own license:
