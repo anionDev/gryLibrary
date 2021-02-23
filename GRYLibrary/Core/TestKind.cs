@@ -15,7 +15,7 @@
         /// </summary>
         DebugHelperTest = 2,
         /// <summary>
-        /// Tests that a bug does not happen anymore.
+        /// Tests that a specific bug does not happen anymore.
         /// </summary>
         RegressionTest = 3,
         /// <summary>
@@ -27,7 +27,7 @@
         /// </summary>
         ReflectionTest = 5,
         /// <summary>
-        /// Tests to demonstrate a certain thing.
+        /// Tests that are always skipped when committing but can be useful to demonstrate a certain thing/function.
         /// </summary>
         DemonstrationTest = 6,
     }

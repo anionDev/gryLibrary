@@ -1,12 +1,9 @@
 ﻿using GRYLibrary.Core;
-using GRYLibrary.Core.Playlists;
 using GRYLibrary.Core.Playlists.ConcretePlaylistHandler;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 
 namespace GRYLibrary.Tests.Testcases
 {

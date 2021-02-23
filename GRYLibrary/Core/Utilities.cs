@@ -38,6 +38,10 @@ namespace GRYLibrary.Core
 {
     public static class Utilities
     {
+        #region Constants
+        public const string EmptyString = "";
+        public const string SpecialCharacterTestString = "<Special-character-Test: (^äöüß/\\€\"\'+-*®¬¼😊👍✆⊆ℙ≈∑∞∫/𝄞𝄤𝅘𝅥𝅮) (您好) (Здравствуйте) (नमस्कार)>";
+        #endregion
 
         #region Miscellaneous
         public static PercentValue ToPercentValue(this float value)
@@ -56,6 +60,61 @@ namespace GRYLibrary.Core
         {
             return new PercentValue(value);
         }
+        public static void Repeat<T>(this Action<uint> action, uint amountOfExecutions)
+        {
+            for (uint i = 0; i < amountOfExecutions; i++)
+            {
+                action(i);
+            }
+        }
+        /// <summary>
+        /// Checks if the given <paramref name="subList"/> is contained in <paramref name="list"/>.
+        /// </summary>
+        /// <remarks>
+        /// For performance-reasons this function will be reduced to a string-representation comparison.
+        /// For this reason it is required to specify a <paramref name="serializableFunction"/> thich returns a string-representation for a list-item.
+        /// It is also required to pass a <paramref name="separator"/> which will never occurr in any string-representation of any list-item.
+        /// </remarks>
+        /// <returns>
+        /// Returns true if and only if the given <paramref name="subList"/> is contained in <paramref name="list"/> in the correct order.
+        /// </returns>
+        public static bool ContainsSublist<T>(this IList<T> list, IList<T> subList, Func<T, string> serializableFunction, string separator = "-")
+        {
+            if (list == null || subList == null)
+            {
+                throw new ArgumentException();
+            }
+            if (subList.Count > list.Count)
+            {
+                return false;
+            }
+            if (subList.Count == 0)
+            {
+                return true;
+            }
+            string listAsString = string.Join(separator, list.Select(item => serializableFunction(item)));
+            string subListAsString = string.Join(separator, subList.Select(item => serializableFunction(item)));
+            return listAsString.Contains(subListAsString);
+        }
+        public static IList<T> NTimes<T>(this IEnumerable<T> input, uint n)
+        {
+            List<T> result = new List<T>();
+            int i = 0;
+            while (i < n)
+            {
+                i += 1;
+                result.AddRange(input);
+            }
+            return result;
+        }
+        public static uint SwapEndianness(uint value)
+        {
+            return ((value & 0x000000ff) << 24)
+                 + ((value & 0x0000ff00) << 08)
+                 + ((value & 0x00ff0000) >> 08)
+                 + ((value & 0xff000000) >> 24);
+        }
+
         public static byte[] GetRandomByteArray(long length = 65536)
         {
             byte[] result = new byte[length];
@@ -66,7 +125,7 @@ namespace GRYLibrary.Core
         /// <summary>
         /// This is the inverse function of <see cref="ConcatBytesArraysWithLengthInformation"/>
         /// </summary>
-        internal static byte[][] GetBytesArraysFromConcatBytesArraysWithLengthInformation(byte[] bytes)
+        public static byte[][] GetBytesArraysFromConcatBytesArraysWithLengthInformation(byte[] bytes)
         {
             throw new NotImplementedException();
         }
@@ -74,12 +133,26 @@ namespace GRYLibrary.Core
         /// <summary>
         /// This is the inverse function of <see cref="GetBytesArraysFromConcatBytesArraysWithLengthInformation"/>
         /// </summary>
-        internal static byte[] ConcatBytesArraysWithLengthInformation(params byte[][] byteArrays)
+        public static byte[] ConcatBytesArraysWithLengthInformation(params byte[][] byteArrays)
         {
             byte[] result = Array.Empty<byte>();
-            foreach (var byteArray in byteArrays)
+            foreach (byte[] byteArray in byteArrays)
             {
-                result = Concat(result, IntToByteArray(byteArray.Length), byteArray);
+                result = Concat(result, UnsignedInteger32BitToByteArray((uint)byteArray.Length), byteArray);
+            }
+            return result;
+        }
+
+        public static uint[] ByteArrayToUnsignedInteger32BitArray(byte[] byteArray)
+        {
+            if ((byteArray.Length % 4) != 0)
+            {
+                throw new ArgumentException($"The argument for parameter {nameof(byteArray)} must have a length which is a multiple of 4.");
+            }
+            uint[] result = new uint[byteArray.Length / 4];
+            for (int i = 0; i < byteArray.Length / 4; i++)
+            {
+                result[i] = ByteArrayToUnsignedInteger32Bit(new byte[] { byteArray[4 * i], byteArray[4 * i + 1], byteArray[4 * i + 2], byteArray[4 * i + 3] });
             }
             return result;
         }
@@ -937,12 +1010,6 @@ namespace GRYLibrary.Core
             return Directory.GetFiles(path).Length > 0;
         }
 
-        public static int GetHexValue(char hex)
-        {
-            int val = hex;
-            return val - (val < 58 ? 48 : 55);
-        }
-
         public static void ClearFile(string file)
         {
             File.WriteAllText(file, string.Empty, Encoding.ASCII);
@@ -1051,7 +1118,7 @@ namespace GRYLibrary.Core
 
         public static string EnsurePathHasNoLeadingOrTrailingQuotes(this string path)
         {
-            var result = path;
+            string result = path;
             bool changed = true;
             while (changed)
             {
@@ -1078,11 +1145,11 @@ namespace GRYLibrary.Core
             return true;
         }
 
-        public static byte[] SimpleStringToByteArray(string @string)
+        public static byte[] StringToByteArray(string @string)
         {
             return new UTF8Encoding(false).GetBytes(@string);
         }
-        public static string SimpleByteArrayToString(byte[] bytes)
+        public static string ByteArrayToString(byte[] bytes)
         {
             return new UTF8Encoding(false).GetString(bytes);
         }
@@ -1091,40 +1158,39 @@ namespace GRYLibrary.Core
             return BitConverter.ToString(value).Replace("-", string.Empty);
         }
 
-        public static byte[] HexStringToByteArray(string hex)
+        public static byte[] HexStringToByteArray(string hexString)
         {
-            if (hex.Length % 2 == 1)
+            if (hexString.Length % 2 == 1)
             {
-                hex = "0" + hex;
+                throw new ArgumentException();
             }
-            byte[] result = new byte[hex.Length >> 1];
-            for (int i = 0; i < hex.Length >> 1; ++i)
+            hexString = hexString.ToUpper();
+            byte[] result = new byte[hexString.Length >> 1];
+            for (int i = 0; i < hexString.Length >> 1; ++i)
             {
-                result[i] = (byte)((GetHexValue(hex[i << 1]) << 4) + GetHexValue(hex[(i << 1) + 1]));
+                result[i] = (byte)((GetHexValue(hexString[i << 1]) << 4) + GetHexValue(hexString[(i << 1) + 1]));
             }
             return result;
         }
 
-        public static string IntegerToHexString(BigInteger input)
+        private static int GetHexValue(char hex)
         {
-            string result = input.ToString("X");
-            if (result.StartsWith("0"))
-            {
-                return result[1..];
-            }
-            else
-            {
-                return result;
-            }
+            int val = hex;
+            return val - (val < 58 ? 48 : 55);
         }
-        public static BigInteger HexStringToInteger(string input)
+
+        public static string BigIntegerToHexString(BigInteger input)
         {
-            return BigInteger.Parse(input, NumberStyles.HexNumber);
+            return input.ToString("X");
+        }
+        public static BigInteger HexStringToBigInteger(string input)
+        {
+            return BigInteger.Parse(input.ToUpper(), NumberStyles.HexNumber);
         }
         public static T[] Concat<T>(params T[][] arrays)
         {
             T[] result = Array.Empty<T>();
-            foreach (var array in arrays)
+            foreach (T[] array in arrays)
             {
                 result = Concat2Arrays(result, array);
             }
@@ -1497,7 +1563,6 @@ namespace GRYLibrary.Core
         }
         private static T[] PadHelper<T>(T[] array, int length, T fillItem, bool PadLeft)
         {
-
             T[] result = array;
             while (array.Length <= length)
             {
@@ -1513,18 +1578,162 @@ namespace GRYLibrary.Core
             return result;
         }
         /// <param name="value">
-        /// must contain maximal 4 bytes.
+        /// must contain exacltly 4 bytes.
         /// </param>
-        public static int ByteArrayToInt(byte[] value)
+        public static uint ByteArrayToUnsignedInteger32Bit(byte[] value, Endianness endianness = Endianness.BigEndian)
         {
-            throw new NotImplementedException();
+            if (value.Length != 4)
+            {
+                throw new ArgumentException();
+            }
+            if (endianness == Endianness.BigEndian)
+            {
+                return (((uint)value[0]) << 24)
+                     + (((uint)value[1]) << 16)
+                     + (((uint)value[2]) << 08)
+                     + (((uint)value[3]) << 00);
+            }
+            if (endianness == Endianness.MixedEndian)
+            {
+                return (((uint)value[1]) << 24)
+                     + (((uint)value[0]) << 16)
+                     + (((uint)value[3]) << 08)
+                     + (((uint)value[2]) << 00);
+            }
+            if (endianness == Endianness.LittleEndian)
+            {
+                return (((uint)value[4]) << 24)
+                     + (((uint)value[3]) << 16)
+                     + (((uint)value[2]) << 08)
+                     + (((uint)value[1]) << 00);
+            }
+            throw new ArgumentException($"Unknown or unsupported value given for parameter {nameof(endianness)}");
         }
         /// <returns>
         /// Returns an array with exactly 4 bytes.
         /// </returns>
-        public static byte[] IntToByteArray(int value)
+        public static byte[] UnsignedInteger32BitToByteArray(uint value, Endianness endianness = Endianness.BigEndian)
         {
-            throw new NotImplementedException();
+            byte[] result = new byte[4];
+            if (endianness == Endianness.BigEndian)
+            {
+                result[0] = (byte)((value & 0xff000000) >> 24);
+                result[1] = (byte)((value & 0x00ff0000) >> 16);
+                result[2] = (byte)((value & 0x0000ff00) >> 08);
+                result[3] = (byte)((value & 0x000000ff) >> 00);
+                return result;
+            }
+            if (endianness == Endianness.MixedEndian)
+            {
+                result[0] = (byte)((value & 0x00ff0000) >> 24);
+                result[1] = (byte)((value & 0xff000000) >> 16);
+                result[2] = (byte)((value & 0x000000ff) >> 08);
+                result[3] = (byte)((value & 0x0000ff00) >> 00);
+                return result;
+            }
+            if (endianness == Endianness.LittleEndian)
+            {
+                result[0] = (byte)((value & 0x000000ff) >> 24);
+                result[1] = (byte)((value & 0x0000ff00) >> 16);
+                result[2] = (byte)((value & 0x00ff0000) >> 08);
+                result[3] = (byte)((value & 0xff000000) >> 00);
+                return result;
+            }
+            throw new ArgumentException($"Unknown or unsupported value given for parameter {nameof(endianness)}");
+        }
+        /// <param name="value">
+        /// must contain exacltly 8 bytes.
+        /// </param>
+        public static ulong ByteArrayToUnsignedInteger64Bit(byte[] value, Endianness endianness = Endianness.BigEndian)
+        {
+            if (value.Length != 8)
+            {
+                throw new ArgumentException();
+            }
+            if (endianness == Endianness.BigEndian)
+            {
+                return (((ulong)value[0]) << 56)
+                     + (((ulong)value[1]) << 48)
+                     + (((ulong)value[2]) << 40)
+                     + (((ulong)value[3]) << 32)
+                     + (((ulong)value[4]) << 24)
+                     + (((ulong)value[5]) << 16)
+                     + (((ulong)value[6]) << 08)
+                     + (((ulong)value[7]) << 00);
+            }
+            if (endianness == Endianness.MixedEndian)
+            {
+                return (((ulong)value[1]) << 56)
+                     + (((ulong)value[0]) << 48)
+                     + (((ulong)value[3]) << 40)
+                     + (((ulong)value[2]) << 32)
+                     + (((ulong)value[5]) << 24)
+                     + (((ulong)value[4]) << 16)
+                     + (((ulong)value[7]) << 08)
+                     + (((ulong)value[6]) << 00);
+            }
+            if (endianness == Endianness.LittleEndian)
+            {
+                return (((ulong)value[7]) << 56)
+                     + (((ulong)value[6]) << 48)
+                     + (((ulong)value[5]) << 40)
+                     + (((ulong)value[4]) << 32)
+                     + (((ulong)value[3]) << 24)
+                     + (((ulong)value[2]) << 16)
+                     + (((ulong)value[1]) << 08)
+                     + (((ulong)value[0]) << 00);
+            }
+            throw new ArgumentException($"Unknown or unsupported value given for parameter {nameof(endianness)}");
+        }
+        /// <returns>
+        /// Returns an array with exactly 8 bytes.
+        /// </returns>
+        public static byte[] UnsignedInteger64BitToByteArray(ulong value, Endianness endianness = Endianness.BigEndian)
+        {
+            byte[] result = new byte[8];
+            if (endianness == Endianness.BigEndian)
+            {
+                result[0] = (byte)((value & 0xff00000000000000) >> 56);
+                result[1] = (byte)((value & 0x00ff000000000000) >> 48);
+                result[2] = (byte)((value & 0x0000ff0000000000) >> 40);
+                result[3] = (byte)((value & 0x000000ff00000000) >> 32);
+                result[4] = (byte)((value & 0x00000000ff000000) >> 24);
+                result[5] = (byte)((value & 0x0000000000ff0000) >> 16);
+                result[6] = (byte)((value & 0x000000000000ff00) >> 08);
+                result[7] = (byte)((value & 0x00000000000000ff) >> 00);
+                return result;
+            }
+            if (endianness == Endianness.MixedEndian)
+            {
+                result[0] = (byte)((value & 0x00ff000000000000) >> 56);
+                result[1] = (byte)((value & 0xff00000000000000) >> 48);
+                result[2] = (byte)((value & 0x000000ff00000000) >> 40);
+                result[3] = (byte)((value & 0x0000ff0000000000) >> 32);
+                result[4] = (byte)((value & 0x0000000000ff0000) >> 24);
+                result[5] = (byte)((value & 0x00000000ff000000) >> 16);
+                result[6] = (byte)((value & 0x00000000000000ff) >> 08);
+                result[7] = (byte)((value & 0x000000000000ff00) >> 00);
+                return result;
+            }
+            if (endianness == Endianness.LittleEndian)
+            {
+                result[0] = (byte)((value & 0x00000000000000ff) >> 56);
+                result[1] = (byte)((value & 0x000000000000ff00) >> 48);
+                result[2] = (byte)((value & 0x0000000000ff0000) >> 40);
+                result[3] = (byte)((value & 0x00000000ff000000) >> 32);
+                result[4] = (byte)((value & 0x000000ff00000000) >> 24);
+                result[5] = (byte)((value & 0x0000ff0000000000) >> 16);
+                result[6] = (byte)((value & 0x00ff000000000000) >> 08);
+                result[7] = (byte)((value & 0xff00000000000000) >> 00);
+                return result;
+            }
+            throw new ArgumentException($"Unknown or unsupported value given for parameter {nameof(endianness)}");
+        }
+        public enum Endianness
+        {
+            BigEndian = 0,
+            MixedEndian = 1,
+            LittleEndian = 2,
         }
         public static bool NullSafeSetEquals<T>(this ISet<T> @this, ISet<T> obj)
         {

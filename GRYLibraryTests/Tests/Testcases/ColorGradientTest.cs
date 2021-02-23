@@ -21,7 +21,6 @@ namespace GRYLibrary.Tests.Testcases
             Assert.AreEqual(new ExtendedColor(255, 108, 102, 95), colorGradient.GetColorGradientValue(0.95));
             Assert.AreEqual(endColor, colorGradient.GetColorGradientValue(1));
             Assert.AreEqual(new ExtendedColor(255, 253, 142, 1), colorGradient.GetColorGradientValue(0.01));
-
         }
     }
 }

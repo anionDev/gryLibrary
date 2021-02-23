@@ -354,7 +354,7 @@ namespace GRYLibrary.Core
 
         private string GetInvalidOperationDueToNotTerminatedMessageByMembername(string name, ExecutionState state, bool requiredIn)
         {
-            var requiredInAsString = requiredIn ? "" : " not";
+            string requiredInAsString = requiredIn ? "" : " not";
             return $"'{name}' is not avilable because the current {nameof(ExecutionState)}-value state is {Enum.GetName(typeof(ExecutionState), this.CurrentExecutionState)} but it must{requiredInAsString} be in the state {Enum.GetName(typeof(ExecutionState), state)} to be able to query it.";
         }
 
