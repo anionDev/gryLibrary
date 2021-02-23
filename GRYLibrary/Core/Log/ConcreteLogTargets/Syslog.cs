@@ -31,7 +31,7 @@ namespace GRYLibrary.Core.Log.ConcreteLogTargets
         }
         public override void Dispose()
         {
-            GRYLibrary.Core.Utilities.NoOperation();
+            Utilities.NoOperation();
         }
     }
 }

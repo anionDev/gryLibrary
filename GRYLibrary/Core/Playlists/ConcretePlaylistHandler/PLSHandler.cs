@@ -1,113 +1,45 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
+using System.Text;
 
 namespace GRYLibrary.Core.Playlists.ConcretePlaylistHandler
 {
-    public class PLSHandler : AbstractPlaylistHandler
+    public class PLSHandler : IPlaylistFileHandler
     {
-        public static PLSHandler Instance { get; } = new PLSHandler();
-        private PLSHandler() { }
-
-        protected override void AddSongsToPlaylistImplementation(string playlistFile, IEnumerable<string> newSongs)
+        public Encoding Encoding { get; set; } = new UTF8Encoding(false);
+        public void AddSongsToPlaylist(string playlistFile, IEnumerable<string> newSongs, Encoding encoding)
         {
-            int amountOfItems = this.GetAmountOfItems(playlistFile);
-            if (!Utilities.FileIsEmpty(playlistFile) && !Utilities.FileEndsWithEmptyLine(playlistFile))
-            {
-                File.AppendAllText(playlistFile, Environment.NewLine, Encoding);
-            }
-            foreach (string newItem in newSongs)
-            {
-                amountOfItems += 1;
-                File.AppendAllLines(playlistFile, new string[] { string.Empty, $"File{amountOfItems}={newItem}" }, Encoding);
-            }
-            this.SetAmountOfItems(playlistFile, amountOfItems);
+            throw new NotImplementedException();
         }
 
-        public int GetAmountOfItems(string playlistFile)
+        public void AddSongsToPlaylist(string playlistFile, IEnumerable<string> newSongs)
         {
-            foreach (string line in File.ReadLines(playlistFile))
-            {
-                if (line.ToLower().StartsWith("numberofentries="))
-                {
-                    return int.Parse(line.Split('=')[1].Trim());
-                }
-            }
-            return this.GetSongsFromPlaylist(playlistFile, true, true).Count();
-        }
-        private void SetAmountOfItems(string playlistFile, int amount)
-        {
-            string newNumberOfEntriesLine = "NumberOfEntries=" + amount.ToString();
-            string[] lines = File.ReadLines(playlistFile, Encoding).ToArray();
-            bool numberOfEntriesLineFound = false;
-            for (int i = 0; i < lines.Length; i++)
-            {
-                if (lines[i].ToLower().StartsWith("numberofentries="))
-                {
-                    lines[i] = newNumberOfEntriesLine;
-                    numberOfEntriesLineFound = true;
-                }
-            }
-            if (!numberOfEntriesLineFound)
-            {
-                lines = lines.Concat(new[] { newNumberOfEntriesLine }).ToArray();
-            }
-            File.WriteAllLines(playlistFile, lines, Encoding);
+            throw new NotImplementedException();
         }
 
-        protected override void DeleteSongsFromPlaylistImplementation(string playlistFile, IEnumerable<string> songsToDelete)
+        public void CreatePlaylist(string file)
         {
-            string[] lines = File.ReadLines(playlistFile, Encoding).ToArray();
-            List<string> result = new List<string>();
-            foreach (string line in lines)
-            {
-                if (line.ToLower().StartsWith("file") && line.Contains("="))
-                {
-                    string item = line.Split('=')[1].Trim();
-                    if (!songsToDelete.Contains(item))
-                    {
-                        result.Add(item);
-                    }
-                }
-            }
-            File.WriteAllText(playlistFile, string.Empty, Encoding);
-            this.InitializePLSFile(playlistFile);
-            this.AddSongsToPlaylistImplementation(playlistFile, result);
+            throw new NotImplementedException();
         }
 
-        protected override Tuple<IEnumerable<string>, IEnumerable<string>> GetSongsFromPlaylist(string playlistFile)
+        public void DeleteSongsFromPlaylist(string playlistFile, IEnumerable<string> songsToDelete)
         {
-            List<string> result = new List<string>();
-            foreach (string line in File.ReadLines(playlistFile, Encoding))
-            {
-                try
-                {
-                    if (line.ToLower().StartsWith("file") && line.Contains("="))
-                    {
-                        result.Add(line.Split('=')[1].Trim());
-                    }
-                }
-                catch
-                {
-                    Utilities.NoOperation();
-                }
-            }
-            return new Tuple<IEnumerable<string>, IEnumerable<string>>(result, Enumerable.Empty<string>());
+            throw new NotImplementedException();
         }
 
-        public override void CreatePlaylist(string file)
+        public IEnumerable<string> GetSongs(string playlistFile)
         {
-            if (!File.Exists(file))
-            {
-                File.Create(file).Close();
-                this.InitializePLSFile(file);
-            }
+            return GetSongsAndExcludedSongs(playlistFile).Item1;
         }
 
-        private void InitializePLSFile(string file)
+        public Tuple<IEnumerable<string>, IEnumerable<string>> GetSongsAndExcludedSongs(string playlistFile)
         {
-            File.AppendAllLines(file, new string[] { "[playlist]", string.Empty, "NumberOfEntries=0" });
+            throw new NotImplementedException();
+        }
+
+        public void NormalizePlaylist(string playlistFile)
+        {
+            throw new NotImplementedException();
         }
     }
 }

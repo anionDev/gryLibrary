@@ -33,11 +33,13 @@ namespace GRYLibrary.Core
         public string Title { get; set; }
         public string LogNamespace { get; set; }
         public string WorkingDirectory { get; set; }
+        public bool UpdateConsoleTitle { get; set; } = false;
         /// <remarks>
         /// This property will be ignored if <see cref="RunSynchronously"/>==false.
         /// </remarks>
         public bool ThrowErrorIfExitCodeIsNotZero { get; set; } = false;
         public int? TimeoutInMilliseconds { get; set; }
+        internal string DefaultTitle { get; private set; }
         public bool PrintErrorsAsInformation { get; set; }
         public delegate void ExecutionFinishedHandler(ExternalProgramExecutor sender, int exitCode);
         public event ExecutionFinishedHandler ExecutionFinishedEvent;
@@ -92,12 +94,12 @@ namespace GRYLibrary.Core
 
             try
             {
+                originalConsoleForegroundColor = Console.ForegroundColor;
+                originalConsoleBackgroundColor = Console.BackgroundColor;
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 {
                     originalConsoleTitle = Console.Title;
                 }
-                originalConsoleForegroundColor = Console.ForegroundColor;
-                originalConsoleBackgroundColor = Console.BackgroundColor;
             }
             catch
             {
@@ -105,13 +107,16 @@ namespace GRYLibrary.Core
             }
             try
             {
-                try
+                if (UpdateConsoleTitle)
                 {
-                    Console.Title = this.Title;
-                }
-                catch
-                {
-                    Utilities.NoOperation();
+                    try
+                    {
+                        Console.Title = this.Title;
+                    }
+                    catch
+                    {
+                        Utilities.NoOperation();
+                    }
                 }
                 Task task = StartProgram();
                 task.Wait();
@@ -122,7 +127,10 @@ namespace GRYLibrary.Core
                 try
                 {
                     this._Running = false;
-                    Console.Title = originalConsoleTitle;
+                    if (UpdateConsoleTitle)
+                    {
+                        Console.Title = originalConsoleTitle;
+                    }
                     Console.ForegroundColor = originalConsoleForegroundColor;
                     Console.BackgroundColor = originalConsoleBackgroundColor;
                 }
@@ -144,9 +152,10 @@ namespace GRYLibrary.Core
                 LogObject = _DefaultLog;
             }
             this.ResolvePaths();
+            DefaultTitle = $"{WorkingDirectory}>{ProgramPathAndFile} {Arguments}";
             if (string.IsNullOrWhiteSpace(this.Title))
             {
-                this.Title = $"{WorkingDirectory}>{ProgramPathAndFile} {Arguments}";
+                this.Title = DefaultTitle;
             }
         }
 
@@ -248,7 +257,7 @@ namespace GRYLibrary.Core
                     }
                     if (this.ThrowErrorIfExitCodeIsNotZero && this.ExitCode != 0)
                     {
-                        throw new UnexpectedExitCodeException($"'{this.Title}' had exitcode {this.ExitCode}.", this);
+                        throw new UnexpectedExitCodeException(this);
                     }
                 }
                 finally
@@ -345,7 +354,7 @@ namespace GRYLibrary.Core
 
         private string GetInvalidOperationDueToNotTerminatedMessageByMembername(string name, ExecutionState state, bool requiredIn)
         {
-            var requiredInAsString = requiredIn ? "" : " not";
+            string requiredInAsString = requiredIn ? "" : " not";
             return $"'{name}' is not avilable because the current {nameof(ExecutionState)}-value state is {Enum.GetName(typeof(ExecutionState), this.CurrentExecutionState)} but it must{requiredInAsString} be in the state {Enum.GetName(typeof(ExecutionState), state)} to be able to query it.";
         }
 
@@ -487,11 +496,11 @@ namespace GRYLibrary.Core
             if (this.CurrentExecutionState == ExecutionState.Terminated)
             {
                 string result = $"{nameof(ExternalProgramExecutor)}-summary:";
-                result = result + Environment.NewLine + $"Executed program: {this.WorkingDirectory}>{this.ProgramPathAndFile} {this.Arguments}";
+                result = result + Environment.NewLine + $"Executed program: {DefaultTitle}";
                 result = result + Environment.NewLine + $"Process-Id: {this.ProcessId}";
                 result = result + Environment.NewLine + $"Title: {this.Title}";
                 result = result + Environment.NewLine + $"Exit-code: {this.ExitCode}";
-                result = result + Environment.NewLine + $"Execution-duration: {this.ExecutionDuration:d'd 'h'h 'm'm 's's'} ({this.ExecutionDuration.TotalSeconds} seconds total)";
+                result = result + Environment.NewLine + $"Execution-duration: {this.ExecutionDuration:d'd 'h'h 'm'm 's's'}";
                 result = result + Environment.NewLine + $"StdOut:" + Environment.NewLine + string.Join(Environment.NewLine + "    ", this.AllStdOutLines);
                 result = result + Environment.NewLine + $"StdErr:" + Environment.NewLine + string.Join(Environment.NewLine + "    ", this.AllStdErrLines);
                 return result;
@@ -507,13 +516,5 @@ namespace GRYLibrary.Core
         NotStarted = 0,
         Running = 1,
         Terminated = 2
-    }
-    public class UnexpectedExitCodeException : Exception
-    {
-        public ExternalProgramExecutor ExecutedProgram { get; }
-        public UnexpectedExitCodeException(string message, ExternalProgramExecutor externalProgramExecutor) : base(message)
-        {
-            this.ExecutedProgram = externalProgramExecutor;
-        }
     }
 }

@@ -35,7 +35,7 @@ namespace GRYLibrary.Core.Log
                 return false;
             }
         }
-        public GRYLog()
+        private GRYLog()
         {
             this.Configuration = new GRYLogConfiguration();
         }
@@ -66,6 +66,10 @@ namespace GRYLibrary.Core.Log
         public static GRYLog CreateByConfigurationFile(string configurationFile)
         {
             return new GRYLog(GRYLogConfiguration.LoadConfiguration(configurationFile));
+        }
+        public static GRYLog CreateByConfiguration(GRYLogConfiguration configuration)
+        {
+            return new GRYLog(configuration);
         }
         public override int GetHashCode()
         {

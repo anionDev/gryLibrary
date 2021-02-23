@@ -48,13 +48,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="..\License.txt">
-      <Pack>True</Pack>
-      <PackagePath></PackagePath>
-    </None>
-  </ItemGroup>
-
-  <ItemGroup>
     <None Update="Tests\TestData\XSDValidator\Test1\TestXML1_MatchsXSD1.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
