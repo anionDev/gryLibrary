@@ -1343,6 +1343,8 @@ namespace GRYLibrary.Core
                 ThrowErrorIfExitCodeIsNotZero = true,
                 CreateWindow = false
             };
+            externalProgramExecutor.LogObject = GRYLog.Create();
+            externalProgramExecutor.LogObject.Configuration.Enabled = false;
             externalProgramExecutor.StartSynchronously();
             if (externalProgramExecutor.ExitCode != 0)
             {
@@ -1356,6 +1358,8 @@ namespace GRYLibrary.Core
                 ThrowErrorIfExitCodeIsNotZero = true,
                 CreateWindow = false
             };
+            externalProgramExecutor.LogObject = GRYLog.Create();
+            externalProgramExecutor.LogObject.Configuration.Enabled = false;
             externalProgramExecutor.StartSynchronously();
             if (externalProgramExecutor.ExitCode != 0)
             {
@@ -1404,6 +1408,8 @@ namespace GRYLibrary.Core
                 ThrowErrorIfExitCodeIsNotZero = true,
                 CreateWindow = false
             };
+            externalProgramExecutor.LogObject = GRYLog.Create();
+            externalProgramExecutor.LogObject.Configuration.Enabled = false;
             externalProgramExecutor.StartSynchronously();
             if (externalProgramExecutor.ExitCode != 0)
             {
