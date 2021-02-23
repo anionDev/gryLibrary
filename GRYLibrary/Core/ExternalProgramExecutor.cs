@@ -39,6 +39,7 @@ namespace GRYLibrary.Core
         /// </remarks>
         public bool ThrowErrorIfExitCodeIsNotZero { get; set; } = false;
         public int? TimeoutInMilliseconds { get; set; }
+        internal string DefaultTitle { get; private set; }
         public bool PrintErrorsAsInformation { get; set; }
         public delegate void ExecutionFinishedHandler(ExternalProgramExecutor sender, int exitCode);
         public event ExecutionFinishedHandler ExecutionFinishedEvent;
@@ -151,9 +152,10 @@ namespace GRYLibrary.Core
                 LogObject = _DefaultLog;
             }
             this.ResolvePaths();
+            DefaultTitle = $"{WorkingDirectory}>{ProgramPathAndFile} {Arguments}";
             if (string.IsNullOrWhiteSpace(this.Title))
             {
-                this.Title = $"{WorkingDirectory}>{ProgramPathAndFile} {Arguments}";
+                this.Title = DefaultTitle;
             }
         }
 
@@ -255,7 +257,7 @@ namespace GRYLibrary.Core
                     }
                     if (this.ThrowErrorIfExitCodeIsNotZero && this.ExitCode != 0)
                     {
-                        throw new UnexpectedExitCodeException($"'{this.Title}' had exitcode {this.ExitCode}.", this);
+                        throw new UnexpectedExitCodeException(this);
                     }
                 }
                 finally
@@ -494,11 +496,11 @@ namespace GRYLibrary.Core
             if (this.CurrentExecutionState == ExecutionState.Terminated)
             {
                 string result = $"{nameof(ExternalProgramExecutor)}-summary:";
-                result = result + Environment.NewLine + $"Executed program: {this.WorkingDirectory}>{this.ProgramPathAndFile} {this.Arguments}";
+                result = result + Environment.NewLine + $"Executed program: {DefaultTitle}";
                 result = result + Environment.NewLine + $"Process-Id: {this.ProcessId}";
                 result = result + Environment.NewLine + $"Title: {this.Title}";
                 result = result + Environment.NewLine + $"Exit-code: {this.ExitCode}";
-                result = result + Environment.NewLine + $"Execution-duration: {this.ExecutionDuration:d'd 'h'h 'm'm 's's'} ({this.ExecutionDuration.TotalSeconds} seconds total)";
+                result = result + Environment.NewLine + $"Execution-duration: {this.ExecutionDuration:d'd 'h'h 'm'm 's's'}";
                 result = result + Environment.NewLine + $"StdOut:" + Environment.NewLine + string.Join(Environment.NewLine + "    ", this.AllStdOutLines);
                 result = result + Environment.NewLine + $"StdErr:" + Environment.NewLine + string.Join(Environment.NewLine + "    ", this.AllStdErrLines);
                 return result;
@@ -514,13 +516,5 @@ namespace GRYLibrary.Core
         NotStarted = 0,
         Running = 1,
         Terminated = 2
-    }
-    public class UnexpectedExitCodeException : Exception
-    {
-        public ExternalProgramExecutor ExecutedProgram { get; }
-        public UnexpectedExitCodeException(string message, ExternalProgramExecutor externalProgramExecutor) : base(message)
-        {
-            this.ExecutedProgram = externalProgramExecutor;
-        }
     }
 }
