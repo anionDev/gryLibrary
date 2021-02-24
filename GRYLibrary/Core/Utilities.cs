@@ -2907,9 +2907,27 @@ namespace GRYLibrary.Core
         #region Similarity
         public static PercentValue CalculateCombinedSimilarity(string string1, string string2)
         {
-            return new PercentValue(CalculateCosineSimilarity(string1, string2).Value * (1 / 3)
-                + CalculateJaccardSimilarity(string1, string2).Value * (1 / 3)
-                + CalculateLevenshteinSimilarity(string1, string2).Value * (1 / 3));
+            if (string1 == null || string2 == null)
+            {
+                throw new NullReferenceException();
+            }
+            else
+            {
+                if (string1.Equals(string2))
+                {
+                    return PercentValue.HundredPercent;
+                }
+                else
+                {
+                    byte amountOfAlgorithms = 3;
+                    decimal factor = 1 / (decimal)amountOfAlgorithms;
+                    return new PercentValue(
+                        CalculateCosineSimilarity(string1, string2).Value * factor
+                      + CalculateJaccardSimilarity(string1, string2).Value * factor
+                      + CalculateLevenshteinSimilarity(string1, string2).Value * factor
+                    );
+                }
+            }
         }
         public static int CalculateLevenshteinDistance(string string1, string string2)
         {

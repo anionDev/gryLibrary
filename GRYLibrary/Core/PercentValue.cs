@@ -61,6 +61,10 @@ namespace GRYLibrary.Core
         {
             return HashCode.Combine(Value);
         }
+        public override string ToString()
+        {
+            return Value.ToString();
+        }
         #region Operators
         public static bool operator ==(PercentValue left, PercentValue right)
         {
@@ -74,7 +78,7 @@ namespace GRYLibrary.Core
 
         public static bool operator ==(PercentValue left, int right)
         {
-            return left.Value==right;
+            return left.Value == right;
         }
         public static bool operator !=(PercentValue left, int right)
         {
@@ -91,7 +95,7 @@ namespace GRYLibrary.Core
         }
         public static bool operator ==(PercentValue left, double right)
         {
-            return left.Value ==(decimal) right;
+            return left.Value == (decimal)right;
         }
 
         public static bool operator !=(PercentValue left, double right)
@@ -138,38 +142,6 @@ namespace GRYLibrary.Core
         public static bool operator >=(PercentValue left, PercentValue right)
         {
             return left.Value >= right.Value;
-        }
-        public static bool operator <(PercentValue left, int right)
-        {
-            return left.Value < right;
-        }
-        public static bool operator >(PercentValue left, int right)
-        {
-            return left.Value > right;
-        }
-        public static bool operator <=(PercentValue left, int right)
-        {
-            return left.Value <= right;
-        }
-        public static bool operator >=(PercentValue left, int right)
-        {
-            return left.Value >= right;
-        }
-        public static bool operator <(int left, PercentValue right)
-        {
-            return left < right.Value;
-        }
-        public static bool operator >(int left, PercentValue right)
-        {
-            return left > right.Value;
-        }
-        public static bool operator <=(int left, PercentValue right)
-        {
-            return left <= right.Value;
-        }
-        public static bool operator >=(int left, PercentValue right)
-        {
-            return left >= right.Value;
         }
         public static bool operator <(PercentValue left, double right)
         {
@@ -237,11 +209,11 @@ namespace GRYLibrary.Core
         }
         public static PercentValue operator +(PercentValue left, PercentValue right)
         {
-            return new PercentValue(left.Value * right.Value);
+            return new PercentValue(left.Value + right.Value);
         }
         public static PercentValue operator -(PercentValue left, PercentValue right)
         {
-            return new PercentValue(left.Value * right.Value);
+            return new PercentValue(left.Value - right.Value);
         }
         public static PercentValue operator *(PercentValue left, PercentValue right)
         {
@@ -249,39 +221,7 @@ namespace GRYLibrary.Core
         }
         public static PercentValue operator /(PercentValue left, PercentValue right)
         {
-            return new PercentValue(left.Value * right.Value);
-        }
-        public static PercentValue operator +(PercentValue left, int right)
-        {
-            return new PercentValue(left.Value + right);
-        }
-        public static PercentValue operator -(PercentValue left, int right)
-        {
-            return new PercentValue(left.Value - right);
-        }
-        public static PercentValue operator *(PercentValue left, int right)
-        {
-            return new PercentValue(left.Value * right);
-        }
-        public static PercentValue operator /(PercentValue left, int right)
-        {
-            return new PercentValue(left.Value * right);
-        }
-        public static PercentValue operator +(int left, PercentValue right)
-        {
-            return new PercentValue(left + right.Value);
-        }
-        public static PercentValue operator -(int left, PercentValue right)
-        {
-            return new PercentValue(left - right.Value);
-        }
-        public static PercentValue operator *(int left, PercentValue right)
-        {
-            return new PercentValue(left * right.Value);
-        }
-        public static PercentValue operator /(int left, PercentValue right)
-        {
-            return new PercentValue(left * right.Value);
+            return new PercentValue(left.Value / right.Value);
         }
         public static PercentValue operator +(PercentValue left, double right)
         {
@@ -329,7 +269,7 @@ namespace GRYLibrary.Core
         }
         public static PercentValue operator /(PercentValue left, decimal right)
         {
-            return new PercentValue(left.Value * right);
+            return new PercentValue(left.Value / right);
         }
         public static PercentValue operator +(decimal left, PercentValue right)
         {
@@ -345,7 +285,7 @@ namespace GRYLibrary.Core
         }
         public static PercentValue operator /(decimal left, PercentValue right)
         {
-            return new PercentValue(left * right.Value);
+            return new PercentValue(left / right.Value);
         }
         #endregion
     }

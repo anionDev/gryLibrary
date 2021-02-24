@@ -6,6 +6,17 @@ namespace GRYLibrary.Tests.Testcases
     [TestClass]
     public class SimilarityTest
     {
+        #region Combined
+        [TestMethod]
+        [TestProperty(nameof(TestKind), nameof(TestKind.UnitTest))]
+        public void TestCalculateCombinedSimilarity1()
+        {
+            TestRange(0.8.ToPercentValue(), Core.Utilities.CalculateCombinedSimilarity("123a5678", "123b5678"), 0.99.ToPercentValue());
+            TestRange(0.01.ToPercentValue(), Core.Utilities.CalculateCombinedSimilarity("12345678", "a2cdefgh"), 0.2.ToPercentValue());
+            Assert.AreEqual(0, Core.Utilities.CalculateCombinedSimilarity("1234", "56789").Value);
+            Assert.AreEqual(1, Core.Utilities.CalculateCombinedSimilarity("1234", "1234").Value);
+        }
+        #endregion 
         #region Jaccard
         [TestMethod]
         [TestProperty(nameof(TestKind), nameof(TestKind.UnitTest))]
@@ -135,6 +146,9 @@ namespace GRYLibrary.Tests.Testcases
         {
             Assert.IsTrue(minimumValue < actualValue, $"Expected {minimumValue}<{actualValue}");
             Assert.IsTrue(actualValue < maximalValue, $"Expected {actualValue}<{maximalValue}");
+
+            Assert.IsTrue(minimumValue.Value < actualValue.Value, $"Expected {minimumValue.Value}<{actualValue.Value}");
+            Assert.IsTrue(actualValue.Value < maximalValue.Value, $"Expected {actualValue.Value}<{maximalValue.Value}");
         }
         #endregion
     }
