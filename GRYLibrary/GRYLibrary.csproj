@@ -2,16 +2,16 @@
 
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
-    <Version>0.9.7</Version>
+    <Version>0.9.8</Version>
     <Authors>Marius Göcke</Authors>
-    <Company />
-    <Copyright>Copyright © 2020 Marius Göcke</Copyright>
+    <Copyright>Copyright © 2021 Marius Göcke</Copyright>
+    <Description>The GRYLibrary is a collection with some useful .NET classes and functions which are very easy (re)usable.</Description>
+    <OutputType>Library</OutputType>
     <PackageProjectUrl>https://github.com/anionDev/GRYLibrary</PackageProjectUrl>
     <RepositoryUrl>https://github.com/anionDev/GRYLibrary</RepositoryUrl>
-    <Description>The GRYLibrary is a collection with some useful .NET classes and functions which are very easy (re)usable.</Description>
-    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <PackageLicenseFile>License.txt</PackageLicenseFile>
-    <RootNamespace>GRYLibrary</RootNamespace>
+    <RootNamespace>GRYLibrary.Core</RootNamespace>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

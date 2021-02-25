@@ -2,26 +2,15 @@
 
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
-
     <IsPackable>false</IsPackable>
-
     <Authors>Marius Göcke</Authors>
-
-    <Description>This is the testproject for the GRYLibrary</Description>
-
-    <PackageLicenseFile>License.txt</PackageLicenseFile>
-
-    <Copyright>Copyright © 2020 Marius Göcke</Copyright>
-
-    <PackageProjectUrl>https://github.com/anionDev/GRYLibrary</PackageProjectUrl>
-
-    <RepositoryUrl>https://github.com/anionDev/GRYLibrary</RepositoryUrl>
-
-    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-
-    <RootNamespace>GRYLibrary.Tests</RootNamespace>
-
+    <Copyright>Copyright © 2021 Marius Göcke</Copyright>
+    <Description>GRYLibraryTests is the testproject for the GRYLibrary.</Description>
     <OutputType>Library</OutputType>
+    <PackageProjectUrl>https://github.com/anionDev/GRYLibrary</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/anionDev/GRYLibrary</RepositoryUrl>
+    <PackageLicenseFile>License.txt</PackageLicenseFile>
+    <RootNamespace>GRYLibrary.Tests</RootNamespace>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -48,24 +37,28 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="Tests\TestData\XSDValidator\Test1\TestXML1_MatchsXSD1.xml">
+    <None Update="TestData\XSDValidator\Test1\TestXML1_MatchsXSD1.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Tests\TestData\XSDValidator\Test1\TestXML2_MatchsXSD1Not.xml">
+    <None Update="TestData\XSDValidator\Test1\TestXML2_MatchsXSD1Not.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Tests\TestData\XSDValidator\Test1\TestXSD1.xsd">
+    <None Update="TestData\XSDValidator\Test1\TestXSD1.xsd">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Tests\TestData\XSLTTransformator\Test1\TestTransformationSource.xml">
+    <None Update="TestData\XSLTTransformator\Test1\TestTransformationSource.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Tests\TestData\XSLTTransformator\Test1\TestTransformationTarget.xml">
+    <None Update="TestData\XSLTTransformator\Test1\TestTransformationTarget.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Tests\TestData\XSLTTransformator\Test1\TestXSLT1.xslt">
+    <None Update="TestData\XSLTTransformator\Test1\TestXSLT1.xslt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="GRYLibrary\" />
   </ItemGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
