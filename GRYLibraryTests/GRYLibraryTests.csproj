@@ -2,26 +2,15 @@
 
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
-
     <IsPackable>false</IsPackable>
-
     <Authors>Marius Göcke</Authors>
-
-    <Description>This is the testproject for the GRYLibrary</Description>
-
-    <PackageLicenseFile>License.txt</PackageLicenseFile>
-
-    <Copyright>Copyright © 2020 Marius Göcke</Copyright>
-
-    <PackageProjectUrl>https://github.com/anionDev/GRYLibrary</PackageProjectUrl>
-
-    <RepositoryUrl>https://github.com/anionDev/GRYLibrary</RepositoryUrl>
-
-    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-
-    <RootNamespace>GRYLibrary.Tests</RootNamespace>
-
+    <Copyright>Copyright © 2021 Marius Göcke</Copyright>
+    <Description>GRYLibraryTests is the testproject for the GRYLibrary.</Description>
     <OutputType>Library</OutputType>
+    <PackageProjectUrl>https://github.com/anionDev/GRYLibrary</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/anionDev/GRYLibrary</RepositoryUrl>
+    <PackageLicenseFile>License.txt</PackageLicenseFile>
+    <RootNamespace>GRYLibrary.Tests</RootNamespace>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
