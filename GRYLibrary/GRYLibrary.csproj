@@ -11,7 +11,7 @@
     <Description>The GRYLibrary is a collection with some useful .NET classes and functions which are very easy (re)usable.</Description>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <PackageLicenseFile>License.txt</PackageLicenseFile>
-    <RootNamespace>GRYLibrary</RootNamespace>
+    <RootNamespace>GRYLibrary.Core</RootNamespace>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
