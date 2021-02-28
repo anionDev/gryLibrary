@@ -2,13 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace GRYLibrary.Core.CryptoSystems.EncryptionAlgorithms.ConcreteCommonAlgorithms.ConcreteAsymmetricAlgorithms.Helper
 {
     public struct Point : IEquatable<Point>
     {
+        public static Point Infinity { get; } = new Point(default, default, default);
         public Curve UsedCurve { get; }
         public BigInteger X { get; }
         public BigInteger Y { get; }
@@ -44,17 +43,33 @@ namespace GRYLibrary.Core.CryptoSystems.EncryptionAlgorithms.ConcreteCommonAlgor
         {
             return !(left == right);
         }
-        public static bool operator +(Point left, Point right)
+        public static Point operator +(Point left, Point right)
         {
             throw new NotImplementedException();//see https://en.wikipedia.org/wiki/Elliptic_curve_point_multiplication#Point_addition
         }
-        public static bool operator *(Point left, Point right)
+        public Point Double()
         {
-            throw new NotImplementedException();//see https://en.wikipedia.org/wiki/Elliptic_curve_point_multiplication#Point_doubling
+            return this * 2;
         }
-        public static bool operator -(Point left, Point right)
+        public static Point operator *(Point left, long right)
+        {
+            return left * new BigInteger(right);
+        }
+        public static Point operator *(Point left, BigInteger right)
+        {
+            throw new NotImplementedException();//see https://en.wikipedia.org/wiki/Elliptic_curve_point_multiplication#Point_multiplication
+        }
+        public static Point operator !(Point value)
         {
             throw new NotImplementedException();//see https://en.wikipedia.org/wiki/Elliptic_curve_point_multiplication#Point_negation
+        }
+        private static BigInteger InverseMod(BigInteger left, BigInteger right)
+        {
+            throw new NotImplementedException();
+        }
+        private static BigInteger Mod(BigInteger left, BigInteger right)
+        {
+            throw new NotImplementedException();
         }
     }
 }
