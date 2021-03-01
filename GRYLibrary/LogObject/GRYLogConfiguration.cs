@@ -36,6 +36,8 @@ namespace GRYLibrary.Core.LogObject
         public List<XMLSerializer.KeyValuePair<LogLevel, LoggedMessageTypeConfiguration>> LoggedMessageTypesConfiguration { get; set; }
         public bool ConvertTimeForLogentriesToUTCFormat { get; set; }
         public bool LogEveryLineOfLogEntryInNewLine { get; set; }
+        public bool StoreProcessedLogItemsInternally { get; set; }
+
         public GRYLogConfiguration() { }
         public LoggedMessageTypeConfiguration GetLoggedMessageTypesConfigurationByLogLevel(LogLevel logLevel)
         {
@@ -85,6 +87,7 @@ namespace GRYLibrary.Core.LogObject
             this.ConvertTimeForLogentriesToUTCFormat = false;
             this.LogEveryLineOfLogEntryInNewLine = false;
             this.Name = string.Empty;
+            this.StoreProcessedLogItemsInternally = false;
             this.LoggedMessageTypesConfiguration = new List<XMLSerializer.KeyValuePair<LogLevel, LoggedMessageTypeConfiguration>>
             {
                 new XMLSerializer.KeyValuePair<LogLevel, LoggedMessageTypeConfiguration>(LogLevel.Trace, new LoggedMessageTypeConfiguration() { CustomText = nameof(LogLevel.Trace), ConsoleColor =  ConsoleColor.Gray }),
@@ -115,11 +118,11 @@ namespace GRYLibrary.Core.LogObject
         }
         public Target GetLogTarget<Target>() where Target : GRYLogTarget
         {
-            foreach (GRYLogTarget target in this.LogTargets)
+            foreach (GRYLogTarget gryLogTarget in this.LogTargets)
             {
-                if (target is Target target1)
+                if (gryLogTarget is Target target)
                 {
-                    return target1;
+                    return target;
                 }
             }
             throw new KeyNotFoundException($"No {typeof(Target).Name}-target available");
