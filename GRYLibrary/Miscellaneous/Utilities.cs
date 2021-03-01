@@ -671,7 +671,15 @@ namespace GRYLibrary.Core.Miscellaneous
                     errorHandler(exception);
                 }
             }
-            ForEachFileAndDirectoryTransitively(sourceFolder, (str, obj) => { }, (sourceFile, @object) => fileAction(sourceFile, @object), false, null, null);
+            ForEachFileAndDirectoryTransitively(sourceFolder, (directory, obj) => { /*TODO ensure directory exists in target-folder*/}, (sourceFile, @object) => fileAction(sourceFile, @object), false, null, null);
+            if (deleteAlreadyExistingFilesWithoutCopy)
+            {
+                RemoveContentOfFolder(sourceFolder);
+            }
+            else
+            {
+                DeleteAllEmptyFolderTransitively(sourceFolder, false);
+            }
         }
 
         public static void ForEachFileAndDirectoryTransitively(string directory, Action<string, object> directoryAction, Action<string, object> fileAction, bool ignoreErrors = false, object argumentForFileAction = null, object argumentForDirectoryAction = null)
