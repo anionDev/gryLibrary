@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Numerics;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 
@@ -333,8 +334,8 @@ namespace GRYLibrary.Core.LogObject
         {
             ExecuteAndLog(() =>
             {
-                uint amountOfItems = 0;
-                var itemsAsList = items.ToList();
+                List<T> itemsAsList = items.ToList();
+                uint amountOfItems = (uint)itemsAsList.Count;
                 for (uint currentIndex = 0; currentIndex < itemsAsList.Count; currentIndex++)
                 {
                     try
@@ -354,10 +355,17 @@ namespace GRYLibrary.Core.LogObject
 
         public void LogProgress(uint enumerator, uint denominator)
         {
-            string percentValue = Math.Round(enumerator / (double)denominator * 100, 2).ToString();
-            int denominatorLength = (int)Math.Floor(Math.Log10(denominator) + 1);
-            var message = $"Processed { enumerator.ToString().PadLeft(denominatorLength, '0')}/{denominator} items ({percentValue}%)";
-            this.Log(message);
+            if (enumerator < 0 || denominator < 0 || denominator < enumerator)
+            {
+                throw new ArgumentException($"Can not log progress for {nameof(enumerator)}={enumerator} and {nameof(denominator)}={denominator}. Both values must be nonnegative and {nameof(denominator)} must be greater than {nameof(enumerator)}.");
+            }
+            else
+            {
+                string percentValue = Math.Round(enumerator / (double)denominator * 100, 2).ToString();
+                int denominatorLength = (int)Math.Floor(Math.Log10(denominator) + 1);
+                var message = $"Processed { enumerator.ToString().PadLeft(denominatorLength, '0')}/{denominator} items ({percentValue}%)";
+                this.Log(message);
+            }
         }
 
         public void ExecuteAndLog(Action action, string nameOfAction, bool preventThrowingExceptions = false, LogLevel logLevelForOverhead = LogLevel.Debug, string subNamespaceForLog = Utilities.EmptyString)
