@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Numerics;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 
@@ -333,7 +334,8 @@ namespace GRYLibrary.Core.LogObject
         {
             ExecuteAndLog(() =>
             {
-                var itemsAsList = items.ToList();
+                List<T> itemsAsList = items.ToList();
+                uint amountOfItems = (uint)itemsAsList.Count;
                 for (uint currentIndex = 0; currentIndex < itemsAsList.Count; currentIndex++)
                 {
                     try
@@ -344,7 +346,7 @@ namespace GRYLibrary.Core.LogObject
                     }
                     finally
                     {
-                        this.LogProgress(currentIndex + 1, (uint)itemsAsList.Count);
+                        this.LogProgress(currentIndex + 1, amountOfItems);
                     }
 
                 }
