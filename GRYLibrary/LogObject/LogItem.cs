@@ -39,18 +39,19 @@ namespace GRYLibrary.Core.LogObject
                 return this._PlainMessage;
             }
         }
+
         #region Constructors
-        public LogItem(string getMessageFunction, string messageId = null) : this(() => getMessageFunction, DateTime.Now, messageId)
+        public LogItem(string message, string messageId = null) : this(() => message, DateTime.Now, messageId)
         {
         }
-        public LogItem(string getMessageFunction, LogLevel logLevel) : this(() => getMessageFunction, DateTime.Now, logLevel, null)
+        public LogItem(string message, LogLevel logLevel) : this(() => message, DateTime.Now, logLevel, null)
         {
         }
 
-        public LogItem(string getMessageFunction, Exception exception, string messageId = null) : this(() => getMessageFunction, DateTime.Now, LogLevel.Error, exception, messageId)
+        public LogItem(string message, Exception exception, string messageId = null) : this(() => message, DateTime.Now, LogLevel.Error, exception, messageId)
         {
         }
-        public LogItem(string getMessageFunction, LogLevel logLevel, Exception exception, string messageId = null) : this(() => getMessageFunction, DateTime.Now, logLevel, exception, messageId)
+        public LogItem(string message, LogLevel logLevel, Exception exception, string messageId = null) : this(() => message, DateTime.Now, logLevel, exception, messageId)
         {
         }
         public LogItem(Func<string> getMessageFunction, string messageId = null) : this(getMessageFunction, DateTime.Now, LogLevel.Information, messageId)
@@ -66,17 +67,17 @@ namespace GRYLibrary.Core.LogObject
         public LogItem(Func<string> getMessageFunction, LogLevel logLevel, Exception exception, string messageId) : this(getMessageFunction, DateTime.Now, logLevel, exception, messageId)
         {
         }
-        public LogItem(string getMessageFunction, DateTime dateTime, string messageId = null) : this(() => getMessageFunction, dateTime, messageId)
+        public LogItem(string message, DateTime dateTime, string messageId = null) : this(() => message, dateTime, messageId)
         {
         }
-        public LogItem(string getMessageFunction, DateTime dateTime, LogLevel logLevel) : this(() => getMessageFunction, dateTime, logLevel, null)
+        public LogItem(string message, DateTime dateTime, LogLevel logLevel) : this(() => message, dateTime, logLevel, null)
         {
         }
 
-        public LogItem(string getMessageFunction, DateTime dateTime, Exception exception, string messageId = null) : this(() => getMessageFunction, dateTime, LogLevel.Error, exception, messageId)
+        public LogItem(string message, DateTime dateTime, Exception exception, string messageId = null) : this(() => message, dateTime, LogLevel.Error, exception, messageId)
         {
         }
-        public LogItem(string getMessageFunction, DateTime dateTime, LogLevel logLevel, Exception exception, string messageId = null) : this(() => getMessageFunction, dateTime, logLevel, exception, messageId)
+        public LogItem(string message, DateTime dateTime, LogLevel logLevel, Exception exception, string messageId = null) : this(() => message, dateTime, logLevel, exception, messageId)
         {
         }
         public LogItem(Func<string> getMessageFunction, DateTime dateTime, string messageId = null) : this(getMessageFunction, dateTime, LogLevel.Information, messageId)
@@ -165,6 +166,22 @@ namespace GRYLibrary.Core.LogObject
                 default:
                     throw new KeyNotFoundException($"Formatting {nameof(GRYLogLogFormat)} '{loglevel}' is not implemented yet.");
             }
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is LogItem item &&
+                   _PlainMessage == item._PlainMessage &&
+                   EventId == item.EventId &&
+                   Category == item.Category &&
+                   LogLevel == item.LogLevel &&
+                   MomentOfLogEntry == item.MomentOfLogEntry &&
+                   MessageId == item.MessageId;
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(_PlainMessage, EventId, Category, LogLevel, MomentOfLogEntry, MessageId);
         }
     }
 }

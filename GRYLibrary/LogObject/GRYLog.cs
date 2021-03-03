@@ -2,14 +2,17 @@
 using GRYLibrary.Core.Miscellaneous;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
+using System.Numerics;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 
 namespace GRYLibrary.Core.LogObject
 {
-    public class GRYLog : IDisposable, ILogger
+    public sealed class GRYLog : IDisposable, ILogger
     {
         public GRYLogConfiguration Configuration { get; set; }
         private readonly static object _LockObject = new object();
@@ -117,7 +120,10 @@ namespace GRYLibrary.Core.LogObject
             });
             this._Watcher.EnableRaisingEvents = true;
         }
-
+        /// <remarks>
+        /// Will only be used if <see cref="GRYLogConfiguration.StoreProcessedLogItemsInternally"/> is set to true.ls -la
+        /// </remarks>
+        public IList<LogItem> ProcessedLogItems { get; set; } = new List<LogItem>();
         public int GetAmountOfErrors()
         {
             return this._AmountOfErrors;
@@ -228,11 +234,11 @@ namespace GRYLibrary.Core.LogObject
                 this.LogImplementation(logitem);
             }
         }
-        private void LogImplementation(LogItem logitem)
+        private void LogImplementation(LogItem logItem)
         {
             try
             {
-                if (LogLevel.None == logitem.LogLevel)
+                if (LogLevel.None == logItem.LogLevel)
                 {
                     return;
                 }
@@ -246,31 +252,35 @@ namespace GRYLibrary.Core.LogObject
                     {
                         return;
                     }
-                    if (!this.IsEnabled(logitem.LogLevel))
+                    if (!this.IsEnabled(logItem.LogLevel))
                     {
                         return;
                     }
-                    if (!this.LineShouldBePrinted(logitem.PlainMessage))
+                    if (!this.LineShouldBePrinted(logItem.PlainMessage))
                     {
                         return;
                     }
-                    if (logitem.PlainMessage.Contains(Environment.NewLine) && this.Configuration.LogEveryLineOfLogEntryInNewLine)
+                    if (this.Configuration.StoreProcessedLogItemsInternally)
                     {
-                        foreach (string line in logitem.PlainMessage.Split(new string[] { Environment.NewLine }, StringSplitOptions.None))
+                        ProcessedLogItems.Add(logItem);
+                    }
+                    if (logItem.PlainMessage.Contains(Environment.NewLine) && this.Configuration.LogEveryLineOfLogEntryInNewLine)
+                    {
+                        foreach (string line in logItem.PlainMessage.Split(new string[] { Environment.NewLine }, StringSplitOptions.None))
                         {
-                            this.Log(new LogItem(line, logitem.LogLevel, logitem.Exception));
+                            this.Log(new LogItem(line, logItem.LogLevel, logItem.Exception));
                         }
                         return;
                     }
-                    if (this.Configuration.PrintErrorsAsInformation && logitem.LogLevel.Equals(LogLevel.Error))
+                    if (this.Configuration.PrintErrorsAsInformation && logItem.LogLevel.Equals(LogLevel.Error))
                     {
-                        logitem.LogLevel = LogLevel.Information;
+                        logItem.LogLevel = LogLevel.Information;
                     }
-                    if (this.IsErrorLogLevel(logitem.LogLevel))
+                    if (this.IsErrorLogLevel(logItem.LogLevel))
                     {
                         this._AmountOfErrors += 1;
                     }
-                    if (this.IsWarningLogLevel(logitem.LogLevel))
+                    if (this.IsWarningLogLevel(logItem.LogLevel))
                     {
                         this._AmountOfWarnings += 1;
                     }
@@ -278,9 +288,9 @@ namespace GRYLibrary.Core.LogObject
                     {
                         if (logTarget.Enabled)
                         {
-                            if (logTarget.LogLevels.Contains(logitem.LogLevel))
+                            if (logTarget.LogLevels.Contains(logItem.LogLevel))
                             {
-                                logTarget.Execute(logitem, this);
+                                logTarget.Execute(logItem, this);
                             }
                         }
                     }
@@ -288,7 +298,7 @@ namespace GRYLibrary.Core.LogObject
             }
             catch (Exception exception)
             {
-                this.ErrorOccurred?.Invoke(exception, logitem);
+                this.ErrorOccurred?.Invoke(exception, logItem);
             }
         }
 
@@ -320,7 +330,45 @@ namespace GRYLibrary.Core.LogObject
             return result;
         }
 
-        public void ExecuteAndLog(Action action, string nameOfAction, bool preventThrowingExceptions = false, LogLevel logLevelForOverhead = LogLevel.Debug, string subNamespaceForLog = "")
+        public void ExecuteAndLogForEach<T>(IEnumerable<T> items, Action<T> itemAction, string nameOfEntireLoopAction, string subNamespaceOfEntireLoopAction, Func<T, string> nameOfSingleItemFunc, Func<T, string> subNamespaceOfSingleItemFunc, bool preventThrowingExceptions = false, LogLevel logLevelForOverhead = LogLevel.Debug)
+        {
+            ExecuteAndLog(() =>
+            {
+                List<T> itemsAsList = items.ToList();
+                uint amountOfItems = (uint)itemsAsList.Count;
+                for (uint currentIndex = 0; currentIndex < itemsAsList.Count; currentIndex++)
+                {
+                    try
+                    {
+                        T currentItem = itemsAsList[(int)currentIndex];
+                        string nameOfSingleItem = nameOfSingleItemFunc(currentItem);
+                        ExecuteAndLog(() => itemAction(currentItem), nameOfSingleItem, preventThrowingExceptions, logLevelForOverhead, subNamespaceOfSingleItemFunc(currentItem));
+                    }
+                    finally
+                    {
+                        this.LogProgress(currentIndex + 1, amountOfItems);
+                    }
+
+                }
+            }, nameOfEntireLoopAction, preventThrowingExceptions, logLevelForOverhead, subNamespaceOfEntireLoopAction);
+        }
+
+        public void LogProgress(uint enumerator, uint denominator)
+        {
+            if (enumerator < 0 || denominator < 0 || denominator < enumerator)
+            {
+                throw new ArgumentException($"Can not log progress for {nameof(enumerator)}={enumerator} and {nameof(denominator)}={denominator}. Both values must be nonnegative and {nameof(denominator)} must be greater than {nameof(enumerator)}.");
+            }
+            else
+            {
+                string percentValue = Math.Round(enumerator / (double)denominator * 100, 2).ToString();
+                int denominatorLength = (int)Math.Floor(Math.Log10(denominator) + 1);
+                var message = $"Processed { enumerator.ToString().PadLeft(denominatorLength, '0')}/{denominator} items ({percentValue}%)";
+                this.Log(message);
+            }
+        }
+
+        public void ExecuteAndLog(Action action, string nameOfAction, bool preventThrowingExceptions = false, LogLevel logLevelForOverhead = LogLevel.Debug, string subNamespaceForLog = Utilities.EmptyString)
         {
             this.Log($"Action '{nameOfAction}' will be started now.", logLevelForOverhead);
             Stopwatch stopWatch = new Stopwatch();
@@ -346,7 +394,7 @@ namespace GRYLibrary.Core.LogObject
                 this.Log($"Action '{nameOfAction}' finished. Duration: {Utilities.DurationToUserFriendlyString(stopWatch.Elapsed)}", logLevelForOverhead);
             }
         }
-        public TResult ExecuteAndLog<TResult>(Func<TResult> action, string nameOfAction, bool preventThrowingExceptions = false, LogLevel logLevelForOverhead = LogLevel.Debug, TResult defaultValue = default, string subNamespaceForLog = "")
+        public TResult ExecuteAndLog<TResult>(Func<TResult> action, string nameOfAction, bool preventThrowingExceptions = false, LogLevel logLevelForOverhead = LogLevel.Debug, TResult defaultValue = default, string subNamespaceForLog = Utilities.EmptyString)
         {
             this.Log($"Action '{nameOfAction}' will be started now.", logLevelForOverhead);
             Stopwatch stopWatch = new Stopwatch();
