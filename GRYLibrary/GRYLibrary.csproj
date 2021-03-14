@@ -12,6 +12,7 @@
     <PackageLicenseFile>License.txt</PackageLicenseFile>
     <RootNamespace>GRYLibrary.Core</RootNamespace>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <ApplicationIcon>GRYLibraryIcon.ico</ApplicationIcon>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
