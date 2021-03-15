@@ -30,15 +30,15 @@ namespace GRYLibrary.Tests.Utilities
 
                 if (addDefaultEqualAssertion)
                 {
-                    if (Core.Miscellaneous.Utilities.ObjectIsSet(expectedObject))
+                    if (Core.Miscellaneous.EnumerableTools.ObjectIsSet(expectedObject))
                     {
-                        Assert.IsTrue(Core.Miscellaneous.Utilities.ObjectToSet<object>(expectedObject).SetEquals(Core.Miscellaneous.Utilities.ObjectToSet<object>(actualObject)), Core.Miscellaneous.Utilities.GetAssertionFailMessage(expectedObject, actualObject));
+                        Assert.IsTrue(Core.Miscellaneous.EnumerableTools.ObjectToSet<object>(expectedObject).SetEquals(Core.Miscellaneous.EnumerableTools.ObjectToSet<object>(actualObject)), Core.Miscellaneous.Utilities.GetAssertionFailMessage(expectedObject, actualObject));
                     }
-                    else if (Core.Miscellaneous.Utilities.ObjectIsList(expectedObject))
+                    else if (Core.Miscellaneous.EnumerableTools.ObjectIsList(expectedObject))
                     {
-                        Assert.IsTrue(Core.Miscellaneous.Utilities.ObjectToList<object>(expectedObject).SequenceEqual(Core.Miscellaneous.Utilities.ObjectToList<object>(actualObject)), Core.Miscellaneous.Utilities.GetAssertionFailMessage(expectedObject, actualObject));
+                        Assert.IsTrue(Core.Miscellaneous.EnumerableTools.ObjectToList<object>(expectedObject).SequenceEqual(Core.Miscellaneous.EnumerableTools.ObjectToList<object>(actualObject)), Core.Miscellaneous.Utilities.GetAssertionFailMessage(expectedObject, actualObject));
                     }
-                    else if (!Core.Miscellaneous.Utilities.ObjectIsEnumerable(expectedObject))
+                    else if (!Core.Miscellaneous.EnumerableTools.ObjectIsEnumerable(expectedObject))
                     {
                         Assert.AreEqual(expectedObject, actualObject, Core.Miscellaneous.Utilities.GetAssertionFailMessage(expectedObject, actualObject));
                         Assert.AreEqual(expectedObject.GetHashCode(), actualObject.GetHashCode());

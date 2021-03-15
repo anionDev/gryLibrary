@@ -13,7 +13,7 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper.
 
         public override bool DefaultEquals(object item1, object item2)
         {
-            bool result = this.EqualsTyped(Utilities.ObjectToDictionary<object, object>(item1), Utilities.ObjectToDictionary<object, object>(item2));
+            bool result = this.EqualsTyped(EnumerableTools.ObjectToDictionary<object, object>(item1), EnumerableTools.ObjectToDictionary<object, object>(item2));
             return result;
         }
         internal bool EqualsTyped<TKey, TValue>(IDictionary<TKey, TValue> dictionary1, IDictionary<TKey, TValue> dictionary2)
@@ -58,7 +58,7 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper.
         }
         public override bool IsApplicable(Type typeOfObject1, Type typeOfObject2)
         {
-            return Utilities.TypeIsDictionaryGeneric(typeOfObject1) && Utilities.TypeIsDictionaryGeneric(typeOfObject2);
+            return EnumerableTools.TypeIsDictionaryGeneric(typeOfObject1) && EnumerableTools.TypeIsDictionaryGeneric(typeOfObject2);
         }
     }
 }

@@ -61,9 +61,9 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis
                 int id = this.PropertyEqualsCalculator.GetHashCode(@object);
                 visitedObjects.Add(@object, id);
 
-                if (Utilities.ObjectIsEnumerable(@object))
+                if (EnumerableTools.ObjectIsEnumerable(@object))
                 {
-                    IList<object> objectAsEnumerable = Utilities.ObjectToEnumerable<object>(@object).ToList();
+                    IList<object> objectAsEnumerable = EnumerableTools.ObjectToEnumerable<object>(@object).ToList();
                     string result = this.GetIndentation(currentIndentationLevel) + "[" + Environment.NewLine;
                     int count = objectAsEnumerable.Count;
                     for (int i = 0; i < count; i++)

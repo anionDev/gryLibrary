@@ -38,9 +38,9 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis
             }
             Type type = @object.GetType();
             visitedObjects.Add((@object, type));
-            if (Utilities.TypeIsEnumerable(type))
+            if (EnumerableTools.TypeIsEnumerable(type))
             {
-                foreach (object item in Utilities.ObjectToEnumerable(@object))
+                foreach (object item in EnumerableTools.ObjectToEnumerable(@object))
                 {
                     IterateOverObjectTransitively(item, visitedObjects);
                 }

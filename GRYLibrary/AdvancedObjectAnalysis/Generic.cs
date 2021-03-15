@@ -26,19 +26,19 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis
             {
                 Utilities.NoOperation();
             }
-            else if (Utilities.TypeIsSet(type))
+            else if (EnumerableTools.TypeIsSet(type))
             {
                 type = typeof(ISet<>);
             }
-            else if (Utilities.TypeIsList(type))
+            else if (EnumerableTools.TypeIsList(type))
             {
                 type = typeof(IList<>);
             }
-            else if (Utilities.TypeIsDictionary(type))
+            else if (EnumerableTools.TypeIsDictionary(type))
             {
                 type = typeof(IDictionary<,>);
             }
-            else if (Utilities.TypeIsEnumerable(type))
+            else if (EnumerableTools.TypeIsEnumerable(type))
             {
                 type = typeof(IEnumerable);
             }
