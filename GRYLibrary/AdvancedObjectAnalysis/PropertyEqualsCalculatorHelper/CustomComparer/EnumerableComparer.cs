@@ -13,7 +13,7 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper.
 
         public override bool DefaultEquals(object item1, object item2)
         {
-            bool result = this.EqualsTyped(Utilities.ObjectToEnumerable(item1), Utilities.ObjectToEnumerable(item2));
+            bool result = this.EqualsTyped(EnumerableTools.ObjectToEnumerable(item1), EnumerableTools.ObjectToEnumerable(item2));
             return result;
         }
         internal bool EqualsTyped(IEnumerable enumerable1, IEnumerable enumerable2)
@@ -51,7 +51,7 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper.
         }
         public override bool IsApplicable(Type typeOfObject1, Type typeOfObject2)
         {
-            return Utilities.TypeIsEnumerable(typeOfObject1) && Utilities.TypeIsEnumerable(typeOfObject2) ;
+            return EnumerableTools.TypeIsEnumerable(typeOfObject1) && EnumerableTools.TypeIsEnumerable(typeOfObject2) ;
         }
     }
 }

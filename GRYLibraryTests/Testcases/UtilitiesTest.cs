@@ -171,13 +171,13 @@ namespace GRYLibrary.Tests.Testcases
         [TestMethod]
         public void IsListTest()
         {
-            Assert.IsTrue(Core.Miscellaneous.Utilities.ObjectIsList(new List<int>()));
-            Assert.IsTrue(Core.Miscellaneous.Utilities.ObjectIsList(new ArraySegment<int>()));
-            Assert.IsTrue(Core.Miscellaneous.Utilities.ObjectIsList(new ArrayList()));
-            Assert.IsFalse(Core.Miscellaneous.Utilities.ObjectIsList(new LinkedList<int>()));
-            Assert.IsFalse(Core.Miscellaneous.Utilities.ObjectIsList(new object()));
-            Assert.IsFalse(Core.Miscellaneous.Utilities.ObjectIsList("somestring"));
-            Assert.IsTrue(Core.Miscellaneous.Utilities.ObjectIsList("somestring".ToCharArray()));
+            Assert.IsTrue(EnumerableTools.ObjectIsList(new List<int>()));
+            Assert.IsTrue(EnumerableTools.ObjectIsList(new ArraySegment<int>()));
+            Assert.IsTrue(EnumerableTools.ObjectIsList(new ArrayList()));
+            Assert.IsFalse(EnumerableTools.ObjectIsList(new LinkedList<int>()));
+            Assert.IsFalse(EnumerableTools.ObjectIsList(new object()));
+            Assert.IsFalse(EnumerableTools.ObjectIsList("somestring"));
+            Assert.IsTrue(EnumerableTools.ObjectIsList("somestring".ToCharArray()));
         }
         [TestMethod]
         public void IsPrimitiveTest()
@@ -200,50 +200,50 @@ namespace GRYLibrary.Tests.Testcases
         [TestMethod]
         public void IsDictionaryEntryTest()
         {
-            Assert.IsFalse(Core.Miscellaneous.Utilities.ObjectIsDictionaryEntry(new List<int>()));
-            Assert.IsFalse(Core.Miscellaneous.Utilities.ObjectIsDictionaryEntry(5));
-            Assert.IsFalse(Core.Miscellaneous.Utilities.ObjectIsDictionaryEntry(new System.Collections.Generic.KeyValuePair<object, object>()));
-            Assert.IsFalse(Core.Miscellaneous.Utilities.ObjectIsDictionaryEntry(new System.Collections.Generic.KeyValuePair<object, object>(new object(), new object())));
-            Assert.IsTrue(Core.Miscellaneous.Utilities.ObjectIsDictionaryEntry(new DictionaryEntry()));
-            Assert.IsTrue(Core.Miscellaneous.Utilities.ObjectIsDictionaryEntry(new DictionaryEntry(new object(), new object())));
+            Assert.IsFalse(EnumerableTools.ObjectIsDictionaryEntry(new List<int>()));
+            Assert.IsFalse(EnumerableTools.ObjectIsDictionaryEntry(5));
+            Assert.IsFalse(EnumerableTools.ObjectIsDictionaryEntry(new System.Collections.Generic.KeyValuePair<object, object>()));
+            Assert.IsFalse(EnumerableTools.ObjectIsDictionaryEntry(new System.Collections.Generic.KeyValuePair<object, object>(new object(), new object())));
+            Assert.IsTrue(EnumerableTools.ObjectIsDictionaryEntry(new DictionaryEntry()));
+            Assert.IsTrue(EnumerableTools.ObjectIsDictionaryEntry(new DictionaryEntry(new object(), new object())));
         }
         [TestMethod]
         public void IsDictionaryTest()
         {
-            Assert.IsTrue(Core.Miscellaneous.Utilities.ObjectIsDictionary(new Dictionary<int, string>()));
-            Assert.IsTrue(Core.Miscellaneous.Utilities.ObjectIsDictionary(ImmutableDictionary.CreateBuilder<long, object>().ToImmutable()));
-            Assert.IsFalse(Core.Miscellaneous.Utilities.ObjectIsDictionary(new LinkedList<int>()));
-            Assert.IsFalse(Core.Miscellaneous.Utilities.ObjectIsDictionary(new object()));
-            Assert.IsFalse(Core.Miscellaneous.Utilities.ObjectIsDictionary("somestring"));
+            Assert.IsTrue(EnumerableTools.ObjectIsDictionary(new Dictionary<int, string>()));
+            Assert.IsTrue(EnumerableTools.ObjectIsDictionary(ImmutableDictionary.CreateBuilder<long, object>().ToImmutable()));
+            Assert.IsFalse(EnumerableTools.ObjectIsDictionary(new LinkedList<int>()));
+            Assert.IsFalse(EnumerableTools.ObjectIsDictionary(new object()));
+            Assert.IsFalse(EnumerableTools.ObjectIsDictionary("somestring"));
         }
         [TestMethod]
         public void IsSetTest()
         {
-            Assert.IsTrue(Core.Miscellaneous.Utilities.ObjectIsSet(new HashSet<int>()));
-            Assert.IsTrue(Core.Miscellaneous.Utilities.ObjectIsSet(new SortedSet<string>()));
-            Assert.IsFalse(Core.Miscellaneous.Utilities.ObjectIsSet(new LinkedList<int>()));
-            Assert.IsFalse(Core.Miscellaneous.Utilities.ObjectIsSet(new object()));
-            Assert.IsFalse(Core.Miscellaneous.Utilities.ObjectIsSet("somestring"));
+            Assert.IsTrue(EnumerableTools.ObjectIsSet(new HashSet<int>()));
+            Assert.IsTrue(EnumerableTools.ObjectIsSet(new SortedSet<string>()));
+            Assert.IsFalse(EnumerableTools.ObjectIsSet(new LinkedList<int>()));
+            Assert.IsFalse(EnumerableTools.ObjectIsSet(new object()));
+            Assert.IsFalse(EnumerableTools.ObjectIsSet("somestring"));
         }
         [TestMethod]
         public void IsKeyValuePairTest11()
         {
-            Assert.IsTrue(Core.Miscellaneous.Utilities.ObjectIsKeyValuePair(new System.Collections.Generic.KeyValuePair<object, object>(new object(), new object())));
+            Assert.IsTrue(EnumerableTools.ObjectIsKeyValuePair(new System.Collections.Generic.KeyValuePair<object, object>(new object(), new object())));
         }
         [TestMethod]
         public void IsKeyValuePairTest12()
         {
-            Assert.IsTrue(Core.Miscellaneous.Utilities.ObjectIsKeyValuePair(new System.Collections.Generic.KeyValuePair<int, string>()));
+            Assert.IsTrue(EnumerableTools.ObjectIsKeyValuePair(new System.Collections.Generic.KeyValuePair<int, string>()));
         }
         [TestMethod]
         public void IsKeyValuePairTest21()
         {
-            Assert.IsTrue(Core.Miscellaneous.Utilities.ObjectIsKeyValuePair(new System.Collections.Generic.KeyValuePair<object, object>(new object(), new object())));
+            Assert.IsTrue(EnumerableTools.ObjectIsKeyValuePair(new System.Collections.Generic.KeyValuePair<object, object>(new object(), new object())));
         }
         [TestMethod]
         public void IsKeyValuePairTest22()
         {
-            Assert.IsTrue(Core.Miscellaneous.Utilities.ObjectIsKeyValuePair(new System.Collections.Generic.KeyValuePair<int, string>()));
+            Assert.IsTrue(EnumerableTools.ObjectIsKeyValuePair(new System.Collections.Generic.KeyValuePair<int, string>()));
         }
         [TestMethod]
         public void ObjectToKeyValuePairTest1()
@@ -251,8 +251,8 @@ namespace GRYLibrary.Tests.Testcases
             object kvp11 = new object();
             object kvp12 = new object();
             object kvp1object = new System.Collections.Generic.KeyValuePair<object, object>(kvp11, kvp12);
-            System.Collections.Generic.KeyValuePair<object, object> kvp1Typed = Core.Miscellaneous.Utilities.ObjectToKeyValuePair<object, object>(kvp1object);
-            Assert.IsTrue(Core.Miscellaneous.Utilities.ObjectIsKeyValuePair(kvp1Typed));
+            System.Collections.Generic.KeyValuePair<object, object> kvp1Typed = EnumerableTools.ObjectToKeyValuePair<object, object>(kvp1object);
+            Assert.IsTrue(EnumerableTools.ObjectIsKeyValuePair(kvp1Typed));
             Assert.AreEqual(kvp11, kvp1Typed.Key);
             Assert.AreEqual(kvp12, kvp1Typed.Value);
         }
@@ -262,8 +262,8 @@ namespace GRYLibrary.Tests.Testcases
             int kvp11 = 6;
             string kvp12 = "test";
             object kvp1object = new System.Collections.Generic.KeyValuePair<int, string>(kvp11, kvp12);
-            System.Collections.Generic.KeyValuePair<object, object> kvp1Typed = Core.Miscellaneous.Utilities.ObjectToKeyValuePair<object, object>(kvp1object);
-            Assert.IsTrue(Core.Miscellaneous.Utilities.ObjectIsKeyValuePair(kvp1Typed));
+            System.Collections.Generic.KeyValuePair<object, object> kvp1Typed = EnumerableTools.ObjectToKeyValuePair<object, object>(kvp1object);
+            Assert.IsTrue(EnumerableTools.ObjectIsKeyValuePair(kvp1Typed));
             Assert.AreEqual(kvp11, kvp1Typed.Key);
             Assert.AreEqual(kvp12, kvp1Typed.Value);
         }
@@ -271,22 +271,22 @@ namespace GRYLibrary.Tests.Testcases
         [TestMethod]
         public void IsTupleTest11()
         {
-            Assert.IsTrue(Core.Miscellaneous.Utilities.ObjectIsTuple(new Tuple<object, object>(new object(), new object())));
+            Assert.IsTrue(EnumerableTools.ObjectIsTuple(new Tuple<object, object>(new object(), new object())));
         }
         [TestMethod]
         public void IsTupleTest12()
         {
-            Assert.IsTrue(Core.Miscellaneous.Utilities.ObjectIsTuple(new WriteableTuple<object, object>()));
+            Assert.IsTrue(EnumerableTools.ObjectIsTuple(new WriteableTuple<object, object>()));
         }
         [TestMethod]
         public void IsTupleTest21()
         {
-            Assert.IsTrue(Core.Miscellaneous.Utilities.ObjectIsTuple(new Tuple<int, string>(5, "test")));
+            Assert.IsTrue(EnumerableTools.ObjectIsTuple(new Tuple<int, string>(5, "test")));
         }
         [TestMethod]
         public void IsTupleTest22()
         {
-            Assert.IsTrue(Core.Miscellaneous.Utilities.ObjectIsTuple(new WriteableTuple<int, string>()));
+            Assert.IsTrue(EnumerableTools.ObjectIsTuple(new WriteableTuple<int, string>()));
         }
         [TestMethod]
         public void ObjectToTupleTest1()
@@ -294,8 +294,8 @@ namespace GRYLibrary.Tests.Testcases
             object kvp11 = new object();
             object kvp12 = new object();
             object kvp1object = new Tuple<object, object>(kvp11, kvp12);
-            Tuple<object, object> kvp1Typed = Core.Miscellaneous.Utilities.ObjectToTuple<object, object>(kvp1object);
-            Assert.IsTrue(Core.Miscellaneous.Utilities.ObjectIsTuple(kvp1Typed));
+            Tuple<object, object> kvp1Typed = EnumerableTools.ObjectToTuple<object, object>(kvp1object);
+            Assert.IsTrue(EnumerableTools.ObjectIsTuple(kvp1Typed));
             Assert.AreEqual(kvp11, kvp1Typed.Item1);
             Assert.AreEqual(kvp12, kvp1Typed.Item2);
         }
@@ -305,8 +305,8 @@ namespace GRYLibrary.Tests.Testcases
             int kvp11 = 6;
             string kvp12 = "test";
             object kvp1object = new Tuple<int, string>(kvp11, kvp12);
-            Tuple<object, object> kvp1Typed = Core.Miscellaneous.Utilities.ObjectToTuple<object, object>(kvp1object);
-            Assert.IsTrue(Core.Miscellaneous.Utilities.ObjectIsTuple(kvp1Typed));
+            Tuple<object, object> kvp1Typed = EnumerableTools.ObjectToTuple<object, object>(kvp1object);
+            Assert.IsTrue(EnumerableTools.ObjectIsTuple(kvp1Typed));
             Assert.AreEqual(kvp11, kvp1Typed.Item1);
             Assert.AreEqual(kvp12, kvp1Typed.Item2);
         }
@@ -315,40 +315,40 @@ namespace GRYLibrary.Tests.Testcases
         [TestMethod]
         public void ObjectToSettTest()
         {
-            Assert.ThrowsException<InvalidCastException>(() => Core.Miscellaneous.Utilities.ObjectToSet<object>(new object()));
-            Assert.ThrowsException<InvalidCastException>(() => Core.Miscellaneous.Utilities.ObjectToSet<object>(5));
+            Assert.ThrowsException<InvalidCastException>(() => EnumerableTools.ObjectToSet<object>(new object()));
+            Assert.ThrowsException<InvalidCastException>(() => EnumerableTools.ObjectToSet<object>(5));
 
-            Assert.IsTrue(Core.Miscellaneous.Utilities.SetEquals(new HashSet<char> { 's', 'o', 'm', 'e', 't' }, Core.Miscellaneous.Utilities.ObjectToSet<char>(new HashSet<char> { 's', 'o', 'm', 'e', 't', 'e', 's', 't' })));
+            Assert.IsTrue(EnumerableTools.SetEquals(new HashSet<char> { 's', 'o', 'm', 'e', 't' }, EnumerableTools.ObjectToSet<char>(new HashSet<char> { 's', 'o', 'm', 'e', 't', 'e', 's', 't' })));
 
             HashSet<int> testSet = new HashSet<int> { 3, 4, 5 };
             object testSetAsObject = testSet;
-            Assert.IsTrue(Core.Miscellaneous.Utilities.SetEquals(testSet, Core.Miscellaneous.Utilities.ObjectToSet<int>(testSetAsObject)));
+            Assert.IsTrue(EnumerableTools.SetEquals(testSet, EnumerableTools.ObjectToSet<int>(testSetAsObject)));
         }
         [TestMethod]
         public void ObjectToListTest()
         {
-            Assert.ThrowsException<InvalidCastException>(() => Core.Miscellaneous.Utilities.ObjectToList<object>(new object()));
-            Assert.ThrowsException<InvalidCastException>(() => Core.Miscellaneous.Utilities.ObjectToList<object>("sometest"));
+            Assert.ThrowsException<InvalidCastException>(() => EnumerableTools.ObjectToList<object>(new object()));
+            Assert.ThrowsException<InvalidCastException>(() => EnumerableTools.ObjectToList<object>("sometest"));
 
             List<int> testList = new List<int> { 3, 4, 5 };
             object testListAsObject = testList;
-            Assert.IsTrue(Core.Miscellaneous.Utilities.ListEquals(testList, Core.Miscellaneous.Utilities.ObjectToList<int>(testListAsObject)));
+            Assert.IsTrue(EnumerableTools.ListEquals(testList, EnumerableTools.ObjectToList<int>(testListAsObject)));
 
-            Assert.IsTrue(Core.Miscellaneous.Utilities.ListEquals(testList, (IList)new List<int> { 3, 4, 5 }.ToImmutableList()));
+            Assert.IsTrue(EnumerableTools.ListEquals(testList, (IList)new List<int> { 3, 4, 5 }.ToImmutableList()));
         }
 
         [TestMethod]
         public void ObjectToDictionaryFailTest()
         {
-            Assert.ThrowsException<InvalidCastException>(() => Core.Miscellaneous.Utilities.ObjectToDictionary<object, object>(new object()));
-            Assert.ThrowsException<InvalidCastException>(() => Core.Miscellaneous.Utilities.ObjectToDictionary<object, object>("somestring"));
+            Assert.ThrowsException<InvalidCastException>(() => EnumerableTools.ObjectToDictionary<object, object>(new object()));
+            Assert.ThrowsException<InvalidCastException>(() => EnumerableTools.ObjectToDictionary<object, object>("somestring"));
         }
         [TestMethod]
         public void ObjectToDictionarySuccessTest()
         {
             Dictionary<int, string> testDictionary = new Dictionary<int, string> { { 3, "3s" }, { 4, "4s" }, { 5, "5s" } };
             object testDictionaryAsObject = testDictionary;
-            Core.Miscellaneous.Utilities.ObjectToDictionary<int, string>(testDictionaryAsObject);
+            EnumerableTools.ObjectToDictionary<int, string>(testDictionaryAsObject);
         }
 
         [TestMethod]
@@ -359,7 +359,7 @@ namespace GRYLibrary.Tests.Testcases
             Dictionary<int, string> testDictionary2 = new Dictionary<int, string> { { 3, "3s" }, { 4, "4s" } };
 
             // act && assert
-            Assert.IsFalse(Core.Miscellaneous.Utilities.DictionaryEquals<int, string>(testDictionary1, testDictionary2));
+            Assert.IsFalse(EnumerableTools.DictionaryEquals<int, string>(testDictionary1, testDictionary2));
         }
 
         [TestMethod]
@@ -367,34 +367,34 @@ namespace GRYLibrary.Tests.Testcases
         {
             Dictionary<int, string> testDictionary = new Dictionary<int, string> { { 3, "3s" }, { 4, "4s" }, { 5, "5s" } };
             object testDictionaryAsObject = testDictionary;
-            Assert.IsTrue(Core.Miscellaneous.Utilities.DictionaryEquals(testDictionary, Core.Miscellaneous.Utilities.ObjectToDictionary<int, string>(testDictionaryAsObject)));
+            Assert.IsTrue(EnumerableTools.DictionaryEquals(testDictionary, EnumerableTools.ObjectToDictionary<int, string>(testDictionaryAsObject)));
         }
         [TestMethod]
         public void DictionaryEqualsSuccessTest2()
         {
             Dictionary<int, string> testDictionary = new Dictionary<int, string> { { 3, "3s" }, { 4, "4s" }, { 5, "5s" } };
             object testDictionaryAsObject = testDictionary;
-            Assert.IsTrue(Core.Miscellaneous.Utilities.DictionaryEquals(testDictionary, Core.Miscellaneous.Utilities.ObjectToDictionary<int, string>(testDictionaryAsObject)));
+            Assert.IsTrue(EnumerableTools.DictionaryEquals(testDictionary, EnumerableTools.ObjectToDictionary<int, string>(testDictionaryAsObject)));
 
             IDictionary<int, string> testDictionary2 = new ConcurrentDictionary<int, string>();
             testDictionary2.Add(3, "3s");
             testDictionary2.Add(4, "4s");
             testDictionary2.Add(5, "5s");
             object testDictionaryAsObject2 = testDictionary2;
-            Assert.IsTrue(Core.Miscellaneous.Utilities.DictionaryEquals(testDictionary2, Core.Miscellaneous.Utilities.ObjectToDictionary<int, string>(testDictionaryAsObject2)));
+            Assert.IsTrue(EnumerableTools.DictionaryEquals(testDictionary2, EnumerableTools.ObjectToDictionary<int, string>(testDictionaryAsObject2)));
 
-            Assert.IsTrue(Core.Miscellaneous.Utilities.DictionaryEquals(testDictionary, testDictionary2));
+            Assert.IsTrue(EnumerableTools.DictionaryEquals(testDictionary, testDictionary2));
         }
         [TestMethod]
         public void ObjectIsEnumerableTest()
         {
             IEnumerable setAsEnumerable = new HashSet<object> { 3, 4, 5 };
-            Assert.IsTrue(Core.Miscellaneous.Utilities.ObjectIsEnumerable(setAsEnumerable));
-            Assert.IsTrue(Core.Miscellaneous.Utilities.ObjectIsEnumerable(new HashSet<object> { 3, 4, 5 }));
-            Assert.IsTrue(Core.Miscellaneous.Utilities.ObjectIsEnumerable(new HashSet<int> { 3, 4, 5 }));
-            Assert.IsTrue(Core.Miscellaneous.Utilities.ObjectIsEnumerable(new List<SimpleDataStructure3>()));
-            Assert.IsTrue(Core.Miscellaneous.Utilities.ObjectIsEnumerable(string.Empty));
-            Assert.IsFalse(Core.Miscellaneous.Utilities.ObjectIsEnumerable(4));
+            Assert.IsTrue(EnumerableTools.ObjectIsEnumerable(setAsEnumerable));
+            Assert.IsTrue(EnumerableTools.ObjectIsEnumerable(new HashSet<object> { 3, 4, 5 }));
+            Assert.IsTrue(EnumerableTools.ObjectIsEnumerable(new HashSet<int> { 3, 4, 5 }));
+            Assert.IsTrue(EnumerableTools.ObjectIsEnumerable(new List<SimpleDataStructure3>()));
+            Assert.IsTrue(EnumerableTools.ObjectIsEnumerable(string.Empty));
+            Assert.IsFalse(EnumerableTools.ObjectIsEnumerable(4));
 
         }
         [TestMethod]
@@ -510,7 +510,7 @@ namespace GRYLibrary.Tests.Testcases
             var expected = new byte[] { 222 };
 
             // act
-            var actual = GRYLibrary.Core.Miscellaneous.Utilities.HexStringToByteArray(input);
+            var actual = Core.Miscellaneous.Utilities.HexStringToByteArray(input);
 
             // assert
             Assert.IsTrue(expected.SequenceEqual(actual));
@@ -523,7 +523,7 @@ namespace GRYLibrary.Tests.Testcases
             var expected = "DE";
 
             // act
-            var actual = GRYLibrary.Core.Miscellaneous.Utilities.ByteArrayToHexString(input);
+            var actual = Core.Miscellaneous.Utilities.ByteArrayToHexString(input);
 
             // assert
             Assert.IsTrue(expected.SequenceEqual(actual));

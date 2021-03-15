@@ -15,7 +15,6 @@ namespace GRYLibrary.Core.AdvancedXMLSerialysis
 {
     public class GenericXMLSerializer
     {
-#pragma warning disable CA1822 // Mark members as static
         public SerializationConfiguration SerializationConfiguration { get; set; }
         private readonly Type _T;
         public GenericXMLSerializer() : this(typeof(object))
@@ -131,11 +130,11 @@ namespace GRYLibrary.Core.AdvancedXMLSerialysis
             if (!thisIsNull && !deserializedObjectIsNull)
             {
                 Type type = thisObject.GetType();
-                if (Utilities.TypeIsEnumerable(type))
+                if (EnumerableTools.TypeIsEnumerable(type))
                 {
                     foreach (object item in deserializedObject as IEnumerable)
                     {
-                        Utilities.AddItemToEnumerable(thisObject, new object[] { item });
+                        EnumerableTools.AddItemToEnumerable(thisObject, new object[] { item });
                     }
                 }
                 else
@@ -151,7 +150,6 @@ namespace GRYLibrary.Core.AdvancedXMLSerialysis
                 }
             }
         }
-#pragma warning restore CA1822 // Mark members as static
     }
     public class GenericXMLSerializer<T> : GenericXMLSerializer
     {

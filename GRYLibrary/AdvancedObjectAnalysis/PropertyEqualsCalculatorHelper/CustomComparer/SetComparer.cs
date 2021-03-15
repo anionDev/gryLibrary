@@ -13,7 +13,7 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper.
 
         public override bool DefaultEquals(object item1, object item2)
         {
-            bool result = this.EqualsTyped(Utilities.ObjectToSet<object>(item1), Utilities.ObjectToSet<object>(item2));
+            bool result = this.EqualsTyped(EnumerableTools.ObjectToSet<object>(item1), EnumerableTools.ObjectToSet<object>(item2));
             return result;
         }
         internal bool EqualsTyped<T>(ISet<T> set1, ISet<T> set2)
@@ -46,7 +46,7 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper.
 
         public override bool IsApplicable(Type typeOfObject1, Type typeOfObject2)
         {
-            return Utilities.TypeIsSet(typeOfObject1) && Utilities.TypeIsSet(typeOfObject2);
+            return EnumerableTools.TypeIsSet(typeOfObject1) && EnumerableTools.TypeIsSet(typeOfObject2);
         }
 
         public override int DefaultGetHashCode(object obj)

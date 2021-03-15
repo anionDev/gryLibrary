@@ -37,9 +37,9 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.GenericXMLSerializerHelper
                 return default;
             }
             Type typeOfObject = @object.GetType();
-            if (Utilities.ObjectIsKeyValuePair(@object))
+            if (EnumerableTools.ObjectIsKeyValuePair(@object))
             {
-                KeyValuePair<object, object> kvp = Utilities.ObjectToKeyValuePair<object,object>(@object);
+                KeyValuePair<object, object> kvp = EnumerableTools.ObjectToKeyValuePair<object,object>(@object);
                 @object = new XMLSerializer.KeyValuePair<object, object>(kvp.Key, kvp.Value);
             }
             if (dictionary.ContainsKey(@object))
@@ -53,7 +53,7 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.GenericXMLSerializerHelper
                 {
                     simplification = new FlatPrimitive();
                 }
-                else if (Utilities.ObjectIsEnumerable(@object))
+                else if (EnumerableTools.ObjectIsEnumerable(@object))
                 {
                     simplification = new FlatEnumerable();
                 }
@@ -123,8 +123,8 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.GenericXMLSerializerHelper
                     return;
                 }
                 Type enumerableType = Type.GetType(simplifiedEnumerable.TypeName);
-                bool isDictionaryNotGeneric = Utilities.TypeIsDictionaryNotGeneric(enumerableType);
-                bool isDictionaryGeneric = Utilities.TypeIsDictionaryGeneric(enumerableType);
+                bool isDictionaryNotGeneric = EnumerableTools.TypeIsDictionaryNotGeneric(enumerableType);
+                bool isDictionaryGeneric = EnumerableTools.TypeIsDictionaryGeneric(enumerableType);
                 foreach (Guid itemId in simplifiedEnumerable.Items)
                 {
                     object itemForEnumerable;
@@ -137,14 +137,14 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.GenericXMLSerializerHelper
                     }
                     else if (isDictionaryNotGeneric)
                     {
-                        DictionaryEntry keyValuePair = Utilities.ObjectToDictionaryEntry(itemForEnumerable);
+                        DictionaryEntry keyValuePair = EnumerableTools.ObjectToDictionaryEntry(itemForEnumerable);
                         arguments = new object[] { keyValuePair.Key, keyValuePair.Value };
                     }
                     else
                     {
                         arguments = new object[] { itemForEnumerable };
                     }
-                    Utilities.AddItemToEnumerable(enumerable, arguments);
+                    EnumerableTools.AddItemToEnumerable(enumerable, arguments);
                 }
             }
             public void Handle(FlatPrimitive simplifiedPrimitive)
@@ -175,31 +175,31 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.GenericXMLSerializerHelper
             {
                 Type typeOfSimplifiedEnumerable = Type.GetType(simplifiedEnumerable.TypeName);
                 Type concreteTypeOfEnumerable;
-                if (Utilities.TypeIsListGeneric(typeOfSimplifiedEnumerable))
+                if (EnumerableTools.TypeIsListGeneric(typeOfSimplifiedEnumerable))
                 {
                     concreteTypeOfEnumerable = typeof(List<>);
                 }
-                else if (Utilities.TypeIsListNotGeneric(typeOfSimplifiedEnumerable))
+                else if (EnumerableTools.TypeIsListNotGeneric(typeOfSimplifiedEnumerable))
                 {
                     concreteTypeOfEnumerable = typeof(ArrayList);
                 }
-                else if (Utilities.TypeIsSet(typeOfSimplifiedEnumerable))
+                else if (EnumerableTools.TypeIsSet(typeOfSimplifiedEnumerable))
                 {
                     concreteTypeOfEnumerable = typeof(HashSet<>);
                 }
-                else if (Utilities.TypeIsDictionaryGeneric(typeOfSimplifiedEnumerable))
+                else if (EnumerableTools.TypeIsDictionaryGeneric(typeOfSimplifiedEnumerable))
                 {
                     concreteTypeOfEnumerable = typeof(Dictionary<,>);
                 }
-                else if (Utilities.TypeIsDictionaryNotGeneric(typeOfSimplifiedEnumerable))
+                else if (EnumerableTools.TypeIsDictionaryNotGeneric(typeOfSimplifiedEnumerable))
                 {
                     concreteTypeOfEnumerable = typeof(Hashtable);
                 }
-                else if (Utilities.TypeIsEnumerable(typeOfSimplifiedEnumerable))
+                else if (EnumerableTools.TypeIsEnumerable(typeOfSimplifiedEnumerable))
                 {
                     concreteTypeOfEnumerable = typeof(List<>);
                 }
-                else if (Utilities.TypeIsKeyValuePair(typeOfSimplifiedEnumerable))
+                else if (EnumerableTools.TypeIsKeyValuePair(typeOfSimplifiedEnumerable))
                 {
                     concreteTypeOfEnumerable = typeof(List<>);
                 }
@@ -253,7 +253,7 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.GenericXMLSerializerHelper
             public void Handle(FlatEnumerable simplifiedEnumerable)
             {
                 simplifiedEnumerable.Items = new List<Guid>();
-                foreach (object @object in Utilities.ObjectToEnumerable<object>(this._Object))
+                foreach (object @object in EnumerableTools.ObjectToEnumerable<object>(this._Object))
                 {
                     simplifiedEnumerable.Items.Add(FillDictionary(this._Dictionary, @object, this._SerializationConfiguration));
                 }
