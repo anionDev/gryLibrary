@@ -2010,35 +2010,25 @@ namespace GRYLibrary.Core.Miscellaneous
             {
                 return false;
             }
-            if (!item1IsDefault && !item2IsDefault)
+            if (!itemHasValueType)
             {
-                if (itemHasValueType)
-                {
-                    Type type = item1.GetType();
-                    if (type.Equals(item2.GetType()))//TODO ignore generics here when type is keyvaluepair
-                    {
-                        if (EnumerableTools.TypeIsKeyValuePair(type))
-                        {
-                            System.Collections.Generic.KeyValuePair<object, object> kvp1 = EnumerableTools.ObjectToKeyValuePairUnsafe<object, object>(item1);
-                            System.Collections.Generic.KeyValuePair<object, object> kvp2 = EnumerableTools.ObjectToKeyValuePairUnsafe<object, object>(item2);
-                            return ImprovedReferenceEquals(kvp1.Key, kvp2.Key) && ImprovedReferenceEquals(kvp1.Value, kvp2.Value);
-                        }
-                        else
-                        {
-                            return item1.Equals(item2);
-                        }
-                    }
-                    else
-                    {
-                        return false;
-                    }
-                }
-                else
-                {
-                    return ReferenceEquals(item1, item2);
-                }
+                return ReferenceEquals(item1, item2);
             }
-            throw new ArgumentException("Can not calculate reference-equals for the given arguments.");
+            Type type = item1.GetType();
+            if (!type.Equals(item2.GetType()))//TODO ignore generics here when type is keyvaluepair
+            {
+                return false;
+            }
+            if (EnumerableTools.TypeIsKeyValuePair(type))
+            {
+                System.Collections.Generic.KeyValuePair<object, object> kvp1 = EnumerableTools.ObjectToKeyValuePairUnsafe<object, object>(item1);
+                System.Collections.Generic.KeyValuePair<object, object> kvp2 = EnumerableTools.ObjectToKeyValuePairUnsafe<object, object>(item2);
+                return ImprovedReferenceEquals(kvp1.Key, kvp2.Key) && ImprovedReferenceEquals(kvp1.Value, kvp2.Value);
+            }
+            else
+            {
+                return item1.Equals(item2);
+            }
         }
 
         public static bool HasValueType(object @object)
