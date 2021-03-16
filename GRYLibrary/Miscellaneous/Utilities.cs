@@ -43,7 +43,6 @@ namespace GRYLibrary.Core.Miscellaneous
         public const string SpecialCharacterTestString = "<Special-character-Test: (^äöüß/\\€\"\'+-*®¬¼😊👍✆⊆ℙ≈∑∞∫/𝄞𝄤𝅘𝅥𝅮) (您好) (Здравствуйте) (नमस्कार)>";
         #endregion
 
-
         public static (T[], T[]) Split<T>(T[] source, int index)
         {
             int len2 = source.Length - index;
@@ -161,7 +160,7 @@ namespace GRYLibrary.Core.Miscellaneous
             uint[] result = new uint[byteArray.Length / 4];
             for (int i = 0; i < byteArray.Length / 4; i++)
             {
-                result[i] = ByteArrayToUnsignedInteger32Bit(new byte[] { byteArray[4 * i], byteArray[4 * i + 1], byteArray[4 * i + 2], byteArray[4 * i + 3] });
+                result[i] = ByteArrayToUnsignedInteger32Bit(new byte[] { byteArray[4 * i], byteArray[(4 * i) + 1], byteArray[(4 * i) + 2], byteArray[(4 * i) + 3] });
             }
             return result;
         }
@@ -884,7 +883,7 @@ namespace GRYLibrary.Core.Miscellaneous
         /// </summary>
         public static object Cast(object @object, Type targetType)
         {
-            throw new NotImplementedException();// TODO call CastHelper using reflection
+            throw new NotImplementedException(); // TODO call CastHelper using reflection
         }
         private static T CastHelper<T>(object @object)
         {
@@ -1425,7 +1424,6 @@ namespace GRYLibrary.Core.Miscellaneous
             using (XmlWriter xmlWriter = XmlWriter.Create(stringWriter, applyXSLTToXMLXMLWriterDefaultSettings))
             {
                 myXslTrans.Transform(XmlReader.Create(new StringReader(xml)), xmlWriter);
-
             }
             return xmlDeclaration + stringWriter.ToString();
         }
@@ -1520,8 +1518,8 @@ namespace GRYLibrary.Core.Miscellaneous
                     string prefix = @"\\?\Volume{";
                     if (line.StartsWith(prefix))
                     {
-                        line = line[prefix.Length..];//remove "\\?\Volume{"
-                        line = line[0..^2];//remove "}\"
+                        line = line[prefix.Length..]; //remove "\\?\Volume{"
+                        line = line[0..^2]; //remove "}\"
                         string nextLine = externalProgramExecutor.AllStdOutLines[i + 1].Trim();
                         if (Directory.Exists(nextLine) || nextLine.StartsWith("***"))
                         {
@@ -1622,7 +1620,6 @@ namespace GRYLibrary.Core.Miscellaneous
             }
             throw new KeyNotFoundException($"No volume could be found which provides the volume accessible at {mountPoint}");
         }
-
 
         public static T[] PadLeft<T>(T[] array, int length)
         {
@@ -1988,7 +1985,6 @@ namespace GRYLibrary.Core.Miscellaneous
             }
         }
 
-
         public static bool ImprovedReferenceEquals(object item1, object item2)
         {
             bool itemHasValueType = HasValueType(item1);
@@ -2092,11 +2088,11 @@ namespace GRYLibrary.Core.Miscellaneous
             char lastChar = default;
             for (int i = 0; i < splitted.Length; i++)
             {
-                if (0 == i)
+                if (i == 0)
                 {
                     splitted[i] = splitted[i].ToString().ToUpper().First();
                 }
-                if (0 < i)
+                if (i>0)
                 {
                     if (printCharUppercaseDependentOnPreviousChar(lastChar))
                     {
@@ -2259,7 +2255,5 @@ namespace GRYLibrary.Core.Miscellaneous
                 throw new NotSupportedException();
             }
         }
-
-
     }
 }
