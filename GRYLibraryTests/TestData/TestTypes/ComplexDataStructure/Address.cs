@@ -16,7 +16,7 @@ namespace GRYLibrary.Tests.TestData.TestTypes.ComplexDataStructure
 
         public static Address GetRandom()
         {
-            Address result = new Address
+            Address result = new()
             {
                 AddressLine1 = ComplexDataStructureUtilities.GetRandomAddressLine1(),
                 AddressLine2 = ComplexDataStructureUtilities.GetRandomAddressLine2(),

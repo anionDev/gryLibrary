@@ -24,7 +24,7 @@ namespace GRYLibrary.Core.Graph
 
         public UndirectedGraph ToUndirectedGraph()
         {
-            UndirectedGraph result = new UndirectedGraph();
+            UndirectedGraph result = new();
             foreach (Vertex vertex in this.Vertices)
             {
                 result.AddVertex(new Vertex(vertex.Name));
@@ -43,7 +43,7 @@ namespace GRYLibrary.Core.Graph
         /// </remarks>
         public override ISet<Vertex> GetDirectSuccessors(Vertex vertex, bool doNotWalkAgainstDirectedEdges = true)
         {
-            HashSet<Vertex> result = new HashSet<Vertex>();
+            HashSet<Vertex> result = new();
             foreach (DirectedEdge edge in vertex.GetConnectedEdges())
             {
                 if (edge.Source.Equals(vertex))
@@ -65,7 +65,7 @@ namespace GRYLibrary.Core.Graph
         /// </remarks>
         public ISet<Vertex> GetDirectPredecessors(Vertex vertex)
         {
-            HashSet<Vertex> result = new HashSet<Vertex>();
+            HashSet<Vertex> result = new();
             foreach (DirectedEdge edge in vertex.GetConnectedEdges())
             {
                 if (edge.Target.Equals(vertex))
@@ -93,7 +93,7 @@ namespace GRYLibrary.Core.Graph
 
         public ISet<DirectedEdge> GetIncomingEdges(Vertex vertex)
         {
-            HashSet<DirectedEdge> result = new HashSet<DirectedEdge>();
+            HashSet<DirectedEdge> result = new();
             foreach (DirectedEdge edge in vertex.GetConnectedEdges())
             {
                 if (edge.Target.Equals(vertex))
@@ -105,7 +105,7 @@ namespace GRYLibrary.Core.Graph
         }
         public ISet<DirectedEdge> GetOutgoingEdges(Vertex vertex)
         {
-            HashSet<DirectedEdge> result = new HashSet<DirectedEdge>();
+            HashSet<DirectedEdge> result = new();
             foreach (DirectedEdge edge in vertex.GetConnectedEdges())
             {
                 if (edge.Source.Equals(vertex))
@@ -118,7 +118,7 @@ namespace GRYLibrary.Core.Graph
 
         public static DirectedGraph CreateByAdjacencyMatrix(double[,] adjacencyMatrix)
         {
-            DirectedGraph graph = new DirectedGraph();
+            DirectedGraph graph = new();
             Tuple<IList<DirectedEdge>, IList<Vertex>> items = ParseAdjacencyMatrix(adjacencyMatrix);
             foreach (Vertex item in items.Item2)
             {
@@ -139,7 +139,7 @@ namespace GRYLibrary.Core.Graph
             IList<Vertex> vertices = new List<Vertex>();
             for (int i = 0; i < adjacencyMatrix.GetLength(0); i++)
             {
-                Vertex newVertex = new Vertex("Vertex_" + (i + 1).ToString());
+                Vertex newVertex = new("Vertex_" + (i + 1).ToString());
                 vertices.Add(newVertex);
             }
             IList<DirectedEdge> edges = new List<DirectedEdge>();
@@ -147,7 +147,7 @@ namespace GRYLibrary.Core.Graph
             {
                 for (int j = 0; j < adjacencyMatrix.GetLength(1); j++)
                 {
-                    DirectedEdge newEdge = new DirectedEdge(vertices[i], vertices[j], nameof(Edge) + "_" + (i + 1).ToString() + "_" + (j + 1).ToString())
+                    DirectedEdge newEdge = new(vertices[i], vertices[j], nameof(Edge) + "_" + (i + 1).ToString() + "_" + (j + 1).ToString())
                     {
                         Weight = adjacencyMatrix[i, j]
                     };

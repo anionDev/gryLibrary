@@ -1,5 +1,4 @@
-﻿using GRYLibrary.Core;
-using GRYLibrary.Core.Miscellaneous;
+﻿using GRYLibrary.Core.Miscellaneous;
 using GRYLibrary.Core.XMLSerializer;
 using GRYLibrary.Tests.TestData.TestTypes.CyclicDataStructure;
 using GRYLibrary.Tests.TestData.TestTypes.SimpleDataStructure;
@@ -148,7 +147,7 @@ namespace GRYLibrary.Tests.Testcases
         public void GenericSerializerTest1()
         {
             SimpleDataStructure3 testObject = SimpleDataStructure3.GetRandom();
-            SimpleGenericXMLSerializer<SimpleDataStructure3> serializer = new SimpleGenericXMLSerializer<SimpleDataStructure3>();
+            SimpleGenericXMLSerializer<SimpleDataStructure3> serializer = new();
             string serialized = serializer.Serialize(testObject);
             SimpleDataStructure3 deserialized = serializer.Deserialize(serialized);
             Assert.AreEqual(testObject, deserialized);
@@ -156,12 +155,12 @@ namespace GRYLibrary.Tests.Testcases
         [TestMethod]
         public void SerializeableDictionaryTest()
         {
-            SerializableDictionary<int, string> dictionary = new SerializableDictionary<int, string>
+            SerializableDictionary<int, string> dictionary = new()
             {
                 { 1, "test1" },
                 { 2, "test2" }
             };
-            SimpleGenericXMLSerializer<SerializableDictionary<int, string>> serializer = new SimpleGenericXMLSerializer<SerializableDictionary<int, string>>();
+            SimpleGenericXMLSerializer<SerializableDictionary<int, string>> serializer = new();
             string serializedDictionary = serializer.Serialize(dictionary);
             SerializableDictionary<int, string> reloadedDictionary = serializer.Deserialize(serializedDictionary);
             Assert.AreEqual(2, reloadedDictionary.Count);
@@ -248,8 +247,8 @@ namespace GRYLibrary.Tests.Testcases
         [TestMethod]
         public void ObjectToKeyValuePairTest1()
         {
-            object kvp11 = new object();
-            object kvp12 = new object();
+            object kvp11 = new();
+            object kvp12 = new();
             object kvp1object = new System.Collections.Generic.KeyValuePair<object, object>(kvp11, kvp12);
             System.Collections.Generic.KeyValuePair<object, object> kvp1Typed = EnumerableTools.ObjectToKeyValuePair<object, object>(kvp1object);
             Assert.IsTrue(EnumerableTools.ObjectIsKeyValuePair(kvp1Typed));
@@ -291,8 +290,8 @@ namespace GRYLibrary.Tests.Testcases
         [TestMethod]
         public void ObjectToTupleTest1()
         {
-            object kvp11 = new object();
-            object kvp12 = new object();
+            object kvp11 = new();
+            object kvp12 = new();
             object kvp1object = new Tuple<object, object>(kvp11, kvp12);
             Tuple<object, object> kvp1Typed = EnumerableTools.ObjectToTuple<object, object>(kvp1object);
             Assert.IsTrue(EnumerableTools.ObjectIsTuple(kvp1Typed));
@@ -320,7 +319,7 @@ namespace GRYLibrary.Tests.Testcases
 
             Assert.IsTrue(EnumerableTools.SetEquals(new HashSet<char> { 's', 'o', 'm', 'e', 't' }, EnumerableTools.ObjectToSet<char>(new HashSet<char> { 's', 'o', 'm', 'e', 't', 'e', 's', 't' })));
 
-            HashSet<int> testSet = new HashSet<int> { 3, 4, 5 };
+            HashSet<int> testSet = new() { 3, 4, 5 };
             object testSetAsObject = testSet;
             Assert.IsTrue(EnumerableTools.SetEquals(testSet, EnumerableTools.ObjectToSet<int>(testSetAsObject)));
         }
@@ -330,7 +329,7 @@ namespace GRYLibrary.Tests.Testcases
             Assert.ThrowsException<InvalidCastException>(() => EnumerableTools.ObjectToList<object>(new object()));
             Assert.ThrowsException<InvalidCastException>(() => EnumerableTools.ObjectToList<object>("sometest"));
 
-            List<int> testList = new List<int> { 3, 4, 5 };
+            List<int> testList = new() { 3, 4, 5 };
             object testListAsObject = testList;
             Assert.IsTrue(EnumerableTools.ListEquals(testList, EnumerableTools.ObjectToList<int>(testListAsObject)));
 
@@ -346,7 +345,7 @@ namespace GRYLibrary.Tests.Testcases
         [TestMethod]
         public void ObjectToDictionarySuccessTest()
         {
-            Dictionary<int, string> testDictionary = new Dictionary<int, string> { { 3, "3s" }, { 4, "4s" }, { 5, "5s" } };
+            Dictionary<int, string> testDictionary = new() { { 3, "3s" }, { 4, "4s" }, { 5, "5s" } };
             object testDictionaryAsObject = testDictionary;
             EnumerableTools.ObjectToDictionary<int, string>(testDictionaryAsObject);
         }
@@ -355,8 +354,8 @@ namespace GRYLibrary.Tests.Testcases
         public void DictionaryEqualsFailTest()
         {
             //arrange
-            Dictionary<int, string> testDictionary1 = new Dictionary<int, string> { { 3, "3s" }, { 4, "4s" }, { 5, "5s" } };
-            Dictionary<int, string> testDictionary2 = new Dictionary<int, string> { { 3, "3s" }, { 4, "4s" } };
+            Dictionary<int, string> testDictionary1 = new() { { 3, "3s" }, { 4, "4s" }, { 5, "5s" } };
+            Dictionary<int, string> testDictionary2 = new() { { 3, "3s" }, { 4, "4s" } };
 
             // act && assert
             Assert.IsFalse(EnumerableTools.DictionaryEquals<int, string>(testDictionary1, testDictionary2));
@@ -365,14 +364,14 @@ namespace GRYLibrary.Tests.Testcases
         [TestMethod]
         public void DictionaryEqualsSuccessTest1()
         {
-            Dictionary<int, string> testDictionary = new Dictionary<int, string> { { 3, "3s" }, { 4, "4s" }, { 5, "5s" } };
+            Dictionary<int, string> testDictionary = new() { { 3, "3s" }, { 4, "4s" }, { 5, "5s" } };
             object testDictionaryAsObject = testDictionary;
             Assert.IsTrue(EnumerableTools.DictionaryEquals(testDictionary, EnumerableTools.ObjectToDictionary<int, string>(testDictionaryAsObject)));
         }
         [TestMethod]
         public void DictionaryEqualsSuccessTest2()
         {
-            Dictionary<int, string> testDictionary = new Dictionary<int, string> { { 3, "3s" }, { 4, "4s" }, { 5, "5s" } };
+            Dictionary<int, string> testDictionary = new() { { 3, "3s" }, { 4, "4s" }, { 5, "5s" } };
             object testDictionaryAsObject = testDictionary;
             Assert.IsTrue(EnumerableTools.DictionaryEquals(testDictionary, EnumerableTools.ObjectToDictionary<int, string>(testDictionaryAsObject)));
 
@@ -400,7 +399,7 @@ namespace GRYLibrary.Tests.Testcases
         [TestMethod]
         public void EnumerableCount()
         {
-            List<object> list = new List<object> { 3, 4, 5 };
+            List<object> list = new() { 3, 4, 5 };
             IEnumerable listAsEnumerable = list;
             Assert.AreEqual(list.Count, Core.Miscellaneous.Utilities.Count(listAsEnumerable));
         }
@@ -420,7 +419,7 @@ namespace GRYLibrary.Tests.Testcases
             Assert.IsFalse(Core.Miscellaneous.Utilities.ImprovedReferenceEquals(guid1, guid2));
             Assert.IsTrue(Core.Miscellaneous.Utilities.ImprovedReferenceEquals(Guid.Parse("33257693-bcee-4afd-a648-dd45ee06695d"), Guid.Parse("33257693-bcee-4afd-a648-dd45ee06695d")));
             Assert.IsFalse(Core.Miscellaneous.Utilities.ImprovedReferenceEquals(Guid.Parse("33257693-bcee-4afd-a648-dd45ee06695d"), Guid.Parse("22257693-bcee-4afd-a648-dd45ee066922")));
-            object @object = new object();
+            object @object = new();
             Assert.IsTrue(Core.Miscellaneous.Utilities.ImprovedReferenceEquals(@object, @object));
             Assert.IsFalse(Core.Miscellaneous.Utilities.ImprovedReferenceEquals(@object, new object()));
             Assert.IsFalse(Core.Miscellaneous.Utilities.ImprovedReferenceEquals(@object, "string"));
@@ -451,24 +450,24 @@ namespace GRYLibrary.Tests.Testcases
         [TestMethod]
         public void ReferenceEqualsCycleTest3()
         {
-            object obj1 = new object();
-            object obj2 = new object();
+            object obj1 = new();
+            object obj2 = new();
 
-            WriteableTuple<object, object> wt1 = new WriteableTuple<object, object>();
-            WriteableTuple<object, object> wt2 = new WriteableTuple<object, object>();
-            WriteableTuple<object, object> wt3 = new WriteableTuple<object, object>();
-            WriteableTuple<object, object> wt4 = new WriteableTuple<object, object>();
-            WriteableTuple<object, object> wt5 = new WriteableTuple<object, object>();
-            WriteableTuple<object, object> wt6 = new WriteableTuple<object, object>();
-            WriteableTuple<object, object> wt7 = new WriteableTuple<object, object>();
-            WriteableTuple<object, object> wt8 = new WriteableTuple<object, object>();
+            WriteableTuple<object, object> wt1 = new();
+            WriteableTuple<object, object> wt2 = new();
+            WriteableTuple<object, object> wt3 = new();
+            WriteableTuple<object, object> wt4 = new();
+            WriteableTuple<object, object> wt5 = new();
+            WriteableTuple<object, object> wt6 = new();
+            WriteableTuple<object, object> wt7 = new();
+            WriteableTuple<object, object> wt8 = new();
 
-            System.Collections.Generic.KeyValuePair<object, object> kvp1 = new System.Collections.Generic.KeyValuePair<object, object>(wt1, wt2);
-            System.Collections.Generic.KeyValuePair<object, object> kvp2 = new System.Collections.Generic.KeyValuePair<object, object>(wt3, wt4);
-            System.Collections.Generic.KeyValuePair<object, object> kvp3 = new System.Collections.Generic.KeyValuePair<object, object>(wt5, wt6);
-            System.Collections.Generic.KeyValuePair<object, object> kvp4 = new System.Collections.Generic.KeyValuePair<object, object>(wt7, obj1);
-            System.Collections.Generic.KeyValuePair<object, object> kvp5 = new System.Collections.Generic.KeyValuePair<object, object>(obj1, obj2);
-            System.Collections.Generic.KeyValuePair<object, object> kvp6 = new System.Collections.Generic.KeyValuePair<object, object>(obj2, wt8);
+            System.Collections.Generic.KeyValuePair<object, object> kvp1 = new(wt1, wt2);
+            System.Collections.Generic.KeyValuePair<object, object> kvp2 = new(wt3, wt4);
+            System.Collections.Generic.KeyValuePair<object, object> kvp3 = new(wt5, wt6);
+            System.Collections.Generic.KeyValuePair<object, object> kvp4 = new(wt7, obj1);
+            System.Collections.Generic.KeyValuePair<object, object> kvp5 = new(obj1, obj2);
+            System.Collections.Generic.KeyValuePair<object, object> kvp6 = new(obj2, wt8);
 
             wt1.Item1 = kvp2;
             wt2.Item1 = kvp3;

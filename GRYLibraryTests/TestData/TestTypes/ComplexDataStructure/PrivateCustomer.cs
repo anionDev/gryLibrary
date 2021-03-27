@@ -13,7 +13,7 @@ namespace GRYLibrary.Tests.TestData.TestTypes.ComplexDataStructure
 
         internal static ICustomer GetRandom()
         {
-            PrivateCustomer result = new PrivateCustomer
+            PrivateCustomer result = new()
             {
                 Forename = ComplexDataStructureUtilities.GetRandomName(),
                 Surname = ComplexDataStructureUtilities.GetRandomName(),

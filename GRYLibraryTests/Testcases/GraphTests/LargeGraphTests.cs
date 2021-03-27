@@ -19,7 +19,7 @@ namespace GRYLibrary.Tests.Testcases.GraphTests
 
         private static UndirectedGraph CreateUndirectedGraph(IEnumerable<DirectedEdge> bigStructure)
         {
-            UndirectedGraph result = new UndirectedGraph();
+            UndirectedGraph result = new();
             foreach (DirectedEdge edge in bigStructure)
             {
                 result.AddEdge(edge);
@@ -51,7 +51,7 @@ namespace GRYLibrary.Tests.Testcases.GraphTests
         }
         private static DirectedGraph CreateDirectedGraph(IEnumerable<DirectedEdge> bigStructure)
         {
-            DirectedGraph result = new DirectedGraph();
+            DirectedGraph result = new();
             foreach (DirectedEdge edge in bigStructure)
             {
                 result.AddEdge(edge);

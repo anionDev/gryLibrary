@@ -3,9 +3,9 @@ namespace GRYLibrary.Core.Miscellaneous
 {
     public class ExtendedColor
     {
-        public static readonly ExtendedColor Black = new ExtendedColor(255, 0, 0, 0);
-        public static readonly ExtendedColor White = new ExtendedColor(255, 255, 255, 255);
-        public static readonly ExtendedColor Transparency = new ExtendedColor(0, 0, 0, 0);
+        public static readonly ExtendedColor Black = new(255, 0, 0, 0);
+        public static readonly ExtendedColor White = new(255, 255, 255, 255);
+        public static readonly ExtendedColor Transparency = new(0, 0, 0, 0);
         private readonly string _ARGBStringValue;
         private readonly string _RGBStringValue;
         public byte A { get; }

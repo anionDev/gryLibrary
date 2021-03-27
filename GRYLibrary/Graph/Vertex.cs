@@ -50,7 +50,7 @@ namespace GRYLibrary.Core.Graph
 
         internal IEnumerable<Vertex> GetSuccessorVertices()
         {
-            List<Vertex> result = new List<Vertex>();
+            List<Vertex> result = new();
             foreach (Edge edge in this.ConnectedEdges)
             {
                 if (edge.GetInputs().Contains(this))

@@ -19,7 +19,7 @@ namespace GRYLibrary.Core.Miscellaneous
         public static SimpleObjectPersistence<T> CreateByFile(string file)
         {
             file = Utilities.ResolveToFullPath(file);
-            SimpleObjectPersistence<T> result = new SimpleObjectPersistence<T>
+            SimpleObjectPersistence<T> result = new()
             {
                 File = file
             };
@@ -28,7 +28,7 @@ namespace GRYLibrary.Core.Miscellaneous
         public static SimpleObjectPersistence<T> CreateByObjectAndFile(T @object, string file)
         {
             file = Utilities.ResolveToFullPath(file);
-            SimpleObjectPersistence<T> result = new SimpleObjectPersistence<T>
+            SimpleObjectPersistence<T> result = new()
             {
                 File = file,
                 Object = @object

@@ -108,14 +108,14 @@ namespace GRYLibrary.Tests.Testcases
             Core.Miscellaneous.Utilities.EnsureFileDoesNotExist(logFile1);
             Core.Miscellaneous.Utilities.EnsureFileDoesNotExist(logFile2);
             Core.Miscellaneous.Utilities.EnsureFileDoesNotExist(configurationFile);
-            GRYLogConfiguration configuration = new GRYLogConfiguration
+            GRYLogConfiguration configuration = new()
             {
                 ConfigurationFile = configurationFile
             };
             configuration.ResetToDefaultValues(logFile1);
             configuration.SetFormat(GRYLogLogFormat.OnlyMessage);
             GRYLogConfiguration.SaveConfiguration(configurationFile, configuration);
-            UTF8Encoding encoding = new UTF8Encoding(false);
+            UTF8Encoding encoding = new(false);
             try
             {
                 using GRYLog logObject = GRYLog.CreateByConfigurationFile(configurationFile);
@@ -154,17 +154,17 @@ namespace GRYLibrary.Tests.Testcases
         public void SerializeAndDeserialize1()
         {
             // arange
-            GRYLogConfiguration logConfiguration = new GRYLogConfiguration
+            GRYLogConfiguration logConfiguration = new()
             {
                 Name = "MyLog",
                 ConvertTimeForLogentriesToUTCFormat = true
             };
 
             // act
-            SimpleGenericXMLSerializer<GRYLogConfiguration> serializer = new SimpleGenericXMLSerializer<GRYLogConfiguration>();
+            SimpleGenericXMLSerializer<GRYLogConfiguration> serializer = new();
             string serializedLogConfiguration = serializer.Serialize(logConfiguration);
 
-            SimpleGenericXMLSerializer<GRYLogConfiguration> deserializer = new SimpleGenericXMLSerializer<GRYLogConfiguration>();
+            SimpleGenericXMLSerializer<GRYLogConfiguration> deserializer = new();
             GRYLogConfiguration logConfigurationReloaded = deserializer.Deserialize(serializedLogConfiguration);
 
             // assert
@@ -177,7 +177,7 @@ namespace GRYLibrary.Tests.Testcases
         public void SerializeAndDeserialize2()
         {
             // arange
-            GRYLogConfiguration logConfiguration = new GRYLogConfiguration { Name = "MyLog" };
+            GRYLogConfiguration logConfiguration = new() { Name = "MyLog" };
 
             // act
             string serializedLogConfiguration = Generic.GenericSerialize(logConfiguration);

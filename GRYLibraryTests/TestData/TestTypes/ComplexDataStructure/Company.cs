@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Xml;
 using System.Xml.Schema;
-using GRYLibrary.Core;
 using GRYLibrary.Core.AdvancedObjectAnalysis;
 using GRYLibrary.Core.AdvancedObjectAnalysis.GenericXMLSerializerHelper;
 using GRYLibrary.Core.Miscellaneous;
@@ -22,7 +21,7 @@ namespace GRYLibrary.Tests.TestData.TestTypes.ComplexDataStructure
 
         internal static Company GetRandom()
         {
-            Company company = new Company { Name = "Test-Company" };
+            Company company = new() { Name = "Test-Company" };
 
             Employee manager = Employee.GetRandom(); company.Employees.Add(manager); company.Manager = manager;
             Employee bossOrg1Personal = Employee.GetRandom(); company.Employees.Add(bossOrg1Personal);

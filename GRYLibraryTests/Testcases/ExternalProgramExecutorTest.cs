@@ -1,5 +1,4 @@
-﻿using GRYLibrary.Core;
-using GRYLibrary.Core.Miscellaneous;
+﻿using GRYLibrary.Core.Miscellaneous;
 using GRYLibrary.Core.OperatingSystem;
 using GRYLibrary.Core.OperatingSystem.ConcreteOperatingSystems;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -15,7 +14,7 @@ namespace GRYLibrary.Tests.Testcases
         public void TestSimpleEcho()
         {
             string testStdOut = "test";
-            ExternalProgramExecutor e = new ExternalProgramExecutor("echo", testStdOut);
+            ExternalProgramExecutor e = new("echo", testStdOut);
             int result = e.StartSynchronously();
             Assert.AreEqual(0, result);
             Assert.AreEqual(1, e.AllStdOutLines.Length);
@@ -25,8 +24,8 @@ namespace GRYLibrary.Tests.Testcases
         [TestMethod]
         public void TestAsyncExecution()
         {
-            ExternalProgramExecutor externalProgramExecutor = new ExternalProgramExecutor(GetTimeoutTool(), 2.ToString());
-            Semaphore semaphore = new Semaphore();
+            ExternalProgramExecutor externalProgramExecutor = new(GetTimeoutTool(), 2.ToString());
+            Semaphore semaphore = new();
             semaphore.Increment();
             externalProgramExecutor.ExecutionFinishedEvent += (ExternalProgramExecutor sender, int exitCode) =>
             {

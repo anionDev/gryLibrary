@@ -13,7 +13,7 @@ namespace GRYLibrary.Core.LogObject.ConcreteLogTargets
         public WindowsEventLog() { }
         protected override void ExecuteImplementation(LogItem logItem, GRYLog logObject)
         {
-            using EventLog eventLog = new EventLog(Utilities.GetNameOfCurrentExecutable()) { Source = logObject.Configuration.Name };
+            using EventLog eventLog = new(Utilities.GetNameOfCurrentExecutable()) { Source = logObject.Configuration.Name };
             string messageId;
             if (string.IsNullOrWhiteSpace(logItem.MessageId))
             {

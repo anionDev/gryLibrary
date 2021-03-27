@@ -8,7 +8,7 @@ namespace GRYLibrary.Tests.TestData.TestTypes.ComplexDataStructure
     {
         internal static PaymentMethod GetRandom()
         {
-            Random random = new Random();
+            Random random = new();
             double randomValue = random.NextDouble();
             if (randomValue < 0.3)
             {

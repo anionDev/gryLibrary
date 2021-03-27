@@ -11,7 +11,7 @@ namespace GRYLibrary.Tests.TestData.TestTypes.ComplexDataStructure
 
         internal static ICustomer GetRandom()
         {
-            BusinessCustomer result = new BusinessCustomer
+            BusinessCustomer result = new()
             {
                 CompanyName = ComplexDataStructureUtilities.GetRandomName(),
                 Website = ComplexDataStructureUtilities.GetRandomWebsite(),

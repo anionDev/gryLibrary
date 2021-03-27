@@ -15,12 +15,12 @@ namespace GRYLibrary.Tests.TestData.TestTypes.CyclicDataStructure
 
         internal static CycleA GetRandom()
         {
-            CycleA a1 = new CycleA();
-            CycleB b1 = new CycleB();
-            CycleC c1 = new CycleC();
-            CycleA a2 = new CycleA();
-            CycleB b2 = new CycleB();
-            CycleC c2 = new CycleC();
+            CycleA a1 = new();
+            CycleB b1 = new();
+            CycleC c1 = new();
+            CycleA a2 = new();
+            CycleB b2 = new();
+            CycleC c2 = new();
 
             a1.B = b1;
             b1.C = c1;

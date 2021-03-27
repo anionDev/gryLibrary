@@ -1,5 +1,4 @@
-﻿using GRYLibrary.Core;
-using GRYLibrary.Core.Miscellaneous;
+﻿using GRYLibrary.Core.Miscellaneous;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace GRYLibrary.Tests.Testcases
@@ -11,9 +10,9 @@ namespace GRYLibrary.Tests.Testcases
         [TestProperty(nameof(TestKind), nameof(TestKind.UnitTest))]
         public void ColorGradientTest1()
         {
-            ExtendedColor startColor = new ExtendedColor(255, 142, 0);
-            ExtendedColor endColor = new ExtendedColor(100, 100, 100);
-            ColorGradient colorGradient = new ColorGradient(startColor, endColor);
+            ExtendedColor startColor = new(255, 142, 0);
+            ExtendedColor endColor = new(100, 100, 100);
+            ColorGradient colorGradient = new(startColor, endColor);
             Assert.AreEqual(startColor, colorGradient.GetColorGradientValue(0));
             Assert.AreEqual(new ExtendedColor(255, 253, 142, 1), colorGradient.GetColorGradientValue(0.01));
             Assert.AreEqual(new ExtendedColor(255, 252, 141, 2), colorGradient.GetColorGradientValue(0.02));

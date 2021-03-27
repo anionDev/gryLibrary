@@ -26,8 +26,8 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper.
             {
                 if (this.ContainsKey(dictionary2, key))
                 {
-                    KeyValuePair<TKey, TValue> kvp1 = new KeyValuePair<TKey, TValue>(key, dictionary1[key]);
-                    KeyValuePair<TKey, TValue> kvp2 = new KeyValuePair<TKey, TValue>(key, dictionary2[key]);
+                    KeyValuePair<TKey, TValue> kvp1 = new(key, dictionary1[key]);
+                    KeyValuePair<TKey, TValue> kvp2 = new(key, dictionary2[key]);
                     if (!this._PropertyEqualsCalculator.Equals(kvp1, kvp2))
                     {
                         return false;

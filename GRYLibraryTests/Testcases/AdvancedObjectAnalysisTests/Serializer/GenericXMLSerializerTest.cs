@@ -4,12 +4,14 @@ using GRYLibrary.Tests.TestData.TestTypes.ComplexDataStructure;
 using GRYLibrary.Tests.TestData.TestTypes.CyclicDataStructure;
 using GRYLibrary.Tests.TestData.TestTypes.SimpleDataStructure;
 using GRYLibrary.Tests.TestData.TestTypes.XMLSerializableType;
+using GRYLibrary.Tests.TestData.TypeWithCommonInterfaces;
 using GRYLibrary.Tests.Utilities;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Xml;
 
 namespace GRYLibrary.Tests.Testcases.AdvancedObjectAnalysisTests.Serializer
@@ -90,10 +92,10 @@ namespace GRYLibrary.Tests.Testcases.AdvancedObjectAnalysisTests.Serializer
         public void IXmlSerializableDefaultImplementationListGeneric()
         {
             // arrange
-            List<string> expectedObject = new List<string>() { "aö", "b", "\\", "<", "<test>x</test", "&", "nulltest:", null };
-            StringWriter stringWriter = new StringWriter();
+            List<string> expectedObject = new() { "aö", "b", "\\", "<", "<test>x</test", "&", "nulltest:", null };
+            StringWriter stringWriter = new();
             XmlWriter writer = XmlWriter.Create(stringWriter);
-            List<string> actualObject = new List<string>();
+            List<string> actualObject = new();
 
             // act
             Generic.GenericWriteXml(expectedObject, writer);
@@ -109,10 +111,10 @@ namespace GRYLibrary.Tests.Testcases.AdvancedObjectAnalysisTests.Serializer
         public void IXmlSerializableDefaultImplementationListNotGeneric()
         {
             // arrange
-            ArrayList expectedObject = new ArrayList() { "aö", "b", "\\", "<", "<test>x</test", "&", "nulltest:", null };
-            StringWriter stringWriter = new StringWriter();
+            ArrayList expectedObject = new() { "aö", "b", "\\", "<", "<test>x</test", "&", "nulltest:", null };
+            StringWriter stringWriter = new();
             XmlWriter writer = XmlWriter.Create(stringWriter);
-            ArrayList actualObject = new ArrayList();
+            ArrayList actualObject = new();
 
             // act
             Generic.GenericWriteXml(expectedObject, writer);
@@ -129,9 +131,9 @@ namespace GRYLibrary.Tests.Testcases.AdvancedObjectAnalysisTests.Serializer
         {
             // arrange
             ISet<string> expectedObject = new HashSet<string>() { "aö", "b", "\\", "<", "<test>x</test", "&", "nulltest:", null };
-            StringWriter stringWriter = new StringWriter();
+            StringWriter stringWriter = new();
             XmlWriter writer = XmlWriter.Create(stringWriter);
-            HashSet<string> actualObject = new HashSet<string>();
+            HashSet<string> actualObject = new();
 
             // act
             Generic.GenericWriteXml(expectedObject, writer);
@@ -149,10 +151,10 @@ namespace GRYLibrary.Tests.Testcases.AdvancedObjectAnalysisTests.Serializer
         public void IXmlSerializableDefaultImplementationTypeWithList()
         {
             // arrange
-            TypeWithList expectedObject = new TypeWithList() { List = new List<string> { "a", "b" } };
-            StringWriter stringWriter = new StringWriter();
+            TypeWithList expectedObject = new() { List = new List<string> { "a", "b" } };
+            StringWriter stringWriter = new();
             XmlWriter writer = XmlWriter.Create(stringWriter);
-            TypeWithList actualObject = new TypeWithList();
+            TypeWithList actualObject = new();
 
             // act
             Generic.GenericWriteXml(expectedObject, writer);
@@ -168,10 +170,10 @@ namespace GRYLibrary.Tests.Testcases.AdvancedObjectAnalysisTests.Serializer
         public void IXmlSerializableDefaultImplementationTypeWithListGeneric()
         {
             // arrange
-            TypeWithListGeneric<string> expectedObject = new TypeWithListGeneric<string>() { List = new List<string> { "a", "b" } };
-            StringWriter stringWriter = new StringWriter();
+            TypeWithListGeneric<string> expectedObject = new() { List = new List<string> { "a", "b" } };
+            StringWriter stringWriter = new();
             XmlWriter writer = XmlWriter.Create(stringWriter);
-            TypeWithListGeneric<string> actualObject = new TypeWithListGeneric<string>();
+            TypeWithListGeneric<string> actualObject = new();
 
             // act
             Generic.GenericWriteXml(expectedObject, writer);
@@ -187,10 +189,10 @@ namespace GRYLibrary.Tests.Testcases.AdvancedObjectAnalysisTests.Serializer
         public void IXmlSerializableDefaultImplementationTypeWithEnumerable()
         {
             // arrange
-            TypeWithEnumerable expectedObject = new TypeWithEnumerable() { Enumerable = new List<string> { "a", "b" } };
-            StringWriter stringWriter = new StringWriter();
+            TypeWithEnumerable expectedObject = new() { Enumerable = new List<string> { "a", "b" } };
+            StringWriter stringWriter = new();
             XmlWriter writer = XmlWriter.Create(stringWriter);
-            TypeWithEnumerable actualObject = new TypeWithEnumerable();
+            TypeWithEnumerable actualObject = new();
 
             // act
             Generic.GenericWriteXml(expectedObject, writer);
@@ -206,10 +208,10 @@ namespace GRYLibrary.Tests.Testcases.AdvancedObjectAnalysisTests.Serializer
         public void IXmlSerializableDefaultImplementationTypeWithEnumerableGeneric()
         {
             // arrange
-            TypeWithEnumerableGeneric<string> expectedObject = new TypeWithEnumerableGeneric<string>() { Enumerable = new HashSet<string> { "a", "b" } };
-            StringWriter stringWriter = new StringWriter();
+            TypeWithEnumerableGeneric<string> expectedObject = new() { Enumerable = new HashSet<string> { "a", "b" } };
+            StringWriter stringWriter = new();
             XmlWriter writer = XmlWriter.Create(stringWriter);
-            TypeWithEnumerableGeneric<string> actualObject = new TypeWithEnumerableGeneric<string>();
+            TypeWithEnumerableGeneric<string> actualObject = new();
 
             // act
             Generic.GenericWriteXml(expectedObject, writer);
@@ -225,10 +227,10 @@ namespace GRYLibrary.Tests.Testcases.AdvancedObjectAnalysisTests.Serializer
         public void IXmlSerializableDefaultImplementationTypeWithSetGeneric()
         {
             // arrange
-            TypeWithSetGeneric<string> expectedObject = new TypeWithSetGeneric<string>() { Set = new HashSet<string> { "a", "b" } };
-            StringWriter stringWriter = new StringWriter();
+            TypeWithSetGeneric<string> expectedObject = new() { Set = new HashSet<string> { "a", "b" } };
+            StringWriter stringWriter = new();
             XmlWriter writer = XmlWriter.Create(stringWriter);
-            TypeWithSetGeneric<string> actualObject = new TypeWithSetGeneric<string>();
+            TypeWithSetGeneric<string> actualObject = new();
 
             // act
             Generic.GenericWriteXml(expectedObject, writer);
@@ -240,15 +242,14 @@ namespace GRYLibrary.Tests.Testcases.AdvancedObjectAnalysisTests.Serializer
             Assert.IsTrue(Generic.GenericEquals(expectedObject, actualObject), Core.Miscellaneous.Utilities.GetAssertionFailMessage(expectedObject, actualObject));
             Assert.AreEqual(Generic.GenericGetHashCode(expectedObject), Generic.GenericGetHashCode(actualObject));
         }
-        [Ignore]
         [TestMethod]
         public void IXmlSerializableDefaultImplementationTypeWithDictionaryGeneric()
         {
             // arrange
-            TypeWithDictionaryGeneric<int, string> expectedObject = new TypeWithDictionaryGeneric<int, string>() { Dictionary = new Dictionary<int, string>() { { 5, "b" }, { 6, "d" } } };
-            StringWriter stringWriter = new StringWriter();
+            TypeWithDictionaryGeneric<int, string> expectedObject = new() { Dictionary = new Dictionary<int, string>() { { 5, "b" }, { 6, "d" } } };
+            StringWriter stringWriter = new();
             XmlWriter writer = XmlWriter.Create(stringWriter);
-            TypeWithDictionaryGeneric<int, string> actualObject = new TypeWithDictionaryGeneric<int, string>();
+            TypeWithDictionaryGeneric<int, string> actualObject = new();
 
             // act
             Generic.GenericWriteXml(expectedObject, writer);
@@ -259,6 +260,31 @@ namespace GRYLibrary.Tests.Testcases.AdvancedObjectAnalysisTests.Serializer
             Assert.AreEqual(2, actualObject.Dictionary.Count);
             Assert.IsTrue(Generic.GenericEquals(expectedObject, actualObject), Core.Miscellaneous.Utilities.GetAssertionFailMessage(expectedObject, actualObject));
             Assert.AreEqual(Generic.GenericGetHashCode(expectedObject), Generic.GenericGetHashCode(actualObject));
+        }
+
+        [Ignore]
+        [TestMethod]
+        public void SerializeTypeWithCommonInterfacess()
+        {
+            // arrange
+            TypeWithCommonInterfacess expectedObject = new()
+            {
+                List = new List<int>() { 2, 3, 4 },
+                Enumerable = new List<int>() { 2, 3, 4 },
+                Set = new HashSet<int>() { 2, 3, 4 },
+                Dictionary = new Dictionary<int, int>() { { 2, 20 }, { 3, 30 }, { 4, 40 } }
+            };
+            MemoryStream stream = new();
+            XmlWriter xmlWriter = XmlWriter.Create(stream, new XmlWriterSettings() { Encoding = new UTF8Encoding(false) });
+            XmlReader xmlReader = XmlReader.Create(stream);
+
+            // act
+            expectedObject.WriteXml(xmlWriter);
+            TypeWithCommonInterfacess actualObject = new();
+            actualObject.ReadXml(xmlReader);
+
+            // assert
+            Assert.AreEqual(expectedObject, actualObject);
         }
     }
 }

@@ -11,7 +11,7 @@ namespace GRYLibrary.Tests.Testcases.AdvancedObjectAnalysisTests.Equals
         public void PrimitiveEqualsTestString()
         {
             string testString = "test";
-            PropertyEqualsCalculator comparer = new PropertyEqualsCalculator();
+            PropertyEqualsCalculator comparer = new();
             Assert.IsTrue(comparer.Equals(testString, testString));
         }
 
@@ -19,7 +19,7 @@ namespace GRYLibrary.Tests.Testcases.AdvancedObjectAnalysisTests.Equals
         public void PrimitiveEqualsTestInt()
         {
             int testInt = 4;
-            PropertyEqualsCalculator comparer = new PropertyEqualsCalculator();
+            PropertyEqualsCalculator comparer = new();
             Assert.IsTrue(comparer.Equals(testInt, testInt));
         }
     }

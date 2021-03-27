@@ -19,8 +19,8 @@ namespace GRYLibrary.Core.Playlists.ConcretePlaylistHandler
         {
             IEnumerable<string> lines = File.ReadAllLines(playlistFile, this.Encoding)
                 .Where(line => !string.IsNullOrWhiteSpace(line) && !line.StartsWith("#"));
-            List<string> includedItems = new List<string>();
-            List<string> excludedItems = new List<string>();
+            List<string> includedItems = new();
+            List<string> excludedItems = new();
             foreach (string line in lines)
             {
                 if (line.StartsWith("-"))

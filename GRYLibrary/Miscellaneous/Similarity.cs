@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace GRYLibrary.Core.Miscellaneous
 {
@@ -124,12 +122,12 @@ namespace GRYLibrary.Core.Miscellaneous
                     list.Add(character);
                 }
             }
-            string result = new string(list.ToArray());
+            string result = new(list.ToArray());
             return result;
         }
         private static IDictionary<char, int> CalculateSimilarityHelperGetCharFrequencyMap(string str)
         {
-            Dictionary<char, int> result = new Dictionary<char, int>();
+            Dictionary<char, int> result = new();
             foreach (char chr in str)
             {
                 if (result.ContainsKey(chr))
@@ -149,7 +147,7 @@ namespace GRYLibrary.Core.Miscellaneous
         }
         private static HashSet<string> CalculateSimilarityHelperGetIntersectionOfCharSet(ICollection<string> keys1, ICollection<string> keys2)
         {
-            HashSet<string> result = new HashSet<string>();
+            HashSet<string> result = new();
             result.UnionWith(keys1);
             result.IntersectWith(keys2);
             return result;

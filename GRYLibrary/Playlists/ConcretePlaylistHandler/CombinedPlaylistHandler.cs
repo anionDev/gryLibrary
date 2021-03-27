@@ -54,7 +54,7 @@ namespace GRYLibrary.Core.Playlists.ConcretePlaylistHandler
             {
                 musicFileOrPlaylistFileOrFolder = Utilities.ResolveToFullPath(musicFileOrPlaylistFileOrFolder, workingDirectory);
             }
-            List<string> result = new List<string>();
+            List<string> result = new();
 
             if (IsMusicFile(musicFileOrPlaylistFileOrFolder))
             {

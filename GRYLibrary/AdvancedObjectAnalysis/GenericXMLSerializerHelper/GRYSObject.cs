@@ -20,9 +20,9 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.GenericXMLSerializerHelper
         public HashSet<FlatObject> Objects { get; set; }
         public static GRYSObject Create(object @object, SerializationConfiguration serializationConfiguration)
         {
-            Dictionary<object, FlatObject> dictionary = new Dictionary<object, FlatObject>(new ReferenceEqualsComparer());
+            Dictionary<object, FlatObject> dictionary = new(new ReferenceEqualsComparer());
             FillDictionary(dictionary, @object, serializationConfiguration);
-            GRYSObject result = new GRYSObject
+            GRYSObject result = new()
             {
                 Objects = new HashSet<FlatObject>(dictionary.Values),
                 RootObjectId = dictionary[@object].ObjectId
@@ -266,7 +266,7 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.GenericXMLSerializerHelper
         }
         private static void AddSimplifiedAttribute(FlatComplexObject container, string attributeName, Type attributeType, object attributeValue, Dictionary<object, FlatObject> dictionary, SerializationConfiguration serializationConfiguration)
         {
-            FlatAttribute attribute = new FlatAttribute
+            FlatAttribute attribute = new()
             {
                 ObjectId = FillDictionary(dictionary, attributeValue, serializationConfiguration),
                 Name = attributeName,
@@ -277,7 +277,7 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.GenericXMLSerializerHelper
 
         internal object Get()
         {
-            Dictionary<Guid, object> deserializedObjects = new Dictionary<Guid, object>();
+            Dictionary<Guid, object> deserializedObjects = new();
             IList<FlatObject> sorted = this.Objects.ToList();
             sorted = sorted.OrderBy((item)=> {
                 if (item.TypeName.StartsWith("GRYLibrary.Core.XMLSerializer.KeyValuePair"))

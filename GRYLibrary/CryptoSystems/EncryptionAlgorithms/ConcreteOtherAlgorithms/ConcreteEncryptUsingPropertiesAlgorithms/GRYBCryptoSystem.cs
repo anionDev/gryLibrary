@@ -91,7 +91,7 @@ namespace GRYLibrary.Core.CryptoSystems.EncryptionAlgorithms.ConcreteOtherAlgori
 
         public static GRYBCryptoSystem CreateGRYBCryptoSystemForCommonUsage((byte[], AsymmetricEncryptionAlgorithm) publicKeyOfMasterKey, (byte[], AsymmetricEncryptionAlgorithm) publicKeyOfUserKey)
         {
-            GRYBCryptoSystem result = new GRYBCryptoSystem();
+            GRYBCryptoSystem result = new();
             result.PasswordEncryptionKeys.Add(publicKeyOfMasterKey);
             result.PasswordEncryptionKeys.Add(publicKeyOfUserKey);
             return result;

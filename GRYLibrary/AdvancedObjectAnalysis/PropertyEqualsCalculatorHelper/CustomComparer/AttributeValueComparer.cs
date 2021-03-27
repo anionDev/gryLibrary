@@ -20,7 +20,7 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper.
         public override bool DefaultEquals(object object1, object object2)
         {
             Type type = object1.GetType();
-            List<WriteableTuple<object, object>> attributeValues = new List<WriteableTuple<object, object>>();
+            List<WriteableTuple<object, object>> attributeValues = new();
             foreach (FieldInfo field in type.GetFields().Where((field) => this.Configuration.FieldSelector(field)))
             {
                 attributeValues.Add(new WriteableTuple<object, object>(field.GetValue(object1), field.GetValue(object2)));

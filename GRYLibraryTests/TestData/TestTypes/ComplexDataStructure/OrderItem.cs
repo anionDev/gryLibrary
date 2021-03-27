@@ -13,7 +13,7 @@ namespace GRYLibrary.Tests.TestData.TestTypes.ComplexDataStructure
 
         internal static OrderItem GetRandom(Product product)
         {
-            OrderItem result = new OrderItem
+            OrderItem result = new()
             {
                 Product = product,
                 Price = MoneyAmount.GetRandom(),

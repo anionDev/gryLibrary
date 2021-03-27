@@ -10,7 +10,7 @@ namespace GRYLibrary.Tests.TestData.TestTypes.ComplexDataStructure
 
         internal static MoneyAmount GetRandom()
         {
-            MoneyAmount result = new MoneyAmount
+            MoneyAmount result = new()
             {
                 Amount = (decimal)new Random().NextDouble() * 500,
                 Currency = "USD"

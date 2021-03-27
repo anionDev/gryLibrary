@@ -15,7 +15,7 @@ namespace GRYLibrary.Core.Tree
         }
         public IEnumerable<TreeItem<ContainedItemType>> GetDirectAndTransitiveChildren()
         {
-            List<TreeItem<ContainedItemType>> result = new List<TreeItem<ContainedItemType>>();
+            List<TreeItem<ContainedItemType>> result = new();
             result.AddRange(this.Children);
             foreach (TreeItem<ContainedItemType> child in this.Children)
             {

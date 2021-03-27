@@ -7,7 +7,7 @@ namespace GRYLibrary.Core.Miscellaneous
 {
     public class TaskQueue
     {
-        private readonly Queue<Tuple<string, Action>> _ActionQueue = new Queue<Tuple<string, Action>>();
+        private readonly Queue<Tuple<string, Action>> _ActionQueue = new();
         public bool Enabled { get; set; } = true;
 
         public TaskQueue(bool infiniteMode = false)
@@ -53,7 +53,7 @@ namespace GRYLibrary.Core.Miscellaneous
                         while (this.NewThreadCanBeStarted())
                         {
                             Tuple<string, Action> dequeuedAction = this._ActionQueue.Dequeue();
-                            Thread thread = new Thread(() => this.ExecuteTask(dequeuedAction))
+                            Thread thread = new(() => this.ExecuteTask(dequeuedAction))
                             {
                                 Name = $"{nameof(TaskQueue)}-Thread for action \"{dequeuedAction.Item1}\""
                             };

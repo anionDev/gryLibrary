@@ -32,7 +32,7 @@ namespace GRYLibrary.Core.Miscellaneous
         [DataMember]
         public bool Unset = true;
 
-        public object LockObject = new object();
+        public object LockObject = new();
         public bool HasValue
         {
             get
@@ -132,7 +132,7 @@ namespace GRYLibrary.Core.Miscellaneous
             {
                 this._History.Push(new KeyValuePair<DateTime, T>(changeDate, this._Value));
             }
-            Argument<Property<T>, PropertyChangedEvengArgument<T>> argument = new Argument<Property<T>, PropertyChangedEvengArgument<T>>(this, new PropertyChangedEvengArgument<T>(oldValue, newValue, changeDate));
+            Argument<Property<T>, PropertyChangedEvengArgument<T>> argument = new(this, new PropertyChangedEvengArgument<T>(oldValue, newValue, changeDate));
             try
             {
                 if (this.NotifyAboutChanges)

@@ -35,15 +35,15 @@ namespace GRYLibrary.Tests.Testcases.AdvancedObjectAnalysisTests.Equals
         [TestMethod]
         public void PrimitiveEqualsTestObjectWithSameObject()
         {
-            object testObject = new object();
-            PropertyEqualsCalculator comparer = new PropertyEqualsCalculator();
+            object testObject = new();
+            PropertyEqualsCalculator comparer = new();
             Assert.IsTrue(comparer.Equals(testObject, testObject));
         }
 
         [TestMethod]
         public void PrimitiveEqualsTestObjectWithEqualObject()
         {
-            PropertyEqualsCalculator comparer = new PropertyEqualsCalculator();
+            PropertyEqualsCalculator comparer = new();
             Assert.IsTrue(comparer.Equals(new object(), new object()));
         }
     }

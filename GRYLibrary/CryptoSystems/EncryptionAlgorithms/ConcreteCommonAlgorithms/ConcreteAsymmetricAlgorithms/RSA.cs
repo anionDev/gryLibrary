@@ -9,7 +9,7 @@ namespace GRYLibrary.Core.CryptoSystems.EncryptionAlgorithms.ConcreteCommonAlgor
         /// <inheritdoc/>
         public override byte[] Decrypt(byte[] encryptedData, byte[] privateKey)
         {
-            using RSACryptoServiceProvider rsaCryptoServiceProvider = new RSACryptoServiceProvider();
+            using RSACryptoServiceProvider rsaCryptoServiceProvider = new();
             rsaCryptoServiceProvider.ImportParameters(PasswordToRSAParameters(privateKey));
             return rsaCryptoServiceProvider.Decrypt(encryptedData, true);
         }
@@ -17,7 +17,7 @@ namespace GRYLibrary.Core.CryptoSystems.EncryptionAlgorithms.ConcreteCommonAlgor
         /// <inheritdoc/>
         public override byte[] Encrypt(byte[] unencryptedData, byte[] publicKey)
         {
-            using RSACryptoServiceProvider rsaCryptoServiceProvider = new RSACryptoServiceProvider();
+            using RSACryptoServiceProvider rsaCryptoServiceProvider = new();
             rsaCryptoServiceProvider.ImportParameters(PasswordToRSAParameters(publicKey));
             return rsaCryptoServiceProvider.Encrypt(unencryptedData, true);
         }
@@ -43,7 +43,7 @@ namespace GRYLibrary.Core.CryptoSystems.EncryptionAlgorithms.ConcreteCommonAlgor
         /// <inheritdoc/>
         public override (byte[]/*Private key*/, byte[]/*Public key*/) GenerateRandomKeyPair()
         {
-            using RSACryptoServiceProvider rsaCryptoServiceProvider = new RSACryptoServiceProvider(this.KeyLengthForNewGeneratedKeys);
+            using RSACryptoServiceProvider rsaCryptoServiceProvider = new(this.KeyLengthForNewGeneratedKeys);
             return (RSAParametersToPassword(rsaCryptoServiceProvider.ExportParameters(true)), RSAParametersToPassword(rsaCryptoServiceProvider.ExportParameters(false)));
         }
 

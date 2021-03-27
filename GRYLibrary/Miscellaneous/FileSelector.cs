@@ -41,18 +41,18 @@ namespace GRYLibrary.Core.Miscellaneous
         }
         public static FileSelector RegexOfFilename(string folder, string regexAsString, bool deepSearch = true)
         {
-            Regex regex = new Regex(regexAsString);
+            Regex regex = new(regexAsString);
             return FilesInFolder(folder, (string file) => regex.IsMatch(Path.GetFileName(file)), deepSearch);
         }
         public static FileSelector RegexOfFileWithFullPath(string folder, string regexAsString, bool deepSearch = true)
         {
-            Regex regex = new Regex(regexAsString);
+            Regex regex = new(regexAsString);
             return FilesInFolder(folder, (string file) => regex.IsMatch(file), deepSearch);
         }
         public static FileSelector FilesInFolder(string folder, Func<string, bool> filter, bool deepSearch = true)
         {
-            FileSelector result = new FileSelector();
-            List<string> list = new List<string>();
+            FileSelector result = new();
+            List<string> list = new();
             if (deepSearch)
             {
                 Utilities.ForEachFileAndDirectoryTransitively(folder, null, (string file, object argument) => { if (filter(file)) { list.Add(file); } }, false, null, null);

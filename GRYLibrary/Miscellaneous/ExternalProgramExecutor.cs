@@ -65,8 +65,8 @@ namespace GRYLibrary.Core.Miscellaneous
             return this._Running;
         }
         private readonly GRYLog _DefaultLog = GRYLog.Create();
-        private readonly object _LockObject = new object();
-        private readonly ConcurrentQueue<(LogLevel, string)> _NotLoggedOutputLines = new ConcurrentQueue<(LogLevel, string)>();
+        private readonly object _LockObject = new();
+        private readonly ConcurrentQueue<(LogLevel, string)> _NotLoggedOutputLines = new();
         /// <summary>
         /// Starts the program which was set in the properties.
         /// </summary>
@@ -170,7 +170,7 @@ namespace GRYLibrary.Core.Miscellaneous
         {
             _SubNamespace = LogObject.UseSubNamespace(this.LogNamespace);
             _Process = new Process();
-            Stopwatch stopWatch = new Stopwatch();
+            Stopwatch stopWatch = new();
             try
             {
                 this.ProcessWasAbortedDueToTimeout = false;
@@ -178,7 +178,7 @@ namespace GRYLibrary.Core.Miscellaneous
                 {
                     throw new ArgumentException($"The specified working-directory '{this.WorkingDirectory}' does not exist.");
                 }
-                ProcessStartInfo StartInfo = new ProcessStartInfo(this.ProgramPathAndFile)
+                ProcessStartInfo StartInfo = new(this.ProgramPathAndFile)
                 {
                     UseShellExecute = false,
                     ErrorDialog = false,
@@ -228,7 +228,7 @@ namespace GRYLibrary.Core.Miscellaneous
                 Dispose();
                 throw new ProcessStartException($"Exception occurred while start execution '{this.Title}'", exception);
             }
-            Task task = new Task(() =>
+            Task task = new(() =>
             {
                 try
                 {

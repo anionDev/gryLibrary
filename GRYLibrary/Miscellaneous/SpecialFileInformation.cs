@@ -1,11 +1,8 @@
 ﻿using GRYLibrary.Core.OperatingSystem;
 using GRYLibrary.Core.OperatingSystem.ConcreteOperatingSystems;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace GRYLibrary.Core.Miscellaneous
 {
@@ -20,7 +17,7 @@ namespace GRYLibrary.Core.Miscellaneous
         {
             if (FileIsExecutable(file))
             {
-                using ExternalProgramExecutor result = new ExternalProgramExecutor(file, string.Empty);
+                using ExternalProgramExecutor result = new(file, string.Empty);
                 result.StartSynchronously();
                 return result;
             }
@@ -75,7 +72,7 @@ namespace GRYLibrary.Core.Miscellaneous
 #pragma warning disable CA1806 // Do not ignore method results
             uint pcchOut = 0;
             AssocQueryString(AssocF.Verify, assocStr, extensionWithDot, null, null, ref pcchOut);
-            StringBuilder pszOut = new StringBuilder((int)pcchOut);
+            StringBuilder pszOut = new((int)pcchOut);
             AssocQueryString(AssocF.Verify, assocStr, extensionWithDot, null, pszOut, ref pcchOut);
 #pragma warning restore CA1806 // Do not ignore method results
             return pszOut.ToString();

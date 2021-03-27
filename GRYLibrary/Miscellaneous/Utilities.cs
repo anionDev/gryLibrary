@@ -1,5 +1,4 @@
-﻿using GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper;
-using System;
+﻿using System;
 using System.ComponentModel;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -23,7 +22,6 @@ using GRYLibrary.Core.XMLSerializer;
 using System.Net.Sockets;
 using GRYLibrary.Core.OperatingSystem;
 using GRYLibrary.Core.OperatingSystem.ConcreteOperatingSystems;
-using GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper.CustomComparer;
 using System.Runtime.InteropServices;
 using GRYLibrary.Core.LogObject;
 using GRYLibrary.Core.AdvancedObjectAnalysis;
@@ -106,7 +104,7 @@ namespace GRYLibrary.Core.Miscellaneous
         }
         public static IList<T> NTimes<T>(this IEnumerable<T> input, uint n)
         {
-            List<T> result = new List<T>();
+            List<T> result = new();
             int i = 0;
             while (i < n)
             {
@@ -167,7 +165,7 @@ namespace GRYLibrary.Core.Miscellaneous
 
         public static void Shuffle<T>(this IList<T> list)
         {
-            Random random = new Random();
+            Random random = new();
             int n = list.Count;
             while (n > 1)
             {
@@ -185,7 +183,7 @@ namespace GRYLibrary.Core.Miscellaneous
 
         public static IEnumerable<PropertyInfo> GetPropertiesWhichHaveGetterAndSetter(Type type)
         {
-            List<PropertyInfo> result = new List<PropertyInfo>();
+            List<PropertyInfo> result = new();
             foreach (PropertyInfo property in type.GetType().GetProperties())
             {
                 if (property.CanWrite && property.CanRead)
@@ -198,7 +196,7 @@ namespace GRYLibrary.Core.Miscellaneous
 
         public static IEnumerable<string> GetFilesOfFolderRecursively(string folder)
         {
-            List<string> result = new List<string>();
+            List<string> result = new();
             foreach (string subfolder in Directory.GetDirectories(folder))
             {
                 result.AddRange(GetFilesOfFolderRecursively(subfolder));
@@ -318,7 +316,7 @@ namespace GRYLibrary.Core.Miscellaneous
         }
         public static ISet<Type> GetTypeWithParentTypesAndInterfaces(Type type)
         {
-            HashSet<Type> result = new HashSet<Type> { type };
+            HashSet<Type> result = new() { type };
             result.UnionWith(type.GetInterfaces());
             if (type.BaseType != null)
             {
@@ -409,10 +407,10 @@ namespace GRYLibrary.Core.Miscellaneous
 
         public static IEnumerable<IEnumerable<T>> JaggedArrayToEnumerableOfEnumerable<T>(T[][] items)
         {
-            List<List<T>> result = new List<List<T>>();
+            List<List<T>> result = new();
             foreach (T[] innerArray in items)
             {
-                List<T> innerList = new List<T>();
+                List<T> innerList = new();
                 foreach (T item in innerArray)
                 {
                     innerList.Add(item);
@@ -542,7 +540,7 @@ namespace GRYLibrary.Core.Miscellaneous
 
         public static void DeleteContentOfFolder(string folder)
         {
-            DirectoryInfo directoryInfo = new DirectoryInfo(folder);
+            DirectoryInfo directoryInfo = new(folder);
             foreach (FileInfo file in directoryInfo.GetFiles())
             {
                 file.Delete();
@@ -614,7 +612,7 @@ namespace GRYLibrary.Core.Miscellaneous
                     return new string[] { Path.Combine(path, programToLower) };
                 }
             }
-            List<string> result = new List<string>();
+            List<string> result = new();
             foreach (string extension in knownExtensions)
             {
                 result.Add(Path.Combine(path, program + extension));
@@ -725,7 +723,7 @@ namespace GRYLibrary.Core.Miscellaneous
 
         public static void RemoveContentOfFolder(string folder)
         {
-            DirectoryInfo directoryInfo = new DirectoryInfo(folder);
+            DirectoryInfo directoryInfo = new(folder);
             foreach (FileInfo fileInfo in directoryInfo.GetFiles())
             {
                 fileInfo.Delete();
@@ -742,7 +740,7 @@ namespace GRYLibrary.Core.Miscellaneous
         /// <returns>The results of all finished <paramref name="functions"/>-methods with their results.</returns>
         public static ISet<Tuple<Func<T>, T, Exception>> RunAllConcurrentAndReturnAllResults<T>(this ISet<Func<T>> functions, int maximalDegreeOfParallelism = 4)
         {
-            ConcurrentBag<Tuple<Func<T>, T, Exception>> result = new ConcurrentBag<Tuple<Func<T>, T, Exception>>();
+            ConcurrentBag<Tuple<Func<T>, T, Exception>> result = new();
             Parallel.ForEach(functions, new ParallelOptions { MaxDegreeOfParallelism = maximalDegreeOfParallelism }, (function) =>
             {
                 try
@@ -772,7 +770,7 @@ namespace GRYLibrary.Core.Miscellaneous
         {
             private T _Result = default;
             private bool _ResultSet = false;
-            public readonly object _LockObject = new object();
+            public readonly object _LockObject = new();
             private int _AmountOfRunningFunctions = 0;
             private readonly int _MaximalDegreeOfParallelism = 4;
 
@@ -1277,9 +1275,9 @@ namespace GRYLibrary.Core.Miscellaneous
         }
         public static IList<string[]> ReadCSVFile(string file, Encoding encoding, out string[] headLines, string separator = ";", bool firstLineContainsHeadlines = false, bool trimValues = true)
         {
-            List<string[]> outterList = new List<string[]>();
+            List<string[]> outterList = new();
             string[] lines = File.ReadAllLines(file, encoding);
-            List<string> headlineValues = new List<string>();
+            List<string> headlineValues = new();
             for (int i = 0; i < lines.Length; i++)
             {
                 string line = lines[i].Trim();
@@ -1291,7 +1289,7 @@ namespace GRYLibrary.Core.Miscellaneous
                 {
                     if (!string.IsNullOrEmpty(line))
                     {
-                        List<string> innerList = new List<string>();
+                        List<string> innerList = new();
                         if (line.Contains(separator))
                         {
                             innerList.AddRange(line.Split(new string[] { separator }, StringSplitOptions.None).Select(item => NormalizeCSVItemForReading(item, trimValues)));
@@ -1336,7 +1334,7 @@ namespace GRYLibrary.Core.Miscellaneous
         /// </summary>
         public static bool RunWithTimeout(this ThreadStart action, TimeSpan timeout)
         {
-            Thread workerThread = new Thread(action);
+            Thread workerThread = new(action);
             workerThread.Start();
             bool terminatedInGivenTimeSpan = workerThread.Join(timeout);
             if (!terminatedInGivenTimeSpan)
@@ -1381,11 +1379,11 @@ namespace GRYLibrary.Core.Miscellaneous
             errorMessages = new List<object>();
             try
             {
-                XmlSchemaSet schemaSet = new XmlSchemaSet();
+                XmlSchemaSet schemaSet = new();
                 schemaSet.Add(null, XmlReader.Create(new StringReader(xsd)));
                 XDocument xDocument = XDocument.Parse(xml);
 
-                List<object> events = new List<object>();
+                List<object> events = new();
                 xDocument.Validate(schemaSet, (o, eventArgument) =>
                 {
                     events.Add(eventArgument);
@@ -1402,7 +1400,7 @@ namespace GRYLibrary.Core.Miscellaneous
             return errorMessages.Count == 0;
         }
 
-        public static readonly XmlWriterSettings ApplyXSLTToXMLXMLWriterDefaultSettings = new XmlWriterSettings() { Indent = true, Encoding = new UTF8Encoding(false), OmitXmlDeclaration = true, IndentChars = "    " };
+        public static readonly XmlWriterSettings ApplyXSLTToXMLXMLWriterDefaultSettings = new() { Indent = true, Encoding = new UTF8Encoding(false), OmitXmlDeclaration = true, IndentChars = "    " };
         public static readonly string ApplyXSLTToXMLXMLWriterDefaultXMLDeclaration = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n";
         public static string ApplyXSLTToXML(string xml, string xslt)
         {
@@ -1418,9 +1416,9 @@ namespace GRYLibrary.Core.Miscellaneous
         }
         public static string ApplyXSLTToXML(string xml, string xslt, string xmlDeclaration, XmlWriterSettings applyXSLTToXMLXMLWriterDefaultSettings)
         {
-            XslCompiledTransform myXslTrans = new XslCompiledTransform();
+            XslCompiledTransform myXslTrans = new();
             myXslTrans.Load(XmlReader.Create(new StringReader(xslt)));
-            using StringWriter stringWriter = new StringWriter();
+            using StringWriter stringWriter = new();
             using (XmlWriter xmlWriter = XmlWriter.Create(stringWriter, applyXSLTToXMLXMLWriterDefaultSettings))
             {
                 myXslTrans.Transform(XmlReader.Create(new StringReader(xml)), xmlWriter);
@@ -1428,7 +1426,7 @@ namespace GRYLibrary.Core.Miscellaneous
             return xmlDeclaration + stringWriter.ToString();
         }
         public static readonly Encoding FormatXMLFile_DefaultEncoding = new UTF8Encoding(false);
-        public static readonly XmlWriterSettings FormatXMLFile_DefaultXmlWriterSettings = new XmlWriterSettings() { Indent = true, IndentChars = "    " };
+        public static readonly XmlWriterSettings FormatXMLFile_DefaultXmlWriterSettings = new() { Indent = true, IndentChars = "    " };
         public static void FormatXMLFile(string file)
         {
             FormatXMLFile(file, FormatXMLFile_DefaultEncoding, FormatXMLFile_DefaultXmlWriterSettings);
@@ -1451,19 +1449,19 @@ namespace GRYLibrary.Core.Miscellaneous
         }
         public static string FormatXMLString(string xmlString, XmlWriterSettings settings)
         {
-            using MemoryStream memoryStream = new MemoryStream();
+            using MemoryStream memoryStream = new();
             using XmlWriter xmlWriter = XmlWriter.Create(memoryStream, settings);
-            XmlDocument document = new XmlDocument();
+            XmlDocument document = new();
             document.LoadXml(xmlString);
             xmlWriter.Flush();
             memoryStream.Flush();
             memoryStream.Position = 0;
-            using StreamReader streamReader = new StreamReader(memoryStream);
+            using StreamReader streamReader = new(memoryStream);
             return streamReader.ReadToEnd();
         }
         public static string XmlToString(XmlDocument xmlDocument)
         {
-            StringBuilder stringBuilder = new StringBuilder();
+            StringBuilder stringBuilder = new();
             using (XmlWriter writer = XmlWriter.Create(stringBuilder, new XmlWriterSettings
             {
                 Encoding = FormatXMLFile_DefaultEncoding,
@@ -1481,7 +1479,7 @@ namespace GRYLibrary.Core.Miscellaneous
             {
                 EnsureDirectoryExists(mountPoint);
             }
-            using ExternalProgramExecutor externalProgramExecutor = new ExternalProgramExecutor("mountvol", $"{mountPoint} \\\\?\\Volume{{{volumeId}}}\\")
+            using ExternalProgramExecutor externalProgramExecutor = new("mountvol", $"{mountPoint} \\\\?\\Volume{{{volumeId}}}\\")
             {
                 ThrowErrorIfExitCodeIsNotZero = true,
                 CreateWindow = false
@@ -1496,7 +1494,7 @@ namespace GRYLibrary.Core.Miscellaneous
         }
         public static ISet<Guid> GetAvailableVolumeIds()
         {
-            using ExternalProgramExecutor externalProgramExecutor = new ExternalProgramExecutor("mountvol", string.Empty)
+            using ExternalProgramExecutor externalProgramExecutor = new("mountvol", string.Empty)
             {
                 ThrowErrorIfExitCodeIsNotZero = true,
                 CreateWindow = false
@@ -1508,7 +1506,7 @@ namespace GRYLibrary.Core.Miscellaneous
             {
                 throw new Exception($"Exitcode of mountvol was {externalProgramExecutor.ExitCode}. StdErr:" + string.Join(Environment.NewLine, externalProgramExecutor.AllStdErrLines));
             }
-            HashSet<Guid> result = new HashSet<Guid>();
+            HashSet<Guid> result = new();
             for (int i = 0; i < externalProgramExecutor.AllStdOutLines.Length - 1; i++)
             {
                 string rawLine = externalProgramExecutor.AllStdOutLines[i];
@@ -1536,7 +1534,7 @@ namespace GRYLibrary.Core.Miscellaneous
         }
         public static ISet<string> GetAllMountPointsOfAllAvailableVolumes()
         {
-            HashSet<string> result = new HashSet<string>();
+            HashSet<string> result = new();
             foreach (Guid volumeId in GetAvailableVolumeIds())
             {
                 result.UnionWith(GetMountPoints(volumeId));
@@ -1545,8 +1543,8 @@ namespace GRYLibrary.Core.Miscellaneous
         }
         public static ISet<string> GetMountPoints(Guid volumeId)
         {
-            HashSet<string> result = new HashSet<string>();
-            using ExternalProgramExecutor externalProgramExecutor = new ExternalProgramExecutor("mountvol", string.Empty)
+            HashSet<string> result = new();
+            using ExternalProgramExecutor externalProgramExecutor = new("mountvol", string.Empty)
             {
                 ThrowErrorIfExitCodeIsNotZero = true,
                 CreateWindow = false
@@ -1587,7 +1585,7 @@ namespace GRYLibrary.Core.Miscellaneous
         }
         public static void RemoveMountPointOfVolume(string mountPoint)
         {
-            using ExternalProgramExecutor externalProgramExecutor = new ExternalProgramExecutor("mountvol", $"{mountPoint} /d")
+            using ExternalProgramExecutor externalProgramExecutor = new("mountvol", $"{mountPoint} /d")
             {
                 ThrowErrorIfExitCodeIsNotZero = true,
                 CreateWindow = false
@@ -1827,8 +1825,8 @@ namespace GRYLibrary.Core.Miscellaneous
                 {
                     return false;
                 }
-                List<T> obj1Copy = new List<T>(obj1);
-                List<T> obj2Copy = new List<T>(obj2);
+                List<T> obj1Copy = new(obj1);
+                List<T> obj2Copy = new(obj2);
                 for (int i = 0; i < obj1.Count(); i++)
                 {
                     if (!RemoveItemOnlyOnce(obj2Copy, obj1Copy[i]))
@@ -1890,14 +1888,14 @@ namespace GRYLibrary.Core.Miscellaneous
         }
         public static DateTime GetTimeFromInternet(TimeZoneInfo timezone, string format, string domain, int port, int begin, int length)
         {
-            using StreamReader streamReader = new StreamReader(new TcpClient(domain, port).GetStream());
+            using StreamReader streamReader = new(new TcpClient(domain, port).GetStream());
             DateTime originalDateTime = DateTime.ParseExact(streamReader.ReadToEnd().Substring(begin, length), format, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal);
             return TimeZoneInfo.ConvertTime(originalDateTime, timezone);
         }
 
         public static SerializableDictionary<TKey, TValue> ToSerializableDictionary<TKey, TValue>(this IDictionary<TKey, TValue> dictionary)
         {
-            SerializableDictionary<TKey, TValue> result = new SerializableDictionary<TKey, TValue>();
+            SerializableDictionary<TKey, TValue> result = new();
             foreach (System.Collections.Generic.KeyValuePair<TKey, TValue> kvp in dictionary)
             {
                 result.Add(kvp.Key, kvp.Value);
@@ -2148,7 +2146,7 @@ namespace GRYLibrary.Core.Miscellaneous
             return char.ToLowerInvariant(pascalCase[0]) + pascalCase[1..];
         }
 
-        private static readonly Regex _OneOrMoreHexSigns = new Regex(@"^[0-9a-f]+$");
+        private static readonly Regex _OneOrMoreHexSigns = new(@"^[0-9a-f]+$");
         public static bool IsHexString(string result)
         {
             return _OneOrMoreHexSigns.Match(result.ToLower()).Success;
@@ -2171,7 +2169,7 @@ namespace GRYLibrary.Core.Miscellaneous
         }
         public static (IObservable<T>, Action) FuncToObservable<T>(Func<T> valueFunction, TimeSpan updateInterval)
         {
-            Subject<T> subject = new Subject<T>();
+            Subject<T> subject = new();
             bool enabled = true;
             SupervisedThread thread = SupervisedThread.Create(() =>
             {

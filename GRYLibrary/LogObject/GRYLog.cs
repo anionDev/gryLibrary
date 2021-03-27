@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Numerics;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 
@@ -15,7 +14,7 @@ namespace GRYLibrary.Core.LogObject
     public sealed class GRYLog : IDisposable, ILogger
     {
         public GRYLogConfiguration Configuration { get; set; }
-        private readonly static object _LockObject = new object();
+        private readonly static object _LockObject = new();
         private readonly bool _Initialized = false;
         private int _AmountOfErrors = 0;
         private int _AmountOfWarnings = 0;
@@ -63,7 +62,7 @@ namespace GRYLibrary.Core.LogObject
         }
         public static GRYLog Create(string logFile)
         {
-            GRYLogConfiguration configuration = new GRYLogConfiguration();
+            GRYLogConfiguration configuration = new();
             configuration.ResetToDefaultValues(logFile);
             return new GRYLog(configuration);
         }
@@ -371,7 +370,7 @@ namespace GRYLibrary.Core.LogObject
         public void ExecuteAndLog(Action action, string nameOfAction, bool preventThrowingExceptions = false, LogLevel logLevelForOverhead = LogLevel.Debug, string subNamespaceForLog = Utilities.EmptyString)
         {
             this.Log($"Action '{nameOfAction}' will be started now.", logLevelForOverhead);
-            Stopwatch stopWatch = new Stopwatch();
+            Stopwatch stopWatch = new();
             try
             {
                 using (this.UseSubNamespace(subNamespaceForLog))
@@ -397,7 +396,7 @@ namespace GRYLibrary.Core.LogObject
         public TResult ExecuteAndLog<TResult>(Func<TResult> action, string nameOfAction, bool preventThrowingExceptions = false, LogLevel logLevelForOverhead = LogLevel.Debug, TResult defaultValue = default, string subNamespaceForLog = Utilities.EmptyString)
         {
             this.Log($"Action '{nameOfAction}' will be started now.", logLevelForOverhead);
-            Stopwatch stopWatch = new Stopwatch();
+            Stopwatch stopWatch = new();
             try
             {
                 using (this.UseSubNamespace(subNamespaceForLog))

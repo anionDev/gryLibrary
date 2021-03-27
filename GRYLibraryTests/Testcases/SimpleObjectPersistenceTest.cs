@@ -1,5 +1,4 @@
-﻿using GRYLibrary.Core;
-using GRYLibrary.Core.Miscellaneous;
+﻿using GRYLibrary.Core.Miscellaneous;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
 using System.Linq;
@@ -74,7 +73,7 @@ namespace GRYLibrary.Tests.Testcases
 
             public static SerializeTestClass CreateTestObject()
             {
-                SerializeTestClass result = new SerializeTestClass();
+                SerializeTestClass result = new();
 
                 result.ListTest.Add(true);
                 result.ListTest.Add(false);
