@@ -1,5 +1,4 @@
-﻿using GRYLibrary.Core;
-using GRYLibrary.Core.Miscellaneous;
+﻿using GRYLibrary.Core.Miscellaneous;
 using GRYLibrary.Core.XMLSerializer;
 using GRYLibrary.Tests.TestData.TestTypes.CyclicDataStructure;
 using GRYLibrary.Tests.TestData.TestTypes.SimpleDataStructure;
@@ -519,7 +518,7 @@ namespace GRYLibrary.Tests.Testcases
         public void ByteArrayToHexStringTest()
         {
             // arrange
-            var input =new byte[] { 222 } ;
+            var input = new byte[] { 222 };
             var expected = "DE";
 
             // act
@@ -528,5 +527,62 @@ namespace GRYLibrary.Tests.Testcases
             // assert
             Assert.IsTrue(expected.SequenceEqual(actual));
         }
+
+        [TestMethod]
+        public void BinaryStringToUintTest1()
+        {
+            // arrange
+            string input = "1001";
+            uint expected = 9;
+
+            // act
+            var actual = Core.Miscellaneous.Utilities.BinaryStringToUint(input);
+
+            // assert
+            Assert.AreEqual(expected, actual);
+        }
+
+        [TestMethod]
+        public void BinaryStringToUintTest2()
+        {
+            // arrange
+            string input = "01011101010";
+            uint expected = 746;
+
+            // act
+            var actual = Core.Miscellaneous.Utilities.BinaryStringToUint(input);
+
+            // assert
+            Assert.AreEqual(expected, actual);
+        }
+
+        [TestMethod]
+        public void BinaryStringToUintTest3()
+        {
+            // arrange
+            string input = "11111011101010101010001001010110";
+            uint expected = 4222263894;
+
+            // act
+            var actual = Core.Miscellaneous.Utilities.BinaryStringToUint(input);
+
+            // assert
+            Assert.AreEqual(expected, actual);
+        }
+
+        [TestMethod]
+        public void UintToBinaryStringTest()
+        {
+            // arrange
+            uint  input= 4222263894;
+            string  expected= "11111011101010101010001001010110";
+
+            // act
+            var actual = Core.Miscellaneous.Utilities.UintToBinaryString(input);
+
+            // assert
+            Assert.AreEqual(expected, actual);
+        }
+
     }
 }

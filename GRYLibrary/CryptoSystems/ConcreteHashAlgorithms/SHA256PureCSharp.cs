@@ -1,6 +1,5 @@
 ﻿using GRYLibrary.Core.Miscellaneous;
 using System;
-using System.Diagnostics;
 using System.Linq;
 using System.Text;
 
@@ -37,13 +36,13 @@ namespace GRYLibrary.Core.CryptoSystems.ConcreteHashAlgorithms
             message = message.Concat(new byte[] { 128 }).ToArray();
 
             int K_amountOfBitsToAppend = 512 - ((L_messageLengthInBits + 8 + 64) % 512);
-            Debug.Assert(K_amountOfBitsToAppend % 8 == 0);
+            Utilities.AssertCondition(K_amountOfBitsToAppend % 8 == 0);
             int K_amountOfBytesToAppend = K_amountOfBitsToAppend / 8;
             message = message.Concat(new byte[K_amountOfBytesToAppend]).ToArray();
-            Debug.Assert((L_messageLengthInBits + 8 + K_amountOfBitsToAppend + 64) % 512 == 0);
+            Utilities.AssertCondition((L_messageLengthInBits + 8 + K_amountOfBitsToAppend + 64) % 512 == 0);
 
             message = message.Concat(Utilities.UnsignedInteger64BitToByteArray((ulong)L_messageLengthInBits)).ToArray();
-            Debug.Assert(message.Length % 64 == 0);
+            Utilities.AssertCondition(message.Length % 64 == 0);
 
             int chunkSizeInBits = 512;
             int chunkSizeInBytes = chunkSizeInBits / 8;
@@ -51,10 +50,10 @@ namespace GRYLibrary.Core.CryptoSystems.ConcreteHashAlgorithms
             for (int chunkIndex = 0; chunkIndex < amountOfChunks; chunkIndex++)
             {
                 byte[] currentChunk = message.Skip(chunkIndex * chunkSizeInBytes).Take(chunkSizeInBytes).ToArray();
-                Debug.Assert(currentChunk.Length == chunkSizeInBytes);
+                Utilities.AssertCondition(currentChunk.Length == chunkSizeInBytes);
                 uint[] W = new uint[64];
                 uint[] currentChunkAsUnsignedIntegerArray = Utilities.ByteArrayToUnsignedInteger32BitArray(currentChunk);
-                Debug.Assert(currentChunkAsUnsignedIntegerArray.Length == chunkSizeInBytes / 4);
+                Utilities.AssertCondition(currentChunkAsUnsignedIntegerArray.Length == chunkSizeInBytes / 4);
                 Array.Copy(currentChunkAsUnsignedIntegerArray, W, currentChunkAsUnsignedIntegerArray.Length);
                 for (int i = 16; i < 64; i++)
                 {
@@ -109,7 +108,7 @@ namespace GRYLibrary.Core.CryptoSystems.ConcreteHashAlgorithms
            .ToArray();
         }
 
-        private uint Add(params uint[] summands)
+        internal static uint Add(params uint[] summands)
         {
             uint result = 0;
             for (int i = 0; i < summands.Length; i++)
@@ -118,25 +117,24 @@ namespace GRYLibrary.Core.CryptoSystems.ConcreteHashAlgorithms
             }
             return result;
         }
-        private uint XOr(uint left, uint right)
+        internal static uint XOr(uint left, uint right)
         {
             return left ^ right;
         }
-        private uint RightShift(uint value, int amountOfDigits)
+        internal static uint RightShift(uint value, byte amountOfDigits)
         {
-            Debug.Assert(0 < amountOfDigits);
             return value >> amountOfDigits;
         }
-        private uint RightRotate(uint value, int amountOfDigits)
+        internal static uint RightRotate(uint value, byte amountOfDigits)
         {
-            Debug.Assert(0 < amountOfDigits && amountOfDigits < 32);
+            Utilities.AssertCondition(amountOfDigits < 32);
             return (value >> amountOfDigits) | (value << (32 - amountOfDigits));
         }
-        private uint And(uint left, uint right)
+        internal static uint And(uint left, uint right)
         {
             return left & right;
         }
-        private uint Not(uint value)
+        internal static uint Not(uint value)
         {
             return ~value;
         }

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Xml;
 using System.Xml.Schema;
-using GRYLibrary.Core;
 using GRYLibrary.Core.AdvancedObjectAnalysis;
 using GRYLibrary.Core.AdvancedObjectAnalysis.GenericXMLSerializerHelper;
 using GRYLibrary.Core.Miscellaneous;

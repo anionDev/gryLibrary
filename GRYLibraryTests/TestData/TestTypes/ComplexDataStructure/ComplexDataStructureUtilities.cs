@@ -1,5 +1,4 @@
-﻿using GRYLibrary.Core;
-using GRYLibrary.Core.Miscellaneous;
+﻿using GRYLibrary.Core.Miscellaneous;
 using System;
 
 namespace GRYLibrary.Tests.TestData.TestTypes.ComplexDataStructure

@@ -1,5 +1,4 @@
-﻿using GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper;
-using System;
+﻿using System;
 using System.ComponentModel;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -23,7 +22,6 @@ using GRYLibrary.Core.XMLSerializer;
 using System.Net.Sockets;
 using GRYLibrary.Core.OperatingSystem;
 using GRYLibrary.Core.OperatingSystem.ConcreteOperatingSystems;
-using GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper.CustomComparer;
 using System.Runtime.InteropServices;
 using GRYLibrary.Core.LogObject;
 using GRYLibrary.Core.AdvancedObjectAnalysis;
@@ -33,6 +31,7 @@ using Microsoft.Win32;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using static GRYLibrary.Core.Miscellaneous.TableGenerator;
+using GRYLibrary.Core.Exceptions;
 
 namespace GRYLibrary.Core.Miscellaneous
 {
@@ -40,7 +39,7 @@ namespace GRYLibrary.Core.Miscellaneous
     {
         #region Constants
         public const string EmptyString = "";
-        public const string SpecialCharacterTestString = "<Special-character-Test: (^äöüß/\\€\"\'+-*®¬¼😊👍✆⊆ℙ≈∑∞∫/𝄞𝄤𝅘𝅥𝅮) (您好) (Здравствуйте) (नमस्कार)>";
+        public const string SpecialCharacterTestString = "<Special-character-Test: (^äöüß/\\$€\"\'+-*®¬¼😊👍✆⊆ℙ≈∑∞∫/𝄞𝄤𝅘𝅥𝅮) (您好) (Здравствуйте) (नमस्कार)>";
         #endregion
 
         public static (T[], T[]) Split<T>(T[] source, int index)
@@ -1232,11 +1231,11 @@ namespace GRYLibrary.Core.Miscellaneous
                 || value == "true";
         }
 
-        public static void Assert(bool condition, string message = "")
+        public static void AssertCondition(bool condition, string message = EmptyString)
         {
             if (!condition)
             {
-                throw new Exception("Assertion failed. Condition is false." + (string.IsNullOrWhiteSpace(message) ? string.Empty : " " + message));
+                throw new AssertionException("Assertion failed. Condition is false." + (string.IsNullOrWhiteSpace(message) ? string.Empty : " " + message));
             }
         }
         public static void FormatCSVFile(string file, string separator = ";", bool firstLineContainsHeadlines = false)
@@ -1268,9 +1267,32 @@ namespace GRYLibrary.Core.Miscellaneous
             {
                 contentAdjusted.Insert(0, headLines);
             }
-            // TODO escape quotes and insert padding
+            EscapeForCSV(headLines);
+            foreach (var line in content)
+            {
+                EscapeForCSV(headLines);
+            }
+            // TODO insert padding
             File.WriteAllLines(file, contentAdjusted.Select(item => string.Join(separator, item)), encoding);
         }
+
+        internal static void EscapeForCSV(string[] line)
+        {
+            for (int i = 0; i < line.Length; i++)
+            {
+                line[i] = EscapeForCSV(line[i]);
+            }
+        }
+        internal static string EscapeForCSV(string item)
+        {
+            if (item.Contains("\""))
+            {
+                item = item.Replace("\"", "\"\"");
+                item = $"\"{item}\"";
+            }
+            return item;
+        }
+
         public static IList<string[]> ReadCSVFile(string file, out string[] headLines, string separator = ";", bool firstLineContainsHeadlines = false, bool trimValues = true)
         {
             return ReadCSVFile(file, new UTF8Encoding(false), out headLines, separator, firstLineContainsHeadlines, trimValues);
@@ -1461,6 +1483,23 @@ namespace GRYLibrary.Core.Miscellaneous
             using StreamReader streamReader = new StreamReader(memoryStream);
             return streamReader.ReadToEnd();
         }
+        public static uint BinaryStringToUint(string binaryString)
+        {
+            return (uint)Convert.ToInt32(binaryString, 2);
+        }
+        public static string UintToBinaryString(uint binaryString)
+        {
+            return Convert.ToString(binaryString, 2);
+        }
+        public static BigInteger BinaryStringToBigInteger(string binaryString)
+        {
+            throw new NotImplementedException();
+        }
+        public static string BigIntegerToBinaryString(BigInteger binaryString)
+        {
+            throw new NotImplementedException();
+        }
+
         public static string XmlToString(XmlDocument xmlDocument)
         {
             StringBuilder stringBuilder = new StringBuilder();
@@ -2092,7 +2131,7 @@ namespace GRYLibrary.Core.Miscellaneous
                 {
                     splitted[i] = splitted[i].ToString().ToUpper().First();
                 }
-                if (i>0)
+                if (i > 0)
                 {
                     if (printCharUppercaseDependentOnPreviousChar(lastChar))
                     {
