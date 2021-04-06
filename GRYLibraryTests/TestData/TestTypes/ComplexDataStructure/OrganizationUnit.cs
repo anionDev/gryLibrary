@@ -12,7 +12,7 @@ namespace GRYLibrary.Tests.TestData.TestTypes.ComplexDataStructure
 
         public static OrganizationUnit GetRandom(Employee boss, OrganizationUnit superiorOrganizationUnit = null)
         {
-            OrganizationUnit result = new OrganizationUnit
+            OrganizationUnit result = new()
             {
                 Name = GetRandomName(),
                 Boss = boss,

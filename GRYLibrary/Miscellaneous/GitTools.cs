@@ -13,7 +13,7 @@ namespace GRYLibrary.Core.Miscellaneous
             using GRYLog log = GRYLog.Create();
             log.Configuration.Enabled = true;
             log.Configuration.SetEnabledOfAllLogTargets(writeOutputToConsole);
-            using ExternalProgramExecutor externalProgramExecutor = new ExternalProgramExecutor("git", argument, repositoryFolder)
+            using ExternalProgramExecutor externalProgramExecutor = new("git", argument, repositoryFolder)
             {
                 LogObject = log,
                 TimeoutInMilliseconds = timeoutInMilliseconds,
@@ -29,7 +29,7 @@ namespace GRYLibrary.Core.Miscellaneous
         public static IEnumerable<string> GetGitSubmodulePaths(string repositoryFolder, bool recursive = true)
         {
             GitCommandResult commandresult = ExecuteGitCommand(repositoryFolder, "submodule status" + (recursive ? " --recursive" : string.Empty), true);
-            List<string> result = new List<string>();
+            List<string> result = new();
             foreach (string rawLine in commandresult.StdOutLines)
             {
                 string line = rawLine.Trim();
@@ -55,7 +55,7 @@ namespace GRYLibrary.Core.Miscellaneous
         }
         public static bool GitRepositoryContainsObligatoryFiles(string repositoryFolder, out ISet<string> missingFiles)
         {
-            List<Tuple<string, ISet<string>>> fileLists = new List<Tuple<string/*file*/, ISet<string>/*aliase*/>>
+            List<Tuple<string, ISet<string>>> fileLists = new()
             {
                 Tuple.Create<string, ISet<string>>(".gitignore", new HashSet<string>()),
                 Tuple.Create<string, ISet<string>>("License.txt", new HashSet<string>() { "License", "License.md" }),
@@ -230,7 +230,7 @@ namespace GRYLibrary.Core.Miscellaneous
         /// </returns>
         public static bool IsInGitRepository(string folder)
         {
-            DirectoryInfo directoryInfo = new DirectoryInfo(folder);
+            DirectoryInfo directoryInfo = new(folder);
             if (IsGitRepository(directoryInfo.FullName))
             {
                 return true;

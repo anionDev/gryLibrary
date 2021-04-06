@@ -44,7 +44,7 @@ namespace GRYLibrary.Core.XMLSerializer
                 serializer.Serialize(xmlWriter, @object);
             }
             stream.Seek(0, SeekOrigin.Begin);
-            using StreamReader streamReader = new StreamReader(stream);
+            using StreamReader streamReader = new(stream);
             return streamReader.ReadToEnd();
         }
 

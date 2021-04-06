@@ -11,10 +11,10 @@ namespace GRYLibrary.Tests.Testcases
         [TestProperty(nameof(TestKind), nameof(TestKind.UnitTest))]
         public void SimplePropertyTests()
         {
-            object object1 = new object();
-            object object2 = new object();
+            object object1 = new();
+            object object2 = new();
             string name = "propertyName";
-            Core.Miscellaneous.Property<object> property = new Core.Miscellaneous.Property<object>(object1, name, true);
+            Core.Miscellaneous.Property<object> property = new(object1, name, true);
             Assert.AreEqual(1, property.History.Count);
             Assert.AreEqual(object1, property.History.Pop().Value);
             Assert.AreEqual(name, property.PropertyName);

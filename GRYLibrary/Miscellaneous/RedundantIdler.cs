@@ -51,7 +51,7 @@ namespace GRYLibrary.Core.Miscellaneous
         private static void StartBackupInstance()
         {
             Process currentProcess = Process.GetCurrentProcess();
-            using Process backupProcess = new Process
+            using Process backupProcess = new()
             {
                 StartInfo = currentProcess.StartInfo//TODO test if this works
             };

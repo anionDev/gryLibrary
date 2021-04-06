@@ -131,7 +131,7 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper
                     return;
                 }
             }
-            EquivalenceClass equivalenceClass = new EquivalenceClass(object1, _IdGenerator.GenerateNewId());
+            EquivalenceClass equivalenceClass = new(object1, _IdGenerator.GenerateNewId());
             equivalenceClass.Add(object2);
             this.EquivalenceClasses.Add(equivalenceClass);
         }

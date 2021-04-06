@@ -165,7 +165,7 @@ namespace GRYLibrary.Core.Graph
                 return true;
             }
             Vertex startVertex = this._Vertices.First();
-            Dictionary<Vertex, bool> visited = new Dictionary<Vertex, bool>();
+            Dictionary<Vertex, bool> visited = new();
             foreach (Vertex vertex in this._Vertices)
             {
                 visited.Add(vertex, false);
@@ -238,9 +238,9 @@ namespace GRYLibrary.Core.Graph
         public void BreadthFirstSearch(Func<Vertex/*current vertex*/, IList<Edge>/*path*/, bool/*continue search*/> customAction, Vertex startVertex)
         {
             this.InitializeSearchAndDoSomeChecks(startVertex, out Dictionary<Vertex, bool> visitedMap);
-            Queue<Tuple<Vertex, IList<Edge>>> queue = new Queue<Tuple<Vertex, IList<Edge>>>();
+            Queue<Tuple<Vertex, IList<Edge>>> queue = new();
             visitedMap[startVertex] = true;
-            List<Edge> initialList = new List<Edge>();
+            List<Edge> initialList = new();
             if (!customAction(startVertex, initialList))
             {
                 return;
@@ -281,7 +281,7 @@ namespace GRYLibrary.Core.Graph
         public void DepthFirstSearch(Func<Vertex/*current vertex*/, IList<Edge>/*path*/, bool/*continue search*/> customAction, Vertex startVertex, bool doNotWalkAgainstDirectedEdges = true)
         {
             this.InitializeSearchAndDoSomeChecks(startVertex, out Dictionary<Vertex, bool> visitedMap);
-            Stack<Tuple<Vertex, IList<Edge>>> stack = new Stack<Tuple<Vertex, IList<Edge>>>();
+            Stack<Tuple<Vertex, IList<Edge>>> stack = new();
             stack.Push(new Tuple<Vertex, IList<Edge>>(startVertex, new List<Edge>()));
             while (stack.Count > 0)
             {

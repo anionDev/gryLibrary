@@ -15,7 +15,7 @@ namespace GRYLibrary.Tests.TestData.TestTypes.SimpleDataStructure
 
         public static SimpleDataStructure1 GetRandom()
         {
-            SimpleDataStructure1 result = new SimpleDataStructure1
+            SimpleDataStructure1 result = new()
             {
                 Property1 = new HashSet<SimpleDataStructure3>
                 {

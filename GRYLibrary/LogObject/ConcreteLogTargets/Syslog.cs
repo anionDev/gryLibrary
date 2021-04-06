@@ -19,7 +19,7 @@ namespace GRYLibrary.Core.LogObject.ConcreteLogTargets
                 messageId = $"--rfc5424 --msgid {logItem.MessageId}";
             }
 
-            using ExternalProgramExecutor externalProgramExecutor = new ExternalProgramExecutor("Logger", $"--tag {Utilities.GetNameOfCurrentExecutable()} {messageId} -- [{logItem.LogLevel}] [{logObject.Configuration.Name}] {logItem.PlainMessage}")
+            using ExternalProgramExecutor externalProgramExecutor = new("Logger", $"--tag {Utilities.GetNameOfCurrentExecutable()} {messageId} -- [{logItem.LogLevel}] [{logObject.Configuration.Name}] {logItem.PlainMessage}")
             {
                 ThrowErrorIfExitCodeIsNotZero = true
             };

@@ -79,7 +79,7 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis
                 }
                 else
                 {
-                    List<(string/*Propertyname*/, object)> propertyValues = new List<(string, object)>();
+                    List<(string/*Propertyname*/, object)> propertyValues = new();
                     foreach (FieldInfo field in type.GetFields())
                     {
                         if (this.FieldSelector(field))

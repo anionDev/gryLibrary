@@ -41,7 +41,7 @@ namespace GRYLibrary.Core.AdvancedXMLSerialysis
         }
         private XmlWriterSettings GetXmlWriterSettings()
         {
-            XmlWriterSettings result = new XmlWriterSettings
+            XmlWriterSettings result = new()
             {
                 Encoding = this.SerializationConfiguration.Encoding,
                 Indent = this.SerializationConfiguration.Indent,
@@ -51,7 +51,7 @@ namespace GRYLibrary.Core.AdvancedXMLSerialysis
         }
         public string Serialize(object/*T*/ @object)
         {
-            using MemoryStream memoryStream = new MemoryStream();
+            using MemoryStream memoryStream = new();
             using (XmlWriter xmlWriter = XmlWriter.Create(memoryStream, this.GetXmlWriterSettings()))
             {
                 this.Serialize(@object, xmlWriter);
@@ -66,11 +66,11 @@ namespace GRYLibrary.Core.AdvancedXMLSerialysis
             }
             if (!Utilities.IsAssignableFrom(@object, _T))
             {
-                throw new ArgumentException($"Can only serilize objects of type {@object.GetType().FullName} but the given object has the type {_T.FullName}");
+                throw new ArgumentException($"Can only serialize objects of type {@object.GetType().FullName} but the given object has the type {_T.FullName}");
             }
             object objectForRealSerialization = GRYSObject.Create(@object, this.SerializationConfiguration);
             IEnumerable<(object, Type)> allReferencedObjects = new PropertyIterator().IterateOverObjectTransitively(objectForRealSerialization);
-            HashSet<Type> extraTypes = new HashSet<Type>();
+            HashSet<Type> extraTypes = new();
             foreach ((object, Type) referencedObject in allReferencedObjects)
             {
                 if (referencedObject.Item1 != null && referencedObject.Item1 is IGRYSerializable extraTypesProvider)
@@ -88,7 +88,7 @@ namespace GRYLibrary.Core.AdvancedXMLSerialysis
         }
         public object/*T*/ Deserialize(string serializedObject)
         {
-            using StringReader stringReader = new StringReader(serializedObject);
+            using StringReader stringReader = new(serializedObject);
             using XmlReader xmlReader = XmlReader.Create(stringReader);
             return this.Deserialize(xmlReader);
         }

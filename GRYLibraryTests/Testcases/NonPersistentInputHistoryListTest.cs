@@ -10,7 +10,7 @@ namespace GRYLibrary.Tests.Testcases
         [TestProperty(nameof(TestKind), nameof(TestKind.UnitTest))]
         public void NonPersistentInputHistoryListTest1()
         {
-            NonPersistentInputHistoryList inpustList = new NonPersistentInputHistoryList();
+            NonPersistentInputHistoryList inpustList = new();
 
             string input1 = "1";
             string input2 = "2";

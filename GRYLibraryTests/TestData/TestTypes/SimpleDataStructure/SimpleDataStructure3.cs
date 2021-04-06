@@ -14,7 +14,7 @@ namespace GRYLibrary.Tests.TestData.TestTypes.SimpleDataStructure
 
         internal static SimpleDataStructure3 GetRandom()
         {
-            SimpleDataStructure3 result = new SimpleDataStructure3
+            SimpleDataStructure3 result = new()
             {
                 Property4 = "Property4_e7df34db-bb6f-4a11-8c6d-66bccafbd041",
                 Property5 = new List<SimpleDataStructure2>

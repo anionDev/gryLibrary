@@ -109,7 +109,7 @@ namespace GRYLibrary.Core.Miscellaneous
                 throw new InvalidCastException();
             }
             IEnumerable objects = ObjectToEnumerable(@object);
-            List<T> result = new List<T>();
+            List<T> result = new();
             foreach (object obj in objects)
             {
                 if (obj is T t)
@@ -134,7 +134,7 @@ namespace GRYLibrary.Core.Miscellaneous
                 throw new InvalidCastException();
             }
             IEnumerable objects = ObjectToEnumerable(@object);
-            HashSet<T> result = new HashSet<T>();
+            HashSet<T> result = new();
             foreach (object obj in objects)
             {
                 if (obj is T t)
@@ -164,7 +164,7 @@ namespace GRYLibrary.Core.Miscellaneous
                 throw new InvalidCastException();
             }
             IEnumerable objects = ObjectToEnumerable(@object);
-            List<T> result = new List<T>();
+            List<T> result = new();
             foreach (object obj in objects)
             {
                 if (obj is T t)
@@ -198,7 +198,7 @@ namespace GRYLibrary.Core.Miscellaneous
                 throw new InvalidCastException();
             }
             IEnumerable<object> objects = ObjectToEnumerable<object>(@object);
-            Dictionary<TKey, TValue> result = new Dictionary<TKey, TValue>();
+            Dictionary<TKey, TValue> result = new();
             foreach (object obj in objects)
             {
                 System.Collections.Generic.KeyValuePair<TKey, TValue> kvp = ObjectToKeyValuePair<TKey, TValue>(obj);

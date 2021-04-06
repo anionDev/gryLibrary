@@ -11,7 +11,7 @@ namespace GRYLibrary.Tests.TestData.TestTypes.ComplexDataStructure
         }
         internal static DateTime GetRandomDateOfBirth()
         {
-            DateTime result = new DateTime(1960, 1, 1);
+            DateTime result = new(1960, 1, 1);
             result = result.AddDays(_IdGenerator.GenerateNewId());
             result = result.AddSeconds(_IdGenerator.GenerateNewId());
             return result;

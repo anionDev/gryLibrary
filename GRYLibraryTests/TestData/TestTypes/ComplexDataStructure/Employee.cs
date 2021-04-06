@@ -14,7 +14,7 @@ namespace GRYLibrary.Tests.TestData.TestTypes.ComplexDataStructure
 
         public static Employee GetRandom(OrganizationUnit organizationUnit = null)
         {
-            Employee result = new Employee
+            Employee result = new()
             {
                 OrganizationUnit = organizationUnit,
                 Forename = ComplexDataStructureUtilities.GetRandomName(),

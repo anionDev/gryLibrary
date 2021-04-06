@@ -14,7 +14,7 @@ namespace GRYLibrary.Tests.TestData.TestTypes.AdvancedObjectAnalysisUsageFull
         public TestAttributeType AttributeB { get; set; }
         public static TestType GetRandom()
         {
-            TestType result = new TestType();
+            TestType result = new();
             result.AttributeA = new TestAttributeType
             {
                 ComplexAttribute = result.AttributeB,

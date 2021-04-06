@@ -21,7 +21,7 @@ namespace GRYLibrary.Tests.TestData.TestTypes.ComplexDataStructure
 
         internal static Company GetRandom()
         {
-            Company company = new Company { Name = "Test-Company" };
+            Company company = new() { Name = "Test-Company" };
 
             Employee manager = Employee.GetRandom(); company.Employees.Add(manager); company.Manager = manager;
             Employee bossOrg1Personal = Employee.GetRandom(); company.Employees.Add(bossOrg1Personal);

@@ -21,10 +21,10 @@ namespace GRYLibrary.Tests.Testcases.GraphTests
             {
                 //test passed
             }
-            Vertex v1 = new Vertex("v1");
+            Vertex v1 = new("v1");
             graph.AddVertex(v1);
             Assert.IsTrue(graph.IsConnected());
-            Vertex v2 = new Vertex("v2");
+            Vertex v2 = new("v2");
             graph.AddVertex(v2);
             Assert.IsFalse(graph.IsConnected());
             graph.AddEdge(new UndirectedEdge(new Vertex[] { v1, v2 }, "e1"));

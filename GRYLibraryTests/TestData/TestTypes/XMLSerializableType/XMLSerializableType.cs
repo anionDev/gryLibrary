@@ -19,7 +19,7 @@ namespace GRYLibrary.Tests.TestData.TestTypes.XMLSerializableType
         public GenericType<SimpleDataStructure1> GenericSimpleDataStructure1 { get; set; }
         internal static XMLSerializableType GetRandom()
         {
-            XMLSerializableType result = new XMLSerializableType
+            XMLSerializableType result = new()
             {
                 Cyle = CycleA.GetRandom(),
                 SimpleDataStructure1 = SimpleDataStructure1.GetRandom(),

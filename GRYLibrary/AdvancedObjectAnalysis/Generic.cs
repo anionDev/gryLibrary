@@ -14,7 +14,7 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis
     public class Generic
     {
         private static readonly IdGenerator<int> _IdGenerator = IdGenerator.GetDefaultIntIdGenerator();
-        private static readonly Dictionary<object, int> _ObjectReferenceHashCodeCache = new Dictionary<object, int>(new ReferenceEqualsComparer());
+        private static readonly Dictionary<object, int> _ObjectReferenceHashCodeCache = new(new ReferenceEqualsComparer());
         public static int GenericGetHashCode(object @object)
         {
             if (@object == null)
@@ -87,7 +87,7 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis
 
         public static string GenericSerialize(object @object)
         {
-            using StringWriter stringWriter = new StringWriter();
+            using StringWriter stringWriter = new();
             using (XmlWriter xmlWriter = XmlWriter.Create(stringWriter))
             {
                 GenericWriteXml(@object, xmlWriter);

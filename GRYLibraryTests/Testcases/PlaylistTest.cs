@@ -16,10 +16,10 @@ namespace GRYLibrary.Tests.Testcases
         {
             string playlistFile = "test.m3u";
             this.Clean(playlistFile);
-            List<string> currentExpectedContent = new List<string>();
+            List<string> currentExpectedContent = new();
             try
             {
-                CombinedPlaylistHandler handler = new CombinedPlaylistHandler();
+                CombinedPlaylistHandler handler = new();
                 handler.CreatePlaylist(playlistFile);
                 Assert.IsTrue(File.Exists(playlistFile));
                 Assert.IsTrue(currentExpectedContent.EqualsIgnoringOrder(handler.GetSongs(playlistFile).ToList()));
@@ -97,7 +97,7 @@ namespace GRYLibrary.Tests.Testcases
                 new CombinedPlaylistHandler().AddSongsToPlaylist(m3uFile, new string[] { "trackA.mp3", nameOfm3ufile2 });
                 new CombinedPlaylistHandler().AddSongsToPlaylist(m3uFile2, new string[] { "trackB.mp3" });
 
-                HashSet<string> playlistItems = new HashSet<string>(CombinedPlaylistHandler.DefaultInstance.GetSongs(m3uFile));
+                HashSet<string> playlistItems = new(CombinedPlaylistHandler.DefaultInstance.GetSongs(m3uFile));
                 Assert.IsTrue(playlistItems.SetEquals(new string[] { Path.Combine(currentDirectory, directoryName + @"\trackA.mp3"), Path.Combine(currentDirectory, directoryName + @"\trackB.mp3") }));
             }
             finally

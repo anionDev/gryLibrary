@@ -13,16 +13,16 @@ namespace GRYLibrary.Core.CryptoSystems.EncryptionAlgorithms.ConcreteCommonAlgor
             (byte[], byte[]) splitted = Utilities.Split(encryptedData, _AESBlockLength);
             byte[] iv = splitted.Item1;
             encryptedData = splitted.Item2;
-            using MemoryStream result = new MemoryStream();
-            using (RijndaelManaged algorithmImplementation = new RijndaelManaged())
+            using MemoryStream result = new();
+            using (RijndaelManaged algorithmImplementation = new())
             {
                 algorithmImplementation.Key = password;
                 algorithmImplementation.IV = iv;
                 algorithmImplementation.Mode = CipherMode.CBC;
                 algorithmImplementation.Padding = PaddingMode.Zeros;
                 ICryptoTransform decryptor = algorithmImplementation.CreateDecryptor(algorithmImplementation.Key, algorithmImplementation.IV);
-                using MemoryStream memoryStream = new MemoryStream(encryptedData);
-                using CryptoStream cryptoStream = new CryptoStream(memoryStream, decryptor, CryptoStreamMode.Read);
+                using MemoryStream memoryStream = new(encryptedData);
+                using CryptoStream cryptoStream = new(memoryStream, decryptor, CryptoStreamMode.Read);
                 byte[] buffer = new byte[_AESBlockLength];
                 int read = cryptoStream.Read(buffer, 0, buffer.Length);
                 while (0 < read)
@@ -40,16 +40,16 @@ namespace GRYLibrary.Core.CryptoSystems.EncryptionAlgorithms.ConcreteCommonAlgor
         {
             byte[] iv = GetIV();
             byte[] encrypted;
-            using (RijndaelManaged algorithmImplementation = new RijndaelManaged())
+            using (RijndaelManaged algorithmImplementation = new())
             {
                 algorithmImplementation.Key = password;
                 algorithmImplementation.IV = iv;
                 algorithmImplementation.Mode = CipherMode.CBC;
                 algorithmImplementation.Padding = PaddingMode.Zeros;
                 ICryptoTransform encryptor = algorithmImplementation.CreateEncryptor(algorithmImplementation.Key, algorithmImplementation.IV);
-                using MemoryStream memoryStream = new MemoryStream();
-                using CryptoStream csEncrypt = new CryptoStream(memoryStream, encryptor, CryptoStreamMode.Write);
-                using (StreamWriter streamWriter = new StreamWriter(csEncrypt))
+                using MemoryStream memoryStream = new();
+                using CryptoStream csEncrypt = new(memoryStream, encryptor, CryptoStreamMode.Write);
+                using (StreamWriter streamWriter = new(csEncrypt))
                 {
                     streamWriter.Write(unencryptedData);
                 }
@@ -60,7 +60,7 @@ namespace GRYLibrary.Core.CryptoSystems.EncryptionAlgorithms.ConcreteCommonAlgor
 
         private byte[] GetIV()
         {
-            using RijndaelManaged algorithmImplementation = new RijndaelManaged();
+            using RijndaelManaged algorithmImplementation = new();
             algorithmImplementation.GenerateIV();
             if (algorithmImplementation.IV.Length != _AESBlockLength)
             {
@@ -72,7 +72,7 @@ namespace GRYLibrary.Core.CryptoSystems.EncryptionAlgorithms.ConcreteCommonAlgor
         /// <inheritdoc/>
         public override byte[] GenerateRandomKey()
         {
-            using RijndaelManaged algorithmImplementation = new RijndaelManaged();
+            using RijndaelManaged algorithmImplementation = new();
             algorithmImplementation.GenerateKey();
             return algorithmImplementation.Key;
         }

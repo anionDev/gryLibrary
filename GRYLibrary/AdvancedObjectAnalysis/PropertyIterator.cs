@@ -20,7 +20,7 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis
         }
         public IEnumerable<(object, Type)> IterateOverObjectTransitively(object @object)
         {
-            List<(object, Type)> result = new List<(object, Type)>();
+            List<(object, Type)> result = new();
             IterateOverObjectTransitively(@object, result);
             return result;
         }
