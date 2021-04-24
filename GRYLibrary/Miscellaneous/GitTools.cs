@@ -89,10 +89,14 @@ namespace GRYLibrary.Core.Miscellaneous
         }
         /// <summary>Removes unused internal files in the .git-folder of the given <paramref name="repositoryFolder"/>.</summary>
         /// <remarks>Warning: After executing this function deleted commits can not be restored because then they are really deleted.</remarks>
-        public static void GitTidyUp(string repositoryFolder, bool writeOutputToConsole = false)
+        public static void GitTidyUp(string repositoryFolder, bool writeOutputToConsole = false, bool repack = true)
         {
             ExecuteGitCommand(repositoryFolder, $"reflog expire --expire-unreachable=now --all", true, writeOutputToConsole: writeOutputToConsole);
             ExecuteGitCommand(repositoryFolder, $"gc --prune=now", true, writeOutputToConsole: writeOutputToConsole);
+            if (repack)
+            {
+                ExecuteGitCommand(repositoryFolder, $"repack -a -d -n", true, writeOutputToConsole: writeOutputToConsole);
+            }
         }
         public static bool GitRepositoryContainsFiles(string repositoryFolder, out ISet<string> missingFiles, IEnumerable<Tuple<string/*file*/, ISet<string>/*aliase*/>> fileLists)
         {
@@ -353,6 +357,6 @@ namespace GRYLibrary.Core.Miscellaneous
         {
             return ExecuteGitCommand(repositoryFolder, $"merge-base --is-ancestor {ancestor} {descendant}", false).ExitCode == 0;
         }
-     
+
     }
 }
