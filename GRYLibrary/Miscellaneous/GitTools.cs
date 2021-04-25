@@ -95,7 +95,7 @@ namespace GRYLibrary.Core.Miscellaneous
             ExecuteGitCommand(repositoryFolder, $"gc --prune=now", true, writeOutputToConsole: writeOutputToConsole);
             if (repack)
             {
-                ExecuteGitCommand(repositoryFolder, $"repack -a -d -n", true, writeOutputToConsole: writeOutputToConsole);
+                ExecuteGitCommand(repositoryFolder, $"repack -a -d -n --max-pack-size=10m", true, writeOutputToConsole: writeOutputToConsole);
             }
         }
         public static bool GitRepositoryContainsFiles(string repositoryFolder, out ISet<string> missingFiles, IEnumerable<Tuple<string/*file*/, ISet<string>/*aliase*/>> fileLists)
