@@ -574,8 +574,8 @@ namespace GRYLibrary.Tests.Testcases
         public void UintToBinaryStringTest()
         {
             // arrange
-            uint  input= 4222263894;
-            string  expected= "11111011101010101010001001010110";
+            uint input = 4222263894;
+            string expected = "11111011101010101010001001010110";
 
             // act
             var actual = Core.Miscellaneous.Utilities.UintToBinaryString(input);

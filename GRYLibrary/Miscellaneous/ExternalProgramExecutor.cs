@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace GRYLibrary.Core.Miscellaneous
 {
-    public class ExternalProgramExecutor : IDisposable
+    public sealed class ExternalProgramExecutor : IDisposable
     {
         public ExternalProgramExecutor(string programPathAndFile, string arguments) : this(programPathAndFile, arguments, null)
         {
@@ -24,8 +24,8 @@ namespace GRYLibrary.Core.Miscellaneous
             this.Arguments = arguments;
             this.WorkingDirectory = workingDirectory;
         }
+        public Verbosity Verbosity { get; set; } = Verbosity.Normal;
         public ExecutionState CurrentExecutionState { get; private set; } = ExecutionState.NotStarted;
-        public bool LogOverhead { get; set; } = false;
         public GRYLog LogObject { get; set; }
         public string Arguments { get; set; }
         public string ProgramPathAndFile { get; set; }
@@ -39,7 +39,7 @@ namespace GRYLibrary.Core.Miscellaneous
         /// </remarks>
         public bool ThrowErrorIfExitCodeIsNotZero { get; set; } = false;
         public int? TimeoutInMilliseconds { get; set; }
-        internal string DefaultTitle { get; private set; }
+        internal string CMD { get; private set; }
         public bool PrintErrorsAsInformation { get; set; }
         public delegate void ExecutionFinishedHandler(ExternalProgramExecutor sender, int exitCode);
         public event ExecutionFinishedHandler ExecutionFinishedEvent;
@@ -60,9 +60,12 @@ namespace GRYLibrary.Core.Miscellaneous
             }
             private set { this._ExecutionDuration = value; }
         }
-        public bool Running()
+        public bool IsRunning
         {
-            return this._Running;
+            get
+            {
+                return this._Running;
+            }
         }
         private readonly GRYLog _DefaultLog = GRYLog.Create();
         private readonly object _LockObject = new();
@@ -152,10 +155,43 @@ namespace GRYLibrary.Core.Miscellaneous
                 LogObject = _DefaultLog;
             }
             this.ResolvePaths();
-            DefaultTitle = $"{WorkingDirectory}>{ProgramPathAndFile} {Arguments}";
-            if (string.IsNullOrWhiteSpace(this.Title))
+            CMD = $"{WorkingDirectory}>{ProgramPathAndFile} {Arguments}";
+            if (this.Title == null)
             {
-                this.Title = DefaultTitle;
+                this.Title = string.Empty;
+            }
+            LogStart();
+        }
+
+        private void LogException(Exception exception)
+        {
+            if (this.Verbosity == Verbosity.Verbose)
+            {
+                this.LogObject.Log(exception);
+            }
+        }
+
+        private void LogEnd()
+        {
+            if (this.Verbosity == Verbosity.Verbose)
+            {
+                this.LogObject.Log($"Finished executing program", LogLevel.Debug);
+                this.LogObject.Log(this.GetResult(), LogLevel.Debug);
+            }
+        }
+        private void LogStart()
+        {
+            if (this.Verbosity == Verbosity.Verbose)
+            {
+                if (string.IsNullOrWhiteSpace(Title))
+                {
+                    this.LogObject.Log($"Start executing program", LogLevel.Debug);
+                }
+                else
+                {
+                    this.LogObject.Log($"Start executing '{Title}'", LogLevel.Debug);
+                }
+                this.LogObject.Log($"Program which will be executed: {CMD}");
             }
         }
 
@@ -205,7 +241,7 @@ namespace GRYLibrary.Core.Miscellaneous
                     }
                 };
                 SupervisedThread readLogItemsThread;
-                if (this.LogOverhead)
+                if (this.Verbosity == Verbosity.Verbose)
                 {
                     this.LogObject.Log($"Start '{this.Title}'", LogLevel.Debug);
                 }
@@ -215,18 +251,17 @@ namespace GRYLibrary.Core.Miscellaneous
                 _Process.BeginOutputReadLine();
                 _Process.BeginErrorReadLine();
                 this._Running = true;
-                if (this.LogOutput)
-                {
-                    readLogItemsThread = SupervisedThread.Create(this.LogOutputImplementation);
-                    readLogItemsThread.Name = $"Logger-Thread for '{this.Title}' ({nameof(ExternalProgramExecutor)}({this.Title}))";
-                    readLogItemsThread.LogOverhead = this.LogOverhead;
-                    readLogItemsThread.Start();
-                }
+                readLogItemsThread = SupervisedThread.Create(this.LogOutputImplementation);
+                readLogItemsThread.Name = $"Logger-Thread for '{this.Title}' ({nameof(ExternalProgramExecutor)}({this.Title}))";
+                readLogItemsThread.LogOverhead = false;
+                readLogItemsThread.Start();
             }
             catch (Exception exception)
             {
                 Dispose();
-                throw new ProcessStartException($"Exception occurred while start execution '{this.Title}'", exception);
+                Exception processStartException = new ProcessStartException($"Exception occurred while start execution '{this.Title}'", exception);
+                LogException(processStartException);
+                throw processStartException;
             }
             Task task = new(() =>
             {
@@ -236,17 +271,20 @@ namespace GRYLibrary.Core.Miscellaneous
                     stopWatch.Stop();
                     this.ExecutionDuration = stopWatch.Elapsed;
                     this.ExitCode = _Process.ExitCode;
+                    if (this.ExitCode != 0 && this.Verbosity == Verbosity.Normal)
+                    {
+                        foreach (string item in this.AllStdErrLines)
+                        {
+                            this.EnqueueError(item);
+                        }
+                    }
                     while (!_NotLoggedOutputLines.IsEmpty)
                     {
                         Thread.Sleep(60);
                     }
                     this._AllStdOutLinesAsArray = this._AllStdOutLines.ToArray();
                     this._AllStdErrLinesAsArray = this._AllStdErrLines.ToArray();
-                    if (this.LogOverhead)
-                    {
-                        this.LogObject.Log($"Finished '{this.Title}'", LogLevel.Debug);
-                        this.LogObject.Log(this.GetResult(), LogLevel.Debug);
-                    }
+                    LogEnd();
                     try
                     {
                         ExecutionFinishedEvent?.Invoke(this, this.ExitCode);
@@ -422,20 +460,7 @@ namespace GRYLibrary.Core.Miscellaneous
             }
         }
 
-        private void EnqueueError(string data)
-        {
-            if (data != null)
-            {
-                this._AllStdErrLines.Add(data);
-                if (this.LogOutput)
-                {
-                    this._NotLoggedOutputLines.Enqueue((LogLevel.Error, data));
-                }
-            }
-        }
-
         private readonly IList<string> _AllStdOutLines = new List<string>();
-        public bool LogOutput { get; set; } = true;
         private string[] _AllStdOutLinesAsArray;
         /// <exception cref="InvalidOperationException">
         /// If the process is not terminated yet.
@@ -455,21 +480,32 @@ namespace GRYLibrary.Core.Miscellaneous
             }
         }
 
-
         private void EnqueueInformation(string data)
         {
             if (data != null)
             {
                 this._AllStdOutLines.Add(data);
-                if (this.LogOutput)
+                if (this.Verbosity == Verbosity.Full || this.Verbosity == Verbosity.Verbose)
                 {
                     this._NotLoggedOutputLines.Enqueue((LogLevel.Information, data));
                 }
             }
         }
+
+        private void EnqueueError(string data)
+        {
+            if (data != null)
+            {
+                this._AllStdErrLines.Add(data);
+                if (this.Verbosity == Verbosity.Full || this.Verbosity == Verbosity.Verbose)
+                {
+                    this._NotLoggedOutputLines.Enqueue((LogLevel.Error, data));
+                }
+            }
+        }
         private void LogOutputImplementation()
         {
-            while (this.Running() || !this._NotLoggedOutputLines.IsEmpty)
+            while (this.IsRunning || !this._NotLoggedOutputLines.IsEmpty)
             {
                 if (this._NotLoggedOutputLines.TryDequeue(out (LogLevel, string) logItem))
                 {
@@ -496,7 +532,7 @@ namespace GRYLibrary.Core.Miscellaneous
             if (this.CurrentExecutionState == ExecutionState.Terminated)
             {
                 string result = $"{nameof(ExternalProgramExecutor)}-summary:";
-                result = result + Environment.NewLine + $"Executed program: {DefaultTitle}";
+                result = result + Environment.NewLine + $"Executed program: {CMD}";
                 result = result + Environment.NewLine + $"Process-Id: {this.ProcessId}";
                 result = result + Environment.NewLine + $"Title: {this.Title}";
                 result = result + Environment.NewLine + $"Exit-code: {this.ExitCode}";
@@ -510,6 +546,29 @@ namespace GRYLibrary.Core.Miscellaneous
                 throw new InvalidOperationException(this.GetInvalidOperationDueToNotTerminatedMessageByMembername(nameof(this.GetResult), ExecutionState.Terminated, true));
             }
         }
+    }
+    /// <summary>
+    /// This enum contains the verbosity-level for <see cref="ExternalProgramExecutor"/>.
+    /// </summary>
+    public enum Verbosity
+    {
+        /// <summary>
+        /// No output will be logged.
+        /// </summary>
+        Quiet = 0,
+        /// <summary>
+        /// If the exitcode of the executed program is not 0 then the StdErr will be logged.
+        /// This is the default-value for <see cref="ExternalProgramExecutor.Verbosity"/>.
+        /// </summary>
+        Normal = 1,
+        /// <summary>
+        /// Logs StdOut and StdErr of the executed program in realtime.
+        /// </summary>
+        Full = 2,
+        /// <summary>
+        /// Same as <see cref="Verbosity.Full"/> but with some more information added by <see cref="ExternalProgramExecutor"/>.
+        /// </summary>
+        Verbose = 3,
     }
     public enum ExecutionState
     {
