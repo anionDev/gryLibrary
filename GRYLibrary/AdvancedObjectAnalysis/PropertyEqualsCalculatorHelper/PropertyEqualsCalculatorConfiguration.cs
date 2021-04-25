@@ -43,15 +43,15 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper
         }
         internal void AddPending(object object1, object object2)
         {
-            PendingComparisons.Add(new ReferenceTuple(object1, object2));
+            this.PendingComparisons.Add(new ReferenceTuple(object1, object2));
         }
         internal bool ArePending(object object1, object object2)
         {
-          return  PendingComparisons.Contains(new ReferenceTuple(object1, object2));
+          return this.PendingComparisons.Contains(new ReferenceTuple(object1, object2));
         }
         internal void RemovePending(object object1, object object2)
         {
-            PendingComparisons.Remove(new ReferenceTuple(object1, object2));
+            this.PendingComparisons.Remove(new ReferenceTuple(object1, object2));
         }
         public int GetHashCode(object @object)
         {
@@ -73,12 +73,12 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper
 
         internal void MarkedAsNotEqual(object object1, object object2)
         {
-            RemovePending(object1, object2);
-            NotEqualPairs.Add(new ReferenceTuple(object1, object2));
+            this.RemovePending(object1, object2);
+            this.NotEqualPairs.Add(new ReferenceTuple(object1, object2));
         }
         internal bool WereMarkedAsNotEqual(object object1, object object2)
         {
-            return NotEqualPairs.Contains(new ReferenceTuple(object1, object2));
+            return this.NotEqualPairs.Contains(new ReferenceTuple(object1, object2));
         }
 
         private bool BelongsToEquivalenceClass(EquivalenceClass equivalenceClass, object @object)
@@ -113,7 +113,7 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper
 
         internal void AddEqualObjectsToEquivalenceClasses(object object1, object object2)
         {
-            RemovePending(object1, object2);
+            this.RemovePending(object1, object2);
             foreach (EquivalenceClass loopEquivalenceClass in this.EquivalenceClasses)
             {
                 if (this.BelongsToEquivalenceClass(loopEquivalenceClass, object1))

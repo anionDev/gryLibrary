@@ -171,17 +171,17 @@ namespace GRYLibrary.Core.LogObject
         public override bool Equals(object obj)
         {
             return obj is LogItem item &&
-                   _PlainMessage == item._PlainMessage &&
-                   EventId == item.EventId &&
-                   Category == item.Category &&
-                   LogLevel == item.LogLevel &&
-                   MomentOfLogEntry == item.MomentOfLogEntry &&
-                   MessageId == item.MessageId;
+                   this._PlainMessage == item._PlainMessage &&
+                   this.EventId == item.EventId &&
+                   this.Category == item.Category &&
+                   this.LogLevel == item.LogLevel &&
+                   this.MomentOfLogEntry == item.MomentOfLogEntry &&
+                   this.MessageId == item.MessageId;
         }
 
         public override int GetHashCode()
         {
-            return HashCode.Combine(_PlainMessage, EventId, Category, LogLevel, MomentOfLogEntry, MessageId);
+            return HashCode.Combine(this._PlainMessage, this.EventId, this.Category, this.LogLevel, this.MomentOfLogEntry, this.MessageId);
         }
 
         public static bool operator ==(LogItem left, LogItem right)

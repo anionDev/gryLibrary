@@ -15,7 +15,7 @@ namespace GRYLibrary.Core.Miscellaneous
     {
         public static Encoding DefaultEncoding { get; } = new UTF8Encoding(false);
         private readonly byte[] _Data;
-        public byte[] Data => _Data;
+        public byte[] Data => this._Data;
         public string DataAsHexString { get; }
         public ByteArray(byte[] value)
         {

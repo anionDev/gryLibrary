@@ -18,18 +18,18 @@ namespace GRYLibrary.Core.CryptoSystems.EncryptionAlgorithms.ConcreteCommonAlgor
 
         public override bool Equals(object obj)
         {
-            return obj is Point point && Equals(point);
+            return obj is Point point && this.Equals(point);
         }
 
         public bool Equals(Point other)
         {
-            return X.Equals(other.X) &&
-                   Y.Equals(other.Y);
+            return this.X.Equals(other.X) &&
+                   this.Y.Equals(other.Y);
         }
 
         public override int GetHashCode()
         {
-            return HashCode.Combine(X, Y);
+            return HashCode.Combine(this.X, this.Y);
         }
 
         public static bool operator ==(Point left, Point right)

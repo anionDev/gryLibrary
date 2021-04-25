@@ -43,15 +43,15 @@ namespace GRYLibrary.Core.Miscellaneous
         }
         public TValue GetValue(TKey key)
         {
-            return _CacheDictionaryStore.GetValue(key, default);
+            return this._CacheDictionaryStore.GetValue(key, default);
         }
         public void ResetCache()
         {
-            _CacheDictionaryStore.ResetCache();
+            this._CacheDictionaryStore.ResetCache();
         }
         public void ResetCache(TKey item)
         {
-            _CacheDictionaryStore.ResetCache(item);
+            this._CacheDictionaryStore.ResetCache(item);
         }
         public bool ContainsKey(TKey key)
         {

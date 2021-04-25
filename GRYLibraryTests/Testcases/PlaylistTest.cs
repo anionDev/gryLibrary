@@ -23,8 +23,8 @@ namespace GRYLibrary.Tests.Testcases
                 handler.CreatePlaylist(playlistFile);
                 Assert.IsTrue(File.Exists(playlistFile));
                 Assert.IsTrue(currentExpectedContent.EqualsIgnoringOrder(handler.GetSongs(playlistFile).ToList()));
-                CreateFile(currentExpectedContent, @"a.mp3");
-                CreateFile(currentExpectedContent, @"b.mp3");
+                this.CreateFile(currentExpectedContent, @"a.mp3");
+                this.CreateFile(currentExpectedContent, @"b.mp3");
                 handler.AddSongsToPlaylist(playlistFile, currentExpectedContent);
                 List<string> actualContent = handler.GetSongs(playlistFile).ToList();
                 Assert.IsTrue(currentExpectedContent.EqualsIgnoringOrder(actualContent));
@@ -73,7 +73,7 @@ namespace GRYLibrary.Tests.Testcases
         {
             foreach (var file in files)
             {
-                Clean(file);
+                this.Clean(file);
             }
         }
         [TestMethod]

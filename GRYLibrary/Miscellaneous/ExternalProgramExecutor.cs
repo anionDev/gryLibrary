@@ -67,7 +67,7 @@ namespace GRYLibrary.Core.Miscellaneous
                 return this._Running;
             }
         }
-        private readonly GRYLog _DefaultLog = GRYLog.Create();
+        private static readonly GRYLog _DefaultLog = GRYLog.Create();
         private readonly object _LockObject = new();
         private readonly ConcurrentQueue<(LogLevel, string)> _NotLoggedOutputLines = new();
         /// <summary>
@@ -90,7 +90,7 @@ namespace GRYLibrary.Core.Miscellaneous
         /// </exception>
         public int StartSynchronously()
         {
-            Prepare();
+            this.Prepare();
             string originalConsoleTitle = default;
             ConsoleColor originalConsoleForegroundColor = default;
             ConsoleColor originalConsoleBackgroundColor = default;
@@ -110,7 +110,7 @@ namespace GRYLibrary.Core.Miscellaneous
             }
             try
             {
-                if (UpdateConsoleTitle)
+                if (this.UpdateConsoleTitle)
                 {
                     try
                     {
@@ -121,7 +121,7 @@ namespace GRYLibrary.Core.Miscellaneous
                         Utilities.NoOperation();
                     }
                 }
-                Task task = StartProgram();
+                Task task = this.StartProgram();
                 task.Wait();
                 return this.ExitCode;
             }
@@ -130,7 +130,7 @@ namespace GRYLibrary.Core.Miscellaneous
                 try
                 {
                     this._Running = false;
-                    if (UpdateConsoleTitle)
+                    if (this.UpdateConsoleTitle)
                     {
                         Console.Title = originalConsoleTitle;
                     }
@@ -150,62 +150,99 @@ namespace GRYLibrary.Core.Miscellaneous
             {
                 this.LogNamespace = string.Empty;
             }
-            if (LogObject == default)
+            if (this.LogObject == default)
             {
-                LogObject = _DefaultLog;
+                this.LogObject = _DefaultLog;
+                if (this.Verbosity == Verbosity.Verbose)
+                {
+                    foreach (var logtarget in this.LogObject.Configuration.LogTargets)
+                    {
+                        logtarget.LogLevels.Add(LogLevel.Debug);
+                    }
+                }
             }
             this.ResolvePaths();
-            CMD = $"{WorkingDirectory}>{ProgramPathAndFile} {Arguments}";
+            this.CMD = $"{this.WorkingDirectory}>{this.ProgramPathAndFile} {this.Arguments}";
             if (this.Title == null)
             {
                 this.Title = string.Empty;
             }
-            LogStart();
+            this.LogStart();
         }
 
-        private void LogException(Exception exception)
+
+        /// <returns>
+        /// Returns a summary of the executed program with its error-code, console-outputs, etc.
+        /// </returns>
+        /// <remarks>
+        /// This summary is designed for readability and not for a further program-controlled processing of the data. For that purpose please read out the properties of this object.
+        /// </remarks>
+        /// <exception cref="InvalidOperationException">
+        /// If the process is not terminated yet.
+        /// </exception>
+        public string GetSummaryOfExecutedProgram(bool includeStdOutAndStdErr = false)
         {
-            if (this.Verbosity == Verbosity.Verbose)
+            if (this.CurrentExecutionState == ExecutionState.Terminated)
             {
-                this.LogObject.Log(exception);
+                string result = $"{nameof(ExternalProgramExecutor)}-summary:";
+                result = result + Environment.NewLine + $"Title: {this.Title}";
+                result = result + Environment.NewLine + $"Executed program: {this.CMD}";
+                result = result + Environment.NewLine + $"Process-Id: {this.ProcessId}";
+                result = result + Environment.NewLine + $"Exit-code: {this.ExitCode}";
+                result = result + Environment.NewLine + $"Execution-duration: {this.ExecutionDuration:d'd 'h'h 'm'm 's's'}";
+                if (includeStdOutAndStdErr)
+                {
+                    result = result + Environment.NewLine + $"StdOut:" + Environment.NewLine + string.Join(Environment.NewLine + "    ", this.AllStdOutLines);
+                    result = result + Environment.NewLine + $"StdErr:" + Environment.NewLine + string.Join(Environment.NewLine + "    ", this.AllStdErrLines);
+                }
+                return result;
+            }
+            else
+            {
+                throw new InvalidOperationException(this.GetInvalidOperationDueToNotTerminatedMessageByMembername(nameof(this.GetSummaryOfExecutedProgram), ExecutionState.Terminated, true));
             }
         }
 
-        private void LogEnd()
-        {
-            if (this.Verbosity == Verbosity.Verbose)
-            {
-                this.LogObject.Log($"Finished executing program", LogLevel.Debug);
-                this.LogObject.Log(this.GetResult(), LogLevel.Debug);
-            }
-        }
         private void LogStart()
         {
-            if (this.Verbosity == Verbosity.Verbose)
+            if (string.IsNullOrWhiteSpace(this.Title))
             {
-                if (string.IsNullOrWhiteSpace(Title))
-                {
-                    this.LogObject.Log($"Start executing program", LogLevel.Debug);
-                }
-                else
-                {
-                    this.LogObject.Log($"Start executing '{Title}'", LogLevel.Debug);
-                }
-                this.LogObject.Log($"Program which will be executed: {CMD}");
+                this.LogObject.Log($"Start executing program", LogLevel.Debug);
+            }
+            else
+            {
+                this.LogObject.Log($"Start executing '{this.Title}'", LogLevel.Debug);
+            }
+            this.LogObject.Log($"Program which will be executed: {this.CMD}", LogLevel.Debug);
+        }
+        private void LogImmediatelyAfterStart(int processId)
+        {
+            this.LogObject.Log($"Process-Id of started program: " + processId, LogLevel.Debug);
+        }
+        private void LogException(Exception exception)
+        {
+            this.LogObject.Log(exception);
+        }
+        private void LogEnd()
+        {
+            this.LogObject.Log($"Finished executing program", LogLevel.Debug);
+            foreach (string line in Utilities.SplitOnNewLineCharacter(this.GetSummaryOfExecutedProgram()))
+            {
+                this.LogObject.Log(line, LogLevel.Debug);
             }
         }
 
         public void StartAsynchronously()
         {
-            Prepare();
-            StartProgram();
+            this.Prepare();
+            this.StartProgram();
         }
         private Process _Process;
         private IDisposable _SubNamespace;
         private Task StartProgram()
         {
-            _SubNamespace = LogObject.UseSubNamespace(this.LogNamespace);
-            _Process = new Process();
+            this._SubNamespace = this.LogObject.UseSubNamespace(this.LogNamespace);
+            this._Process = new Process();
             Stopwatch stopWatch = new();
             try
             {
@@ -218,18 +255,18 @@ namespace GRYLibrary.Core.Miscellaneous
                 {
                     UseShellExecute = false,
                     ErrorDialog = false,
-                    Arguments = this.Arguments,
-                    WorkingDirectory = this.WorkingDirectory,
+                    Arguments = Arguments,
+                    WorkingDirectory = WorkingDirectory,
                     RedirectStandardOutput = true,
                     RedirectStandardError = true,
                     CreateNoWindow = !this.CreateWindow,
                 };
-                _Process.StartInfo = StartInfo;
-                _Process.OutputDataReceived += (object sender, DataReceivedEventArgs dataReceivedEventArgs) =>
+                this._Process.StartInfo = StartInfo;
+                this._Process.OutputDataReceived += (object sender, DataReceivedEventArgs dataReceivedEventArgs) =>
                 {
                     this.EnqueueInformation(dataReceivedEventArgs.Data);
                 };
-                _Process.ErrorDataReceived += (object sender, DataReceivedEventArgs dataReceivedEventArgs) =>
+                this._Process.ErrorDataReceived += (object sender, DataReceivedEventArgs dataReceivedEventArgs) =>
                 {
                     if (this.PrintErrorsAsInformation)
                     {
@@ -241,15 +278,12 @@ namespace GRYLibrary.Core.Miscellaneous
                     }
                 };
                 SupervisedThread readLogItemsThread;
-                if (this.Verbosity == Verbosity.Verbose)
-                {
-                    this.LogObject.Log($"Start '{this.Title}'", LogLevel.Debug);
-                }
                 stopWatch.Start();
-                _Process.Start();
-                this.ProcessId = _Process.Id;
-                _Process.BeginOutputReadLine();
-                _Process.BeginErrorReadLine();
+                this._Process.Start();
+                this.ProcessId = this._Process.Id;
+                this.LogImmediatelyAfterStart(this._ProcessId);
+                this._Process.BeginOutputReadLine();
+                this._Process.BeginErrorReadLine();
                 this._Running = true;
                 readLogItemsThread = SupervisedThread.Create(this.LogOutputImplementation);
                 readLogItemsThread.Name = $"Logger-Thread for '{this.Title}' ({nameof(ExternalProgramExecutor)}({this.Title}))";
@@ -258,19 +292,19 @@ namespace GRYLibrary.Core.Miscellaneous
             }
             catch (Exception exception)
             {
-                Dispose();
+                this.Dispose();
                 Exception processStartException = new ProcessStartException($"Exception occurred while start execution '{this.Title}'", exception);
-                LogException(processStartException);
+                this.LogException(processStartException);
                 throw processStartException;
             }
             Task task = new(() =>
             {
                 try
                 {
-                    WaitForProcessEnd(_Process);
+                    this.WaitForProcessEnd(this._Process);
                     stopWatch.Stop();
                     this.ExecutionDuration = stopWatch.Elapsed;
-                    this.ExitCode = _Process.ExitCode;
+                    this.ExitCode = this._Process.ExitCode;
                     if (this.ExitCode != 0 && this.Verbosity == Verbosity.Normal)
                     {
                         foreach (string item in this.AllStdErrLines)
@@ -278,13 +312,13 @@ namespace GRYLibrary.Core.Miscellaneous
                             this.EnqueueError(item);
                         }
                     }
-                    while (!_NotLoggedOutputLines.IsEmpty)
+                    while (!this._NotLoggedOutputLines.IsEmpty)
                     {
                         Thread.Sleep(60);
                     }
                     this._AllStdOutLinesAsArray = this._AllStdOutLines.ToArray();
                     this._AllStdErrLinesAsArray = this._AllStdErrLines.ToArray();
-                    LogEnd();
+                    this.LogEnd();
                     try
                     {
                         ExecutionFinishedEvent?.Invoke(this, this.ExitCode);
@@ -300,21 +334,23 @@ namespace GRYLibrary.Core.Miscellaneous
                 }
                 finally
                 {
-                    Dispose();
+                    this.Dispose();
                 }
             });
             task.Start();
             return task;
         }
+
+
         public void Dispose()
         {
-            if (_SubNamespace != null)
+            if (this._SubNamespace != null)
             {
-                _SubNamespace.Dispose();
+                this._SubNamespace.Dispose();
             }
-            if (_Process != null)
+            if (this._Process != null)
             {
-                _Process.Dispose();
+                this._Process.Dispose();
             }
             if (_DefaultLog != null)
             {
@@ -515,35 +551,6 @@ namespace GRYLibrary.Core.Miscellaneous
                 {
                     Thread.Sleep(50);
                 }
-            }
-        }
-
-        /// <returns>
-        /// Returns a summary of the executed program with its error-code, console-outputs, etc.
-        /// </returns>
-        /// <remarks>
-        /// This summary is designed for readability and not for a further program-controlled processing of the data. For that purpose please read out the properties of this object.
-        /// </remarks>
-        /// <exception cref="InvalidOperationException">
-        /// If the process is not terminated yet.
-        /// </exception>
-        public string GetResult()
-        {
-            if (this.CurrentExecutionState == ExecutionState.Terminated)
-            {
-                string result = $"{nameof(ExternalProgramExecutor)}-summary:";
-                result = result + Environment.NewLine + $"Executed program: {CMD}";
-                result = result + Environment.NewLine + $"Process-Id: {this.ProcessId}";
-                result = result + Environment.NewLine + $"Title: {this.Title}";
-                result = result + Environment.NewLine + $"Exit-code: {this.ExitCode}";
-                result = result + Environment.NewLine + $"Execution-duration: {this.ExecutionDuration:d'd 'h'h 'm'm 's's'}";
-                result = result + Environment.NewLine + $"StdOut:" + Environment.NewLine + string.Join(Environment.NewLine + "    ", this.AllStdOutLines);
-                result = result + Environment.NewLine + $"StdErr:" + Environment.NewLine + string.Join(Environment.NewLine + "    ", this.AllStdErrLines);
-                return result;
-            }
-            else
-            {
-                throw new InvalidOperationException(this.GetInvalidOperationDueToNotTerminatedMessageByMembername(nameof(this.GetResult), ExecutionState.Terminated, true));
             }
         }
     }
