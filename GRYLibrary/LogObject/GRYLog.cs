@@ -191,34 +191,34 @@ namespace GRYLibrary.Core.LogObject
         }
         public void Log(string message, LogLevel logLevel, Exception exception, string messageId)
         {
-            this.Log(this.GetExceptionMessage(message, exception), logLevel, messageId);
+            this.Log(this.GetExceptionMessage(exception, message), logLevel, messageId);
         }
         public void Log(string message, LogLevel logLevel, string messageId = null)
         {
             this.Log(() => message, logLevel, messageId);
         }
 
-        public void Log(Func<string> getMessage, string messageId)
+        public void Log(Func<string> getMessage, string messageId = null)
         {
             this.Log(getMessage, LogLevel.Information, messageId);
         }
-        public void Log(Func<string> getMessage, Exception exception, string messageId)
+        public void Log(Func<string> getMessage, Exception exception, string messageId = null)
         {
             this.Log(getMessage, LogLevel.Error, exception, messageId);
         }
-        public void Log(Exception exception, string messageId)
+        public void Log(Exception exception, string messageId = null)
         {
             this.Log(LogLevel.Error, exception, messageId);
         }
-        public void Log(LogLevel logLevel, Exception exception, string messageId)
+        public void Log(LogLevel logLevel, Exception exception, string messageId = null)
         {
             this.Log(() => "An exception occurred", logLevel, exception, messageId);
         }
-        public void Log(Func<string> getMessage, LogLevel logLevel, Exception exception, string messageId)
+        public void Log(Func<string> getMessage, LogLevel logLevel, Exception exception, string messageId = null)
         {
-            this.Log(() => this.GetExceptionMessage(getMessage(), exception), logLevel, messageId);
+            this.Log(() => this.GetExceptionMessage(exception, getMessage()), logLevel, messageId);
         }
-        public void Log(Func<string> getMessage, LogLevel logLevel, string messageId)
+        public void Log(Func<string> getMessage, LogLevel logLevel, string messageId = null)
         {
             this.Log(new LogItem(getMessage, logLevel, messageId));
         }
@@ -311,22 +311,56 @@ namespace GRYLibrary.Core.LogObject
             return logLevel.Equals(LogLevel.Error) || logLevel.Equals(LogLevel.Critical);
         }
 
-        private string GetExceptionMessage(string message, Exception exception)
+        public const string _Indentation = "    ";
+        private string GetExceptionMessage(Exception exception, string message = null, uint indentationLevel = 1, string exceptionTitle = "Exception-information")
         {
-            string result = message;
+            if (string.IsNullOrWhiteSpace(message))
+            {
+                message = "An exception occurred.";
+            }
             if (!(message.EndsWith(".") | message.EndsWith("?") | message.EndsWith(":") | message.EndsWith("!")))
             {
-                result = message + ".";
+                message = message + ".";
             }
-            if (this.Configuration.WriteExceptionMessageOfExceptionInLogEntry)
+            string result = $"{exceptionTitle}: ";
+            if (exception == null)
             {
-                result = result + " Exception-message: " + exception.Message;
+                result += "null";
             }
-            if (this.Configuration.WriteExceptionStackTraceOfExceptionInLogEntry)
+            else
             {
-                result = result + " (Exception-details: " + exception.StackTrace + ")";
+                result += $"'{message}', Exception-type: {exception.GetType().FullName}, Exception-message: '{exception.Message}'";
+                if (this.Configuration.WriteDetailsOfLoggedExceptionsToLogEntry)
+                {
+                    result += @$"
+(Exception-details:
+{Indent(FormatStackTrace(exception), indentationLevel)},
+{Indent(FormatStackInnerException(exception, indentationLevel), indentationLevel)}
+)";
+                }
             }
             return result;
+        }
+
+        private string Indent(IList<string> lines, uint indentationLevel)
+        {
+            string fullIndentation = string.Concat(Enumerable.Repeat(_Indentation, (int)indentationLevel));
+            return string.Join(Environment.NewLine, lines.Select(line => fullIndentation + line));
+        }
+
+        private IList<string> FormatStackTrace(Exception exception)
+        {
+            List<string> result = new List<string>
+            {
+                "Stack-trace: "
+            };
+            result.AddRange(Utilities.SplitOnNewLineCharacter(exception.StackTrace));
+            return result;
+        }
+
+        private IList<string> FormatStackInnerException(Exception exception, uint indentationLevel)
+        {
+            return Utilities.SplitOnNewLineCharacter(GetExceptionMessage(exception.InnerException, null, indentationLevel + 1, "Inner exception")).ToList();
         }
 
         public void ExecuteAndLogForEach<T>(IEnumerable<T> items, Action<T> itemAction, string nameOfEntireLoopAction, string subNamespaceOfEntireLoopAction, Func<T, string> nameOfSingleItemFunc, Func<T, string> subNamespaceOfSingleItemFunc, bool preventThrowingExceptions = false, LogLevel logLevelForOverhead = LogLevel.Debug)

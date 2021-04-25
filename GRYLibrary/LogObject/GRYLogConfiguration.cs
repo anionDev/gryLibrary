@@ -30,8 +30,7 @@ namespace GRYLibrary.Core.LogObject
         /// </summary>
         public bool PrintErrorsAsInformation { get; set; }
         public string Name { get; set; }
-        public bool WriteExceptionMessageOfExceptionInLogEntry { get; set; }
-        public bool WriteExceptionStackTraceOfExceptionInLogEntry { get; set; }
+        public bool WriteDetailsOfLoggedExceptionsToLogEntry { get; set; }
         public string DateFormat { get; set; }
         public List<XMLSerializer.KeyValuePair<LogLevel, LoggedMessageTypeConfiguration>> LoggedMessageTypesConfiguration { get; set; }
         public bool ConvertTimeForLogentriesToUTCFormat { get; set; }
@@ -80,8 +79,7 @@ namespace GRYLibrary.Core.LogObject
             this.ConfigurationFile = string.Empty;
             this.PrintEmptyLines = false;
             this.PrintErrorsAsInformation = false;
-            this.WriteExceptionMessageOfExceptionInLogEntry = true;
-            this.WriteExceptionStackTraceOfExceptionInLogEntry = true;
+            this.WriteDetailsOfLoggedExceptionsToLogEntry = true;
             this.DateFormat = "yyyy-MM-dd HH:mm:ss";
             this.LoggedMessageTypesConfiguration = new List<XMLSerializer.KeyValuePair<LogLevel, LoggedMessageTypeConfiguration>>();
             this.ConvertTimeForLogentriesToUTCFormat = false;

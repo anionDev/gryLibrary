@@ -183,6 +183,16 @@ namespace GRYLibrary.Core.LogObject
         {
             return HashCode.Combine(_PlainMessage, EventId, Category, LogLevel, MomentOfLogEntry, MessageId);
         }
+
+        public static bool operator ==(LogItem left, LogItem right)
+        {
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(LogItem left, LogItem right)
+        {
+            return !(left == right);
+        }
     }
 }
 

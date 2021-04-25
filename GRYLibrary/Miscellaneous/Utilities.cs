@@ -1230,7 +1230,10 @@ namespace GRYLibrary.Core.Miscellaneous
                 || value == "yes"
                 || value == "true";
         }
-
+        public static string[] SplitOnNewLineCharacter(string input)
+        {
+            return input.Split(new string[] { Environment.NewLine},    StringSplitOptions.None).Select(line=>line.Replace("\r", string.Empty).Replace("\n", string.Empty)).ToArray();
+        }
         public static void AssertCondition(bool condition, string message = EmptyString)
         {
             if (!condition)
