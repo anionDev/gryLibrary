@@ -29,7 +29,7 @@ namespace GRYLibrary.Core.Playlists.ConcretePlaylistHandler
 
         public IEnumerable<string> GetSongs(string playlistFile)
         {
-            return GetSongsAndExcludedSongs(playlistFile).Item1;
+            return this.GetSongsAndExcludedSongs(playlistFile).Item1;
         }
 
         public Tuple<IEnumerable<string>, IEnumerable<string>> GetSongsAndExcludedSongs(string playlistFile)

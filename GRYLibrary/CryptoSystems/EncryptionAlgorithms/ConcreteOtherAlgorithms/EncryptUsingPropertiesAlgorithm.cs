@@ -10,7 +10,7 @@ namespace GRYLibrary.Core.CryptoSystems.EncryptionAlgorithms.ConcreteOtherAlgori
         public abstract byte[] Encrypt(byte[] unencryptedData);
         public string Encrypt(string unencryptedData)
         {
-            return Utilities.ByteArrayToHexString(Encrypt(this.Encoding.GetBytes(unencryptedData)));
+            return Utilities.ByteArrayToHexString(this.Encrypt(this.Encoding.GetBytes(unencryptedData)));
         }
         /// <summary>
         /// Use this function to decrypt data.
@@ -18,7 +18,7 @@ namespace GRYLibrary.Core.CryptoSystems.EncryptionAlgorithms.ConcreteOtherAlgori
         public abstract byte[] Decrypt(byte[] encryptedData, byte[] password);
         public string Decrypt(string encryptedData, string password)
         {
-            return Utilities.ByteArrayToHexString(Decrypt(this.Encoding.GetBytes(encryptedData), this.Encoding.GetBytes(password)));
+            return Utilities.ByteArrayToHexString(this.Decrypt(this.Encoding.GetBytes(encryptedData), this.Encoding.GetBytes(password)));
         }
     }
 }

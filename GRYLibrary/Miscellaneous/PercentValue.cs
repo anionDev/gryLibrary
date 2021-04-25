@@ -54,16 +54,16 @@ namespace GRYLibrary.Core.Miscellaneous
 
         public override bool Equals(object obj)
         {
-            return obj is PercentValue value && Value == value.Value;
+            return obj is PercentValue value && this.Value == value.Value;
         }
 
         public override int GetHashCode()
         {
-            return HashCode.Combine(Value);
+            return HashCode.Combine(this.Value);
         }
         public override string ToString()
         {
-            return Value.ToString();
+            return this.Value.ToString();
         }
         #region Operators
         public static bool operator ==(PercentValue left, PercentValue right)

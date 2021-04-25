@@ -101,10 +101,10 @@ namespace GRYLibrary.Core.LogObject
                 new Console() { Enabled = true, Format = GRYLogLogFormat.GRYLogFormat },
                 new LogFile() { Enabled = !string.IsNullOrWhiteSpace(logFile), Format = GRYLogLogFormat.GRYLogFormat, File = logFile }
             };
-            foreach (GRYLogTarget target in this.LogTargets)
-            {
-                target.Enabled = true;
-            }
+        }
+        public void AddSystemLog()
+        {
+
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
                 this.LogTargets.Add(new WindowsEventLog());

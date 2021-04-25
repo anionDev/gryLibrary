@@ -38,7 +38,7 @@ namespace GRYLibrary.Core.CryptoSystems.EncryptionAlgorithms.ConcreteOtherAlgori
         /// <inheritdoc/>
         public override byte[] Encrypt(byte[] unencryptedData)
         {
-            return EncryptAndSerialize(unencryptedData, PasswordEncryptionKeys.ToArray(), this.InternalEncryptionAlgorithmForKeys, this.HashAlgorithm);
+            return EncryptAndSerialize(unencryptedData, this.PasswordEncryptionKeys.ToArray(), this.InternalEncryptionAlgorithmForKeys, this.HashAlgorithm);
         }
 
         /// <inheritdoc/>

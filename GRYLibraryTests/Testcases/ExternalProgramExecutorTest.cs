@@ -24,7 +24,7 @@ namespace GRYLibrary.Tests.Testcases
         [TestMethod]
         public void TestAsyncExecution()
         {
-            ExternalProgramExecutor externalProgramExecutor = new(GetTimeoutTool(), 2.ToString());
+            ExternalProgramExecutor externalProgramExecutor = new(this.GetTimeoutTool(), 2.ToString());
             Semaphore semaphore = new();
             semaphore.Increment();
             externalProgramExecutor.ExecutionFinishedEvent += (ExternalProgramExecutor sender, int exitCode) =>

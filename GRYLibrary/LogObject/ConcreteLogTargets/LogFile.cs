@@ -16,15 +16,15 @@ namespace GRYLibrary.Core.LogObject.ConcreteLogTargets
         protected override void ExecuteImplementation(LogItem logItem, GRYLog logObject)
         {
             logItem.Format(logObject.Configuration, out string formattedMessage, out int _, out int _, out ConsoleColor _, this.Format, logItem.MessageId);
-            _Pool.Add(formattedMessage);
-            if (PreFlushPoolSize <= _Pool.Count)
+            this._Pool.Add(formattedMessage);
+            if (this.PreFlushPoolSize <= this._Pool.Count)
             {
-                Flush();
+                this.Flush();
             }
         }
         public override void Dispose()
         {
-            Flush();
+            this.Flush();
         }
 
         public void Flush()
@@ -36,13 +36,13 @@ namespace GRYLibrary.Core.LogObject.ConcreteLogTargets
             string file = Utilities.ResolveToFullPath(this.File);
             Utilities.EnsureFileExists(file, true);
             string result = string.Empty;
-            for (int i = 0; i < _Pool.Count; i++)
+            for (int i = 0; i < this._Pool.Count; i++)
             {
                 if (!(i == 0 && Utilities.FileIsEmpty(file)))
                 {
                     result += Environment.NewLine;
                 }
-                result += _Pool[i];
+                result += this._Pool[i];
             }
             Encoding encoding;
             if (this.Encoding.Equals(_UTF8Identifier))
@@ -54,7 +54,7 @@ namespace GRYLibrary.Core.LogObject.ConcreteLogTargets
                 encoding = System.Text.Encoding.GetEncoding(this.Encoding);
             }
             System.IO.File.AppendAllText(file, result, encoding);
-            _Pool.Clear();
+            this._Pool.Clear();
         }
 
         public override ISet<Type> FurtherGetExtraTypesWhichAreRequiredForSerialization()

@@ -21,12 +21,12 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis
         public IEnumerable<(object, Type)> IterateOverObjectTransitively(object @object)
         {
             List<(object, Type)> result = new();
-            IterateOverObjectTransitively(@object, result);
+            this.IterateOverObjectTransitively(@object, result);
             return result;
         }
         private void IterateOverObjectTransitively(object @object, IList<(object, Type)> visitedObjects)
         {
-            if (Contains(visitedObjects, @object))
+            if (this.Contains(visitedObjects, @object))
             {
                 return;
             }
@@ -42,7 +42,7 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis
             {
                 foreach (object item in EnumerableTools.ObjectToEnumerable(@object))
                 {
-                    IterateOverObjectTransitively(item, visitedObjects);
+                    this.IterateOverObjectTransitively(item, visitedObjects);
                 }
             }
             else if (PrimitiveComparer.TypeIsTreatedAsPrimitive(type))
@@ -54,11 +54,11 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis
 
                 foreach (FieldInfo field in type.GetFields().Where((field) => this.Configuration.FieldSelector(field)))
                 {
-                    IterateOverObjectTransitively(field.GetValue(@object), visitedObjects);
+                    this.IterateOverObjectTransitively(field.GetValue(@object), visitedObjects);
                 }
                 foreach (PropertyInfo property in type.GetProperties().Where((property) => this.Configuration.PropertySelector(property)))
                 {
-                    IterateOverObjectTransitively(property.GetValue(@object), visitedObjects);
+                    this.IterateOverObjectTransitively(property.GetValue(@object), visitedObjects);
                 }
             }
         }

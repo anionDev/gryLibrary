@@ -261,7 +261,7 @@ namespace GRYLibrary.Core.LogObject
                     }
                     if (this.Configuration.StoreProcessedLogItemsInternally)
                     {
-                        ProcessedLogItems.Add(logItem);
+                        this.ProcessedLogItems.Add(logItem);
                     }
                     if (logItem.PlainMessage.Contains(Environment.NewLine) && this.Configuration.LogEveryLineOfLogEntryInNewLine)
                     {
@@ -297,7 +297,7 @@ namespace GRYLibrary.Core.LogObject
             }
             catch (Exception exception)
             {
-                this.ErrorOccurred?.Invoke(exception, logItem);
+                ErrorOccurred?.Invoke(exception, logItem);
             }
         }
 
@@ -320,7 +320,7 @@ namespace GRYLibrary.Core.LogObject
             }
             if (!(message.EndsWith(".") | message.EndsWith("?") | message.EndsWith(":") | message.EndsWith("!")))
             {
-                message = message + ".";
+                message += ".";
             }
             string result = $"{exceptionTitle}: ";
             if (exception == null)
@@ -334,8 +334,8 @@ namespace GRYLibrary.Core.LogObject
                 {
                     result += @$"
 (Exception-details:
-{Indent(FormatStackTrace(exception), indentationLevel)},
-{Indent(FormatStackInnerException(exception, indentationLevel), indentationLevel)}
+{this.Indent(this.FormatStackTrace(exception), indentationLevel)},
+{this.Indent(this.FormatStackInnerException(exception, indentationLevel), indentationLevel)}
 )";
                 }
             }
@@ -350,7 +350,7 @@ namespace GRYLibrary.Core.LogObject
 
         private IList<string> FormatStackTrace(Exception exception)
         {
-            List<string> result = new List<string>
+            List<string> result = new()
             {
                 "Stack-trace: "
             };
@@ -360,12 +360,12 @@ namespace GRYLibrary.Core.LogObject
 
         private IList<string> FormatStackInnerException(Exception exception, uint indentationLevel)
         {
-            return Utilities.SplitOnNewLineCharacter(GetExceptionMessage(exception.InnerException, null, indentationLevel + 1, "Inner exception")).ToList();
+            return Utilities.SplitOnNewLineCharacter(this.GetExceptionMessage(exception.InnerException, null, indentationLevel + 1, "Inner exception")).ToList();
         }
 
         public void ExecuteAndLogForEach<T>(IEnumerable<T> items, Action<T> itemAction, string nameOfEntireLoopAction, string subNamespaceOfEntireLoopAction, Func<T, string> nameOfSingleItemFunc, Func<T, string> subNamespaceOfSingleItemFunc, bool preventThrowingExceptions = false, LogLevel logLevelForOverhead = LogLevel.Debug)
         {
-            ExecuteAndLog(() =>
+            this.ExecuteAndLog(() =>
             {
                 List<T> itemsAsList = items.ToList();
                 uint amountOfItems = (uint)itemsAsList.Count;
@@ -375,7 +375,7 @@ namespace GRYLibrary.Core.LogObject
                     {
                         T currentItem = itemsAsList[(int)currentIndex];
                         string nameOfSingleItem = nameOfSingleItemFunc(currentItem);
-                        ExecuteAndLog(() => itemAction(currentItem), nameOfSingleItem, preventThrowingExceptions, logLevelForOverhead, subNamespaceOfSingleItemFunc(currentItem));
+                        this.ExecuteAndLog(() => itemAction(currentItem), nameOfSingleItem, preventThrowingExceptions, logLevelForOverhead, subNamespaceOfSingleItemFunc(currentItem));
                     }
                     finally
                     {
@@ -476,7 +476,7 @@ namespace GRYLibrary.Core.LogObject
         {
             try
             {
-                this.NewLogItem?.Invoke(message);
+                NewLogItem?.Invoke(message);
             }
             catch
             {

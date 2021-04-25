@@ -38,7 +38,7 @@ namespace GRYLibrary.Core.CryptoSystems.EncryptionAlgorithms.ConcreteCommonAlgor
         /// <inheritdoc/>
         public override byte[] Encrypt(byte[] unencryptedData, byte[] password)
         {
-            byte[] iv = GetIV();
+            byte[] iv = this.GetIV();
             byte[] encrypted;
             using (RijndaelManaged algorithmImplementation = new())
             {

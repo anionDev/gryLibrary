@@ -2259,7 +2259,7 @@ namespace GRYLibrary.Core.Miscellaneous
                 {
                     using RegistryKey key = Registry.CurrentUser.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize", true);
 
-                    key.SetValue("AppsUseLightTheme", _Enabled ? 0 : 1);
+                    key.SetValue("AppsUseLightTheme", this._Enabled ? 0 : 1);
                 }
             }
 

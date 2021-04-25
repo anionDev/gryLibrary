@@ -70,7 +70,7 @@ namespace GRYLibrary.Core.XMLSerializer
         }
         private XmlSerializer GetSerializer()
         {
-            return new XmlSerializer(this._T, XmlAttributeOverrides, GetExtraTypes(), new XmlRootAttribute(this._T.Name), DefaultNamespace);
+            return new XmlSerializer(this._T, this.XmlAttributeOverrides, this.GetExtraTypes(), new XmlRootAttribute(this._T.Name), this.DefaultNamespace);
         }
     }
 }

@@ -11,8 +11,8 @@ namespace GRYLibrary.Tests.Testcases
         [TestProperty(nameof(TestKind), nameof(TestKind.UnitTest))]
         public void TestCalculateCombinedSimilarity1()
         {
-            TestRange(0.8.ToPercentValue(), Similarity.CalculateCombinedSimilarity("123a5678", "123b5678"), 0.99.ToPercentValue());
-            TestRange(0.01.ToPercentValue(), Similarity.CalculateCombinedSimilarity("12345678", "a2cdefgh"), 0.2.ToPercentValue());
+            this.TestRange(0.8.ToPercentValue(), Similarity.CalculateCombinedSimilarity("123a5678", "123b5678"), 0.99.ToPercentValue());
+            this.TestRange(0.01.ToPercentValue(), Similarity.CalculateCombinedSimilarity("12345678", "a2cdefgh"), 0.2.ToPercentValue());
             Assert.AreEqual(0, Similarity.CalculateCombinedSimilarity("1234", "56789").Value);
             Assert.AreEqual(1, Similarity.CalculateCombinedSimilarity("1234", "1234").Value);
         }
@@ -126,18 +126,18 @@ namespace GRYLibrary.Tests.Testcases
         [TestProperty(nameof(TestKind), nameof(TestKind.UnitTest))]
         public void TestCosineSimilarityWithDifferentValues()
         {
-            TestRange(0.9.ToPercentValue(), Similarity.CalculateCosineSimilarity("test", "test2"), 1.ToPercentValue());
-            TestRange(0.8.ToPercentValue(), Similarity.CalculateCosineSimilarity("test1", "test2"), 0.9.ToPercentValue());
+            this.TestRange(0.9.ToPercentValue(), Similarity.CalculateCosineSimilarity("test", "test2"), 1.ToPercentValue());
+            this.TestRange(0.8.ToPercentValue(), Similarity.CalculateCosineSimilarity("test1", "test2"), 0.9.ToPercentValue());
             Assert.AreEqual(0, Similarity.CalculateCosineSimilarity("test", string.Empty).Value);
             Assert.AreEqual(0, Similarity.CalculateCosineSimilarity(string.Empty, "test").Value);
             Assert.AreEqual(0, Similarity.CalculateCosineSimilarity("test", "a").Value);
             Assert.AreEqual(0, Similarity.CalculateCosineSimilarity("a", "test").Value);
-            TestRange(0.1.ToPercentValue(), Similarity.CalculateCosineSimilarity("test", "aeaa"), 0.2.ToPercentValue());
-            TestRange(0.1.ToPercentValue(), Similarity.CalculateCosineSimilarity("aeaa", "test"), 0.2.ToPercentValue());
+            this.TestRange(0.1.ToPercentValue(), Similarity.CalculateCosineSimilarity("test", "aeaa"), 0.2.ToPercentValue());
+            this.TestRange(0.1.ToPercentValue(), Similarity.CalculateCosineSimilarity("aeaa", "test"), 0.2.ToPercentValue());
             Assert.AreEqual(0, Similarity.CalculateCosineSimilarity("abcd", "efgh").Value);
-            TestRange(0.1.ToPercentValue(), Similarity.CalculateCosineSimilarity("xx345xxx", "yy345yyy"), 0.2.ToPercentValue());
-            TestRange(0.3.ToPercentValue(), Similarity.CalculateCosineSimilarity("12xxx678", "12yyy678"), 0.4.ToPercentValue());
-            TestRange(0.7.ToPercentValue(), Similarity.CalculateCosineSimilarity("12345678", "1x34567890"), 0.8.ToPercentValue());
+            this.TestRange(0.1.ToPercentValue(), Similarity.CalculateCosineSimilarity("xx345xxx", "yy345yyy"), 0.2.ToPercentValue());
+            this.TestRange(0.3.ToPercentValue(), Similarity.CalculateCosineSimilarity("12xxx678", "12yyy678"), 0.4.ToPercentValue());
+            this.TestRange(0.7.ToPercentValue(), Similarity.CalculateCosineSimilarity("12345678", "1x34567890"), 0.8.ToPercentValue());
         }
 
         #endregion

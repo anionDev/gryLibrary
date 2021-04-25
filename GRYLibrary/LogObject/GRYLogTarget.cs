@@ -25,9 +25,8 @@ namespace GRYLibrary.Core.LogObject
                  LogLevel.Error,
                  LogLevel.Critical
             };
-        public bool Enabled { get; set; } = false;
+        public bool Enabled { get; set; } = true;
         public abstract ISet<Type> FurtherGetExtraTypesWhichAreRequiredForSerialization();
-
         internal void Execute(LogItem logItem, GRYLog logObject)
         {
             this.ExecuteImplementation(logItem, logObject);

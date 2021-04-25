@@ -64,9 +64,9 @@ namespace GRYLibrary.Core.AdvancedXMLSerialysis
             {
                 //TODO
             }
-            if (!Utilities.IsAssignableFrom(@object, _T))
+            if (!Utilities.IsAssignableFrom(@object, this._T))
             {
-                throw new ArgumentException($"Can only serialize objects of type {@object.GetType().FullName} but the given object has the type {_T.FullName}");
+                throw new ArgumentException($"Can only serialize objects of type {@object.GetType().FullName} but the given object has the type {this._T.FullName}");
             }
             object objectForRealSerialization = GRYSObject.Create(@object, this.SerializationConfiguration);
             IEnumerable<(object, Type)> allReferencedObjects = new PropertyIterator().IterateOverObjectTransitively(objectForRealSerialization);
@@ -78,7 +78,7 @@ namespace GRYLibrary.Core.AdvancedXMLSerialysis
                     extraTypes.UnionWith(extraTypesProvider.GetExtraTypesWhichAreRequiredForSerialization());
                 }
             }
-            GetSerializer().Serialize(writer, objectForRealSerialization);
+            this.GetSerializer().Serialize(writer, objectForRealSerialization);
         }
 
 
