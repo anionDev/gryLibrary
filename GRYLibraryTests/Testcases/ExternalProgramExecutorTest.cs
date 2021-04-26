@@ -24,7 +24,7 @@ namespace GRYLibrary.Tests.Testcases
         [TestMethod]
         public void TestAsyncExecution()
         {
-            ExternalProgramExecutor externalProgramExecutor = new(this.GetTimeoutTool(), 2.ToString());
+            ExternalProgramExecutor externalProgramExecutor = new(Utilities.TestUtilities.GetTimeoutTool(), 2.ToString());
             Semaphore semaphore = new();
             semaphore.Increment();
             externalProgramExecutor.ExecutionFinishedEvent += (ExternalProgramExecutor sender, int exitCode) =>
@@ -32,34 +32,11 @@ namespace GRYLibrary.Tests.Testcases
                 Assert.AreEqual(0, exitCode);
                 semaphore.Decrement();
             };
-             externalProgramExecutor.StartAsynchronously();
+            externalProgramExecutor.StartAsynchronously();
             Assert.AreNotEqual(0, externalProgramExecutor.ProcessId);
             while (semaphore.Value != 0)
             {
                 Thread.Sleep(200);
-            }
-        }
-        public string GetTimeoutTool()
-        {
-            return OperatingSystem.GetCurrentOperatingSystem().Accept(GetTimeoutToolVisitor.Instance);
-        }
-        private class GetTimeoutToolVisitor : IOperatingSystemVisitor<string>
-        {
-            public static IOperatingSystemVisitor<string> Instance { get; set; } = new GetTimeoutToolVisitor();
-
-            public string Handle(OSX operatingSystem)
-            {
-                return "sleep";
-            }
-
-            public string Handle(Windows operatingSystem)
-            {
-                return "timeout";
-            }
-
-            public string Handle(Linux operatingSystem)
-            {
-                return "sleep";
             }
         }
     }
