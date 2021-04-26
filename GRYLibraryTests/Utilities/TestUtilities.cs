@@ -1,5 +1,7 @@
 ﻿using GRYLibrary.Core.AdvancedObjectAnalysis;
 using GRYLibrary.Core.CryptoSystems.ConcreteHashAlgorithms;
+using GRYLibrary.Core.OperatingSystem;
+using GRYLibrary.Core.OperatingSystem.ConcreteOperatingSystems;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Linq;
@@ -88,6 +90,29 @@ namespace GRYLibrary.Tests.Utilities
 
             // assert
             Assert.IsTrue(expectedResult.SequenceEqual(actualResult));
+        }
+        public static string GetTimeoutTool()
+        {
+            return Core.OperatingSystem.OperatingSystem.GetCurrentOperatingSystem().Accept(GetTimeoutToolVisitor.Instance);
+        }
+        private class GetTimeoutToolVisitor : IOperatingSystemVisitor<string>
+        {
+            public static IOperatingSystemVisitor<string> Instance { get; set; } = new GetTimeoutToolVisitor();
+
+            public string Handle(OSX operatingSystem)
+            {
+                return "sleep";
+            }
+
+            public string Handle(Windows operatingSystem)
+            {
+                return "timeout";
+            }
+
+            public string Handle(Linux operatingSystem)
+            {
+                return "sleep";
+            }
         }
     }
 }

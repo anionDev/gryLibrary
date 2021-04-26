@@ -366,6 +366,7 @@ namespace GRYLibrary.Core.Miscellaneous
                 {
                     process.Kill();
                     process.WaitForExit();
+                    this.LogObject.Log($"Execution was aborted due to a timeout. (The timeout was set to {Utilities.DurationToUserFriendlyString(TimeSpan.FromMilliseconds(this.TimeoutInMilliseconds.Value))}).", LogLevel.Debug);
                     this.ProcessWasAbortedDueToTimeout = true;
                 }
             }
