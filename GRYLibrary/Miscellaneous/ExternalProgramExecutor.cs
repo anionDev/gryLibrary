@@ -307,7 +307,7 @@ namespace GRYLibrary.Core.Miscellaneous
                     this.ExitCode = this._Process.ExitCode;
                     if (this.ExitCode != 0 && this.Verbosity == Verbosity.Normal)
                     {
-                        foreach (string item in this.AllStdErrLines)
+                        foreach (string item in this._AllStdErrLines)
                         {
                             this.EnqueueError(item);
                         }
