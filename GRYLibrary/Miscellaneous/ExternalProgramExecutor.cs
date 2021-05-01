@@ -129,7 +129,6 @@ namespace GRYLibrary.Core.Miscellaneous
             {
                 try
                 {
-                    this._Running = false;
                     if (this.UpdateConsoleTitle)
                     {
                         Console.Title = originalConsoleTitle;
@@ -301,17 +300,9 @@ namespace GRYLibrary.Core.Miscellaneous
             {
                 try
                 {
-                    this.WaitForProcessEnd(this._Process);
-                    stopWatch.Stop();
+                    this.WaitForProcessEnd(this._Process, stopWatch);
                     this.ExecutionDuration = stopWatch.Elapsed;
                     this.ExitCode = this._Process.ExitCode;
-                    if (this.ExitCode != 0 && this.Verbosity == Verbosity.Normal)
-                    {
-                        foreach (string item in this._AllStdErrLines)
-                        {
-                            this.EnqueueError(item);
-                        }
-                    }
                     while (!this._NotLoggedOutputLines.IsEmpty)
                     {
                         Thread.Sleep(60);
@@ -334,7 +325,7 @@ namespace GRYLibrary.Core.Miscellaneous
                 }
                 catch (Exception exception)
                 {
-                    LogObject.Log("Error while finishing program-execution", exception);
+                    this.LogObject.Log("Error while finishing program-execution", exception);
                 }
                 finally
                 {
@@ -362,7 +353,7 @@ namespace GRYLibrary.Core.Miscellaneous
             }
         }
 
-        private void WaitForProcessEnd(Process process)
+        private void WaitForProcessEnd(Process process, Stopwatch stopwatch)
         {
             if (this.TimeoutInMilliseconds.HasValue)
             {
@@ -370,6 +361,7 @@ namespace GRYLibrary.Core.Miscellaneous
                 {
                     process.Kill();
                     process.WaitForExit();
+                    stopwatch.Stop();
                     this.LogObject.Log($"Execution was aborted due to a timeout. (The timeout was set to {Utilities.DurationToUserFriendlyString(TimeSpan.FromMilliseconds(this.TimeoutInMilliseconds.Value))}).", LogLevel.Debug);
                     this.ProcessWasAbortedDueToTimeout = true;
                 }
@@ -377,7 +369,20 @@ namespace GRYLibrary.Core.Miscellaneous
             else
             {
                 process.WaitForExit();
+                stopwatch.Stop();
             }
+            if (process.ExitCode != 0 && this.Verbosity == Verbosity.Normal)
+            {
+                foreach (string stdOutLine in this._AllStdOutLines)
+                {
+                    this._NotLoggedOutputLines.Enqueue((LogLevel.Information, stdOutLine));
+                }
+                foreach (string stdErrLine in this._AllStdErrLines)
+                {
+                    this._NotLoggedOutputLines.Enqueue((LogLevel.Error, stdErrLine));
+                }
+            }
+            this._Running = false;
             this.CurrentExecutionState = ExecutionState.Terminated;
         }
         public void WaitUntilTerminated()
@@ -521,28 +526,52 @@ namespace GRYLibrary.Core.Miscellaneous
             }
         }
 
-        private void EnqueueInformation(string data)
+        private void EnqueueInformation(string rawLine)
         {
-            if (data != null)
+            if (this.NormalizeLine(rawLine, out string line))
             {
-                this._AllStdOutLines.Add(data);
+                this._AllStdOutLines.Add(line);
                 if (this.Verbosity == Verbosity.Full || this.Verbosity == Verbosity.Verbose)
                 {
-                    this._NotLoggedOutputLines.Enqueue((LogLevel.Information, data));
+                    this._NotLoggedOutputLines.Enqueue((LogLevel.Information, line));
                 }
             }
         }
 
-        private void EnqueueError(string data)
+        private void EnqueueError(string rawLine)
         {
-            if (data != null)
+            if (this.NormalizeLine(rawLine, out string line))
             {
-                this._AllStdErrLines.Add(data);
+                this._AllStdErrLines.Add(line);
                 if (this.Verbosity == Verbosity.Full || this.Verbosity == Verbosity.Verbose)
                 {
-                    this._NotLoggedOutputLines.Enqueue((LogLevel.Error, data));
+                    this._NotLoggedOutputLines.Enqueue((LogLevel.Error, line));
                 }
             }
+        }
+
+        private bool NormalizeLine(string line, out string data)
+        {
+            if (line == null)
+            {
+                data = null;
+                return false;
+            }
+            else
+            {
+                line = line.Trim();
+                if (string.IsNullOrEmpty(line))
+                {
+                    data = null;
+                    return false;
+                }
+                else
+                {
+                    data = line;
+                    return true;
+                }
+            }
+
         }
         private void LogOutputImplementation()
         {
