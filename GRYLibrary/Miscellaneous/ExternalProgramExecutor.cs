@@ -332,6 +332,10 @@ namespace GRYLibrary.Core.Miscellaneous
                         throw new UnexpectedExitCodeException(this);
                     }
                 }
+                catch (Exception exception)
+                {
+                    LogObject.Log("Error while finishing program-execution", exception);
+                }
                 finally
                 {
                     this.Dispose();
