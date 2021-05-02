@@ -600,7 +600,18 @@ namespace GRYLibrary.Core.Miscellaneous
 
             public (bool, string) Handle(Linux operatingSystem)
             {
-                throw new NotImplementedException();
+                string program = null;
+                string paths = Environment.ExpandEnvironmentVariables("%PATH%");// "$PATH" not used because of https://github.com/dotnet/runtime/issues/25792
+                foreach (string path in paths.Split(':'))
+                {
+                    string combined = Path.Combine(path, this._Programname);
+                    if (File.Exists(combined) && SpecialFileInformation.FileIsExecutable(program))
+                    {
+                        program = combined;
+                        break;
+                    }
+                }
+                return (program != null, program);
             }
         }
         private static IEnumerable<string> GetCombinations(string path, string[] knownExtensions, string program)
@@ -1232,7 +1243,7 @@ namespace GRYLibrary.Core.Miscellaneous
         }
         public static string[] SplitOnNewLineCharacter(string input)
         {
-            return input.Split(new string[] { Environment.NewLine},    StringSplitOptions.None).Select(line=>line.Replace("\r", string.Empty).Replace("\n", string.Empty)).ToArray();
+            return input.Split(new string[] { Environment.NewLine }, StringSplitOptions.None).Select(line => line.Replace("\r", string.Empty).Replace("\n", string.Empty)).ToArray();
         }
         public static void AssertCondition(bool condition, string message = EmptyString)
         {
