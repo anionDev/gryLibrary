@@ -266,7 +266,7 @@ namespace GRYLibrary.Tests.Testcases.AdvancedObjectAnalysisTests.Serializer
         public void SerializeTypeWithCommonInterfaces1()
         {
             // arrange
-            TypeWithCommonInterfacess expectedObject = new()
+            TypeWithCommonInterfaces expectedObject = new()
             {
                 List = new List<object>() { 2, 4, 3 },
                 Enumerable = new List<int>() { 2, 4, 3 },
@@ -279,7 +279,7 @@ namespace GRYLibrary.Tests.Testcases.AdvancedObjectAnalysisTests.Serializer
 
             // act
             expectedObject.WriteXml(xmlWriter);
-            TypeWithCommonInterfacess actualObject = new();
+            TypeWithCommonInterfaces actualObject = new();
             actualObject.ReadXml(xmlReader);
 
             // assert
@@ -289,7 +289,7 @@ namespace GRYLibrary.Tests.Testcases.AdvancedObjectAnalysisTests.Serializer
         public void SerializeTypeWithCommonInterfaces2()
         {
             // arrange
-            TypeWithCommonInterfacess expectedObject = new()
+            TypeWithCommonInterfaces expectedObject = new()
             {
                 List = new List<object>() { 2, 4, 3 },
                 Enumerable = new List<int>() { 2, 4, 3 },
@@ -300,7 +300,7 @@ namespace GRYLibrary.Tests.Testcases.AdvancedObjectAnalysisTests.Serializer
 
             // act
             string serialized = Generic.GenericSerialize(expectedObject);
-            TypeWithCommonInterfacess actualObject = Generic.GenericDeserialize<TypeWithCommonInterfacess>(serialized);
+            TypeWithCommonInterfaces actualObject = Generic.GenericDeserialize<TypeWithCommonInterfaces>(serialized);
 
             // assert
             Assert.IsTrue(Core.Miscellaneous.Utilities.IsValidXML(serialized));
