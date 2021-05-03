@@ -261,18 +261,17 @@ namespace GRYLibrary.Tests.Testcases.AdvancedObjectAnalysisTests.Serializer
             Assert.IsTrue(Generic.GenericEquals(expectedObject, actualObject), Core.Miscellaneous.Utilities.GetAssertionFailMessage(expectedObject, actualObject));
             Assert.AreEqual(Generic.GenericGetHashCode(expectedObject), Generic.GenericGetHashCode(actualObject));
         }
-
         [Ignore]
         [TestMethod]
-        public void SerializeTypeWithCommonInterfacess()
+        public void SerializeTypeWithCommonInterfaces1()
         {
             // arrange
             TypeWithCommonInterfacess expectedObject = new()
             {
-                List = new List<int>() { 2, 3, 4 },
-                Enumerable = new List<int>() { 2, 3, 4 },
-                Set = new HashSet<int>() { 2, 3, 4 },
-                Dictionary = new Dictionary<int, int>() { { 2, 20 }, { 3, 30 }, { 4, 40 } }
+                List = new List<object>() { 2, 4, 3 },
+                Enumerable = new List<int>() { 2, 4, 3 },
+                Set = new HashSet<int>() { 2, 4, 3 },
+                Dictionary = new Dictionary<int, int>() { { 2, 20 }, { 4, 40 }, { 3, 30 } }
             };
             MemoryStream stream = new();
             XmlWriter xmlWriter = XmlWriter.Create(stream, new XmlWriterSettings() { Encoding = new UTF8Encoding(false) });
@@ -285,6 +284,27 @@ namespace GRYLibrary.Tests.Testcases.AdvancedObjectAnalysisTests.Serializer
 
             // assert
             Assert.AreEqual(expectedObject, actualObject);
+        }
+        [TestMethod]
+        public void SerializeTypeWithCommonInterfaces2()
+        {
+            // arrange
+            TypeWithCommonInterfacess expectedObject = new()
+            {
+                List = new List<object>() { 2, 4, 3 },
+                Enumerable = new List<int>() { 2, 4, 3 },
+                Set = new HashSet<int>() { 2, 4, 3 },
+                Dictionary = new Dictionary<int, int>() { { 2, 20 }, { 4, 40 }, { 3, 30 } }
+            };
+            expectedObject.List.Add(expectedObject);
+
+            // act
+            string serialized = Generic.GenericSerialize(expectedObject);
+            TypeWithCommonInterfacess actualObject = Generic.GenericDeserialize<TypeWithCommonInterfacess>(serialized);
+
+            // assert
+            Assert.IsTrue(Core.Miscellaneous.Utilities.IsValidXML(serialized));
+            TestUtilities.AssertEqual(expectedObject, actualObject);
         }
     }
 }
