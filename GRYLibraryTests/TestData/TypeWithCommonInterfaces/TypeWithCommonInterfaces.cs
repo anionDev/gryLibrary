@@ -1,4 +1,5 @@
 ﻿using GRYLibrary.Core.AdvancedObjectAnalysis;
+using System;
 using System.Collections.Generic;
 using System.Xml;
 using System.Xml.Schema;
@@ -11,6 +12,7 @@ namespace GRYLibrary.Tests.TestData.TypeWithCommonInterfaces
         public IList<object> List { get; set; }
         public IEnumerable<int> Enumerable { get; set; }
         public ISet<int> Set { get; set; }
+        //public string[] Array { get; set; }
         public IDictionary<int, int> Dictionary { get; set; }
 
         #region Overhead

@@ -294,7 +294,8 @@ namespace GRYLibrary.Tests.Testcases.AdvancedObjectAnalysisTests.Serializer
                 List = new List<object>() { 2, 4, 3 },
                 Enumerable = new List<int>() { 2, 4, 3 },
                 Set = new HashSet<int>() { 2, 4, 3 },
-                Dictionary = new Dictionary<int, int>() { { 2, 20 }, { 4, 40 }, { 3, 30 } }
+                //Array = new string[] { "s1", "s2" },
+                Dictionary = new Dictionary<int, int>() { { 2, 20 }, { 4, 40 }, { 3, 30 } },
             };
             expectedObject.List.Add(expectedObject);
 

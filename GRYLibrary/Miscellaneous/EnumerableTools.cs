@@ -46,6 +46,10 @@ namespace GRYLibrary.Core.Miscellaneous
         {
             return TypeIsAssignableFrom(type, typeof(IList<>));
         }
+        public static bool TypeIsArrayGeneric(this Type type)
+        {
+            return type.IsArray;
+        }
         /// <returns>Returns true if and only if the most concrete type of <paramref name="object"/> implements <see cref="IDictionary{TKey, TValue}"/> or <see cref="IDictionary"/>.</returns>
         public static bool ObjectIsDictionary(this object @object)
         {
