@@ -8,7 +8,7 @@ namespace GRYLibrary.Tests.TestData.TypeWithCommonInterfaces
 {
     public class TypeWithCommonInterfacess : IXmlSerializable
     {
-        public IList<int> List { get; set; }
+        public IList<object> List { get; set; }
         public IEnumerable<int> Enumerable { get; set; }
         public ISet<int> Set { get; set; }
         public IDictionary<int, int> Dictionary { get; set; }
