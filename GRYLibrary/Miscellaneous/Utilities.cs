@@ -1501,9 +1501,14 @@ namespace GRYLibrary.Core.Miscellaneous
         {
             return (uint)Convert.ToInt32(binaryString, 2);
         }
-        public static string UintToBinaryString(uint binaryString)
+        public static string UintToBinaryString(uint binaryString, bool padLeft = true)
         {
-            return Convert.ToString(binaryString, 2);
+            var result = Convert.ToString(binaryString, 2);
+            if (padLeft)
+            {
+                result = result.PadLeft(32, '0');
+            }
+            return result;
         }
         public static BigInteger BinaryStringToBigInteger(string binaryString)
         {

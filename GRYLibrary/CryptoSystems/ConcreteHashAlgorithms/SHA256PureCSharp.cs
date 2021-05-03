@@ -73,10 +73,10 @@ namespace GRYLibrary.Core.CryptoSystems.ConcreteHashAlgorithms
                 for (int i = 0; i < 64; i++)
                 {
                     uint S1 = CalculateS1(e);
-                    uint ch = CalculateCh(e, f, g);
+                    uint ch = CalculateCh(e, f, g);//choose
                     uint temp1 = CalculateTemp1(h, S1, ch, K[i], W[i]);
                     uint S0 = CalculateS0(a);
-                    uint maj = CalculateMaj(a, b, c);
+                    uint maj = CalculateMaj(a, b, c);//majority
                     uint temp2 = CalculateTemp2(S0, maj);
                     h = g;
                     g = f;
@@ -108,14 +108,18 @@ namespace GRYLibrary.Core.CryptoSystems.ConcreteHashAlgorithms
            .ToArray();
         }
 
-        public static uint CalculateTemp2(uint s0, uint maj)
+        public static uint CalculateS1(uint e)
         {
-            return Add(s0, maj);
+            return XOr(XOr(RightRotate(e, 6), RightRotate(e, 11)), RightRotate(e, 25));
         }
 
-        public static uint CalculateMaj(uint a, uint b, uint c)
+        public static uint CalculateCh(uint e, uint f, uint g)
         {
-            return XOr(XOr(And(a, b), And(a, c)), And(b, c));
+            return XOr(And(e, f), And(Not(e), g));
+        }
+        public static uint CalculateTemp1(uint h, uint s1, uint ch, uint ki, uint wi)
+        {
+            return Add(h, s1, ch, ki, wi);
         }
 
         public static uint CalculateS0(uint a)
@@ -123,19 +127,14 @@ namespace GRYLibrary.Core.CryptoSystems.ConcreteHashAlgorithms
             return XOr(XOr(RightRotate(a, 2), RightRotate(a, 13)), RightRotate(a, 22));
         }
 
-        public static uint CalculateTemp1(uint h, uint s1, uint ch, uint ki, uint wi)
+        public static uint CalculateMaj(uint a, uint b, uint c)
         {
-            return Add(h, s1, ch, ki, wi);
+            return XOr(XOr(And(a, b), And(a, c)), And(b, c));
         }
 
-        public static uint CalculateCh(uint e, uint f, uint g)
+        public static uint CalculateTemp2(uint s0, uint maj)
         {
-            return XOr(And(e, f), And(Not(e), g));
-        }
-
-        public static uint CalculateS1(uint e)
-        {
-            return XOr(XOr(RightRotate(e, 6), RightRotate(e, 11)), RightRotate(e, 25));
+            return Add(s0, maj);
         }
 
         public static uint Add(params uint[] summands)
