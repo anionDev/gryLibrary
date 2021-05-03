@@ -64,7 +64,7 @@ namespace GRYLibrary.Core.Miscellaneous
             {
                 throw new ArgumentException("Subtraction of Byte-Arrays is only possible for Byte-Arrays of same length.");
             }
-            var result = new byte[first._Data.Length];
+            byte[] result = new byte[first._Data.Length];
             for (int i = 0; i < result.Length; i++)
             {
                 byte x = first._Data[i];

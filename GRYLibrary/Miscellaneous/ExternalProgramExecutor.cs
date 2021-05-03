@@ -154,7 +154,7 @@ namespace GRYLibrary.Core.Miscellaneous
                 this.LogObject = _DefaultLog;
                 if (this.Verbosity == Verbosity.Verbose)
                 {
-                    foreach (var logtarget in this.LogObject.Configuration.LogTargets)
+                    foreach (GRYLogTarget logtarget in this.LogObject.Configuration.LogTargets)
                     {
                         logtarget.LogLevels.Add(LogLevel.Debug);
                     }

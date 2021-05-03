@@ -71,7 +71,7 @@ namespace GRYLibrary.Tests.Testcases
         }
         private void Clean(IEnumerable<string> files)
         {
-            foreach (var file in files)
+            foreach (string file in files)
             {
                 this.Clean(file);
             }

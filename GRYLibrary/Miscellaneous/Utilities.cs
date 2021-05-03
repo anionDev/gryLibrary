@@ -1282,7 +1282,7 @@ namespace GRYLibrary.Core.Miscellaneous
                 contentAdjusted.Insert(0, headLines);
             }
             EscapeForCSV(headLines);
-            foreach (var line in content)
+            foreach (string[] line in content)
             {
                 EscapeForCSV(headLines);
             }

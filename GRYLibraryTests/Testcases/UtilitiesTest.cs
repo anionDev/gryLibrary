@@ -505,11 +505,11 @@ namespace GRYLibrary.Tests.Testcases
         public void HexStringToByteArrayTest()
         {
             // arrange
-            var input = "de";
-            var expected = new byte[] { 222 };
+            string input = "de";
+            byte[] expected = new byte[] { 222 };
 
             // act
-            var actual = Core.Miscellaneous.Utilities.HexStringToByteArray(input);
+            byte[] actual = Core.Miscellaneous.Utilities.HexStringToByteArray(input);
 
             // assert
             Assert.IsTrue(expected.SequenceEqual(actual));
@@ -518,11 +518,11 @@ namespace GRYLibrary.Tests.Testcases
         public void ByteArrayToHexStringTest()
         {
             // arrange
-            var input = new byte[] { 222 };
-            var expected = "DE";
+            byte[] input = new byte[] { 222 };
+            string expected = "DE";
 
             // act
-            var actual = Core.Miscellaneous.Utilities.ByteArrayToHexString(input);
+            string actual = Core.Miscellaneous.Utilities.ByteArrayToHexString(input);
 
             // assert
             Assert.IsTrue(expected.SequenceEqual(actual));
@@ -536,7 +536,7 @@ namespace GRYLibrary.Tests.Testcases
             uint expected = 9;
 
             // act
-            var actual = Core.Miscellaneous.Utilities.BinaryStringToUint(input);
+            uint actual = Core.Miscellaneous.Utilities.BinaryStringToUint(input);
 
             // assert
             Assert.AreEqual(expected, actual);
@@ -550,7 +550,7 @@ namespace GRYLibrary.Tests.Testcases
             uint expected = 746;
 
             // act
-            var actual = Core.Miscellaneous.Utilities.BinaryStringToUint(input);
+            uint actual = Core.Miscellaneous.Utilities.BinaryStringToUint(input);
 
             // assert
             Assert.AreEqual(expected, actual);
@@ -564,7 +564,7 @@ namespace GRYLibrary.Tests.Testcases
             uint expected = 4222263894;
 
             // act
-            var actual = Core.Miscellaneous.Utilities.BinaryStringToUint(input);
+            uint actual = Core.Miscellaneous.Utilities.BinaryStringToUint(input);
 
             // assert
             Assert.AreEqual(expected, actual);
@@ -578,11 +578,36 @@ namespace GRYLibrary.Tests.Testcases
             string expected = "11111011101010101010001001010110";
 
             // act
-            var actual = Core.Miscellaneous.Utilities.UintToBinaryString(input);
+            string actual = Core.Miscellaneous.Utilities.UintToBinaryString(input);
 
             // assert
             Assert.AreEqual(expected, actual);
         }
 
+        [TestMethod]
+        public void UnsignedInteger32BitToByteArrayAndViceVersaTest1()
+        {
+            // arrange
+            uint expected = 4222263891;
+
+            // act
+            uint actual = Core.Miscellaneous.Utilities.ByteArrayToUnsignedInteger32Bit(Core.Miscellaneous.Utilities.UnsignedInteger32BitToByteArray(expected));
+
+            // assert
+            Assert.AreEqual(expected, actual);
+        }
+
+        [TestMethod]
+        public void UnsignedInteger32BitToByteArrayAndViceVersaTest2()
+        {
+            // arrange
+            byte[] expected = new byte[] { 1, 34, 241, 25 };
+
+            // act
+            byte[] actual = Core.Miscellaneous.Utilities.UnsignedInteger32BitToByteArray(Core.Miscellaneous.Utilities.ByteArrayToUnsignedInteger32Bit(expected));
+
+            // assert
+            Assert.IsTrue(expected.SequenceEqual(actual));
+        }
     }
 }
