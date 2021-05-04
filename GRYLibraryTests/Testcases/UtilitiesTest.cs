@@ -584,5 +584,22 @@ namespace GRYLibrary.Tests.Testcases
             Assert.AreEqual(expected, actual);
         }
 
+        [TestMethod]
+        public void TestResolvePathOfProgram()
+        {
+            // arrange
+            string originalProgram = "git";
+            string program = originalProgram;
+            string originalArgument = "someargument";
+            string argument = originalArgument;
+
+            // act
+            Core.Miscellaneous.Utilities.ResolvePathOfProgram(ref program, ref argument);
+
+            // assert
+            Assert.AreNotEqual(program, originalProgram);
+            Assert.AreEqual(argument, originalArgument);
+        }
+
     }
 }
