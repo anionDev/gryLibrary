@@ -1,0 +1,16 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug-hook",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build",
+            "program": "${workspaceFolder}/GRYLibraryTests/bin/Debug/GRYLibraryTests.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/GRYLibraryTests",
+            "console": "internalConsole",
+            "stopAtEntry": false
+        }
+    ]
+}

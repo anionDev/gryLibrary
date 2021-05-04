@@ -16,11 +16,11 @@ namespace GRYLibrary.Core.OperatingSystem
             }
             if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
             {
-                return Windows.Instance;
+                return OSX.Instance;
             }
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
-                return Windows.Instance;
+                return Linux.Instance;
             }
             throw new InvalidDataException("The current OS can not be determined");
         }

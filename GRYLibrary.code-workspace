@@ -1,0 +1,21 @@
+{
+	"folders": [
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+		"files.exclude": {
+			"GRYLibrary/bin": true,
+			"GRYLibrary/obj": true,
+			"GRYLibraryTests/bin": true,
+			"GRYLibraryTests/obj": true,
+			"TestResults": true,
+			".vs": true,
+			"GRYLibraryPublicKey.snk": true,
+			"GRYLibrary.code-workspace": true,
+			"GRYLibrary.sln": true,
+			"index.html": true,
+		}
+	}
+}

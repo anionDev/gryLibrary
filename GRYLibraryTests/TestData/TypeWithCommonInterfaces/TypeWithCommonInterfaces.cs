@@ -1,4 +1,5 @@
 ﻿using GRYLibrary.Core.AdvancedObjectAnalysis;
+using System;
 using System.Collections.Generic;
 using System.Xml;
 using System.Xml.Schema;
@@ -6,11 +7,13 @@ using System.Xml.Serialization;
 
 namespace GRYLibrary.Tests.TestData.TypeWithCommonInterfaces
 {
-    public class TypeWithCommonInterfacess : IXmlSerializable
+    public class TypeWithCommonInterfaces : IXmlSerializable
     {
-        public IList<int> List { get; set; }
+        public IList<object> List { get; set; }
+        public IList<object> List2 { get; set; } = null;
         public IEnumerable<int> Enumerable { get; set; }
         public ISet<int> Set { get; set; }
+        //public string[] Array { get; set; }
         public IDictionary<int, int> Dictionary { get; set; }
 
         #region Overhead

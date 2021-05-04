@@ -19,6 +19,23 @@ namespace GRYLibrary.Tests.Testcases
     [TestClass]
     public class UtilitiesTest
     {
+
+        [TestMethod]
+        public void TestResolvePathOfProgram()
+        {
+            // arrange
+            string originalProgram = "git";
+            string program = originalProgram;
+            string originalArgument = "someargument";
+            string argument = originalArgument;
+
+            // act
+            Core.Miscellaneous.Utilities.ResolvePathOfProgram(ref program, ref argument);
+
+            // assert
+            Assert.AreNotEqual(program, originalProgram);
+            Assert.AreEqual(argument, originalArgument);
+        }
         [TestMethod]
         public void UtilitiesTestEnsureFileExists()
         {
@@ -583,6 +600,5 @@ namespace GRYLibrary.Tests.Testcases
             // assert
             Assert.AreEqual(expected, actual);
         }
-
     }
 }

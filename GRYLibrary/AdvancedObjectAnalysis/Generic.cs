@@ -11,6 +11,9 @@ using System.Xml.Schema;
 
 namespace GRYLibrary.Core.AdvancedObjectAnalysis
 {
+    /// <remarks>
+    /// This type is not fully implemented yet. Some things (like serializing arrays for example) are not working yet.
+    /// </remarks>
     public class Generic
     {
         private static readonly IdGenerator<int> _IdGenerator = IdGenerator.GetDefaultIntIdGenerator();

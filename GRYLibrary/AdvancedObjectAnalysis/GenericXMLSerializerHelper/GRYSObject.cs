@@ -32,14 +32,14 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.GenericXMLSerializerHelper
 
         private static Guid FillDictionary(Dictionary<object, FlatObject> dictionary, object @object, SerializationConfiguration serializationConfiguration)
         {
-            if (@object==null)
+            if (@object == null)
             {
                 return default;
             }
             Type typeOfObject = @object.GetType();
             if (EnumerableTools.ObjectIsKeyValuePair(@object))
             {
-                KeyValuePair<object, object> kvp = EnumerableTools.ObjectToKeyValuePair<object,object>(@object);
+                KeyValuePair<object, object> kvp = EnumerableTools.ObjectToKeyValuePair<object, object>(@object);
                 @object = new XMLSerializer.KeyValuePair<object, object>(kvp.Key, kvp.Value);
             }
             if (dictionary.ContainsKey(@object))
@@ -132,7 +132,7 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.GenericXMLSerializerHelper
                     object[] arguments;
                     if (isDictionaryGeneric)
                     {
-                        XMLSerializer.KeyValuePair<object, object> gkvp =(XMLSerializer.KeyValuePair<object, object>) itemForEnumerable;
+                        XMLSerializer.KeyValuePair<object, object> gkvp = (XMLSerializer.KeyValuePair<object, object>)itemForEnumerable;
                         arguments = new object[] { gkvp.Key, gkvp.Value };
                     }
                     else if (isDictionaryNotGeneric)
@@ -175,6 +175,11 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.GenericXMLSerializerHelper
             {
                 Type typeOfSimplifiedEnumerable = Type.GetType(simplifiedEnumerable.TypeName);
                 Type concreteTypeOfEnumerable;
+                /*if (EnumerableTools.TypeIsArrayGeneric(typeOfSimplifiedEnumerable))
+                {
+                    concreteTypeOfEnumerable = typeOfSimplifiedEnumerable;
+                }
+                else*/
                 if (EnumerableTools.TypeIsListGeneric(typeOfSimplifiedEnumerable))
                 {
                     concreteTypeOfEnumerable = typeof(List<>);
@@ -279,7 +284,8 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.GenericXMLSerializerHelper
         {
             Dictionary<Guid, object> deserializedObjects = new();
             IList<FlatObject> sorted = this.Objects.ToList();
-            sorted = sorted.OrderBy((item)=> {
+            sorted = sorted.OrderBy((item) =>
+            {
                 if (item.TypeName.StartsWith("GRYLibrary.Core.XMLSerializer.KeyValuePair"))
                 {
                     return 0;
