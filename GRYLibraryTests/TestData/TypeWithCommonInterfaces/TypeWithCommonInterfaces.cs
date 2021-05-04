@@ -10,6 +10,7 @@ namespace GRYLibrary.Tests.TestData.TypeWithCommonInterfaces
     public class TypeWithCommonInterfaces : IXmlSerializable
     {
         public IList<object> List { get; set; }
+        public IList<object> List2 { get; set; } = null;
         public IEnumerable<int> Enumerable { get; set; }
         public ISet<int> Set { get; set; }
         //public string[] Array { get; set; }
