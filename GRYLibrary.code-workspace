@@ -11,6 +11,11 @@
 			"GRYLibraryTests/bin": true,
 			"GRYLibraryTests/obj": true,
 			"TestResults": true,
+			".vs": true,
+			"GRYLibraryPublicKey.snk": true,
+			"GRYLibrary.code-workspace": true,
+			"GRYLibrary.sln": true,
+			"index.html": true,
 		}
 	}
 }
