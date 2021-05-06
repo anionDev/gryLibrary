@@ -10,7 +10,7 @@ namespace GRYLibrary.Core.CryptoSystems.EncryptionAlgorithms.ConcreteCommonAlgor
         public static Curve Curve25519 { get; } = new Curve(
             (x) => BigInteger.Pow(x, 3) + 486662 * x * x + x,
             BigInteger.Pow(2, 255) - 19,
-            default//TODO
+            BigInteger.Parse("15112221349535400772501151409588531511454012693041857206046113283949847762202")
         );
         public static Curve Secp256k1 { get; } = new Curve(
             (x) => BigInteger.Pow(x, 3) + 7,
@@ -20,12 +20,12 @@ namespace GRYLibrary.Core.CryptoSystems.EncryptionAlgorithms.ConcreteCommonAlgor
 
         public Func<BigInteger, BigInteger> CurveFunction { get; }
         public BigInteger Field { get; }
-        public BigInteger BasePoint { get; }
-        public Curve(Func<BigInteger, BigInteger> curveFunction, BigInteger field, BigInteger basePoint)
+        public BigInteger BasePointX { get; }
+        public Curve(Func<BigInteger, BigInteger> curveFunction, BigInteger field, BigInteger basePointX)
         {
             this.CurveFunction = curveFunction;
             this.Field = field;
-            this.BasePoint = basePoint;
+            this.BasePointX = basePointX;
         }
     }
 
