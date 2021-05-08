@@ -1980,43 +1980,73 @@ namespace GRYLibrary.Core.Miscellaneous
                 return null;
             }
         }
-        public static void ResolvePathOfProgram(ref string program, ref string argument)
+        public static Tuple<string, string, string> ResolvePathOfProgram(string program, string argument, string workingDirectory)
         {
-            if (File.Exists(program))
+            // adapt working directory if required
+            if (string.IsNullOrWhiteSpace(workingDirectory))
             {
-                string resultProgram;
-                string resultArgument;
-                if (SpecialFileInformation.FileIsExecutable(program))
+                workingDirectory = Directory.GetCurrentDirectory();
+            }
+
+            // resolve program
+            if (HasPath(program))
+            {
+                if (IsRelativePath(program))
                 {
-                    resultProgram = program;
-                    resultArgument = argument;
+                    program = ResolveToFullPath(program, workingDirectory);
+                }
+            }
+            else
+            {
+                string cwdWithProgram = Path.Combine(workingDirectory, program);
+                if (File.Exists(cwdWithProgram))
+                {
+                    program = cwdWithProgram;
                 }
                 else
                 {
-                    if (OperatingSystem.OperatingSystem.GetCurrentOperatingSystem() is Windows)
+                    if (TryResolvePathByPathVariable(program, out string programWithFullPath))
                     {
-                        resultProgram = SpecialFileInformation.GetDefaultProgramToOpenFile(Path.GetExtension(program));
-                        resultArgument = program;
+                        program = programWithFullPath;
                     }
                     else
                     {
-                        resultProgram = program;
-                        resultArgument = argument;
+                        throw new ArgumentException($"Program '{program}' can not be found");
                     }
                 }
-                program = resultProgram;
-                argument = resultArgument;
-                return;
             }
-            if (!(program.Contains("/") || program.Contains("\\") || program.Contains(":")))
+
+            // check program
+            if (File.Exists(program))
             {
-                if (TryResolvePathByPathVariable(program, out string programWithFullPath))
+                if (SpecialFileInformation.FileIsExecutable(program))
                 {
-                    program = programWithFullPath;
-                    return;
+                    // nothing to do
+                }
+                else
+                {
+                    // adapt argument
+                    if (OperatingSystem.OperatingSystem.GetCurrentOperatingSystem() is Windows)
+                    {
+                        argument = $"\"{program}\" {argument}";
+                        program = SpecialFileInformation.GetDefaultProgramToOpenFile(Path.GetExtension(program));
+                    }
+                    else
+                    {
+                        throw new ArgumentException($"Program '{program}' is not executable");
+                    }
                 }
             }
-            throw new FileNotFoundException($"Program '{program}' can not be found");
+            else
+            {
+                throw new FileNotFoundException($"Program '{program}' does not exist");
+            }
+
+            return new Tuple<string, string, string>(program, argument, workingDirectory);
+        }
+        private static bool HasPath(string str)
+        {
+            return str.Contains("/") || str.Contains("\\");
         }
 
         public static string GetAssertionFailMessage(object expectedObject, object actualObject, int maxLengthPerObject = 1000)

@@ -350,11 +350,16 @@ namespace GRYLibrary.Core.LogObject
 
         private IList<string> FormatStackTrace(Exception exception)
         {
-            List<string> result = new()
+            List<string> result = new();
+            if (exception.StackTrace == null)
             {
-                "Stack-trace: "
-            };
-            result.AddRange(Utilities.SplitOnNewLineCharacter(exception.StackTrace));
+                result.Add("Stack-trace: null");
+            }
+            else
+            {
+                result.Add("Stack-trace:");
+                result.AddRange(Utilities.SplitOnNewLineCharacter(exception.StackTrace));
+            }
             return result;
         }
 
