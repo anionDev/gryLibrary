@@ -30,10 +30,11 @@ namespace GRYLibrary.Tests.Testcases
             string argument = originalArgument;
 
             // act
-            Core.Miscellaneous.Utilities.ResolvePathOfProgram(ref program, ref argument);
+            Tuple<string, string, string> result =Core.Miscellaneous.Utilities.ResolvePathOfProgram( program,  argument,null);
 
             // assert
-            Assert.AreNotEqual(program, originalProgram);
+            Assert.IsTrue(Core.Miscellaneous.Utilities.IsAbsolutePath(result.Item1));
+            Assert.IsTrue(program.Contains( originalProgram));
             Assert.AreEqual(argument, originalArgument);
         }
         [TestMethod]

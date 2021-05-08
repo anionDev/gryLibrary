@@ -15,6 +15,9 @@ namespace GRYLibrary.Core.Miscellaneous
 {
     public sealed class ExternalProgramExecutor : IDisposable
     {
+        public ExternalProgramExecutor(string programPathAndFile) : this(programPathAndFile, Utilities.EmptyString, null)
+        {
+        }
         public ExternalProgramExecutor(string programPathAndFile, string arguments) : this(programPathAndFile, arguments, null)
         {
         }
@@ -403,10 +406,10 @@ namespace GRYLibrary.Core.Miscellaneous
 
         private void ResolvePaths()
         {
-            string newProgram = this.ProgramPathAndFile;
-            string newArgument = this.Arguments;
-            Utilities.ResolvePathOfProgram(ref newProgram, ref newArgument);
-            this.ProgramPathAndFile = newProgram;
+            Tuple<string, string, string> temp = Utilities.ResolvePathOfProgram(ProgramPathAndFile, Arguments, WorkingDirectory);
+            this.ProgramPathAndFile = temp.Item1;
+            this.Arguments = temp.Item2;
+            this.WorkingDirectory = temp.Item3;
             if (string.IsNullOrWhiteSpace(this.WorkingDirectory))
             {
                 this.WorkingDirectory = Directory.GetCurrentDirectory();
