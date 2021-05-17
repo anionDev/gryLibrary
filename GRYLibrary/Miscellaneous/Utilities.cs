@@ -2301,6 +2301,7 @@ namespace GRYLibrary.Core.Miscellaneous
                     using RegistryKey key = Registry.CurrentUser.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize", true);
 
                     key.SetValue("AppsUseLightTheme", this._Enabled ? 0 : 1);
+                    key.SetValue("SystemUsesLightTheme", this._Enabled ? 0 : 1);
                 }
             }
 
@@ -2323,7 +2324,7 @@ namespace GRYLibrary.Core.Miscellaneous
                     try
                     {
                         using RegistryKey key = Registry.CurrentUser.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize");
-                        return ((int)key.GetValue("AppsUseLightTheme")) == 0;
+                        return ((int)key.GetValue("AppsUseLightTheme")) == 0 && ((int)key.GetValue("SystemUsesLightTheme")) == 0;
                     }
                     catch
                     {
