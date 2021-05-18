@@ -406,7 +406,7 @@ namespace GRYLibrary.Core.Miscellaneous
 
         private void ResolvePaths()
         {
-            Tuple<string, string, string> temp = Utilities.ResolvePathOfProgram(ProgramPathAndFile, Arguments, WorkingDirectory);
+            Tuple<string, string, string> temp = Utilities.ResolvePathOfProgram(this.ProgramPathAndFile, this.Arguments, this.WorkingDirectory);
             this.ProgramPathAndFile = temp.Item1;
             this.Arguments = temp.Item2;
             this.WorkingDirectory = temp.Item3;
