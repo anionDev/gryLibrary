@@ -2279,6 +2279,50 @@ namespace GRYLibrary.Core.Miscellaneous
             thread.Start();
             return (subject.AsObservable().DistinctUntilChanged(), () => enabled = false);
         }
+        public static Encoding GetEncodingByIdentifier(string encodingIdentifier)
+        {
+            if (encodingIdentifier == "utf-8")
+            {
+                return new UTF8Encoding(false);
+            }
+            if (encodingIdentifier == "utf-8-bom")
+            {
+                return new UTF8Encoding(true);
+            }
+            if (encodingIdentifier == "utf-16")
+            {
+                return new UnicodeEncoding(false, false);
+            }
+            if (encodingIdentifier == "utf-16-bom")
+            {
+                return new UnicodeEncoding(false, true);
+            }
+            if (encodingIdentifier == "utf-16-be")
+            {
+                return new UnicodeEncoding(true, false);
+            }
+            if (encodingIdentifier == "utf-16-be-bom")
+            {
+                return new UnicodeEncoding(true, true);
+            }
+            if (encodingIdentifier == "utf-32")
+            {
+                return new UTF32Encoding(false, false);
+            }
+            if (encodingIdentifier == "utf-32-bom")
+            {
+                return new UTF32Encoding(false, true);
+            }
+            if (encodingIdentifier == "utf-32-be")
+            {
+                return new UTF32Encoding(true, false);
+            }
+            if (encodingIdentifier == "utf-32-be-bom")
+            {
+                return new UTF32Encoding(true, true);
+            }
+            return Encoding.GetEncoding(encodingIdentifier);
+        }
         private static readonly IOperatingSystemVisitor<bool> _DarkModeEnabledVisitor = new GetDarkModeEnabledVisitor();
         private class SetDarkModeEnabledVisitor : IOperatingSystemVisitor
         {

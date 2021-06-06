@@ -12,6 +12,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Numerics;
+using System.Text;
 using System.Xml.Serialization;
 
 namespace GRYLibrary.Tests.Testcases
@@ -600,6 +601,23 @@ namespace GRYLibrary.Tests.Testcases
 
             // assert
             Assert.AreEqual(expected, actual);
+        }
+
+        [TestMethod]
+        public void GetEncodingTest()
+        {
+            Assert.AreEqual(new ASCIIEncoding(), Core.Miscellaneous.Utilities.GetEncodingByIdentifier("us-ascii"));
+            Assert.AreEqual(new UTF8Encoding(false), Core.Miscellaneous.Utilities.GetEncodingByIdentifier("utf-8"));
+            Assert.AreEqual(new UTF8Encoding(true), Core.Miscellaneous.Utilities.GetEncodingByIdentifier("utf-8-bom"));
+            Assert.AreEqual(new UnicodeEncoding(false, false), Core.Miscellaneous.Utilities.GetEncodingByIdentifier("utf-16"));
+            Assert.AreEqual(new UnicodeEncoding(false, true), Core.Miscellaneous.Utilities.GetEncodingByIdentifier("utf-16-bom"));
+            Assert.AreEqual(new UnicodeEncoding(true, false), Core.Miscellaneous.Utilities.GetEncodingByIdentifier("utf-16-be"));
+            Assert.AreEqual(new UnicodeEncoding(true, true), Core.Miscellaneous.Utilities.GetEncodingByIdentifier("utf-16-be-bom"));
+            Assert.AreEqual(new UTF32Encoding(false, false), Core.Miscellaneous.Utilities.GetEncodingByIdentifier("utf-32"));
+            Assert.AreEqual(new UTF32Encoding(false, true), Core.Miscellaneous.Utilities.GetEncodingByIdentifier("utf-32-bom"));
+            Assert.AreEqual(new UTF32Encoding(true, false), Core.Miscellaneous.Utilities.GetEncodingByIdentifier("utf-32-be"));
+            Assert.AreEqual(new UTF32Encoding(true, true), Core.Miscellaneous.Utilities.GetEncodingByIdentifier("utf-32-be-bom"));
+            Assert.AreEqual(Encoding.GetEncoding("iso-8859-1"), Core.Miscellaneous.Utilities.GetEncodingByIdentifier("iso-8859-1"));
         }
     }
 }
