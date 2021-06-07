@@ -618,6 +618,7 @@ namespace GRYLibrary.Tests.Testcases
             Assert.AreEqual(new UTF32Encoding(true, false), Core.Miscellaneous.Utilities.GetEncodingByIdentifier("utf-32-be"));
             Assert.AreEqual(new UTF32Encoding(true, true), Core.Miscellaneous.Utilities.GetEncodingByIdentifier("utf-32-be-bom"));
             Assert.AreEqual(Encoding.GetEncoding("iso-8859-1"), Core.Miscellaneous.Utilities.GetEncodingByIdentifier("iso-8859-1"));
+        }
 
         [TestMethod]
         public void UnsignedInteger32BitToByteArrayAndViceVersaTest1()
