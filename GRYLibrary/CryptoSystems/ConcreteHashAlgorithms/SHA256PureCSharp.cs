@@ -72,12 +72,12 @@ namespace GRYLibrary.Core.CryptoSystems.ConcreteHashAlgorithms
                 uint h = H[7];
                 for (int i = 0; i < 64; i++)
                 {
-                    uint S1 = XOr(XOr(RightRotate(e, 6), RightRotate(e, 11)), RightRotate(e, 25));
-                    uint ch = XOr(And(e, f), And(Not(e), g));
-                    uint temp1 = Add(h, S1, ch, K[i], W[i]);
-                    uint S0 = XOr(XOr(RightRotate(a, 2), RightRotate(a, 13)), RightRotate(a, 22));
-                    uint maj = XOr(XOr(And(a, b), And(a, c)), And(b, c));
-                    uint temp2 = Add(S0, maj);
+                    uint S1 = CalculateS1(e);
+                    uint ch = CalculateCh(e, f, g);//choose
+                    uint temp1 = CalculateTemp1(h, S1, ch, K[i], W[i]);
+                    uint S0 = CalculateS0(a);
+                    uint maj = CalculateMaj(a, b, c);//majority
+                    uint temp2 = CalculateTemp2(S0, maj);
                     h = g;
                     g = f;
                     f = e;
@@ -108,7 +108,36 @@ namespace GRYLibrary.Core.CryptoSystems.ConcreteHashAlgorithms
            .ToArray();
         }
 
-        internal static uint Add(params uint[] summands)
+        public static uint CalculateS1(uint e)
+        {
+            return XOr(XOr(RightRotate(e, 6), RightRotate(e, 11)), RightRotate(e, 25));
+        }
+
+        public static uint CalculateCh(uint e, uint f, uint g)
+        {
+            return XOr(And(e, f), And(Not(e), g));
+        }
+        public static uint CalculateTemp1(uint h, uint s1, uint ch, uint ki, uint wi)
+        {
+            return Add(h, s1, ch, ki, wi);
+        }
+
+        public static uint CalculateS0(uint a)
+        {
+            return XOr(XOr(RightRotate(a, 2), RightRotate(a, 13)), RightRotate(a, 22));
+        }
+
+        public static uint CalculateMaj(uint a, uint b, uint c)
+        {
+            return XOr(XOr(And(a, b), And(a, c)), And(b, c));
+        }
+
+        public static uint CalculateTemp2(uint s0, uint maj)
+        {
+            return Add(s0, maj);
+        }
+
+        public static uint Add(params uint[] summands)
         {
             uint result = 0;
             for (int i = 0; i < summands.Length; i++)
@@ -117,24 +146,24 @@ namespace GRYLibrary.Core.CryptoSystems.ConcreteHashAlgorithms
             }
             return result;
         }
-        internal static uint XOr(uint left, uint right)
+        public static uint XOr(uint left, uint right)
         {
             return left ^ right;
         }
-        internal static uint RightShift(uint value, byte amountOfDigits)
+        public static uint RightShift(uint value, byte amountOfDigits)
         {
             return value >> amountOfDigits;
         }
-        internal static uint RightRotate(uint value, byte amountOfDigits)
+        public static uint RightRotate(uint value, byte amountOfDigits)
         {
             Utilities.AssertCondition(amountOfDigits < 32);
             return (value >> amountOfDigits) | (value << (32 - amountOfDigits));
         }
-        internal static uint And(uint left, uint right)
+        public static uint And(uint left, uint right)
         {
             return left & right;
         }
-        internal static uint Not(uint value)
+        public static uint Not(uint value)
         {
             return ~value;
         }
