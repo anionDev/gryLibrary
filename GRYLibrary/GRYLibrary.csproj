@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
-    <Version>0.11.3</Version>
+    <Version>0.11.4</Version>
     <Authors>Marius Göcke</Authors>
     <Copyright>Copyright © 2021 Marius Göcke</Copyright>
     <Description>The GRYLibrary is a collection with some useful .NET classes and functions which are very easy (re)usable.</Description>
@@ -15,16 +15,29 @@
     <ApplicationIcon>GRYLibraryIcon.ico</ApplicationIcon>
 	<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
 	<ProduceReferenceAssembly>false</ProduceReferenceAssembly>
+	<Nullable>disable</Nullable>
+	<Configurations>Development;Productive;QualityCheck</Configurations>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Development|AnyCPU'">
     <NoWarn>1701;1702;CA1822</NoWarn>
+    <DebugType>full</DebugType>
+    <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='QualityCheck|AnyCPU'">
+    <NoWarn>1701;1702;CA1822</NoWarn>
+    <DebugType>pdbonly</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+    <Optimize>false</Optimize>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Productive|AnyCPU'">
     <DebugType>none</DebugType>
     <DebugSymbols>false</DebugSymbols>
     <NoWarn>1701;1702;CA1822</NoWarn>
+    <DefineConstants />
+    <Optimize>true</Optimize>
   </PropertyGroup>
 
   <ItemGroup>
