@@ -1,7 +1,9 @@
 ﻿# GRYLibrary
 
 [![CodeFactor](https://www.codefactor.io/repository/github/aniondev/grylibrary/badge/master)](https://www.codefactor.io/repository/github/aniondev/grylibrary/overview/master)
-![Generic badge](https://img.shields.io/badge/coverage-1%25-green)
+![Generic badge](https://img.shields.io/badge/testcoverage-1%25-green)
+![GitHub last commit](https://img.shields.io/github/last-commit/anionDev/GRYLibrary)
+![Lines of code](https://img.shields.io/tokei/lines/github/anionDev/GRYLibrary)
 
 The GRYLibrary is a collection with some useful .NET classes and functions which are very easy (re)usable.
 
@@ -29,7 +31,7 @@ The GRYLibrary-reference can be found [here](https://aniondev.github.io/GRYLibra
 
 ### Platform
 
-The latest NuGet-package is designed for .NET-standard 2.1.
+The latest NuGet-package is designed for .NET 5.0.
 
 ### Signing
 
