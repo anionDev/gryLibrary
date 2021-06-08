@@ -168,7 +168,14 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.GenericXMLSerializerHelper
             public object Handle(FlatComplexObject simplifiedObject)
             {
                 Type type = Type.GetType(simplifiedObject.TypeName);
-                return Activator.CreateInstance(type);
+                try
+                {
+                    return Activator.CreateInstance(type);
+                }
+                catch (MissingMethodException)
+                {
+                    throw;
+                }
             }
 
             public object Handle(FlatEnumerable simplifiedEnumerable)
@@ -221,7 +228,14 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.GenericXMLSerializerHelper
 
             public object Handle(FlatPrimitive simplifiedPrimitive)
             {
-                return simplifiedPrimitive.Value;
+                if (simplifiedPrimitive.TypeName == typeof(Type).AssemblyQualifiedName)
+                {
+                    return Type.GetType((string)simplifiedPrimitive.Value);
+                }
+                else
+                {
+                    return simplifiedPrimitive.Value;
+                }
             }
         }
         private class SerializeVisitor : IFlatObjectVisitor
@@ -266,7 +280,15 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.GenericXMLSerializerHelper
 
             public void Handle(FlatPrimitive simplifiedPrimitive)
             {
-                simplifiedPrimitive.Value = this._Object;
+                if (Utilities.IsAssignableFrom(this._Object, typeof(Type)))
+                {
+                    simplifiedPrimitive.TypeName = typeof(Type).AssemblyQualifiedName;
+                    simplifiedPrimitive.Value = ((Type)this._Object).AssemblyQualifiedName;
+                }
+                else
+                {
+                    simplifiedPrimitive.Value = this._Object;
+                }
             }
         }
         private static void AddSimplifiedAttribute(FlatComplexObject container, string attributeName, Type attributeType, object attributeValue, Dictionary<object, FlatObject> dictionary, SerializationConfiguration serializationConfiguration)

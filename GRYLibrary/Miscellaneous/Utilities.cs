@@ -303,9 +303,35 @@ namespace GRYLibrary.Core.Miscellaneous
             }
             else
             {
-                return type.IsPrimitive || typeof(string).Equals(type) || type.IsValueType;
+                if (type.IsPrimitive)
+                {
+                    return true;
+                }
+                if (typeof(string).Equals(type))
+                {
+                    return true;
+                }
+                if (type.IsValueType)
+                {
+                    return true;
+                }
+                if (TypeRepresentsType(type))
+                {
+                    return true;
+                }
+                return false;
             }
         }
+
+        public static bool TypeRepresentsType(Type type)
+        {
+            return type.FullName == "System.Reflection.Emit.EnumBuilder"
+                || type.FullName == "System.Reflection.Emit.GenericTypeParameterBuilder"
+                || type.FullName == "System.Reflection.Emit.TypeBuilder"
+                || type.FullName == "System.Reflection.TypeInfo"
+                || type.FullName == "System.RuntimeType";
+        }
+
         public static bool IsAssignableFrom(object @object, Type genericTypeToCompare)
         {
             return TypeIsAssignableFrom(@object.GetType(), genericTypeToCompare);
@@ -313,7 +339,8 @@ namespace GRYLibrary.Core.Miscellaneous
         public static bool TypeIsAssignableFrom(Type typeForCheck, Type parentType)
         {
             ISet<Type> typesToCheck = GetTypeWithParentTypesAndInterfaces(typeForCheck);
-            return typesToCheck.Contains(parentType, TypeComparerIgnoringGenerics);
+            var result = typesToCheck.Contains(parentType, TypeComparerIgnoringGenerics);
+            return result;
         }
         public static ISet<Type> GetTypeWithParentTypesAndInterfaces(Type type)
         {

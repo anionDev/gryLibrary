@@ -1,12 +1,14 @@
 ﻿using GRYLibrary.Core.AdvancedObjectAnalysis;
 using GRYLibrary.Core.AdvancedXMLSerialysis;
 using GRYLibrary.Tests.TestData.TestTypes.ComplexDataStructure;
+using GRYLibrary.Tests.TestData.TestTypes.ComplexDataStructure2;
 using GRYLibrary.Tests.TestData.TestTypes.CyclicDataStructure;
 using GRYLibrary.Tests.TestData.TestTypes.SimpleDataStructure;
 using GRYLibrary.Tests.TestData.TestTypes.XMLSerializableType;
 using GRYLibrary.Tests.TestData.TypeWithCommonInterfaces;
 using GRYLibrary.Tests.Utilities;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -304,6 +306,72 @@ namespace GRYLibrary.Tests.Testcases.AdvancedObjectAnalysisTests.Serializer
             TypeWithCommonInterfaces actualObject = Generic.GenericDeserialize<TypeWithCommonInterfaces>(serialized);
 
             // assert
+            Assert.IsTrue(Core.Miscellaneous.Utilities.IsValidXML(serialized));
+            TestUtilities.AssertEqual(expectedObject, actualObject);
+        }
+        [TestMethod]
+        public void ComplexDataStructure2EqualType()
+        {
+            // arrange
+            var t1 = new OtherType() { Id = Guid.Parse("8e6ce36f-3ce4-4d2f-bff8-6e78db373001"), Name = "type_1" };
+            var t2_1 = new DotNetType() { Id = Guid.Parse("8e6ce36f-3ce4-4d2f-bff8-6e78db373002"), Name = "type_2", Type = typeof(bool) };
+            var t2_2 = new DotNetType() { Id = Guid.Parse("8e6ce36f-3ce4-4d2f-bff8-6e78db373002"), Name = "type_2", Type = typeof(bool) };
+            var t3 = new DotNetType() { Id = Guid.Parse("8e6ce36f-3ce4-4d2f-bff8-6e78db373003"), Name = "type_3", Type = typeof(bool) };
+            var t4 = new DotNetType() { Id = Guid.Parse("8e6ce36f-3ce4-4d2f-bff8-6e78db373004"), Name = "type_4", Type = typeof(int) };
+
+            // act & assert
+            Assert.IsTrue(t1.Equals(t1));
+            Assert.IsFalse(t1.Equals(t2_1));
+            Assert.IsFalse(t1.Equals(t2_2));
+            Assert.IsFalse(t1.Equals(t3));
+            Assert.IsFalse(t1.Equals(t4));
+
+            Assert.IsFalse(t2_1.Equals(t1));
+            Assert.IsTrue(t2_1.Equals(t2_1));
+            Assert.IsTrue(t2_1.Equals(t2_2));
+            Assert.IsFalse(t2_1.Equals(t3));
+            Assert.IsFalse(t2_1.Equals(t4));
+
+            Assert.IsFalse(t2_2.Equals(t1));
+            Assert.IsTrue(t2_2.Equals(t2_1));
+            Assert.IsTrue(t2_2.Equals(t2_2));
+            Assert.IsFalse(t2_2.Equals(t3));
+            Assert.IsFalse(t2_2.Equals(t4));
+
+            Assert.IsFalse(t3.Equals(t1));
+            Assert.IsFalse(t3.Equals(t2_1));
+            Assert.IsFalse(t3.Equals(t2_2));
+            Assert.IsTrue(t3.Equals(t3));
+            Assert.IsFalse(t3.Equals(t4));
+
+            Assert.IsFalse(t4.Equals(t1));
+            Assert.IsFalse(t4.Equals(t2_1));
+            Assert.IsFalse(t4.Equals(t2_2));
+            Assert.IsFalse(t4.Equals(t3));
+            Assert.IsTrue(t4.Equals(t4));
+        }
+        [TestMethod]
+        public void ComplexDataStructure2Serialize()
+        {
+            // arrange
+            Model expectedObject = new();
+            expectedObject.Types.Add(new OtherType() { });
+            expectedObject.Types.Add(new OtherType() { Name = "type_2" });
+            expectedObject.Types.Add(new OtherType() { Name = "type_3" });
+            expectedObject.Types.Add(new OtherType() { Id = Guid.NewGuid(), Name = "type_4" });
+            expectedObject.Types.Add(new DotNetType() { Type = typeof(bool) });
+            expectedObject.Types.Add(new DotNetType() { Type = typeof(IList<>) });
+            expectedObject.Types.Add(new DotNetType() { Id = Guid.NewGuid(), Name = "type_7", Type = typeof(bool) });
+            expectedObject.Types.Add(new DotNetType() { Id = Guid.Parse("7e6ce36f-3ce4-4d2f-bff8-6e78db373000"), Name = "type_8", Type = typeof(Func<List<ArrayList>, Model>) });
+            expectedObject.Types.Add(new DotNetType() { Id = Guid.Parse("7e6ce36f-3ce4-4d2f-bff8-6e78db373000"), Name = "type_8", Type = typeof(Func<List<ArrayList>, Model>) });//duplicate to test if it will get removed
+            Assert.AreEqual(8, expectedObject.Types.Count);
+
+            // act
+            string serialized = Generic.GenericSerialize(expectedObject);
+            Model actualObject = Generic.GenericDeserialize<Model>(serialized);
+
+            // assert
+            Assert.AreEqual(8, actualObject.Types.Count);// Problem here: the desrializing-function fills the 8 !empty! type-objects in the .Types-list, then the HashSet obviously removes them because the properties which define differences between this 8 objects are not set yet
             Assert.IsTrue(Core.Miscellaneous.Utilities.IsValidXML(serialized));
             TestUtilities.AssertEqual(expectedObject, actualObject);
         }
