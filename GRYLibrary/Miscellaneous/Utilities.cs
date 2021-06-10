@@ -329,7 +329,8 @@ namespace GRYLibrary.Core.Miscellaneous
                 || type.FullName == "System.Reflection.Emit.GenericTypeParameterBuilder"
                 || type.FullName == "System.Reflection.Emit.TypeBuilder"
                 || type.FullName == "System.Reflection.TypeInfo"
-                || type.FullName == "System.RuntimeType";
+                || type.FullName == "System.RuntimeType"
+                || type.FullName == "System.Type";
         }
 
         public static bool IsAssignableFrom(object @object, Type genericTypeToCompare)

@@ -94,8 +94,7 @@ namespace GRYLibrary.Core.AdvancedXMLSerialysis
         }
         public object/*T*/ Deserialize(XmlReader reader)
         {
-            object result = this.GetSerializer().Deserialize(reader);
-            GRYSObject gRYSObject = (GRYSObject)result;
+            using GRYSObject gRYSObject = (GRYSObject)this.GetSerializer().Deserialize(reader);
             return gRYSObject.Get();
         }
 

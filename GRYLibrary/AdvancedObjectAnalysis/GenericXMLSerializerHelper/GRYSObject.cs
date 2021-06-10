@@ -14,10 +14,11 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.GenericXMLSerializerHelper
     /// <summary>
     /// Represents a GRYSerializedObject.
     /// </summary>
-    public class GRYSObject
+    public sealed class GRYSObject : IDisposable
     {
         public Guid RootObjectId { get; set; }
         public HashSet<FlatObject> Objects { get; set; }
+        private readonly IList<object> _DeserializedSets = new List<object>();
         public static GRYSObject Create(object @object, SerializationConfiguration serializationConfiguration)
         {
             Dictionary<object, FlatObject> dictionary = new(new ReferenceEqualsComparer());
@@ -165,6 +166,7 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.GenericXMLSerializerHelper
         }
         private class CreateObjectVisitor : IFlatObjectVisitor<object>
         {
+            public bool IsSet { get; private set; } = false;
             public object Handle(FlatComplexObject simplifiedObject)
             {
                 Type type = Type.GetType(simplifiedObject.TypeName);
@@ -183,10 +185,10 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.GenericXMLSerializerHelper
                 Type typeOfSimplifiedEnumerable = Type.GetType(simplifiedEnumerable.TypeName);
                 Type concreteTypeOfEnumerable;
                 /*if (EnumerableTools.TypeIsArrayGeneric(typeOfSimplifiedEnumerable))
-                {
-                    concreteTypeOfEnumerable = typeOfSimplifiedEnumerable;
-                }
-                else*/
+               {
+                   concreteTypeOfEnumerable = typeOfSimplifiedEnumerable;
+               }
+               else*/
                 if (EnumerableTools.TypeIsListGeneric(typeOfSimplifiedEnumerable))
                 {
                     concreteTypeOfEnumerable = typeof(List<>);
@@ -197,7 +199,8 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.GenericXMLSerializerHelper
                 }
                 else if (EnumerableTools.TypeIsSet(typeOfSimplifiedEnumerable))
                 {
-                    concreteTypeOfEnumerable = typeof(HashSet<>);
+                    concreteTypeOfEnumerable = typeof(GRYSet<>);
+                    this.IsSet = true;
                 }
                 else if (EnumerableTools.TypeIsDictionaryGeneric(typeOfSimplifiedEnumerable))
                 {
@@ -319,13 +322,34 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.GenericXMLSerializerHelper
             }).ToList();
             foreach (FlatObject simplified in sorted)
             {
-                deserializedObjects.Add(simplified.ObjectId, simplified.Accept(new CreateObjectVisitor()));
+                CreateObjectVisitor createObjectVisitor = new();
+                object createdObject = simplified.Accept(createObjectVisitor);
+                deserializedObjects.Add(simplified.ObjectId, createdObject);
+                if (createObjectVisitor.IsSet)
+                {
+                    this._DeserializedSets.Add(createdObject);
+                }
+
             }
             foreach (FlatObject simplified in sorted)
             {
                 simplified.Accept(new DeserializeVisitor(deserializedObjects));
             }
             return deserializedObjects[this.RootObjectId];
+        }
+
+        public void Dispose()
+        {
+            this.EnableSetFunctionality();
+        }
+
+        private void EnableSetFunctionality()
+        {
+            foreach (object grySet in this._DeserializedSets)
+            {
+                MethodInfo method = grySet.GetType().GetMethod(nameof(GRYSet<object>.DisallowDuplicatedElements), BindingFlags.NonPublic | BindingFlags.Instance);
+                method.Invoke(grySet, null);
+            }
         }
     }
 }
