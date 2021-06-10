@@ -12,6 +12,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Numerics;
+using System.Reflection;
 using System.Text;
 using System.Xml.Serialization;
 
@@ -210,10 +211,25 @@ namespace GRYLibrary.Tests.Testcases
             Assert.IsTrue(Core.Miscellaneous.Utilities.ObjectIsPrimitive(default(Guid)));
             Assert.IsTrue(Core.Miscellaneous.Utilities.ObjectIsPrimitive(default(int)));
             Assert.IsTrue(Core.Miscellaneous.Utilities.ObjectIsPrimitive(default(bool)));
+            Assert.IsFalse(Core.Miscellaneous.Utilities.ObjectIsPrimitive(new Exception()));
+            Assert.IsFalse(Core.Miscellaneous.Utilities.ObjectIsPrimitive(new Uri("https://example.org")));
             Assert.IsFalse(Core.Miscellaneous.Utilities.ObjectIsPrimitive(new ArraySegment<int>()));
             Assert.IsFalse(Core.Miscellaneous.Utilities.ObjectIsPrimitive(new ArrayList()));
             Assert.IsFalse(Core.Miscellaneous.Utilities.ObjectIsPrimitive(new LinkedList<int>()));
             Assert.IsFalse(Core.Miscellaneous.Utilities.ObjectIsPrimitive(new object()));
+            Assert.IsTrue(Core.Miscellaneous.Utilities.ObjectIsPrimitive(typeof(int)));
+            Assert.IsTrue(Core.Miscellaneous.Utilities.ObjectIsPrimitive(typeof(object)));
+            Assert.IsTrue(Core.Miscellaneous.Utilities.ObjectIsPrimitive(typeof(ArrayList)));
+            Assert.IsTrue(Core.Miscellaneous.Utilities.ObjectIsPrimitive(typeof(IList<>)));
+            Assert.IsTrue(Core.Miscellaneous.Utilities.ObjectIsPrimitive(typeof(IList<Func<Uri>>)));
+        }
+        [TestMethod]
+        public void TypeRepresentsTypeTest()
+        {
+            Assert.IsFalse(Core.Miscellaneous.Utilities.TypeRepresentsType(typeof( object)));
+            Assert.IsFalse(Core.Miscellaneous.Utilities.TypeRepresentsType(typeof(List<Type>)));
+            Assert.IsTrue(Core.Miscellaneous.Utilities.TypeRepresentsType(typeof(Type)));
+            Assert.IsTrue(Core.Miscellaneous.Utilities.TypeRepresentsType(typeof(TypeInfo)));
         }
         [TestMethod]
         public void IsDictionaryEntryTest()

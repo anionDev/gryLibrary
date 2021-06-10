@@ -16,7 +16,25 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper
         {
             try
             {
-                return propertyInfo.GetMethod.IsPublic && propertyInfo.SetMethod.IsPublic && !propertyInfo.GetMethod.IsStatic;
+                if (propertyInfo.GetMethod != null)
+                {
+                    if (!propertyInfo.GetMethod.IsPublic)
+                    {
+                        return false;
+                    }
+                    if (propertyInfo.GetMethod.IsStatic)
+                    {
+                        return false;
+                    }
+                }
+                if (propertyInfo.SetMethod != null)
+                {
+                    if (!propertyInfo.SetMethod.IsPublic)
+                    {
+                        return false;
+                    }
+                }
+                return true;
             }
             catch
             {
@@ -32,6 +50,7 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper
         {
             this.CustomComparer = new List<AbstractCustomComparer>() {
               new PrimitiveComparer(this),
+              new TypeComparer(this),
               new KeyValuePairComparer(this),
               new TupleComparer(this),
               new ListComparer(this),
@@ -47,7 +66,7 @@ namespace GRYLibrary.Core.AdvancedObjectAnalysis.PropertyEqualsCalculatorHelper
         }
         internal bool ArePending(object object1, object object2)
         {
-          return this.PendingComparisons.Contains(new ReferenceTuple(object1, object2));
+            return this.PendingComparisons.Contains(new ReferenceTuple(object1, object2));
         }
         internal void RemovePending(object object1, object object2)
         {
